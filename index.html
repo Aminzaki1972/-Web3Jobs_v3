@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -11,20 +12,1475 @@
 
     <meta
         name="description"
-        content="Web3Jobs - Connect with global Web3, blockchain and technology opportunities."
+        content="Web3Jobs - Discover Web3, blockchain and crypto career opportunities and connect with leading companies."
     >
 
     <meta
-        name="theme-color"
-        content="#06101d"
+        name="keywords"
+        content="Web3 jobs, blockchain jobs, crypto jobs, remote Web3 jobs, blockchain careers"
     >
 
-    <title>Web3Jobs - Global Web3 Careers</title>
-
-    <link
-        rel="stylesheet"
-        href="css/style.css"
+    <meta
+        name="author"
+        content="Web3Jobs"
     >
+
+    <title>
+        Web3Jobs - Find Your Future in Web3
+    </title>
+
+    <style>
+
+        /* =====================================================
+           ROOT
+        ===================================================== */
+
+        :root {
+
+            --bg: #06101d;
+            --bg2: #09182a;
+
+            --card: #0d1b2e;
+            --card2: #10233a;
+
+            --text: #f5f8ff;
+            --muted: #9db0c8;
+
+            --line: #1d3553;
+
+            --accent: #6ee7b7;
+            --blue: #60a5fa;
+
+            --danger: #fb7185;
+
+            --max-width: 1180px;
+
+        }
+
+
+        /* =====================================================
+           RESET
+        ===================================================== */
+
+        * {
+
+            box-sizing: border-box;
+
+            margin: 0;
+
+            padding: 0;
+
+        }
+
+
+        html {
+
+            scroll-behavior: smooth;
+
+        }
+
+
+        body {
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--bg),
+                    var(--bg2) 50%,
+                    #07111f
+                );
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+            line-height: 1.5;
+
+        }
+
+
+        a {
+
+            color: inherit;
+
+            text-decoration: none;
+
+        }
+
+
+        button,
+        input,
+        select {
+
+            font: inherit;
+
+        }
+
+
+        .container {
+
+            width: min(
+                var(--max-width),
+                92%
+            );
+
+            margin: auto;
+
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        header {
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 1000;
+
+            background:
+                rgba(6, 16, 29, .96);
+
+            border-bottom:
+                1px solid
+                var(--line);
+
+            backdrop-filter:
+                blur(14px);
+
+        }
+
+
+        .header-inner {
+
+            min-height: 72px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+        }
+
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            color: white;
+
+            font-size: 21px;
+
+            font-weight: 850;
+
+        }
+
+
+        .brand-logo {
+
+            width: 42px;
+
+            height: 42px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent),
+                    var(--blue)
+                );
+
+            color:
+                var(--bg);
+
+            font-size: 13px;
+
+            font-weight: 950;
+
+        }
+
+
+        nav {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 24px;
+
+        }
+
+
+        nav a {
+
+            color:
+                #b9c9dc;
+
+            font-size: 14px;
+
+            font-weight: 650;
+
+            transition: .2s;
+
+        }
+
+
+        nav a:hover {
+
+            color:
+                var(--accent);
+
+        }
+
+
+        .nav-buttons {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+
+        /* =====================================================
+           BUTTONS
+        ===================================================== */
+
+        .btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 7px;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            padding:
+                11px 17px;
+
+            cursor: pointer;
+
+            font-size: 13px;
+
+            font-weight: 800;
+
+            transition:
+                transform .2s,
+                opacity .2s,
+                border-color .2s;
+
+        }
+
+
+        .btn:hover {
+
+            transform:
+                translateY(-2px);
+
+        }
+
+
+        .btn-primary {
+
+            background:
+                var(--accent);
+
+            color:
+                var(--bg);
+
+        }
+
+
+        .btn-secondary {
+
+            background:
+                #13263e;
+
+            color:
+                #eaf1f8;
+
+            border:
+                1px solid
+                #294563;
+
+        }
+
+
+        .btn-secondary:hover {
+
+            border-color:
+                var(--blue);
+
+        }
+
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .hero {
+
+            position: relative;
+
+            overflow: hidden;
+
+            padding:
+                100px 0 90px;
+
+            text-align: center;
+
+        }
+
+
+        .hero::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 520px;
+
+            height: 520px;
+
+            left: 50%;
+
+            top: 20px;
+
+            transform:
+                translateX(-50%);
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(96,165,250,.12),
+                    transparent 68%
+                );
+
+            pointer-events: none;
+
+        }
+
+
+        .hero-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding:
+                7px 12px;
+
+            margin-bottom: 20px;
+
+            border:
+                1px solid
+                rgba(110,231,183,.2);
+
+            border-radius: 999px;
+
+            background:
+                rgba(110,231,183,.06);
+
+            color:
+                var(--accent);
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+        }
+
+
+        .hero h1 {
+
+            max-width: 850px;
+
+            margin:
+                0 auto 20px;
+
+            font-size:
+                clamp(40px, 7vw, 72px);
+
+            line-height: 1.05;
+
+            letter-spacing:
+                -2px;
+
+        }
+
+
+        .hero h1 span {
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--accent),
+                    var(--blue)
+                );
+
+            -webkit-background-clip:
+                text;
+
+            background-clip:
+                text;
+
+            color:
+                transparent;
+
+        }
+
+
+        .hero p {
+
+            max-width: 700px;
+
+            margin:
+                0 auto 30px;
+
+            color:
+                var(--muted);
+
+            font-size: 16px;
+
+            line-height: 1.8;
+
+        }
+
+
+        .hero-buttons {
+
+            display: flex;
+
+            justify-content: center;
+
+            flex-wrap: wrap;
+
+            gap: 12px;
+
+        }
+
+
+        /* =====================================================
+           SEARCH
+        ===================================================== */
+
+        .search-box {
+
+            position: relative;
+
+            z-index: 5;
+
+            max-width: 950px;
+
+            margin:
+                -25px auto 80px;
+
+            padding: 18px;
+
+            display: grid;
+
+            grid-template-columns:
+                1.5fr 1fr 1fr auto;
+
+            gap: 10px;
+
+            background:
+                var(--card);
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 18px;
+
+            box-shadow:
+                0 20px 50px
+                rgba(0,0,0,.2);
+
+        }
+
+
+        .search-box input,
+        .search-box select {
+
+            width: 100%;
+
+            padding:
+                13px;
+
+            border:
+                1px solid
+                #284563;
+
+            border-radius: 10px;
+
+            outline: none;
+
+            background:
+                #071423;
+
+            color:
+                white;
+
+        }
+
+
+        .search-box input:focus,
+        .search-box select:focus {
+
+            border-color:
+                var(--blue);
+
+        }
+
+
+        /* =====================================================
+           SECTION
+        ===================================================== */
+
+        section {
+
+            scroll-margin-top:
+                90px;
+
+        }
+
+
+        .section {
+
+            padding:
+                90px 0;
+
+        }
+
+
+        .section-heading {
+
+            max-width: 720px;
+
+            margin:
+                0 auto 45px;
+
+            text-align: center;
+
+        }
+
+
+        .section-heading span {
+
+            display: block;
+
+            margin-bottom: 10px;
+
+            color:
+                var(--accent);
+
+            font-size: 11px;
+
+            font-weight: 850;
+
+            letter-spacing:
+                1.8px;
+
+        }
+
+
+        .section-heading h2 {
+
+            margin-bottom: 12px;
+
+            font-size:
+                clamp(28px, 4vw, 42px);
+
+        }
+
+
+        .section-heading p {
+
+            color:
+                var(--muted);
+
+            font-size: 14px;
+
+            line-height: 1.8;
+
+        }
+
+
+        /* =====================================================
+           FEATURE CARDS
+        ===================================================== */
+
+        .features-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 18px;
+
+        }
+
+
+        .feature-card {
+
+            padding: 26px;
+
+            background:
+                var(--card);
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 17px;
+
+            transition:
+                transform .2s,
+                border-color .2s;
+
+        }
+
+
+        .feature-card:hover {
+
+            transform:
+                translateY(-5px);
+
+            border-color:
+                #355979;
+
+        }
+
+
+        .feature-icon {
+
+            width: 48px;
+
+            height: 48px;
+
+            display: grid;
+
+            place-items: center;
+
+            margin-bottom: 18px;
+
+            border-radius: 13px;
+
+            background:
+                #122a43;
+
+            border:
+                1px solid
+                #294966;
+
+            font-size: 22px;
+
+        }
+
+
+        .feature-card h3 {
+
+            margin-bottom: 8px;
+
+            font-size: 18px;
+
+        }
+
+
+        .feature-card p {
+
+            color:
+                var(--muted);
+
+            font-size: 12px;
+
+            line-height: 1.7;
+
+        }
+
+
+        /* =====================================================
+           STATS
+        ===================================================== */
+
+        .stats {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(4, 1fr);
+
+            gap: 15px;
+
+        }
+
+
+        .stat {
+
+            padding: 25px;
+
+            text-align: center;
+
+            background:
+                var(--card);
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 16px;
+
+        }
+
+
+        .stat strong {
+
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-size: 30px;
+
+        }
+
+
+        .stat span {
+
+            color:
+                var(--muted);
+
+            font-size: 11px;
+
+        }
+
+
+        /* =====================================================
+           ROADMAP
+        ===================================================== */
+
+        .roadmap {
+
+            position: relative;
+
+            padding:
+                100px 0;
+
+            overflow: hidden;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    rgba(13,27,46,.45),
+                    rgba(7,17,31,.75)
+                );
+
+            border-top:
+                1px solid
+                rgba(29,53,83,.55);
+
+            border-bottom:
+                1px solid
+                rgba(29,53,83,.55);
+
+        }
+
+
+        .roadmap-timeline {
+
+            position: relative;
+
+            max-width: 900px;
+
+            margin:
+                0 auto;
+
+            padding:
+                10px 0;
+
+        }
+
+
+        .roadmap-timeline::before {
+
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+
+            bottom: 0;
+
+            left: 50%;
+
+            width: 2px;
+
+            transform:
+                translateX(-50%);
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--accent),
+                    var(--blue),
+                    #1d3553
+                );
+
+            opacity: .55;
+
+        }
+
+
+        .roadmap-step {
+
+            position: relative;
+
+            display: grid;
+
+            grid-template-columns:
+                1fr 1fr;
+
+            gap: 70px;
+
+            min-height: 190px;
+
+            margin-bottom: 10px;
+
+        }
+
+
+        .roadmap-step:nth-child(odd) {
+
+            text-align: right;
+
+        }
+
+
+        .roadmap-step:nth-child(even) {
+
+            text-align: left;
+
+        }
+
+
+        .roadmap-number {
+
+            position: absolute;
+
+            top: 22px;
+
+            left: 50%;
+
+            z-index: 3;
+
+            width: 48px;
+
+            height: 48px;
+
+            display: grid;
+
+            place-items: center;
+
+            transform:
+                translateX(-50%);
+
+            border:
+                2px solid
+                #294563;
+
+            border-radius: 50%;
+
+            background:
+                #0d1b2e;
+
+            color:
+                #9db0c8;
+
+            font-size: 11px;
+
+            font-weight: 900;
+
+            box-shadow:
+                0 0 0 7px
+                rgba(6,16,29,.9);
+
+        }
+
+
+        .roadmap-step.active
+        .roadmap-number {
+
+            border-color:
+                var(--accent);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--accent),
+                    var(--blue)
+                );
+
+            color:
+                #06101d;
+
+        }
+
+
+        .roadmap-content {
+
+            position: relative;
+
+            padding: 22px;
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 17px;
+
+            background:
+                rgba(13,27,46,.88);
+
+            transition:
+                transform .2s,
+                border-color .2s;
+
+        }
+
+
+        .roadmap-step:nth-child(odd)
+        .roadmap-content {
+
+            grid-column: 1;
+
+        }
+
+
+        .roadmap-step:nth-child(even)
+        .roadmap-content {
+
+            grid-column: 2;
+
+        }
+
+
+        .roadmap-content:hover {
+
+            transform:
+                translateY(-3px);
+
+            border-color:
+                #355979;
+
+        }
+
+
+        .roadmap-status {
+
+            display: inline-block;
+
+            margin-bottom: 8px;
+
+            padding:
+                4px 8px;
+
+            border:
+                1px solid
+                rgba(96,165,250,.18);
+
+            border-radius: 999px;
+
+            background:
+                rgba(96,165,250,.07);
+
+            color:
+                #8dbdf3;
+
+            font-size: 8px;
+
+            font-weight: 850;
+
+            letter-spacing:
+                .8px;
+
+        }
+
+
+        .roadmap-step.active
+        .roadmap-status {
+
+            border-color:
+                rgba(110,231,183,.2);
+
+            background:
+                rgba(110,231,183,.07);
+
+            color:
+                var(--accent);
+
+        }
+
+
+        .roadmap-content h3 {
+
+            margin-bottom: 8px;
+
+            font-size: 18px;
+
+        }
+
+
+        .roadmap-content p {
+
+            color:
+                var(--muted);
+
+            font-size: 11px;
+
+            line-height: 1.7;
+
+        }
+
+
+        .roadmap-tags {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 5px;
+
+            margin-top: 14px;
+
+        }
+
+
+        .roadmap-step:nth-child(odd)
+        .roadmap-tags {
+
+            justify-content: flex-end;
+
+        }
+
+
+        .roadmap-tags span {
+
+            padding:
+                4px 7px;
+
+            border:
+                1px solid
+                #244866;
+
+            border-radius:
+                999px;
+
+            background:
+                #122a43;
+
+            color:
+                #9db0c8;
+
+            font-size: 8px;
+
+        }
+
+
+        /* =====================================================
+           CTA
+        ===================================================== */
+
+        .cta {
+
+            padding:
+                100px 0;
+
+            text-align: center;
+
+        }
+
+
+        .cta-box {
+
+            padding:
+                55px 25px;
+
+            border:
+                1px solid
+                #294563;
+
+            border-radius:
+                22px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0e2035,
+                    #0b192b
+                );
+
+        }
+
+
+        .cta-box h2 {
+
+            margin-bottom:
+                13px;
+
+            font-size:
+                clamp(28px, 5vw, 44px);
+
+        }
+
+
+        .cta-box p {
+
+            max-width:
+                650px;
+
+            margin:
+                0 auto 25px;
+
+            color:
+                var(--muted);
+
+            font-size:
+                14px;
+
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+
+            border-top:
+                1px solid
+                var(--line);
+
+            padding:
+                35px 0;
+
+        }
+
+
+        .footer-inner {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+        }
+
+
+        .footer-text {
+
+            color:
+                #71869e;
+
+            font-size: 11px;
+
+        }
+
+
+        .footer-links {
+
+            display: flex;
+
+            gap: 18px;
+
+        }
+
+
+        .footer-links a {
+
+            color:
+                #9db0c8;
+
+            font-size: 11px;
+
+        }
+
+
+        .footer-links a:hover {
+
+            color:
+                var(--accent);
+
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 900px) {
+
+            nav {
+
+                gap: 12px;
+
+            }
+
+
+            .features-grid {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+
+            .search-box {
+
+                grid-template-columns:
+                    1fr 1fr;
+
+            }
+
+
+            .search-box .btn {
+
+                grid-column:
+                    1 / -1;
+
+            }
+
+
+            .stats {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+        }
+
+
+        @media (max-width: 760px) {
+
+            nav {
+
+                display: none;
+
+            }
+
+
+            .hero {
+
+                padding:
+                    75px 0 70px;
+
+            }
+
+
+            .search-box {
+
+                grid-template-columns:
+                    1fr;
+
+                margin-top:
+                    -10px;
+
+            }
+
+
+            .search-box .btn {
+
+                grid-column:
+                    auto;
+
+            }
+
+
+            .features-grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .roadmap {
+
+                padding:
+                    70px 0;
+
+            }
+
+
+            .roadmap-timeline {
+
+                padding-left:
+                    22px;
+
+            }
+
+
+            .roadmap-timeline::before {
+
+                left:
+                    22px;
+
+                transform:
+                    translateX(-50%);
+
+            }
+
+
+            .roadmap-step {
+
+                display: block;
+
+                min-height: auto;
+
+                margin-bottom:
+                    20px;
+
+                padding-left:
+                    30px;
+
+            }
+
+
+            .roadmap-step:nth-child(odd),
+            .roadmap-step:nth-child(even) {
+
+                text-align:
+                    left;
+
+            }
+
+
+            .roadmap-number {
+
+                left: 0;
+
+                top: 20px;
+
+                width: 42px;
+
+                height: 42px;
+
+            }
+
+
+            .roadmap-step:nth-child(odd)
+            .roadmap-content,
+            .roadmap-step:nth-child(even)
+            .roadmap-content {
+
+                display: block;
+
+                width: 100%;
+
+            }
+
+
+            .roadmap-step:nth-child(odd)
+            .roadmap-tags {
+
+                justify-content:
+                    flex-start;
+
+            }
+
+
+            .footer-inner {
+
+                flex-direction:
+                    column;
+
+                text-align:
+                    center;
+
+            }
+
+        }
+
+
+        @media (max-width: 520px) {
+
+            .stats {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+
+            .hero h1 {
+
+                letter-spacing:
+                    -1px;
+
+            }
+
+
+            .hero p {
+
+                font-size:
+                    14px;
+
+            }
+
+
+            .hero-buttons {
+
+                flex-direction:
+                    column;
+
+            }
+
+
+            .hero-buttons .btn {
+
+                width:
+                    100%;
+
+            }
+
+        }
+
+    </style>
 
 </head>
 
@@ -49,80 +1505,53 @@
                 W3
             </span>
 
-            <span>
-                Web3Jobs
-            </span>
+            Web3Jobs
 
         </a>
 
 
-        <nav class="main-nav">
+        <nav>
 
-            <a
-                href="index.html"
-                class="active"
-            >
+            <a href="#home">
                 Home
             </a>
 
-            <a href="jobs.html">
-                Find Jobs
+            <a href="#jobs">
+                Jobs
             </a>
 
-            <a href="companies.html">
+            <a href="#companies">
                 Companies
             </a>
 
-            <a href="login.html">
-                Login
+            <a href="#features">
+                Features
             </a>
 
-            <a
-                href="register.html"
-                class="nav-button"
-            >
-                Get Started
+            <a href="#roadmap">
+                Roadmap
             </a>
 
         </nav>
 
 
-        <button
-            type="button"
-            class="mobile-menu-button"
-            id="mobileMenuButton"
-            aria-label="Open menu"
-        >
-            ☰
-        </button>
+        <div class="nav-buttons">
 
-    </div>
+            <a
+                href="login.html"
+                class="btn btn-secondary"
+            >
+                Login
+            </a>
 
+            <a
+                href="signup.html"
+                class="btn btn-primary"
+            >
+                Get Started
+            </a>
 
-    <div
-        class="mobile-menu"
-        id="mobileMenu"
-    >
-
-        <a href="index.html">
-            Home
-        </a>
-
-        <a href="jobs.html">
-            Find Jobs
-        </a>
-
-        <a href="companies.html">
-            Companies
-        </a>
-
-        <a href="login.html">
-            Login
-        </a>
-
-        <a href="register.html">
-            Get Started
-        </a>
+        </div>
 
     </div>
 
@@ -131,31 +1560,26 @@
 
 
 <!-- =====================================================
-     MAIN
-===================================================== -->
-
-<main>
-
-
-<!-- =====================================================
      HERO
 ===================================================== -->
 
-<section class="hero">
+<main id="home">
 
-    <div class="container hero-content">
+    <section class="hero">
 
-
-        <div class="hero-text">
+        <div class="container">
 
             <div class="hero-badge">
-                🌐 The Global Web3 Career Platform
+
+                ✦ The Future of Web3 Careers
+
             </div>
 
 
             <h1>
 
                 Find Your Future
+                <br>
 
                 <span>
                     in Web3
@@ -166,52 +1590,136 @@
 
             <p>
 
-                Discover Web3, blockchain and emerging
-                technology opportunities from innovative
-                companies around the world.
+                Discover Web3, blockchain and crypto
+                career opportunities. Connect with innovative
+                companies and build the future of the
+                decentralized world.
 
             </p>
 
 
-            <div class="hero-actions">
+            <div class="hero-buttons">
 
                 <a
-                    href="jobs.html"
+                    href="#jobs"
                     class="btn btn-primary"
                 >
+
                     🔎 Explore Jobs
+
                 </a>
 
 
                 <a
-                    href="register.html"
+                    href="signup.html"
                     class="btn btn-secondary"
                 >
+
                     Create Account
+
                 </a>
 
             </div>
 
+        </div>
 
-            <div class="hero-stats">
+    </section>
 
-                <div>
+
+
+    <!-- =================================================
+         SEARCH
+    ================================================= -->
+
+    <div class="container">
+
+        <div class="search-box">
+
+            <input
+                id="jobSearch"
+                type="text"
+                placeholder="Job title, skill or keyword"
+            >
+
+
+            <input
+                id="locationSearch"
+                type="text"
+                placeholder="Location / Remote"
+            >
+
+
+            <select id="jobType">
+
+                <option value="">
+                    Any Job Type
+                </option>
+
+                <option>
+                    Full-time
+                </option>
+
+                <option>
+                    Part-time
+                </option>
+
+                <option>
+                    Contract
+                </option>
+
+                <option>
+                    Freelance
+                </option>
+
+                <option>
+                    Internship
+                </option>
+
+            </select>
+
+
+            <a
+                href="jobs.html"
+                class="btn btn-primary"
+            >
+
+                Search
+
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =================================================
+         STATS
+    ================================================= -->
+
+    <section class="section">
+
+        <div class="container">
+
+            <div class="stats">
+
+                <div class="stat">
 
                     <strong>
-                        0
+                        1K+
                     </strong>
 
                     <span>
-                        Jobs
+                        Web3 Opportunities
                     </span>
 
                 </div>
 
 
-                <div>
+                <div class="stat">
 
                     <strong>
-                        0
+                        500+
                     </strong>
 
                     <span>
@@ -221,38 +1729,23 @@
                 </div>
 
 
-                <div>
+                <div class="stat">
 
                     <strong>
-                        🌍
+                        50+
                     </strong>
 
                     <span>
-                        Global
+                        Countries
                     </span>
 
                 </div>
 
-            </div>
 
-        </div>
-
-
-
-        <!-- HERO CARD -->
-
-        <div class="hero-card">
-
-            <div class="hero-card-header">
-
-                <div class="mini-logo">
-                    W3
-                </div>
-
-                <div>
+                <div class="stat">
 
                     <strong>
-                        Latest Web3 Jobs
+                        24/7
                     </strong>
 
                     <span>
@@ -263,710 +1756,713 @@
 
             </div>
 
-
-            <div class="hero-job">
-
-                <div class="job-icon">
-                    ⛓️
-                </div>
-
-                <div class="job-info">
-
-                    <strong>
-                        Blockchain Developer
-                    </strong>
-
-                    <span>
-                        Web3 Company
-                    </span>
-
-                </div>
-
-                <span class="job-tag">
-                    Remote
-                </span>
-
-            </div>
-
-
-            <div class="hero-job">
-
-                <div class="job-icon">
-                    💻
-                </div>
-
-                <div class="job-info">
-
-                    <strong>
-                        Smart Contract Engineer
-                    </strong>
-
-                    <span>
-                        Blockchain Startup
-                    </span>
-
-                </div>
-
-                <span class="job-tag">
-                    Full-time
-                </span>
-
-            </div>
-
-
-            <div class="hero-job">
-
-                <div class="job-icon">
-                    🚀
-                </div>
-
-                <div class="job-info">
-
-                    <strong>
-                        Web3 Product Manager
-                    </strong>
-
-                    <span>
-                        Global Web3 Team
-                    </span>
-
-                </div>
-
-                <span class="job-tag">
-                    Remote
-                </span>
-
-            </div>
-
         </div>
 
-    </div>
+    </section>
 
-</section>
 
 
+    <!-- =================================================
+         FEATURES
+    ================================================= -->
 
-<!-- =====================================================
-     SEARCH
-===================================================== -->
+    <section
+        class="section"
+        id="features"
+    >
 
-<section class="search-section">
+        <div class="container">
 
-    <div class="container">
+            <div class="section-heading">
 
-        <form
-            class="search-box"
-            id="searchForm"
-        >
-
-            <div>
-
-                <span class="search-icon">
-                    🔎
-                </span>
-
-                <input
-                    type="text"
-                    id="keyword"
-                    placeholder="Job title, skill or keyword"
-                >
-
-            </div>
-
-
-            <div>
-
-                <span class="search-icon">
-                    📍
-                </span>
-
-                <input
-                    type="text"
-                    id="location"
-                    placeholder="Location or Remote"
-                >
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="btn btn-primary"
-            >
-                Search Jobs
-            </button>
-
-        </form>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     LATEST JOBS
-===================================================== -->
-
-<section class="jobs-section">
-
-    <div class="container">
-
-        <div class="section-heading">
-
-            <span>
-                OPPORTUNITIES
-            </span>
-
-            <h2>
-                Latest Web3 Jobs
-            </h2>
-
-            <p>
-                Explore the latest opportunities
-                across the Web3 ecosystem.
-            </p>
-
-        </div>
-
-
-        <div class="job-grid">
-
-
-            <article class="job-card">
-
-                <div class="job-card-top">
-
-                    <div class="company-logo">
-                        W3
-                    </div>
-
-                    <div>
-
-                        <h3>
-                            Blockchain Developer
-                        </h3>
-
-                        <p>
-                            Web3 Company
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="job-tags">
-
-                    <span>
-                        Remote
-                    </span>
-
-                    <span>
-                        Full-time
-                    </span>
-
-                    <span>
-                        Blockchain
-                    </span>
-
-                </div>
-
-
-                <div class="job-card-bottom">
-
-                    <span>
-                        Global
-                    </span>
-
-                    <a href="jobs.html">
-                        View Job →
-                    </a>
-
-                </div>
-
-            </article>
-
-
-
-            <article class="job-card">
-
-                <div class="job-card-top">
-
-                    <div class="company-logo">
-                        ◈
-                    </div>
-
-                    <div>
-
-                        <h3>
-                            Smart Contract Engineer
-                        </h3>
-
-                        <p>
-                            Blockchain Startup
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="job-tags">
-
-                    <span>
-                        Remote
-                    </span>
-
-                    <span>
-                        Contract
-                    </span>
-
-                    <span>
-                        Solidity
-                    </span>
-
-                </div>
-
-
-                <div class="job-card-bottom">
-
-                    <span>
-                        Worldwide
-                    </span>
-
-                    <a href="jobs.html">
-                        View Job →
-                    </a>
-
-                </div>
-
-            </article>
-
-
-
-            <article class="job-card">
-
-                <div class="job-card-top">
-
-                    <div class="company-logo">
-                        ⚡
-                    </div>
-
-                    <div>
-
-                        <h3>
-                            Web3 Product Manager
-                        </h3>
-
-                        <p>
-                            Web3 Technology
-                        </p>
-
-                    </div>
-
-                </div>
-
-
-                <div class="job-tags">
-
-                    <span>
-                        Remote
-                    </span>
-
-                    <span>
-                        Full-time
-                    </span>
-
-                    <span>
-                        Product
-                    </span>
-
-                </div>
-
-
-                <div class="job-card-bottom">
-
-                    <span>
-                        Global
-                    </span>
-
-                    <a href="jobs.html">
-                        View Job →
-                    </a>
-
-                </div>
-
-            </article>
-
-
-        </div>
-
-
-        <div class="section-button">
-
-            <a
-                href="jobs.html"
-                class="btn btn-secondary"
-            >
-                View All Jobs →
-            </a>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     TWO JOURNEYS
-===================================================== -->
-
-<section class="journeys">
-
-    <div class="container">
-
-        <div class="section-heading">
-
-            <span>
-                BUILT FOR EVERYONE
-            </span>
-
-            <h2>
-                One Platform. Two Journeys.
-            </h2>
-
-            <p>
-                Whether you're looking for your next
-                opportunity or your next great hire.
-            </p>
-
-        </div>
-
-
-        <div class="journey-grid">
-
-
-            <article class="journey-card">
-
-                <div class="journey-icon">
-                    👤
-                </div>
-
-                <h3>
-                    For Job Seekers
-                </h3>
-
-                <p>
-                    Build your professional profile,
-                    discover opportunities and connect
-                    with Web3 companies.
-                </p>
-
-                <a
-                    href="register.html"
-                    class="btn btn-primary"
-                >
-                    Find Your Next Job
-                </a>
-
-            </article>
-
-
-
-            <article class="journey-card">
-
-                <div class="journey-icon">
-                    🏢
-                </div>
-
-                <h3>
-                    For Companies
-                </h3>
-
-                <p>
-                    Build your company profile,
-                    publish jobs and find talented
-                    professionals for your team.
-                </p>
-
-                <a
-                    href="register.html"
-                    class="btn btn-secondary"
-                >
-                    Find Great Talent
-                </a>
-
-            </article>
-
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     WHY WEB3JOBS
-===================================================== -->
-
-<section class="features">
-
-    <div class="container">
-
-        <div class="section-heading">
-
-            <span>
-                WHY WEB3JOBS
-            </span>
-
-            <h2>
-                Built for the Future of Work
-            </h2>
-
-            <p>
-                Everything you need to navigate
-                the growing Web3 job market.
-            </p>
-
-        </div>
-
-
-        <div class="feature-grid">
-
-
-            <article class="feature-card">
-
-                <div class="feature-icon">
-                    🌍
-                </div>
-
-                <h3>
-                    Global Opportunities
-                </h3>
-
-                <p>
-                    Discover opportunities from
-                    Web3 companies around the world.
-                </p>
-
-            </article>
-
-
-
-            <article class="feature-card">
-
-                <div class="feature-icon">
-                    🎯
-                </div>
-
-                <h3>
-                    Find the Right Match
-                </h3>
-
-                <p>
-                    Search jobs based on skills,
-                    roles, locations and work types.
-                </p>
-
-            </article>
-
-
-
-            <article class="feature-card">
-
-                <div class="feature-icon">
-                    🔐
-                </div>
-
-                <h3>
-                    Professional Profiles
-                </h3>
-
-                <p>
-                    Create a professional presence
-                    designed for the Web3 ecosystem.
-                </p>
-
-            </article>
-
-
-
-            <article class="feature-card">
-
-                <div class="feature-icon">
-                    🚀
-                </div>
-
-                <h3>
-                    Built to Scale
-                </h3>
-
-                <p>
-                    A modern platform designed
-                    for the future of global work.
-                </p>
-
-            </article>
-
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     ROADMAP
-===================================================== -->
-
-<section class="roadmap">
-
-    <div class="container">
-
-        <div class="section-heading">
-
-            <span>
-                OUR VISION
-            </span>
-
-            <h2>
-                Building the Future Together
-            </h2>
-
-            <p>
-                Web3Jobs is continuously evolving
-                to create a better global career ecosystem.
-            </p>
-
-        </div>
-
-
-        <div class="roadmap-grid">
-
-
-            <div class="roadmap-item">
-
-                <span class="roadmap-number">
-                    01
-                </span>
-
-                <h3>
-                    Global Job Marketplace
-                </h3>
-
-                <p>
-                    Connect Web3 professionals
-                    with companies worldwide.
-                </p>
-
-            </div>
-
-
-
-            <div class="roadmap-item">
-
-                <span class="roadmap-number">
-                    02
-                </span>
-
-                <h3>
-                    Smart Matching
-                </h3>
-
-                <p>
-                    Improve job discovery through
-                    intelligent recommendations.
-                </p>
-
-            </div>
-
-
-
-            <div class="roadmap-item">
-
-                <span class="roadmap-number">
-                    03
-                </span>
-
-                <h3>
-                    Global Community
-                </h3>
-
-                <p>
-                    Build a professional ecosystem
-                    for the next generation of work.
-                </p>
-
-            </div>
-
-
-        </div>
-
-    </div>
-
-</section>
-
-
-
-<!-- =====================================================
-     CTA
-===================================================== -->
-
-<section class="cta">
-
-    <div class="container">
-
-        <div class="cta-box">
-
-            <div>
-
-                <span class="cta-label">
-                    START YOUR JOURNEY
+                <span>
+                    WHY WEB3JOBS
                 </span>
 
                 <h2>
-                    Ready to Build Your Web3 Future?
+                    Everything You Need
+                    to Build Your Web3 Career
                 </h2>
 
                 <p>
-                    Join Web3Jobs and discover
-                    your next opportunity.
+
+                    A modern platform designed to connect
+                    Web3 talent with companies building
+                    the decentralized future.
+
                 </p>
 
             </div>
 
 
-            <div class="cta-actions">
+            <div class="features-grid">
 
-                <a
-                    href="jobs.html"
-                    class="btn btn-primary"
-                >
-                    Explore Jobs
-                </a>
 
-                <a
-                    href="register.html"
-                    class="btn btn-secondary"
-                >
-                    Create Account
-                </a>
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🔎
+                    </div>
+
+                    <h3>
+                        Discover Opportunities
+                    </h3>
+
+                    <p>
+
+                        Search and discover Web3,
+                        blockchain and crypto jobs
+                        from companies around the world.
+
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        👤
+                    </div>
+
+                    <h3>
+                        Professional Profiles
+                    </h3>
+
+                    <p>
+
+                        Build a professional profile
+                        showcasing your skills, experience,
+                        portfolio and Web3 expertise.
+
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🏢
+                    </div>
+
+                    <h3>
+                        Connect With Companies
+                    </h3>
+
+                    <p>
+
+                        Discover innovative Web3 companies
+                        and connect with teams building
+                        the next generation of technology.
+
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🔖
+                    </div>
+
+                    <h3>
+                        Save Opportunities
+                    </h3>
+
+                    <p>
+
+                        Save interesting opportunities
+                        and easily return to them whenever
+                        you are ready to apply.
+
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🎯
+                    </div>
+
+                    <h3>
+                        Smart Recruitment
+                    </h3>
+
+                    <p>
+
+                        Give companies the tools they need
+                        to discover and manage qualified
+                        Web3 talent.
+
+                    </p>
+
+                </div>
+
+
+                <div class="feature-card">
+
+                    <div class="feature-icon">
+                        🌎
+                    </div>
+
+                    <h3>
+                        Global Web3 Community
+                    </h3>
+
+                    <p>
+
+                        Connect talent and companies across
+                        countries, ecosystems and time zones.
+
+                    </p>
+
+                </div>
 
             </div>
 
         </div>
 
-    </div>
+    </section>
 
-</section>
 
+
+    <!-- =================================================
+         ROADMAP
+    ================================================= -->
+
+    <section
+        class="roadmap"
+        id="roadmap"
+    >
+
+        <div class="container">
+
+            <div class="section-heading">
+
+                <span>
+                    OUR ROADMAP
+                </span>
+
+                <h2>
+                    Building the Future
+                    of Web3 Careers
+                </h2>
+
+                <p>
+
+                    Our roadmap outlines the evolution
+                    of Web3Jobs from a modern job platform
+                    into a global Web3 employment ecosystem.
+
+                </p>
+
+            </div>
+
+
+            <div class="roadmap-timeline">
+
+
+                <!-- 01 -->
+
+                <div class="roadmap-step active">
+
+                    <div class="roadmap-number">
+                        01
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            CURRENT
+                        </span>
+
+                        <h3>
+                            Foundation
+                        </h3>
+
+                        <p>
+
+                            Launch the core Web3Jobs platform
+                            with a professional interface,
+                            job discovery, authentication
+                            and secure infrastructure.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Platform
+                            </span>
+
+                            <span>
+                                Jobs
+                            </span>
+
+                            <span>
+                                Authentication
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 02 -->
+
+                <div class="roadmap-step">
+
+                    <div class="roadmap-number">
+                        02
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            NEXT
+                        </span>
+
+                        <h3>
+                            Profiles
+                        </h3>
+
+                        <p>
+
+                            Build powerful profiles for
+                            individuals and companies,
+                            including skills, experience,
+                            portfolios and professional links.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Individuals
+                            </span>
+
+                            <span>
+                                Companies
+                            </span>
+
+                            <span>
+                                Profiles
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 03 -->
+
+                <div class="roadmap-step">
+
+                    <div class="roadmap-number">
+                        03
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            PLANNED
+                        </span>
+
+                        <h3>
+                            Smart Dashboards
+                        </h3>
+
+                        <p>
+
+                            Introduce intelligent dashboards
+                            that automatically adapt to the
+                            account type and provide the
+                            right tools for each user.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Dashboard
+                            </span>
+
+                            <span>
+                                Analytics
+                            </span>
+
+                            <span>
+                                Management
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 04 -->
+
+                <div class="roadmap-step">
+
+                    <div class="roadmap-number">
+                        04
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            PLANNED
+                        </span>
+
+                        <h3>
+                            Recruitment System
+                        </h3>
+
+                        <p>
+
+                            Create a complete recruitment
+                            workflow connecting companies
+                            with qualified Web3 talent.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Applications
+                            </span>
+
+                            <span>
+                                Hiring
+                            </span>
+
+                            <span>
+                                Recruitment
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 05 -->
+
+                <div class="roadmap-step">
+
+                    <div class="roadmap-number">
+                        05
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            PLANNED
+                        </span>
+
+                        <h3>
+                            Web3 Features
+                        </h3>
+
+                        <p>
+
+                            Expand the platform with
+                            blockchain skills, Web3 categories,
+                            ecosystem filters and specialized
+                            talent discovery.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Blockchain
+                            </span>
+
+                            <span>
+                                Web3
+                            </span>
+
+                            <span>
+                                Remote
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 06 -->
+
+                <div class="roadmap-step">
+
+                    <div class="roadmap-number">
+                        06
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            PLANNED
+                        </span>
+
+                        <h3>
+                            Trust & Verification
+                        </h3>
+
+                        <p>
+
+                            Improve platform trust with
+                            company verification, reporting,
+                            spam protection and quality controls.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Verification
+                            </span>
+
+                            <span>
+                                Security
+                            </span>
+
+                            <span>
+                                Trust
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 07 -->
+
+                <div class="roadmap-step">
+
+                    <div class="roadmap-number">
+                        07
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            PLANNED
+                        </span>
+
+                        <h3>
+                            Global Expansion
+                        </h3>
+
+                        <p>
+
+                            Expand Web3Jobs globally with
+                            multilingual support, international
+                            opportunities and global SEO.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Global
+                            </span>
+
+                            <span>
+                                Languages
+                            </span>
+
+                            <span>
+                                SEO
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 08 -->
+
+                <div class="roadmap-step">
+
+                    <div class="roadmap-number">
+                        08
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            FUTURE
+                        </span>
+
+                        <h3>
+                            Monetization
+                        </h3>
+
+                        <p>
+
+                            Introduce sustainable business models
+                            including premium job listings,
+                            featured companies and employer
+                            subscriptions.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Premium
+                            </span>
+
+                            <span>
+                                Employers
+                            </span>
+
+                            <span>
+                                Business
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- 09 -->
+
+                <div class="roadmap-step">
+
+                    <div class="roadmap-number">
+                        09
+                    </div>
+
+                    <div class="roadmap-content">
+
+                        <span class="roadmap-status">
+                            VISION
+                        </span>
+
+                        <h3>
+                            Web3Jobs Ecosystem
+                        </h3>
+
+                        <p>
+
+                            Transform Web3Jobs into a global
+                            employment ecosystem connecting
+                            talent, companies, opportunities,
+                            recruitment and the wider Web3 community.
+
+                        </p>
+
+                        <div class="roadmap-tags">
+
+                            <span>
+                                Ecosystem
+                            </span>
+
+                            <span>
+                                Community
+                            </span>
+
+                            <span>
+                                Web3
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         CTA
+    ================================================= -->
+
+    <section class="cta">
+
+        <div class="container">
+
+            <div class="cta-box">
+
+                <h2>
+                    Build Your Future in Web3
+                </h2>
+
+                <p>
+
+                    Whether you are looking for your next
+                    opportunity or building the next Web3
+                    company, Web3Jobs is built to connect you
+                    with the right people.
+
+                </p>
+
+
+                <div class="hero-buttons">
+
+                    <a
+                        href="signup.html"
+                        class="btn btn-primary"
+                    >
+
+                        Get Started
+
+                    </a>
+
+
+                    <a
+                        href="jobs.html"
+                        class="btn btn-secondary"
+                    >
+
+                        Explore Jobs
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
 
 </main>
 
@@ -978,224 +2474,39 @@
 
 <footer>
 
-    <div class="container footer-content">
+    <div class="container footer-inner">
 
+        <div class="footer-text">
 
-        <div>
-
-            <a
-                href="index.html"
-                class="brand"
-            >
-
-                <span class="brand-logo">
-                    W3
-                </span>
-
-                <span>
-                    Web3Jobs
-                </span>
-
-            </a>
-
-            <p>
-                Connecting Web3 talent with
-                global opportunities.
-            </p>
+            © 2026 Web3Jobs.
+            All rights reserved.
 
         </div>
 
 
         <div class="footer-links">
 
-            <a href="jobs.html">
-                Jobs
+            <a href="#home">
+                Home
             </a>
 
-            <a href="companies.html">
-                Companies
+            <a href="#features">
+                Features
+            </a>
+
+            <a href="#roadmap">
+                Roadmap
             </a>
 
             <a href="login.html">
                 Login
             </a>
 
-            <a href="register.html">
-                Register
-            </a>
-
         </div>
 
     </div>
 
-
-    <div class="container footer-bottom">
-
-        <span>
-            © 2026 Web3Jobs. All rights reserved.
-        </span>
-
-        <span>
-            Web3Jobs_3
-        </span>
-
-    </div>
-
 </footer>
-
-
-
-<!-- =====================================================
-     JAVASCRIPT
-===================================================== -->
-
-<script>
-
-(function () {
-
-    "use strict";
-
-
-    /* ================================================
-       MOBILE MENU
-    ================================================= */
-
-    const menuButton =
-        document.getElementById(
-            "mobileMenuButton"
-        );
-
-    const mobileMenu =
-        document.getElementById(
-            "mobileMenu"
-        );
-
-
-    if (
-        menuButton &&
-        mobileMenu
-    ) {
-
-        menuButton.addEventListener(
-            "click",
-            function () {
-
-                mobileMenu.classList.toggle(
-                    "show"
-                );
-
-            }
-        );
-
-
-        mobileMenu
-            .querySelectorAll("a")
-            .forEach(
-                function (link) {
-
-                    link.addEventListener(
-                        "click",
-                        function () {
-
-                            mobileMenu.classList.remove(
-                                "show"
-                            );
-
-                        }
-                    );
-
-                }
-            );
-
-    }
-
-
-
-    /* ================================================
-       JOB SEARCH
-    ================================================= */
-
-    const searchForm =
-        document.getElementById(
-            "searchForm"
-        );
-
-
-    if (searchForm) {
-
-        searchForm.addEventListener(
-            "submit",
-            function (event) {
-
-                event.preventDefault();
-
-
-                const keyword =
-                    document
-                        .getElementById(
-                            "keyword"
-                        )
-                        .value
-                        .trim();
-
-
-                const location =
-                    document
-                        .getElementById(
-                            "location"
-                        )
-                        .value
-                        .trim();
-
-
-                const params =
-                    new URLSearchParams();
-
-
-                if (keyword) {
-
-                    params.set(
-                        "search",
-                        keyword
-                    );
-
-                }
-
-
-                if (location) {
-
-                    params.set(
-                        "location",
-                        location
-                    );
-
-                }
-
-
-                const query =
-                    params.toString();
-
-
-                if (query) {
-
-                    window.location.href =
-                        "jobs.html?" + query;
-
-                } else {
-
-                    window.location.href =
-                        "jobs.html";
-
-                }
-
-            }
-        );
-
-    }
-
-})();
-
-</script>
 
 
 </body>
