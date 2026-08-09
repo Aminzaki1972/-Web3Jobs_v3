@@ -7,6 +7,7 @@
 
 "use strict";
 
+
 /* =========================================================
    SUPABASE
    ========================================================= */
@@ -23,7 +24,7 @@ function initializeAuthSupabase() {
     if (
         !window.Web3JobsSupabase ||
         typeof window.Web3JobsSupabase.getSupabaseClient !==
-        "function"
+            "function"
     ) {
 
         console.error(
@@ -84,13 +85,16 @@ function authMessage(
                 position: "fixed",
                 top: "20px",
                 right: "20px",
+                left: "20px",
+                margin: "auto",
                 zIndex: "999999",
                 maxWidth: "360px",
                 padding: "14px 18px",
                 borderRadius: "10px",
                 fontSize: "14px",
                 boxShadow:
-                    "0 8px 25px rgba(0,0,0,.2)"
+                    "0 8px 25px rgba(0,0,0,.2)",
+                textAlign: "center"
             }
         );
 
@@ -186,6 +190,11 @@ async function getCurrentUser() {
 
 
         if (error) {
+
+            console.error(
+                "Unable to get current user:",
+                error
+            );
 
             return null;
         }
@@ -365,7 +374,7 @@ async function getAccountType(
 
         return String(
             profile.account_type
-        ).toLowerCase();
+        ).trim().toLowerCase();
     }
 
 
@@ -375,8 +384,11 @@ async function getAccountType(
 
     return String(
         metadata.account_type ||
+        metadata.user_type ||
         "individual"
-    ).toLowerCase();
+    )
+        .trim()
+        .toLowerCase();
 }
 
 
@@ -596,11 +608,6 @@ async function signUpUser() {
         }
 
 
-        /*
-         * User created but email
-         * confirmation may be required.
-         */
-
         if (
             data &&
             data.user &&
@@ -615,11 +622,6 @@ async function signUpUser() {
             return;
         }
 
-
-        /*
-         * Create profile immediately
-         * when session exists.
-         */
 
         if (
             data &&
@@ -640,6 +642,10 @@ async function signUpUser() {
         );
 
 
+        /*
+         * Redirect after 2 seconds.
+         */
+
         setTimeout(
             () => {
 
@@ -648,7 +654,7 @@ async function signUpUser() {
                 );
 
             },
-            700
+            2000
         );
 
 
@@ -793,10 +799,15 @@ async function loginUser() {
 
 
         authMessage(
-            "Login successful.",
+            "Login successful. Redirecting...",
             "success"
         );
 
+
+        /*
+         * IMPORTANT:
+         * Wait exactly 2 seconds before redirect.
+         */
 
         setTimeout(
             () => {
@@ -806,9 +817,8 @@ async function loginUser() {
                 );
 
             },
-            500
+            2000
         );
-
 
     } catch (error) {
 
@@ -1208,7 +1218,8 @@ async function initializeAuth() {
                 await createUserProfile(
                     user,
                     metadata.full_name || "",
-                    metadata.account_type || "individual"
+                    metadata.account_type ||
+                    "individual"
                 );
             }
 
@@ -1237,4 +1248,4 @@ if (
 } else {
 
     initializeAuth();
-}
+               }
