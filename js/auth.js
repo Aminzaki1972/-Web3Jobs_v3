@@ -2,7 +2,17 @@
    Web3Jobs v3
    File: js/auth.js
    Authentication System
-   Sign Up / Login / Logout / Current User
+   ---------------------------------------------------------
+   Features:
+   - Sign Up
+   - Email Confirmation
+   - Login
+   - Logout
+   - Current User
+   - Individual / Company detection
+   - Correct dashboard redirect
+   - Prevent unconfirmed users from entering dashboards
+   - Arabic / English error messages
    ========================================================= */
 
 "use strict";
@@ -15,153 +25,85 @@ let authSupabase = null;
 
 
 /* =========================================================
-   INITIALIZE AUTH SUPABASE
+   INITIALIZE SUPABASE
    ========================================================= */
 
 function initializeAuthSupabase() {
 
+    if (authSupabase) {
+        return authSupabase;
+    }
+
+    /*
+     * Preferred:
+     * Use the global Supabase client created by js/supabase.js
+     */
+
+    if (window.supabaseClient) {
+
+        authSupabase = window.supabaseClient;
+
+        return authSupabase;
+    }
+
+    /*
+     * Fallback:
+     * If supabase.js exposes "supabase"
+     */
+
     if (
-        !window.Web3JobsSupabase ||
-        typeof window.Web3JobsSupabase.getSupabaseClient !== "function"
+        typeof window.supabase !== "undefined" &&
+        window.supabase &&
+        typeof window.supabase.auth === "object"
     ) {
 
-        console.error(
-            "Web3JobsSupabase is not available."
-        );
+        authSupabase = window.supabase;
 
-        return false;
+        return authSupabase;
     }
 
-    authSupabase =
-        window.Web3JobsSupabase.getSupabaseClient();
-
-    if (!authSupabase) {
-
-        console.error(
-            "Unable to initialize Supabase client."
-        );
-
-        return false;
-    }
-
-    return true;
-}
-
-
-/* =========================================================
-   MESSAGE SYSTEM
-   ========================================================= */
-
-function authMessage(
-    message,
-    type = "info"
-) {
-
-    let box =
-        document.getElementById(
-            "auth-message"
-        );
-
-    if (!box) {
-
-        box =
-            document.createElement(
-                "div"
-            );
-
-        box.id =
-            "auth-message";
-
-        Object.assign(
-            box.style,
-            {
-                position: "fixed",
-                top: "20px",
-                right: "20px",
-                left: "20px",
-                margin: "auto",
-                zIndex: "999999",
-                maxWidth: "400px",
-                padding: "14px 18px",
-                borderRadius: "10px",
-                fontSize: "14px",
-                boxShadow:
-                    "0 8px 25px rgba(0,0,0,.2)"
-            }
-        );
-
-        document.body.appendChild(
-            box
-        );
-    }
-
-    box.textContent =
-        message;
-
-    if (type === "success") {
-
-        box.style.background =
-            "#198754";
-
-        box.style.color =
-            "#ffffff";
-
-    } else if (type === "error") {
-
-        box.style.background =
-            "#dc3545";
-
-        box.style.color =
-            "#ffffff";
-
-    } else if (type === "warning") {
-
-        box.style.background =
-            "#ffc107";
-
-        box.style.color =
-            "#111111";
-
-    } else {
-
-        box.style.background =
-            "#212529";
-
-        box.style.color =
-            "#ffffff";
-    }
-
-    box.style.display =
-        "block";
-
-    clearTimeout(
-        box._timer
+    console.error(
+        "Web3Jobs Auth: Supabase client is not initialized."
     );
 
-    box._timer =
-        setTimeout(
-            function () {
-
-                box.style.display =
-                    "none";
-
-            },
-            4000
-        );
+    return null;
 }
 
 
 /* =========================================================
-   GET CURRENT USER
+   AUTH HELPERS
    ========================================================= */
 
+/**
+ * Get Supabase client
+ */
+function getAuthSupabase() {
+
+    const client = initializeAuthSupabase();
+
+    if (!client) {
+
+        showAuthMessage(
+            "تعذر الاتصال بخدمة المصادقة.",
+            "Authentication service is not available.",
+            "error"
+        );
+
+        return null;
+    }
+
+    return client;
+}
+
+
+/**
+ * Get current authenticated user
+ */
 async function getCurrentUser() {
 
-    if (
-        !authSupabase &&
-        !initializeAuthSupabase()
-    ) {
+    const client = getAuthSupabase();
 
+    if (!client) {
         return null;
     }
 
@@ -170,13 +112,12 @@ async function getCurrentUser() {
         const {
             data,
             error
-        } =
-            await authSupabase.auth.getUser();
+        } = await client.auth.getUser();
 
         if (error) {
 
             console.error(
-                "getCurrentUser error:",
+                "Get current user error:",
                 error
             );
 
@@ -188,7 +129,7 @@ async function getCurrentUser() {
     } catch (error) {
 
         console.error(
-            "getCurrentUser exception:",
+            "Unexpected get user error:",
             error
         );
 
@@ -198,296 +139,300 @@ async function getCurrentUser() {
 
 
 /* =========================================================
-   CREATE / UPDATE PROFILE
+   EMAIL CONFIRMATION
    ========================================================= */
 
-async function createUserProfile(
-    user,
-    fullName = "",
-    accountType = "individual"
-) {
-
-    if (
-        !authSupabase ||
-        !user
-    ) {
-
-        return null;
-    }
-
-    const normalizedAccountType =
-        String(
-            accountType || "individual"
-        )
-        .trim()
-        .toLowerCase();
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await authSupabase
-                .from("profiles")
-                .upsert(
-                    {
-                        id:
-                            user.id,
-
-                        email:
-                            user.email || "",
-
-                        full_name:
-                            fullName || "",
-
-                        account_type:
-                            normalizedAccountType,
-
-                        updated_at:
-                            new Date().toISOString()
-                    },
-                    {
-                        onConflict:
-                            "id"
-                    }
-                )
-                .select()
-                .maybeSingle();
-
-        if (error) {
-
-            console.error(
-                "createUserProfile error:",
-                error
-            );
-
-            return null;
-        }
-
-        return data || null;
-
-    } catch (error) {
-
-        console.error(
-            "createUserProfile exception:",
-            error
-        );
-
-        return null;
-    }
-}
-
-
-/* =========================================================
-   GET USER PROFILE
-   ========================================================= */
-
-async function getUserProfile(
-    userId
-) {
-
-    if (
-        !authSupabase &&
-        !initializeAuthSupabase()
-    ) {
-
-        return null;
-    }
-
-    if (!userId) {
-
-        return null;
-    }
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await authSupabase
-                .from("profiles")
-                .select("*")
-                .eq(
-                    "id",
-                    userId
-                )
-                .maybeSingle();
-
-        if (error) {
-
-            console.error(
-                "getUserProfile error:",
-                error
-            );
-
-            return null;
-        }
-
-        return data || null;
-
-    } catch (error) {
-
-        console.error(
-            "getUserProfile exception:",
-            error
-        );
-
-        return null;
-    }
-}
-
-
-/* =========================================================
-   GET ACCOUNT TYPE
-   ========================================================= */
-
-async function getAccountType(
-    user
-) {
+/**
+ * Check whether user confirmed email
+ */
+function isEmailConfirmed(user) {
 
     if (!user) {
+        return false;
+    }
+
+    /*
+     * Supabase normally provides:
+     * email_confirmed_at
+     */
+
+    return Boolean(
+        user.email_confirmed_at
+    );
+}
+
+
+/**
+ * Get confirmation status
+ */
+function getEmailConfirmationStatus(user) {
+
+    if (!user) {
+
+        return {
+            confirmed: false,
+            messageAr: "لم يتم العثور على حساب.",
+            messageEn: "Account was not found."
+        };
+    }
+
+    if (isEmailConfirmed(user)) {
+
+        return {
+            confirmed: true,
+            messageAr: "تم تأكيد البريد الإلكتروني.",
+            messageEn: "Email address is confirmed."
+        };
+    }
+
+    return {
+        confirmed: false,
+        messageAr:
+            "البريد الإلكتروني لم يتم تأكيده بعد.",
+        messageEn:
+            "Your email address has not been confirmed yet."
+    };
+}
+
+
+/* =========================================================
+   ACCOUNT TYPE
+   ========================================================= */
+
+/**
+ * Normalize account type
+ */
+function normalizeAccountType(accountType) {
+
+    if (!accountType) {
+        return null;
+    }
+
+    const value =
+        String(accountType)
+            .trim()
+            .toLowerCase();
+
+    if (
+        value === "individual" ||
+        value === "individuals" ||
+        value === "person" ||
+        value === "user" ||
+        value === "candidate"
+    ) {
 
         return "individual";
     }
 
-    /*
-     * First source:
-     * profiles table
-     */
-
-    const profile =
-        await getUserProfile(
-            user.id
-        );
-
     if (
-        profile &&
-        profile.account_type
-    ) {
-
-        const profileType =
-            String(
-                profile.account_type
-            )
-            .trim()
-            .toLowerCase();
-
-        if (
-            profileType === "company"
-        ) {
-
-            return "company";
-        }
-
-        if (
-            profileType === "individual"
-        ) {
-
-            return "individual";
-        }
-    }
-
-
-    /*
-     * Second source:
-     * Supabase user metadata
-     */
-
-    const metadata =
-        user.user_metadata || {};
-
-    const metadataType =
-        String(
-            metadata.account_type ||
-            metadata.user_type ||
-            ""
-        )
-        .trim()
-        .toLowerCase();
-
-    if (
-        metadataType === "company"
+        value === "company" ||
+        value === "companies" ||
+        value === "business" ||
+        value === "employer"
     ) {
 
         return "company";
     }
 
-    return "individual";
+    return null;
 }
 
 
-/* =========================================================
-   REDIRECT USER
-   ========================================================= */
+/**
+ * Get account type from profile
+ */
+async function getAccountType(userId = null) {
 
-async function redirectUser(
-    user
-) {
+    const client = getAuthSupabase();
 
-    if (!user) {
-
-        window.location.href =
-            "login.html";
-
-        return;
+    if (!client) {
+        return null;
     }
 
     try {
 
-        const accountType =
-            await getAccountType(
-                user
-            );
+        const user =
+            await getCurrentUser();
 
-        console.log(
-            "Web3Jobs account type:",
-            accountType
-        );
+        const id =
+            userId ||
+            user?.id;
 
-        /*
-         * COMPANY
-         */
-
-        if (
-            accountType === "company"
-        ) {
-
-            console.log(
-                "Redirecting company to company-dashboard.html"
-            );
-
-            window.location.replace(
-                "company-dashboard.html"
-            );
-
-            return;
+        if (!id) {
+            return null;
         }
 
 
-        /*
-         * INDIVIDUAL
-         */
+        /* -------------------------------------------------
+           Try profiles table
+           ------------------------------------------------- */
 
-        console.log(
-            "Redirecting individual to dashboard.html"
-        );
+        const {
+            data: profile,
+            error: profileError
+        } = await client
+            .from("profiles")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
 
-        window.location.replace(
-            "dashboard.html"
-        );
+
+        if (
+            !profileError &&
+            profile
+        ) {
+
+            const accountType =
+                normalizeAccountType(
+                    profile.account_type ||
+                    profile.accountType ||
+                    profile.role ||
+                    profile.account_role
+                );
+
+            if (accountType) {
+
+                return accountType;
+            }
+        }
+
+
+        /* -------------------------------------------------
+           Try company_profiles table
+           ------------------------------------------------- */
+
+        const {
+            data: companyProfile,
+            error: companyError
+        } = await client
+            .from("company_profiles")
+            .select("*")
+            .eq("id", id)
+            .maybeSingle();
+
+
+        if (
+            !companyError &&
+            companyProfile
+        ) {
+
+            return "company";
+        }
+
+
+        /* -------------------------------------------------
+           Try user metadata
+           ------------------------------------------------- */
+
+        if (user) {
+
+            const metadata =
+                user.user_metadata || {};
+
+            const metadataType =
+                normalizeAccountType(
+                    metadata.account_type ||
+                    metadata.accountType ||
+                    metadata.role ||
+                    metadata.account_role
+                );
+
+            if (metadataType) {
+
+                return metadataType;
+            }
+        }
+
+
+        return null;
 
     } catch (error) {
 
         console.error(
-            "redirectUser error:",
+            "Get account type error:",
             error
         );
 
-        window.location.replace(
-            "dashboard.html"
+        return null;
+    }
+}
+
+
+/* =========================================================
+   SAVE PROFILE
+   ========================================================= */
+
+/**
+ * Create / update user profile
+ */
+async function saveUserProfile(
+    user,
+    accountType,
+    fullName = ""
+) {
+
+    const client = getAuthSupabase();
+
+    if (!client || !user) {
+        return false;
+    }
+
+    try {
+
+        const profileData = {
+
+            id: user.id,
+
+            email:
+                user.email || null,
+
+            full_name:
+                fullName ||
+                user.user_metadata?.full_name ||
+                user.user_metadata?.name ||
+                "",
+
+            account_type:
+                accountType,
+
+            updated_at:
+                new Date().toISOString()
+        };
+
+
+        const {
+            error
+        } = await client
+            .from("profiles")
+            .upsert(
+                profileData,
+                {
+                    onConflict: "id"
+                }
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Save profile error:",
+                error
+            );
+
+            return false;
+        }
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected save profile error:",
+            error
         );
+
+        return false;
     }
 }
 
@@ -496,235 +441,255 @@ async function redirectUser(
    SIGN UP
    ========================================================= */
 
-async function signUpUser() {
+/**
+ * Register new user
+ *
+ * Expected:
+ *
+ * {
+ *   email: "...",
+ *   password: "...",
+ *   fullName: "...",
+ *   accountType: "individual" | "company"
+ * }
+ */
+async function signUpUser({
+    email,
+    password,
+    fullName = "",
+    accountType
+}) {
 
-    if (
-        !authSupabase &&
-        !initializeAuthSupabase()
-    ) {
+    const client = getAuthSupabase();
 
-        authMessage(
-            "Supabase is not available.",
-            "error"
-        );
-
-        return;
+    if (!client) {
+        return {
+            success: false
+        };
     }
 
-    const fullNameInput =
-        document.getElementById(
-            "signup-full-name"
-        );
 
-    const emailInput =
-        document.getElementById(
-            "signup-email"
-        );
+    /* -------------------------------------------------
+       Validation
+       ------------------------------------------------- */
 
-    const passwordInput =
-        document.getElementById(
-            "signup-password"
-        );
+    email =
+        String(email || "")
+            .trim()
+            .toLowerCase();
 
-    const accountTypeInput =
-        document.getElementById(
-            "signup-account-type"
-        );
+    password =
+        String(password || "");
 
-    if (
-        !emailInput ||
-        !passwordInput
-    ) {
+    fullName =
+        String(fullName || "")
+            .trim();
 
-        authMessage(
-            "Registration form was not found.",
-            "error"
-        );
-
-        return;
-    }
-
-    const fullName =
-        fullNameInput
-            ? fullNameInput.value.trim()
-            : "";
-
-    const email =
-        emailInput.value.trim();
-
-    const password =
-        passwordInput.value;
-
-    const accountType =
-        accountTypeInput
-            ? String(
-                accountTypeInput.value
-              )
-              .trim()
-              .toLowerCase()
-            : "individual";
+    accountType =
+        normalizeAccountType(accountType);
 
 
     if (!email) {
 
-        authMessage(
-            "Please enter your email.",
-            "warning"
+        showAuthMessage(
+            "يرجى إدخال البريد الإلكتروني.",
+            "Please enter your email address.",
+            "error"
         );
 
-        return;
+        return {
+            success: false
+        };
     }
 
 
     if (!password) {
 
-        authMessage(
+        showAuthMessage(
+            "يرجى إدخال كلمة المرور.",
             "Please enter your password.",
-            "warning"
+            "error"
         );
 
-        return;
+        return {
+            success: false
+        };
     }
 
 
     if (password.length < 6) {
 
-        authMessage(
-            "Password must be at least 6 characters.",
-            "warning"
-        );
-
-        return;
-    }
-
-
-    if (
-        accountType !== "individual" &&
-        accountType !== "company"
-    ) {
-
-        authMessage(
-            "Invalid account type.",
+        showAuthMessage(
+            "كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل.",
+            "Password must contain at least 6 characters.",
             "error"
         );
 
-        return;
+        return {
+            success: false
+        };
     }
 
 
+    if (!accountType) {
+
+        showAuthMessage(
+            "يرجى اختيار نوع الحساب: فرد أو شركة.",
+            "Please select an account type: Individual or Company.",
+            "error"
+        );
+
+        return {
+            success: false
+        };
+    }
+
+
+    /* -------------------------------------------------
+       Supabase Sign Up
+       ------------------------------------------------- */
+
     try {
+
+        const redirectUrl =
+            `${window.location.origin}/login.html`;
+
 
         const {
             data,
             error
-        } =
-            await authSupabase.auth.signUp(
-                {
-                    email:
-                        email,
+        } = await client.auth.signUp({
 
-                    password:
-                        password,
+            email,
 
-                    options:
-                        {
-                            data:
-                                {
-                                    full_name:
-                                        fullName,
+            password,
 
-                                    account_type:
-                                        accountType
-                                }
-                        }
+            options: {
+
+                emailRedirectTo:
+                    redirectUrl,
+
+                data: {
+
+                    full_name:
+                        fullName,
+
+                    account_type:
+                        accountType
                 }
-            );
+            }
+        });
 
 
         if (error) {
 
             console.error(
-                "Sign up error:",
+                "Supabase sign up error:",
                 error
             );
 
-            authMessage(
-                error.message ||
-                "Unable to create account.",
+
+            showAuthError(
+                error
+            );
+
+
+            return {
+                success: false,
+                error
+            };
+        }
+
+
+        const user =
+            data?.user;
+
+
+        if (!user) {
+
+            showAuthMessage(
+                "تعذر إنشاء الحساب.",
+                "Unable to create the account.",
                 "error"
             );
 
-            return;
+            return {
+                success: false
+            };
         }
 
 
-        if (
-            data &&
-            data.user
-        ) {
+        /* -------------------------------------------------
+           If email confirmation is required
+           ------------------------------------------------- */
+
+        if (!isEmailConfirmed(user)) {
 
             /*
-             * If session exists,
-             * create profile immediately.
+             * Supabase may already have created the user.
+             * We do not force dashboard access.
              */
 
-            if (data.session) {
-
-                await createUserProfile(
-                    data.user,
-                    fullName,
-                    accountType
-                );
-
-                authMessage(
-                    "Account created successfully.",
-                    "success"
-                );
-
-                setTimeout(
-                    function () {
-
-                        redirectUser(
-                            data.user
-                        );
-
-                    },
-                    500
-                );
-
-                return;
-            }
-
-
-            /*
-             * Email confirmation required.
-             */
-
-            authMessage(
-                "Account created. Please confirm your email, then login.",
+            showAuthMessage(
+                "تم إنشاء الحساب. يرجى فتح رسالة التأكيد التي أرسلناها إلى بريدك الإلكتروني.",
+                "Account created. Please open the confirmation email sent to your inbox.",
                 "success"
             );
 
-            return;
+
+            return {
+
+                success: true,
+
+                requiresEmailConfirmation: true,
+
+                user
+            };
         }
 
 
-        authMessage(
-            "Unable to create account.",
-            "error"
+        /* -------------------------------------------------
+           Email already confirmed
+           ------------------------------------------------- */
+
+        await saveUserProfile(
+            user,
+            accountType,
+            fullName
         );
+
+
+        return {
+
+            success: true,
+
+            requiresEmailConfirmation: false,
+
+            user,
+
+            accountType
+        };
+
 
     } catch (error) {
 
         console.error(
-            "signUpUser exception:",
+            "Unexpected signup error:",
             error
         );
 
-        authMessage(
-            "An unexpected error occurred.",
+
+        showAuthMessage(
+            "حدث خطأ غير متوقع أثناء إنشاء الحساب.",
+            "An unexpected error occurred while creating your account.",
             "error"
         );
+
+
+        return {
+            success: false,
+            error
+        };
     }
 }
 
@@ -733,94 +698,71 @@ async function signUpUser() {
    LOGIN
    ========================================================= */
 
-async function loginUser() {
+/**
+ * Login user
+ */
+async function loginUser(
+    email,
+    password
+) {
 
-    if (
-        !authSupabase &&
-        !initializeAuthSupabase()
-    ) {
+    const client = getAuthSupabase();
 
-        authMessage(
-            "Supabase is not available.",
-            "error"
-        );
-
-        return;
+    if (!client) {
+        return {
+            success: false
+        };
     }
 
 
-    const emailInput =
-        document.getElementById(
-            "login-email"
-        );
+    email =
+        String(email || "")
+            .trim()
+            .toLowerCase();
 
-    const passwordInput =
-        document.getElementById(
-            "login-password"
-        );
-
-    if (
-        !emailInput ||
-        !passwordInput
-    ) {
-
-        authMessage(
-            "Login form was not found.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    const email =
-        emailInput.value.trim();
-
-    const password =
-        passwordInput.value;
+    password =
+        String(password || "");
 
 
     if (!email) {
 
-        authMessage(
-            "Please enter your email.",
-            "warning"
+        showAuthMessage(
+            "يرجى إدخال البريد الإلكتروني.",
+            "Please enter your email address.",
+            "error"
         );
 
-        return;
+        return {
+            success: false
+        };
     }
 
 
     if (!password) {
 
-        authMessage(
+        showAuthMessage(
+            "يرجى إدخال كلمة المرور.",
             "Please enter your password.",
-            "warning"
+            "error"
         );
 
-        return;
+        return {
+            success: false
+        };
     }
 
 
     try {
 
-        /*
-         * LOGIN
-         */
-
         const {
             data,
             error
-        } =
-            await authSupabase.auth.signInWithPassword(
-                {
-                    email:
-                        email,
+        } = await client.auth.signInWithPassword({
 
-                    password:
-                        password
-                }
-            );
+            email,
+
+            password
+        });
 
 
         if (error) {
@@ -830,153 +772,161 @@ async function loginUser() {
                 error
             );
 
-            authMessage(
-                error.message ||
-                "Invalid email or password.",
-                "error"
+
+            showAuthError(
+                error
             );
 
-            return;
+
+            return {
+                success: false,
+                error
+            };
         }
 
-
-        if (
-            !data ||
-            !data.user
-        ) {
-
-            authMessage(
-                "Login failed.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        /*
-         * IMPORTANT:
-         * Read profile after successful login.
-         */
 
         const user =
-            data.user;
+            data?.user;
 
 
-        const profile =
-            await getUserProfile(
+        if (!user) {
+
+            showAuthMessage(
+                "تعذر تسجيل الدخول.",
+                "Unable to sign in.",
+                "error"
+            );
+
+            return {
+                success: false
+            };
+        }
+
+
+        /* -------------------------------------------------
+           BLOCK UNCONFIRMED EMAIL
+           ------------------------------------------------- */
+
+        if (!isEmailConfirmed(user)) {
+
+            /*
+             * Immediately sign out.
+             * This prevents access to dashboards.
+             */
+
+            await client.auth.signOut();
+
+
+            showAuthMessage(
+                "البريد الإلكتروني لم يتم تأكيده. يرجى تأكيد البريد أولاً ثم تسجيل الدخول.",
+                "Your email has not been confirmed. Please confirm your email before signing in.",
+                "error"
+            );
+
+
+            return {
+
+                success: false,
+
+                emailNotConfirmed: true,
+
+                user
+            };
+        }
+
+
+        /* -------------------------------------------------
+           Get account type
+           ------------------------------------------------- */
+
+        let accountType =
+            await getAccountType(
                 user.id
             );
 
 
         /*
-         * If profile exists,
-         * make sure metadata/profile
-         * are consistent.
+         * If profile does not exist yet,
+         * use metadata.
          */
 
-        let accountType =
-            "individual";
-
-
-        if (
-            profile &&
-            profile.account_type
-        ) {
+        if (!accountType) {
 
             accountType =
-                String(
-                    profile.account_type
-                )
-                .trim()
-                .toLowerCase();
-
-        } else {
-
-            const metadata =
-                user.user_metadata || {};
-
-            accountType =
-                String(
-                    metadata.account_type ||
-                    metadata.user_type ||
-                    "individual"
-                )
-                .trim()
-                .toLowerCase();
-
-
-            /*
-             * Create missing profile.
-             */
-
-            await createUserProfile(
-                user,
-                metadata.full_name || "",
-                accountType
-            );
+                normalizeAccountType(
+                    user.user_metadata?.account_type ||
+                    user.user_metadata?.accountType ||
+                    user.user_metadata?.role
+                );
         }
 
 
-        console.log(
-            "LOGIN SUCCESS"
-        );
+        if (!accountType) {
 
-        console.log(
-            "USER ID:",
-            user.id
-        );
+            /*
+             * Logout because account type
+             * is required for dashboard routing.
+             */
 
-        console.log(
-            "PROFILE:",
-            profile
-        );
-
-        console.log(
-            "ACCOUNT TYPE:",
-            accountType
-        );
+            await client.auth.signOut();
 
 
-        authMessage(
+            showAuthMessage(
+                "لم يتم تحديد نوع الحساب. يرجى التواصل مع الدعم.",
+                "Account type could not be determined. Please contact support.",
+                "error"
+            );
+
+
+            return {
+
+                success: false,
+
+                accountTypeMissing: true
+            };
+        }
+
+
+        /* -------------------------------------------------
+           Success
+           ------------------------------------------------- */
+
+        showAuthMessage(
+            "تم تسجيل الدخول بنجاح.",
             "Login successful.",
             "success"
         );
 
 
-        /*
-         * DIRECT REDIRECT
-         *
-         * No unnecessary delay.
-         */
+        return {
 
-        if (
-            accountType === "company"
-        ) {
+            success: true,
 
-            window.location.replace(
-                "company-dashboard.html"
-            );
+            user,
 
-            return;
-        }
+            accountType
+        };
 
-
-        window.location.replace(
-            "dashboard.html"
-        );
 
     } catch (error) {
 
         console.error(
-            "loginUser exception:",
+            "Unexpected login error:",
             error
         );
 
-        authMessage(
-            "An unexpected error occurred.",
+
+        showAuthMessage(
+            "حدث خطأ غير متوقع أثناء تسجيل الدخول.",
+            "An unexpected error occurred during login.",
             "error"
         );
+
+
+        return {
+            success: false,
+            error
+        };
     }
 }
 
@@ -987,20 +937,18 @@ async function loginUser() {
 
 async function logoutUser() {
 
-    if (
-        !authSupabase &&
-        !initializeAuthSupabase()
-    ) {
+    const client = getAuthSupabase();
 
-        return;
+    if (!client) {
+        return false;
     }
 
     try {
 
         const {
             error
-        } =
-            await authSupabase.auth.signOut();
+        } = await client.auth.signOut();
+
 
         if (error) {
 
@@ -1009,259 +957,780 @@ async function logoutUser() {
                 error
             );
 
-            authMessage(
-                "Unable to logout.",
-                "error"
+            showAuthError(
+                error
             );
 
-            return;
+            return false;
         }
+
+
+        /*
+         * Redirect to homepage
+         */
 
         window.location.href =
             "index.html";
 
+
+        return true;
+
     } catch (error) {
 
         console.error(
-            "logoutUser error:",
+            "Unexpected logout error:",
             error
         );
+
+
+        showAuthMessage(
+            "حدث خطأ أثناء تسجيل الخروج.",
+            "An error occurred while signing out.",
+            "error"
+        );
+
+
+        return false;
     }
 }
 
 
 /* =========================================================
-   REQUIRE LOGIN
+   DASHBOARD ROUTING
    ========================================================= */
 
-async function requireLogin() {
+/**
+ * Get dashboard URL
+ */
+function getDashboardUrl(
+    accountType
+) {
 
-    const user =
-        await getCurrentUser();
+    const type =
+        normalizeAccountType(
+            accountType
+        );
 
-    if (!user) {
+
+    if (type === "company") {
+
+        return "company-dashboard.html";
+    }
+
+
+    if (type === "individual") {
+
+        return "dashboard.html";
+    }
+
+
+    return "index.html";
+}
+
+
+/**
+ * Redirect according to account type
+ */
+function redirectToDashboard(
+    accountType
+) {
+
+    const dashboard =
+        getDashboardUrl(
+            accountType
+        );
+
+
+    window.location.href =
+        dashboard;
+}
+
+
+/* =========================================================
+   PROTECT DASHBOARD
+   ========================================================= */
+
+/**
+ * Protect dashboard pages
+ *
+ * Usage:
+ *
+ * protectDashboard("individual");
+ *
+ * or
+ *
+ * protectDashboard("company");
+ */
+async function protectDashboard(
+    requiredAccountType = null
+) {
+
+    const client = getAuthSupabase();
+
+    if (!client) {
+        return false;
+    }
+
+
+    try {
+
+        const user =
+            await getCurrentUser();
+
+
+        /* -------------------------------------------------
+           No authenticated user
+           ------------------------------------------------- */
+
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return false;
+        }
+
+
+        /* -------------------------------------------------
+           Email confirmation
+           ------------------------------------------------- */
+
+        if (!isEmailConfirmed(user)) {
+
+            await client.auth.signOut();
+
+
+            showAuthMessage(
+                "البريد الإلكتروني لم يتم تأكيده. يرجى تأكيد البريد الإلكتروني أولاً.",
+                "Your email has not been confirmed. Please confirm your email first.",
+                "error"
+            );
+
+
+            window.location.href =
+                "login.html";
+
+
+            return false;
+        }
+
+
+        /* -------------------------------------------------
+           Account type
+           ------------------------------------------------- */
+
+        const accountType =
+            await getAccountType(
+                user.id
+            );
+
+
+        if (!accountType) {
+
+            await client.auth.signOut();
+
+
+            showAuthMessage(
+                "تعذر تحديد نوع الحساب.",
+                "Unable to determine account type.",
+                "error"
+            );
+
+
+            window.location.href =
+                "login.html";
+
+
+            return false;
+        }
+
+
+        /* -------------------------------------------------
+           Required account type
+           ------------------------------------------------- */
+
+        if (requiredAccountType) {
+
+            const required =
+                normalizeAccountType(
+                    requiredAccountType
+                );
+
+
+            if (
+                required &&
+                accountType !== required
+            ) {
+
+                /*
+                 * User is authenticated,
+                 * but is on the wrong dashboard.
+                 */
+
+                redirectToDashboard(
+                    accountType
+                );
+
+
+                return false;
+            }
+        }
+
+
+        return {
+
+            authenticated: true,
+
+            emailConfirmed: true,
+
+            user,
+
+            accountType
+        };
+
+
+    } catch (error) {
+
+        console.error(
+            "Dashboard protection error:",
+            error
+        );
+
 
         window.location.href =
             "login.html";
 
-        return null;
-    }
 
-    return user;
+        return false;
+    }
 }
 
 
 /* =========================================================
-   REQUIRE COMPANY
+   PROTECT COMPANY DASHBOARD
    ========================================================= */
 
-async function requireCompany() {
+async function protectCompanyDashboard() {
 
-    const user =
-        await requireLogin();
-
-    if (!user) {
-
-        return null;
-    }
-
-    const accountType =
-        await getAccountType(
-            user
-        );
-
-    if (
-        accountType !== "company"
-    ) {
-
-        window.location.href =
-            "dashboard.html";
-
-        return null;
-    }
-
-    return user;
+    return await protectDashboard(
+        "company"
+    );
 }
 
 
 /* =========================================================
-   REQUIRE INDIVIDUAL
+   PROTECT INDIVIDUAL DASHBOARD
    ========================================================= */
 
-async function requireIndividual() {
+async function protectIndividualDashboard() {
 
-    const user =
-        await requireLogin();
-
-    if (!user) {
-
-        return null;
-    }
-
-    const accountType =
-        await getAccountType(
-            user
-        );
-
-    if (
-        accountType !== "individual"
-    ) {
-
-        window.location.href =
-            "company-dashboard.html";
-
-        return null;
-    }
-
-    return user;
+    return await protectDashboard(
+        "individual"
+    );
 }
 
 
 /* =========================================================
-   UPDATE AUTH UI
+   AUTH STATE LISTENER
    ========================================================= */
 
-async function updateAuthUI() {
+function initializeAuthStateListener() {
 
-    const user =
-        await getCurrentUser();
-
-    document
-        .querySelectorAll(
-            "[data-auth-login]"
-        )
-        .forEach(
-            element => {
-
-                element.style.display =
-                    user ? "none" : "";
-
-            }
-        );
+    const client =
+        initializeAuthSupabase();
 
 
-    document
-        .querySelectorAll(
-            "[data-auth-logout]"
-        )
-        .forEach(
-            element => {
-
-                element.style.display =
-                    user ? "" : "none";
-
-            }
-        );
-
-
-    document
-        .querySelectorAll(
-            "[data-auth-user]"
-        )
-        .forEach(
-            element => {
-
-                element.textContent =
-                    user
-                        ? user.email || ""
-                        : "";
-
-            }
-        );
-
-
-    return user;
-}
-
-
-/* =========================================================
-   AUTH EVENTS
-   ========================================================= */
-
-function initializeAuthEvents() {
-
-    const signupForm =
-        document.getElementById(
-            "signup-form"
-        );
-
-    if (
-        signupForm &&
-        !signupForm.dataset.authInitialized
-    ) {
-
-        signupForm.dataset.authInitialized =
-            "true";
-
-        signupForm.addEventListener(
-            "submit",
-            function (event) {
-
-                event.preventDefault();
-
-                signUpUser();
-
-            }
-        );
+    if (!client) {
+        return;
     }
 
 
-    const loginForm =
-        document.getElementById(
-            "login-form"
-        );
+    client.auth.onAuthStateChange(
+        async (
+            event,
+            session
+        ) => {
 
-    if (
-        loginForm &&
-        !loginForm.dataset.authInitialized
-    ) {
-
-        loginForm.dataset.authInitialized =
-            "true";
-
-        loginForm.addEventListener(
-            "submit",
-            function (event) {
-
-                event.preventDefault();
-
-                loginUser();
-
-            }
-        );
-    }
+            console.log(
+                "Auth event:",
+                event
+            );
 
 
-    document
-        .querySelectorAll(
-            "[data-auth-logout]"
-        )
-        .forEach(
-            button => {
+            /*
+             * Email confirmed
+             */
+
+            if (
+                event ===
+                "USER_UPDATED"
+            ) {
+
+                const user =
+                    session?.user;
+
 
                 if (
-                    button.dataset.authInitialized
+                    user &&
+                    isEmailConfirmed(user)
                 ) {
 
-                    return;
+                    console.log(
+                        "Email confirmed successfully."
+                    );
                 }
-
-                button.dataset.authInitialized =
-                    "true";
-
-                button.addEventListener(
-                    "click",
-                    function (event) {
-
-                        event.preventDefault();
-
-                        logoutUser();
-
-                    }
-                );
             }
-        );
+        }
+    );
 }
+
+
+/* =========================================================
+   RESEND CONFIRMATION EMAIL
+   ========================================================= */
+
+async function resendConfirmationEmail(
+    email
+) {
+
+    const client =
+        getAuthSupabase();
+
+
+    if (!client) {
+        return false;
+    }
+
+
+    email =
+        String(email || "")
+            .trim()
+            .toLowerCase();
+
+
+    if (!email) {
+
+        showAuthMessage(
+            "يرجى إدخال البريد الإلكتروني.",
+            "Please enter your email address.",
+            "error"
+        );
+
+        return false;
+    }
+
+
+    try {
+
+        const {
+            error
+        } = await client.auth.resend({
+
+            type: "signup",
+
+            email: email,
+
+            options: {
+
+                emailRedirectTo:
+                    `${window.location.origin}/login.html`
+            }
+        });
+
+
+        if (error) {
+
+            console.error(
+                "Resend confirmation error:",
+                error
+            );
+
+
+            showAuthError(
+                error
+            );
+
+
+            return false;
+        }
+
+
+        showAuthMessage(
+            "تم إرسال رسالة تأكيد جديدة إلى بريدك الإلكتروني.",
+            "A new confirmation email has been sent to your inbox.",
+            "success"
+        );
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected resend error:",
+            error
+        );
+
+
+        showAuthMessage(
+            "تعذر إعادة إرسال رسالة التأكيد.",
+            "Unable to resend the confirmation email.",
+            "error"
+        );
+
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   AUTH ERROR TRANSLATION
+   ========================================================= */
+
+function showAuthError(
+    error
+) {
+
+    const message =
+        String(
+            error?.message ||
+            error ||
+            ""
+        ).toLowerCase();
+
+
+    /* -------------------------------------------------
+       Invalid login
+       ------------------------------------------------- */
+
+    if (
+        message.includes(
+            "invalid login credentials"
+        )
+    ) {
+
+        showAuthMessage(
+            "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+            "Invalid email or password.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       Email not confirmed
+       ------------------------------------------------- */
+
+    if (
+        message.includes(
+            "email not confirmed"
+        )
+    ) {
+
+        showAuthMessage(
+            "البريد الإلكتروني لم يتم تأكيده.",
+            "Email address has not been confirmed.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       User already registered
+       ------------------------------------------------- */
+
+    if (
+        message.includes(
+            "user already registered"
+        )
+    ) {
+
+        showAuthMessage(
+            "هذا البريد الإلكتروني مسجل بالفعل.",
+            "This email address is already registered.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       Password
+       ------------------------------------------------- */
+
+    if (
+        message.includes(
+            "password"
+        ) &&
+        (
+            message.includes("6") ||
+            message.includes("weak") ||
+            message.includes("short")
+        )
+    ) {
+
+        showAuthMessage(
+            "كلمة المرور ضعيفة أو قصيرة.",
+            "Password is too weak or too short.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       Email
+       ------------------------------------------------- */
+
+    if (
+        message.includes(
+            "email"
+        ) &&
+        message.includes(
+            "invalid"
+        )
+    ) {
+
+        showAuthMessage(
+            "صيغة البريد الإلكتروني غير صحيحة.",
+            "Invalid email address.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       Rate limit
+       ------------------------------------------------- */
+
+    if (
+        message.includes(
+            "rate limit"
+        ) ||
+        message.includes(
+            "too many requests"
+        )
+    ) {
+
+        showAuthMessage(
+            "تم تجاوز عدد المحاولات المسموح بها. يرجى الانتظار قليلاً ثم المحاولة مرة أخرى.",
+            "Too many attempts. Please wait a moment and try again.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       Failed to fetch
+       ------------------------------------------------- */
+
+    if (
+        message.includes(
+            "failed to fetch"
+        ) ||
+        message.includes(
+            "network"
+        )
+    ) {
+
+        showAuthMessage(
+            "تعذر الاتصال بالخادم. تحقق من الإنترنت وإعدادات Supabase.",
+            "Unable to connect to the server. Check your internet connection and Supabase configuration.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       Generic
+       ------------------------------------------------- */
+
+    showAuthMessage(
+        "حدث خطأ أثناء المصادقة. يرجى المحاولة مرة أخرى.",
+        "Authentication error. Please try again.",
+        "error"
+    );
+}
+
+
+/* =========================================================
+   AUTH MESSAGE UI
+   ========================================================= */
+
+function showAuthMessage(
+    messageAr,
+    messageEn,
+    type = "info"
+) {
+
+    /*
+     * Look for existing message containers
+     */
+
+    const element =
+        document.getElementById(
+            "auth-message"
+        );
+
+
+    if (element) {
+
+        element.innerHTML = `
+            <div class="auth-message-${type}">
+                <div>${escapeAuthHtml(messageAr)}</div>
+                <div>${escapeAuthHtml(messageEn)}</div>
+            </div>
+        `;
+
+        element.style.display =
+            "block";
+
+
+        /*
+         * Scroll to message
+         */
+
+        try {
+
+            element.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+        } catch (e) {}
+
+        return;
+    }
+
+
+    /*
+     * Fallback console
+     */
+
+    if (type === "error") {
+
+        console.error(
+            messageAr,
+            messageEn
+        );
+
+    } else {
+
+        console.log(
+            messageAr,
+            messageEn
+        );
+    }
+}
+
+
+/* =========================================================
+   HTML ESCAPE
+   ========================================================= */
+
+function escapeAuthHtml(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
+}
+
+
+/* =========================================================
+   PAGE INITIALIZATION
+   ========================================================= */
+
+async function initializeAuthPage() {
+
+    initializeAuthStateListener();
+
+
+    const page =
+        window.location.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+
+    /* -------------------------------------------------
+       Company dashboard
+       ------------------------------------------------- */
+
+    if (
+        page ===
+        "company-dashboard.html"
+    ) {
+
+        await protectCompanyDashboard();
+
+        return;
+    }
+
+
+    /* -------------------------------------------------
+       Individual dashboard
+       ------------------------------------------------- */
+
+    if (
+        page ===
+        "dashboard.html"
+    ) {
+
+        await protectIndividualDashboard();
+
+        return;
+    }
+}
+
+
+/* =========================================================
+   AUTO INITIALIZATION
+   ========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        initializeAuthPage();
+
+    }
+);
 
 
 /* =========================================================
@@ -1270,122 +1739,45 @@ function initializeAuthEvents() {
 
 window.Web3JobsAuth = {
 
-    initializeAuthSupabase,
-
-    signUpUser,
-
-    loginUser,
-
-    logoutUser,
+    initialize:
+        initializeAuthSupabase,
 
     getCurrentUser,
 
-    getUserProfile,
-
     getAccountType,
 
-    redirectUser,
+    signUp:
+        signUpUser,
 
-    requireLogin,
+    login:
+        loginUser,
 
-    requireCompany,
+    logout:
+        logoutUser,
 
-    requireIndividual,
+    resendConfirmation:
+        resendConfirmationEmail,
 
-    updateAuthUI
+    protectDashboard,
 
+    protectCompanyDashboard,
+
+    protectIndividualDashboard,
+
+    redirectToDashboard,
+
+    getDashboardUrl,
+
+    isEmailConfirmed,
+
+    showMessage:
+        showAuthMessage,
+
+    showError:
+        showAuthError
 };
 
 
 /* =========================================================
-   INITIALIZE AUTH
+   END OF FILE
    ========================================================= */
-
-async function initializeAuth() {
-
-    if (
-        !initializeAuthSupabase()
-    ) {
-
-        return;
-    }
-
-    initializeAuthEvents();
-
-    await updateAuthUI();
-
-
-    /*
-     * Auth state listener
-     */
-
-    authSupabase.auth.onAuthStateChange(
-        async function (
-            event,
-            session
-        ) {
-
-            console.log(
-                "Auth event:",
-                event
-            );
-
-            /*
-             * Do not redirect here.
-             *
-             * loginUser() handles the redirect.
-             */
-
-            if (
-                event === "SIGNED_IN" &&
-                session?.user
-            ) {
-
-                const user =
-                    session.user;
-
-                const metadata =
-                    user.user_metadata || {};
-
-                /*
-                 * Make sure profile exists.
-                 */
-
-                const existingProfile =
-                    await getUserProfile(
-                        user.id
-                    );
-
-                if (!existingProfile) {
-
-                    await createUserProfile(
-                        user,
-                        metadata.full_name || "",
-                        metadata.account_type || "individual"
-                    );
-                }
-            }
-
-            await updateAuthUI();
-        }
-    );
-}
-
-
-/* =========================================================
-   DOCUMENT READY
-   ========================================================= */
-
-if (
-    document.readyState === "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeAuth
-    );
-
-} else {
-
-    initializeAuth();
-               }
