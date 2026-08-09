@@ -47,6 +47,7 @@
 
 
         body {
+
             min-height: 100vh;
 
             display: flex;
@@ -95,12 +96,19 @@
 
 
         .login-wrapper {
+
             width: 100%;
+
             max-width: 440px;
         }
 
 
+        /* =====================================================
+           BRAND
+           ===================================================== */
+
         .brand {
+
             display: flex;
 
             flex-direction: column;
@@ -114,6 +122,7 @@
 
 
         .brand-logo {
+
             width: 92px;
 
             height: 92px;
@@ -135,6 +144,7 @@
 
 
         .brand-name {
+
             color: white;
 
             font-size: 25px;
@@ -144,11 +154,17 @@
 
 
         .brand-name span {
+
             color: var(--accent);
         }
 
 
+        /* =====================================================
+           LOGIN CARD
+           ===================================================== */
+
         .login-card {
+
             padding: 32px;
 
             background:
@@ -167,7 +183,9 @@
 
 
         .login-card h1 {
-            margin: 0 0 8px;
+
+            margin:
+                0 0 8px;
 
             text-align: center;
 
@@ -176,7 +194,9 @@
 
 
         .subtitle {
-            margin: 0 0 25px;
+
+            margin:
+                0 0 25px;
 
             text-align: center;
 
@@ -186,7 +206,12 @@
         }
 
 
+        /* =====================================================
+           AUTH MESSAGE
+           ===================================================== */
+
         #auth-message {
+
             display: none;
 
             margin-bottom: 18px;
@@ -202,6 +227,7 @@
 
 
         .auth-message-error {
+
             padding: 10px;
 
             border:
@@ -218,6 +244,7 @@
 
 
         .auth-message-success {
+
             padding: 10px;
 
             border:
@@ -234,6 +261,7 @@
 
 
         .auth-message-info {
+
             padding: 10px;
 
             border:
@@ -249,12 +277,18 @@
         }
 
 
+        /* =====================================================
+           FORM
+           ===================================================== */
+
         .form-group {
+
             margin-bottom: 17px;
         }
 
 
         .form-group label {
+
             display: block;
 
             margin-bottom: 7px;
@@ -268,6 +302,7 @@
 
 
         .form-group input {
+
             width: 100%;
 
             padding: 13px 14px;
@@ -292,26 +327,36 @@
 
 
         .form-group input:focus {
-            border-color: var(--blue);
+
+            border-color:
+                var(--blue);
         }
 
 
         .form-group input::placeholder {
+
             color: #60758d;
         }
 
 
+        /* =====================================================
+           PASSWORD
+           ===================================================== */
+
         .password-wrapper {
+
             position: relative;
         }
 
 
         .password-wrapper input {
+
             padding-right: 50px;
         }
 
 
         .toggle-password {
+
             position: absolute;
 
             top: 50%;
@@ -333,7 +378,12 @@
         }
 
 
+        /* =====================================================
+           LOGIN BUTTON
+           ===================================================== */
+
         .login-button {
+
             width: 100%;
 
             margin-top: 5px;
@@ -344,7 +394,8 @@
 
             border-radius: 10px;
 
-            background: var(--accent);
+            background:
+                var(--accent);
 
             color: var(--bg);
 
@@ -359,6 +410,7 @@
 
 
         .login-button:hover {
+
             transform:
                 translateY(-1px);
 
@@ -367,6 +419,7 @@
 
 
         .login-button:disabled {
+
             opacity: .55;
 
             cursor: not-allowed;
@@ -375,7 +428,12 @@
         }
 
 
+        /* =====================================================
+           LINKS
+           ===================================================== */
+
         .forgot {
+
             display: block;
 
             margin: 16px 0;
@@ -389,11 +447,14 @@
 
 
         .forgot:hover {
-            color: var(--accent);
+
+            color:
+                var(--accent);
         }
 
 
         .divider {
+
             display: flex;
 
             align-items: center;
@@ -410,6 +471,7 @@
 
         .divider::before,
         .divider::after {
+
             content: "";
 
             flex: 1;
@@ -422,22 +484,27 @@
 
 
         .signup {
+
             text-align: center;
 
-            color: var(--muted);
+            color:
+                var(--muted);
 
             font-size: 12px;
         }
 
 
         .signup a {
-            color: var(--accent);
+
+            color:
+                var(--accent);
 
             font-weight: 800;
         }
 
 
         .back-home {
+
             display: block;
 
             margin-top: 20px;
@@ -451,11 +518,17 @@
 
 
         .back-home:hover {
+
             color: white;
         }
 
 
+        /* =====================================================
+           SOCIAL
+           ===================================================== */
+
         .social-section {
+
             margin-top: 22px;
 
             text-align: center;
@@ -463,6 +536,7 @@
 
 
         .social-title {
+
             margin-bottom: 10px;
 
             color: #71869e;
@@ -474,6 +548,7 @@
 
 
         .social-links {
+
             display: flex;
 
             justify-content: center;
@@ -485,7 +560,9 @@
 
 
         .social-links a {
-            padding: 7px 10px;
+
+            padding:
+                7px 10px;
 
             border:
                 1px solid
@@ -505,6 +582,7 @@
 
 
         .social-links a:hover {
+
             border-color:
                 var(--accent);
 
@@ -513,19 +591,27 @@
         }
 
 
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
         @media (max-width: 500px) {
 
             body {
+
                 padding: 15px;
             }
 
 
             .login-card {
-                padding: 25px 20px;
+
+                padding:
+                    25px 20px;
             }
 
 
             .brand-logo {
+
                 width: 76px;
 
                 height: 76px;
@@ -533,6 +619,7 @@
 
 
             .brand-name {
+
                 font-size: 22px;
             }
 
@@ -549,6 +636,10 @@
 <div class="login-wrapper">
 
 
+    <!-- =====================================================
+         BRAND
+         ===================================================== -->
+
     <div class="brand">
 
         <img
@@ -558,11 +649,17 @@
         >
 
         <div class="brand-name">
+
             Web3<span>Jobs</span>
+
         </div>
 
     </div>
 
+
+    <!-- =====================================================
+         LOGIN CARD
+         ===================================================== -->
 
     <div class="login-card">
 
@@ -583,10 +680,15 @@
         ></div>
 
 
+        <!-- =================================================
+             LOGIN FORM
+             ================================================= -->
+
         <form
             id="loginForm"
             novalidate
         >
+
 
             <div class="form-group">
 
@@ -648,6 +750,7 @@
                 Login
             </button>
 
+
         </form>
 
 
@@ -676,6 +779,10 @@
 
     </div>
 
+
+    <!-- =====================================================
+         SOCIAL MEDIA
+         ===================================================== -->
 
     <div class="social-section">
 
@@ -726,6 +833,10 @@
     </div>
 
 
+    <!-- =====================================================
+         BACK HOME
+         ===================================================== -->
+
     <a
         href="index.html"
         class="back-home"
@@ -738,7 +849,7 @@
 
 
 <!-- =========================================================
-     SUPABASE
+     SUPABASE LIBRARY
 ========================================================= -->
 
 <script
@@ -747,22 +858,20 @@
 
 
 <!-- =========================================================
-     SUPABASE CLIENT
-     CACHE BUSTING
+     CENTRAL SUPABASE
 ========================================================= -->
 
 <script
-    src="js/supabase.js?v=2026081001"
+    src="js/supabase.js"
 ></script>
 
 
 <!-- =========================================================
      AUTH SYSTEM
-     CACHE BUSTING
 ========================================================= -->
 
 <script
-    src="js/auth.js?v=2026081001"
+    src="js/auth.js"
 ></script>
 
 
@@ -779,6 +888,10 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+
+        /* =====================================================
+           ELEMENTS
+           ===================================================== */
 
         const form =
             document.getElementById(
@@ -810,49 +923,101 @@ document.addEventListener(
             );
 
 
+        /* =====================================================
+           CHECK ELEMENTS
+           ===================================================== */
+
         if (!form) {
+
             console.error(
                 "Web3Jobs: loginForm not found."
             );
+
+            return;
+        }
+
+
+        if (!emailInput) {
+
+            console.error(
+                "Web3Jobs: email input not found."
+            );
+
+            return;
+        }
+
+
+        if (!passwordInput) {
+
+            console.error(
+                "Web3Jobs: password input not found."
+            );
+
+            return;
+        }
+
+
+        if (!loginButton) {
+
+            console.error(
+                "Web3Jobs: login button not found."
+            );
+
             return;
         }
 
 
         /* =====================================================
-           PASSWORD TOGGLE
-        ===================================================== */
+           PASSWORD VISIBILITY
+           ===================================================== */
 
-        togglePassword?.addEventListener(
-            "click",
-            function () {
+        if (togglePassword) {
 
-                if (
-                    passwordInput.type ===
-                    "password"
-                ) {
+            togglePassword.addEventListener(
+                "click",
+                function () {
 
-                    passwordInput.type =
-                        "text";
 
-                    togglePassword.textContent =
-                        "🙈";
+                    if (
+                        passwordInput.type ===
+                        "password"
+                    ) {
 
-                } else {
+                        passwordInput.type =
+                            "text";
 
-                    passwordInput.type =
-                        "password";
+                        togglePassword.textContent =
+                            "🙈";
 
-                    togglePassword.textContent =
-                        "👁";
+                        togglePassword.setAttribute(
+                            "aria-label",
+                            "Hide password"
+                        );
+
+                    } else {
+
+                        passwordInput.type =
+                            "password";
+
+                        togglePassword.textContent =
+                            "👁";
+
+                        togglePassword.setAttribute(
+                            "aria-label",
+                            "Show password"
+                        );
+
+                    }
+
                 }
+            );
 
-            }
-        );
+        }
 
 
         /* =====================================================
            LOGIN
-        ===================================================== */
+           ===================================================== */
 
         form.addEventListener(
             "submit",
@@ -870,6 +1035,10 @@ document.addEventListener(
                 const password =
                     passwordInput.value;
 
+
+                /* =================================================
+                   VALIDATION
+                   ================================================= */
 
                 if (!email) {
 
@@ -899,9 +1068,14 @@ document.addEventListener(
                 }
 
 
+                /* =================================================
+                   AUTH SYSTEM CHECK
+                   ================================================= */
+
                 if (
                     !window.Web3JobsAuth ||
-                    typeof window.Web3JobsAuth.login !==
+                    typeof
+                    window.Web3JobsAuth.login !==
                     "function"
                 ) {
 
@@ -911,9 +1085,17 @@ document.addEventListener(
                         "error"
                     );
 
+                    console.error(
+                        "Web3Jobs: Web3JobsAuth.login() unavailable."
+                    );
+
                     return;
                 }
 
+
+                /* =================================================
+                   BUTTON
+                   ================================================= */
 
                 loginButton.disabled =
                     true;
@@ -924,10 +1106,10 @@ document.addEventListener(
 
                 try {
 
-                    /* =============================================
-                       STEP 1
-                       AUTH LOGIN
-                    ============================================= */
+
+                    /* =================================================
+                       LOGIN
+                       ================================================= */
 
                     const result =
                         await window.Web3JobsAuth.login(
@@ -937,10 +1119,14 @@ document.addEventListener(
 
 
                     console.log(
-                        "Web3Jobs LOGIN RESULT:",
+                        "Web3Jobs Login Result:",
                         result
                     );
 
+
+                    /* =================================================
+                       FAILED
+                       ================================================= */
 
                     if (
                         !result ||
@@ -957,113 +1143,30 @@ document.addEventListener(
                     }
 
 
-                    /* =============================================
-                       STEP 2
-                       GET ACCOUNT TYPE FROM RESULT
-                    ============================================= */
+                    /* =================================================
+                       ACCOUNT TYPE
+                       ================================================= */
 
-                    let accountType =
-                        result.accountType ||
-                        result.account_type ||
-                        result.profile?.account_type ||
-                        null;
+                    const accountType =
+                        String(
+                            result.accountType ||
+                            result.account_type ||
+                            result.profile?.account_type ||
+                            ""
+                        )
+                        .trim()
+                        .toLowerCase();
 
 
                     console.log(
-                        "Web3Jobs account type from login result:",
+                        "Web3Jobs Account Type:",
                         accountType
                     );
 
 
-                    /* =============================================
-                       STEP 3
-                       DIRECT FALLBACK
-                       READ FROM profiles
-                    ============================================= */
-
-                    if (
-                        !accountType &&
-                        typeof window.Web3JobsAuth.getAccountType ===
-                        "function"
-                    ) {
-
-                        console.log(
-                            "Web3Jobs: Trying direct account type lookup..."
-                        );
-
-
-                        accountType =
-                            await window.Web3JobsAuth.getAccountType(
-                                result.user?.id
-                            );
-
-
-                        console.log(
-                            "Web3Jobs: Direct lookup result:",
-                            accountType
-                        );
-                    }
-
-
-                    /* =============================================
-                       STEP 4
-                       NORMALIZE
-                    ============================================= */
-
-                    if (
-                        typeof accountType ===
-                        "string"
-                    ) {
-
-                        accountType =
-                            accountType
-                                .trim()
-                                .toLowerCase();
-                    }
-
-
-                    /* =============================================
-                       STEP 5
-                       INDIVIDUAL
-                    ============================================= */
-
-                    if (
-                        accountType ===
-                        "individual"
-                    ) {
-
-                        console.log(
-                            "Web3Jobs: Individual account detected."
-                        );
-
-
-                        showAuthMessage(
-                            "تم تسجيل الدخول بنجاح. جاري فتح حساب الفرد...",
-                            "Login successful. Opening your individual dashboard...",
-                            "success"
-                        );
-
-
-                        setTimeout(
-                            function () {
-
-                                window.location.replace(
-                                    "dashboard.html"
-                                );
-
-                            },
-                            250
-                        );
-
-
-                        return;
-                    }
-
-
-                    /* =============================================
-                       STEP 6
+                    /* =================================================
                        COMPANY
-                    ============================================= */
+                       ================================================= */
 
                     if (
                         accountType ===
@@ -1071,13 +1174,18 @@ document.addEventListener(
                     ) {
 
                         console.log(
-                            "Web3Jobs: Company account detected."
+                            "Web3Jobs: COMPANY LOGIN SUCCESS"
                         );
 
 
+                        const companyUrl =
+                            result.dashboardUrl ||
+                            "company-dashboard.html";
+
+
                         showAuthMessage(
-                            "تم تسجيل الدخول بنجاح. جاري فتح حساب الشركة...",
-                            "Login successful. Opening your company dashboard...",
+                            "تم تسجيل الدخول بنجاح. جاري فتح لوحة الشركة...",
+                            "Login successful. Opening company dashboard...",
                             "success"
                         );
 
@@ -1086,11 +1194,11 @@ document.addEventListener(
                             function () {
 
                                 window.location.replace(
-                                    "company-dashboard.html"
+                                    companyUrl
                                 );
 
                             },
-                            250
+                            300
                         );
 
 
@@ -1098,26 +1206,61 @@ document.addEventListener(
                     }
 
 
-                    /* =============================================
-                       STEP 7
-                       UNKNOWN TYPE
-                    ============================================= */
+                    /* =================================================
+                       INDIVIDUAL
+                       ================================================= */
+
+                    if (
+                        accountType ===
+                        "individual"
+                    ) {
+
+                        console.log(
+                            "Web3Jobs: INDIVIDUAL LOGIN SUCCESS"
+                        );
+
+
+                        const individualUrl =
+                            result.dashboardUrl ||
+                            "dashboard.html";
+
+
+                        showAuthMessage(
+                            "تم تسجيل الدخول بنجاح. جاري فتح لوحة الأفراد...",
+                            "Login successful. Opening individual dashboard...",
+                            "success"
+                        );
+
+
+                        setTimeout(
+                            function () {
+
+                                window.location.replace(
+                                    individualUrl
+                                );
+
+                            },
+                            300
+                        );
+
+
+                        return;
+                    }
+
+
+                    /* =================================================
+                       UNKNOWN
+                       ================================================= */
 
                     console.error(
-                        "Web3Jobs: Account type still missing.",
-                        {
-                            result:
-                                result,
-
-                            accountType:
-                                accountType
-                        }
+                        "Web3Jobs: Unknown account type.",
+                        result
                     );
 
 
                     showAuthMessage(
-                        "تم تسجيل الدخول، لكن تعذر قراءة نوع الحساب من قاعدة البيانات.",
-                        "Login succeeded, but the account type could not be read from the database.",
+                        "تم تسجيل الدخول ولكن تعذر تحديد نوع الحساب.",
+                        "Login succeeded but the account type could not be determined.",
                         "error"
                     );
 
@@ -1131,8 +1274,9 @@ document.addEventListener(
 
                 } catch (error) {
 
+
                     console.error(
-                        "Web3Jobs LOGIN PAGE ERROR:",
+                        "Web3Jobs login page exception:",
                         error
                     );
 
@@ -1149,6 +1293,7 @@ document.addEventListener(
 
                     loginButton.textContent =
                         "Login";
+
                 }
 
             }
@@ -1156,78 +1301,6 @@ document.addEventListener(
 
     }
 );
-
-
-/* =========================================================
-   LOCAL MESSAGE FUNCTION
-========================================================= */
-
-function showAuthMessage(
-    messageAr,
-    messageEn,
-    type = "info"
-) {
-
-    const element =
-        document.getElementById(
-            "auth-message"
-        );
-
-
-    if (!element) {
-
-        console.log(
-            messageAr,
-            messageEn
-        );
-
-        return;
-    }
-
-
-    const safeAr =
-        String(messageAr || "")
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            );
-
-
-    const safeEn =
-        String(messageEn || "")
-            .replace(
-                /&/g,
-                "&amp;"
-            )
-            .replace(
-                /</g,
-                "&lt;"
-            )
-            .replace(
-                />/g,
-                "&gt;"
-            );
-
-
-    element.innerHTML = `
-        <div class="auth-message-${type}">
-            <div>${safeAr}</div>
-            <div>${safeEn}</div>
-        </div>
-    `;
-
-
-    element.style.display =
-        "block";
-}
 
 </script>
 
