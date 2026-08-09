@@ -2,7 +2,7 @@
    Web3Jobs v3
    js/app.js
 
-   Main application / Supabase configuration
+   Main application and Supabase configuration
 ========================================================= */
 
 (function () {
@@ -15,15 +15,10 @@
     ===================================================== */
 
     const SUPABASE_URL =
-        "https://uewocyaspztybnvnkbmo.supabase.co";
-
-    /*
-       استخدم Publishable/Anon Key الخاص بالمشروع.
-       لا تضع Service Role Key في الموقع.
-    */
+        "https://jqhemwskrnlycximjpag.supabase.co";
 
     const SUPABASE_KEY =
-        "sb_publishable_ap9UMOBhdHdIkW0FCD25nA_NurNviS0";
+        "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
 
 
     /* =====================================================
@@ -42,11 +37,8 @@
         window.Web3Jobs = {
 
             supabase: null,
-
             connected: false,
-
-            error:
-                "Supabase library was not loaded."
+            error: "Supabase library was not loaded."
 
         };
 
@@ -59,7 +51,6 @@
     ===================================================== */
 
     let supabaseClient = null;
-
 
     try {
 
@@ -79,9 +70,7 @@
         window.Web3Jobs = {
 
             supabase: null,
-
             connected: false,
-
             error: error
 
         };
@@ -110,11 +99,6 @@
 
     };
 
-
-    /*
-       Compatibility aliases.
-       بعض الملفات القديمة قد تستخدم أسماء مختلفة.
-    */
 
     window.supabaseClient =
         supabaseClient;
@@ -156,11 +140,6 @@
 
     window.Web3JobsUtils = {
 
-
-        /*
-           Escape HTML
-        */
-
         escapeHTML:
             function (value) {
 
@@ -174,9 +153,7 @@
                 }
 
                 const div =
-                    document.createElement(
-                        "div"
-                    );
+                    document.createElement("div");
 
                 div.textContent =
                     String(value);
@@ -185,10 +162,6 @@
 
             },
 
-
-        /*
-           Safe string
-        */
 
         string:
             function (value) {
@@ -206,10 +179,6 @@
 
             },
 
-
-        /*
-           Format date
-        */
 
         formatDate:
             function (dateValue) {
@@ -236,23 +205,14 @@
                 return date.toLocaleDateString(
                     "en-US",
                     {
-                        year:
-                            "numeric",
-
-                        month:
-                            "short",
-
-                        day:
-                            "numeric"
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric"
                     }
                 );
 
             },
 
-
-        /*
-           Format relative date
-        */
 
         timeAgo:
             function (dateValue) {
@@ -362,10 +322,6 @@
             },
 
 
-        /*
-           Show message
-        */
-
         showMessage:
             function (
                 message,
@@ -383,15 +339,10 @@
 
 
     /* =====================================================
-       AUTHENTICATION HELPERS
+       AUTHENTICATION
     ===================================================== */
 
     window.Web3JobsAuth = {
-
-
-        /*
-           Get current session
-        */
 
         getSession:
             async function () {
@@ -406,7 +357,6 @@
                             .auth
                             .getSession();
 
-
                     if (error) {
 
                         console.error(
@@ -417,7 +367,6 @@
                         return null;
 
                     }
-
 
                     return (
                         data?.session ||
@@ -438,10 +387,6 @@
             },
 
 
-        /*
-           Get current user
-        */
-
         getUser:
             async function () {
 
@@ -455,13 +400,11 @@
                             .auth
                             .getUser();
 
-
                     if (error) {
 
                         return null;
 
                     }
-
 
                     return (
                         data?.user ||
@@ -482,10 +425,6 @@
             },
 
 
-        /*
-           Sign out
-        */
-
         signOut:
             async function () {
 
@@ -498,30 +437,23 @@
                             .auth
                             .signOut();
 
-
                     if (error) {
 
                         throw error;
 
                     }
 
-
-                    window.Web3JobsState
-                        .currentUser =
+                    window.Web3JobsState.currentUser =
                         null;
 
-                    window.Web3JobsState
-                        .profile =
+                    window.Web3JobsState.profile =
                         null;
 
-                    window.Web3JobsState
-                        .accountType =
+                    window.Web3JobsState.accountType =
                         null;
-
 
                     return {
-                        success:
-                            true
+                        success: true
                     };
 
                 } catch (error) {
@@ -532,11 +464,8 @@
                     );
 
                     return {
-                        success:
-                            false,
-
-                        error:
-                            error
+                        success: false,
+                        error: error
                     };
 
                 }
@@ -558,26 +487,20 @@
                 await window.Web3JobsAuth
                     .getSession();
 
-
             if (!session) {
 
-                window.Web3JobsState
-                    .currentUser =
+                window.Web3JobsState.currentUser =
                     null;
 
                 return null;
 
             }
 
-
             const user =
                 session.user;
 
-
-            window.Web3JobsState
-                .currentUser =
+            window.Web3JobsState.currentUser =
                 user;
-
 
             return user;
 
@@ -602,7 +525,7 @@
     supabaseClient
         .auth
         .onAuthStateChange(
-            async function (
+            function (
                 event,
                 session
             ) {
@@ -612,29 +535,19 @@
                     event
                 );
 
-
                 const user =
                     session?.user ||
                     null;
 
-
-                window.Web3JobsState
-                    .currentUser =
+                window.Web3JobsState.currentUser =
                     user;
-
-
-                /*
-                   Send a global event so auth.js,
-                   dashboards and other modules
-                   can react without depending
-                   directly on each other.
-                */
 
                 window.dispatchEvent(
                     new CustomEvent(
                         "web3jobs:auth",
                         {
                             detail: {
+
                                 event:
                                     event,
 
@@ -643,6 +556,7 @@
 
                                 user:
                                     user
+
                             }
                         }
                     )
@@ -666,7 +580,6 @@
 
         }
 
-
         try {
 
             const {
@@ -682,13 +595,7 @@
                     )
                     .maybeSingle();
 
-
             if (error) {
-
-                /*
-                   الجدول قد لا يكون جاهزًا
-                   بعد، لذلك لا نوقف الموقع.
-                */
 
                 console.warn(
                     "Web3Jobs: Profile could not be loaded.",
@@ -699,21 +606,16 @@
 
             }
 
-
             if (data) {
 
-                window.Web3JobsState
-                    .profile =
+                window.Web3JobsState.profile =
                     data;
 
-
-                window.Web3JobsState
-                    .accountType =
+                window.Web3JobsState.accountType =
                     data.account_type ||
                     null;
 
             }
-
 
             return data || null;
 
@@ -740,26 +642,25 @@
         const user =
             await loadCurrentUser();
 
-
         if (!user) {
 
             return null;
 
         }
 
-
         const profile =
             await loadProfile(
                 user.id
             );
 
-
         return {
+
             user:
                 user,
 
             profile:
                 profile
+
         };
 
     }
@@ -770,11 +671,6 @@
     ===================================================== */
 
     window.Web3JobsAPI = {
-
-
-        /*
-           Get jobs
-        */
 
         getJobs:
             async function (options = {}) {
@@ -791,11 +687,13 @@
 
                 } = options;
 
-
                 try {
 
-                    let query =
-                        supabaseClient
+                    const {
+                        data,
+                        error
+                    } =
+                        await supabaseClient
                             .from("jobs")
                             .select("*")
                             .order(
@@ -809,14 +707,6 @@
                                 limit
                             );
 
-
-                    const {
-                        data,
-                        error
-                    } =
-                        await query;
-
-
                     if (error) {
 
                         console.error(
@@ -825,38 +715,33 @@
                         );
 
                         return {
-                            data:
-                                [],
 
-                            error:
-                                error
+                            data: [],
+                            error: error
+
                         };
 
                     }
-
 
                     const jobs =
                         Array.isArray(data)
                             ? data
                             : [];
 
-
-                    window.Web3JobsState
-                        .jobs =
+                    window.Web3JobsState.jobs =
                         jobs;
 
-
-                    window.Web3JobsState
-                        .filteredJobs =
+                    window.Web3JobsState.filteredJobs =
                         jobs;
-
 
                     return {
+
                         data:
                             jobs,
 
                         error:
                             null
+
                     };
 
                 } catch (error) {
@@ -867,21 +752,16 @@
                     );
 
                     return {
-                        data:
-                            [],
 
-                        error:
-                            error
+                        data: [],
+                        error: error
+
                     };
 
                 }
 
             },
 
-
-        /*
-           Get one job
-        */
 
         getJob:
             async function (
@@ -891,17 +771,17 @@
                 if (!jobId) {
 
                     return {
-                        data:
-                            null,
+
+                        data: null,
 
                         error:
                             new Error(
                                 "Job ID is required."
                             )
+
                     };
 
                 }
-
 
                 try {
 
@@ -918,33 +798,29 @@
                             )
                             .maybeSingle();
 
-
                     return {
+
                         data:
                             data || null,
 
                         error:
                             error || null
+
                     };
 
                 } catch (error) {
 
                     return {
-                        data:
-                            null,
 
-                        error:
-                            error
+                        data: null,
+                        error: error
+
                     };
 
                 }
 
             },
 
-
-        /*
-           Search jobs
-        */
 
         searchJobs:
             async function ({
@@ -959,31 +835,26 @@
                             200
                     });
 
-
                 if (result.error) {
 
                     return result;
 
                 }
 
-
                 const keywordValue =
                     keyword
                         .trim()
                         .toLowerCase();
-
 
                 const locationValue =
                     location
                         .trim()
                         .toLowerCase();
 
-
                 const typeValue =
                     type
                         .trim()
                         .toLowerCase();
-
 
                 const filtered =
                     result.data.filter(
@@ -992,18 +863,14 @@
                             const text = [
 
                                 job.title,
-
                                 job.company,
-
                                 job.description,
-
                                 job.skills
 
                             ]
                                 .filter(Boolean)
                                 .join(" ")
                                 .toLowerCase();
-
 
                             const jobLocation =
                                 String(
@@ -1012,14 +879,12 @@
                                 )
                                 .toLowerCase();
 
-
                             const jobType =
                                 String(
                                     job.type ||
                                     ""
                                 )
                                 .toLowerCase();
-
 
                             return (
 
@@ -1053,18 +918,17 @@
                         }
                     );
 
-
-                window.Web3JobsState
-                    .filteredJobs =
+                window.Web3JobsState.filteredJobs =
                     filtered;
 
-
                 return {
+
                     data:
                         filtered,
 
                     error:
                         null
+
                 };
 
             }
@@ -1086,7 +950,6 @@
             document.getElementById(
                 "jobs-list"
             )
-
         );
 
     }
@@ -1099,13 +962,11 @@
         const container =
             getJobsContainer();
 
-
         if (!container) {
 
             return;
 
         }
-
 
         if (
             !Array.isArray(jobs) ||
@@ -1133,7 +994,6 @@
 
         }
 
-
         container.innerHTML =
             jobs.map(
                 function (job) {
@@ -1145,14 +1005,12 @@
                                 "Untitled Position"
                             );
 
-
                     const company =
                         window.Web3JobsUtils
                             .escapeHTML(
                                 job.company ||
                                 "Web3 Company"
                             );
-
 
                     const location =
                         window.Web3JobsUtils
@@ -1161,14 +1019,12 @@
                                 "Remote"
                             );
 
-
                     const type =
                         window.Web3JobsUtils
                             .escapeHTML(
                                 job.type ||
                                 "Web3"
                             );
-
 
                     const description =
                         window.Web3JobsUtils
@@ -1177,20 +1033,17 @@
                                 "No description available."
                             );
 
-
                     const date =
                         window.Web3JobsUtils
                             .timeAgo(
                                 job.created_at
                             );
 
-
                     const id =
                         window.Web3JobsUtils
                             .escapeHTML(
                                 job.id
                             );
-
 
                     return `
 
@@ -1258,7 +1111,7 @@
 
 
     /* =====================================================
-       GLOBAL JOB RENDERING API
+       GLOBAL JOB API
     ===================================================== */
 
     window.Web3JobsJobs = {
@@ -1273,11 +1126,9 @@
                     await window.Web3JobsAPI
                         .getJobs();
 
-
                 renderJobs(
                     result.data
                 );
-
 
                 return result;
 
@@ -1285,10 +1136,6 @@
 
     };
 
-
-    /*
-       Compatibility object used by index.html
-    */
 
     window.JobsSystem = {
 
@@ -1302,14 +1149,13 @@
 
 
     /* =====================================================
-       SYNC JOB STATE
+       STATE SYNCHRONIZATION
     ===================================================== */
 
     function syncJobsState() {
 
         window.JobsSystem.jobs =
             window.Web3JobsState.jobs;
-
 
         window.JobsSystem.filteredJobs =
             window.Web3JobsState.filteredJobs;
@@ -1324,7 +1170,7 @@
 
 
     /* =====================================================
-       INITIALIZATION
+       APPLICATION INITIALIZATION
     ===================================================== */
 
     async function initializeApp() {
@@ -1341,7 +1187,6 @@
             "Initializing application..."
         );
 
-
         if (
             !window.Web3Jobs.connected
         ) {
@@ -1354,23 +1199,13 @@
 
         }
 
-
         console.log(
             "Supabase initialized successfully."
         );
 
 
-        /*
-           Load current user.
-        */
-
         await initializeUser();
 
-
-        /*
-           Load jobs only when a jobs
-           container exists.
-        */
 
         if (
             getJobsContainer()
@@ -1384,20 +1219,18 @@
         }
 
 
-        /*
-           Notify other application modules.
-        */
-
         window.dispatchEvent(
             new CustomEvent(
                 "web3jobs:ready",
                 {
                     detail: {
+
                         version:
                             "3.0.0",
 
                         supabase:
                             supabaseClient
+
                     }
                 }
             )
