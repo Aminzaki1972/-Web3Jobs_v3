@@ -17,9 +17,7 @@
         "https://jqhemwskrnlycximjpag.supabase.co";
 
     const SUPABASE_KEY =
-        "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
-
-
+        "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp
     /* =====================================================
        SUPABASE LIBRARY CHECK
     ===================================================== */
