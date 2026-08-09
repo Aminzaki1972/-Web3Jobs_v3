@@ -1,811 +1,1068 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 
-<head>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <meta charset="UTF-8">
+<title>Individual Dashboard - Web3Jobs</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<link
+    rel="stylesheet"
+    href="css/style.css"
+>
 
-    <title>Individual Dashboard - Web3Jobs</title>
+<style>
 
-    <link
-        rel="stylesheet"
-        href="css/style.css"
-    >
+    * {
+        box-sizing: border-box;
+    }
 
-    <style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f5f7fb;
+        color: #111827;
+    }
 
-        * {
-            box-sizing: border-box;
-        }
+    .dashboard-page {
+        min-height: 100vh;
+        background: #f5f7fb;
+    }
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
-            color: #111827;
-        }
+    /* ==============================
+       HEADER
+       ============================== */
 
-        .dashboard-page {
-            min-height: 100vh;
-            background: #f5f7fb;
-        }
+    .dashboard-header {
+        background: #111827;
+        color: #fff;
+        padding: 18px 24px;
+    }
 
-        /* ==============================
-           HEADER
-           ============================== */
+    .dashboard-header-inner {
+        max-width: 1200px;
+        margin: auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+    }
 
-        .dashboard-header {
-            background: #111827;
-            color: #fff;
-            padding: 18px 24px;
-        }
+    .dashboard-logo {
+        font-size: 22px;
+        font-weight: 700;
+    }
 
-        .dashboard-header-inner {
-            max-width: 1200px;
-            margin: auto;
+    .dashboard-nav {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
 
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+    .dashboard-nav a,
+    .dashboard-nav button {
+        border: 0;
+        background: transparent;
+        color: #fff;
+        text-decoration: none;
+        cursor: pointer;
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 14px;
+    }
 
-            gap: 20px;
-        }
+    .dashboard-nav a:hover,
+    .dashboard-nav button:hover {
+        background: rgba(255,255,255,.1);
+    }
 
-        .dashboard-logo {
-            font-size: 22px;
-            font-weight: 700;
-        }
+    /* ==============================
+       MAIN
+       ============================== */
 
-        .dashboard-nav {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+    .dashboard-main {
+        max-width: 1200px;
+        margin: auto;
+        padding: 30px 20px 60px;
+    }
 
-        .dashboard-nav a,
-        .dashboard-nav button {
-            border: 0;
-            background: transparent;
-            color: #fff;
-            text-decoration: none;
-            cursor: pointer;
+    /* ==============================
+       WELCOME
+       ============================== */
 
-            padding: 9px 12px;
-            border-radius: 8px;
+    .welcome-card {
+        background: #fff;
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 30px rgba(0,0,0,.06);
+    }
 
-            font-size: 14px;
-        }
+    .welcome-card h1 {
+        margin: 0 0 8px;
+    }
 
-        .dashboard-nav a:hover,
-        .dashboard-nav button:hover {
-            background: rgba(255,255,255,.1);
-        }
+    .welcome-card p {
+        margin: 0;
+        color: #6b7280;
+    }
 
-        /* ==============================
-           MAIN
-           ============================== */
+    /* ==============================
+       STATISTICS
+       ============================== */
 
-        .dashboard-main {
-            max-width: 1200px;
-            margin: auto;
-            padding: 30px 20px 60px;
-        }
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 28px;
+    }
 
-        /* ==============================
-           WELCOME
-           ============================== */
+    .dashboard-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px;
+        box-shadow: 0 8px 25px rgba(0,0,0,.05);
+    }
 
-        .welcome-card {
-            background: #fff;
-            border-radius: 16px;
+    .dashboard-card h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+    }
 
-            padding: 28px;
-            margin-bottom: 24px;
+    .dashboard-number {
+        font-size: 30px;
+        font-weight: 700;
+        margin-bottom: 5px;
+    }
 
-            box-shadow:
-                0 8px 30px rgba(0,0,0,.06);
-        }
+    .dashboard-card p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 14px;
+    }
 
-        .welcome-card h1 {
-            margin: 0 0 8px;
-        }
+    /* ==============================
+       SECTIONS
+       ============================== */
 
-        .welcome-card p {
-            margin: 0;
-            color: #6b7280;
-        }
+    .dashboard-section {
+        background: #fff;
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 25px rgba(0,0,0,.05);
+    }
 
-        /* ==============================
-           STATISTICS
-           ============================== */
+    .dashboard-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .dashboard-section-header h2 {
+        margin: 0;
+    }
+
+    /* ==============================
+       BUTTONS
+       ============================== */
+
+    .dashboard-button {
+        display: inline-block;
+        border: 0;
+        background: #2563eb;
+        color: #fff;
+        padding: 11px 18px;
+        border-radius: 9px;
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .dashboard-button:hover {
+        opacity: .9;
+    }
+
+    .dashboard-button.secondary {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    /* ==============================
+       ACTIONS
+       ============================== */
+
+    .dashboard-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 15px;
+    }
+
+    .action-box {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .action-box h3 {
+        margin-top: 0;
+    }
+
+    .action-box p {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    /* ==============================
+       PROFILE
+       ============================== */
+
+    .profile-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 13px 0;
+        border-bottom: 1px solid #eeeeee;
+    }
+
+    .profile-row:last-child {
+        border-bottom: 0;
+    }
+
+    .profile-label {
+        color: #6b7280;
+    }
+
+    .profile-value {
+        font-weight: 600;
+        text-align: right;
+        word-break: break-word;
+    }
+
+    /* ==============================
+       WALLET
+       ============================== */
+
+    .wallet-section {
+        border: 1px solid #dbeafe;
+        background:
+            linear-gradient(
+                135deg,
+                #ffffff,
+                #f8fbff
+            );
+    }
+
+    .wallet-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .wallet-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .wallet-icon {
+        width: 48px;
+        height: 48px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        font-size: 23px;
+    }
+
+    .wallet-title h2 {
+        margin: 0 0 4px;
+        font-size: 22px;
+    }
+
+    .wallet-title p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .wallet-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #f3f4f6;
+        color: #6b7280;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .wallet-status.connected {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .wallet-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #9ca3af;
+    }
+
+    .wallet-status.connected .wallet-status-dot {
+        background: #16a34a;
+    }
+
+    .wallet-description {
+        color: #4b5563;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 20px;
+    }
+
+    .wallet-connect-box {
+        padding: 20px;
+        border: 1px dashed #bfdbfe;
+        border-radius: 12px;
+        background: #f8fbff;
+    }
+
+    .wallet-connect-box h3 {
+        margin: 0 0 8px;
+    }
+
+    .wallet-connect-box p {
+        color: #6b7280;
+        font-size: 13px;
+        line-height: 1.6;
+        margin: 0 0 16px;
+    }
+
+    .wallet-connected-box {
+        display: none;
+    }
+
+    .wallet-info-grid {
+        display: grid;
+        grid-template-columns:
+            repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .wallet-info-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        padding: 15px;
+        background: #fff;
+    }
+
+    .wallet-info-card span {
+        display: block;
+        color: #6b7280;
+        font-size: 11px;
+        margin-bottom: 6px;
+    }
+
+    .wallet-info-card strong {
+        display: block;
+        font-size: 14px;
+        word-break: break-word;
+    }
+
+    .wallet-address {
+        font-family: monospace;
+        font-size: 13px !important;
+    }
+
+    .wallet-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .wallet-message {
+        margin-top: 15px;
+        padding: 11px 13px;
+        border-radius: 9px;
+        display: none;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .wallet-message.info {
+        display: block;
+        background: #eff6ff;
+        color: #1e40af;
+    }
+
+    .wallet-message.success {
+        display: block;
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .wallet-message.error {
+        display: block;
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .wallet-security {
+        margin-top: 18px;
+        padding: 14px;
+        border-radius: 10px;
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        color: #4b5563;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .wallet-security strong {
+        color: #111827;
+    }
+
+    /* ==============================
+       LOADING
+       ============================== */
+
+    .dashboard-loading {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 30px;
+    }
+
+    .dashboard-loading-box {
+        background: #fff;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0,0,0,.08);
+    }
+
+    .dashboard-loading-box h2 {
+        margin-top: 0;
+    }
+
+    .dashboard-loading-box p {
+        color: #6b7280;
+    }
+
+    /* ==============================
+       APPLICATION
+       ============================== */
+
+    .application-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 12px;
+    }
+
+    .application-card h3 {
+        margin-top: 0;
+    }
+
+    .application-card p {
+        color: #4b5563;
+    }
+
+    /* ==============================
+       RESPONSIVE
+       ============================== */
+
+    @media (max-width: 900px) {
 
         .dashboard-grid {
-            display: grid;
-
             grid-template-columns:
-                repeat(4, minmax(0, 1fr));
-
-            gap: 18px;
-
-            margin-bottom: 28px;
+                repeat(2, minmax(0, 1fr));
         }
-
-        .dashboard-card {
-            background: #fff;
-
-            border-radius: 14px;
-
-            padding: 22px;
-
-            box-shadow:
-                0 8px 25px rgba(0,0,0,.05);
-        }
-
-        .dashboard-card h3 {
-            margin: 0 0 8px;
-            font-size: 16px;
-        }
-
-        .dashboard-number {
-            font-size: 30px;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        .dashboard-card p {
-            color: #6b7280;
-            margin: 0;
-            font-size: 14px;
-        }
-
-        /* ==============================
-           SECTIONS
-           ============================== */
-
-        .dashboard-section {
-            background: #fff;
-
-            border-radius: 16px;
-
-            padding: 24px;
-
-            margin-bottom: 24px;
-
-            box-shadow:
-                0 8px 25px rgba(0,0,0,.05);
-        }
-
-        .dashboard-section-header {
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 15px;
-
-            margin-bottom: 20px;
-        }
-
-        .dashboard-section-header h2 {
-            margin: 0;
-        }
-
-        /* ==============================
-           BUTTONS
-           ============================== */
-
-        .dashboard-button {
-            display: inline-block;
-
-            border: 0;
-
-            background: #2563eb;
-
-            color: #fff;
-
-            padding: 11px 18px;
-
-            border-radius: 9px;
-
-            text-decoration: none;
-
-            cursor: pointer;
-
-            font-weight: 600;
-        }
-
-        .dashboard-button:hover {
-            opacity: .9;
-        }
-
-        .dashboard-button.secondary {
-            background: #e5e7eb;
-            color: #111827;
-        }
-
-        /* ==============================
-           ACTIONS
-           ============================== */
 
         .dashboard-actions {
-            display: grid;
-
-            grid-template-columns:
-                repeat(3, minmax(0, 1fr));
-
-            gap: 15px;
+            grid-template-columns: 1fr;
         }
 
-        .action-box {
-            border: 1px solid #e5e7eb;
+        .wallet-info-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 
-            border-radius: 12px;
+    @media (max-width: 600px) {
 
+        .dashboard-header-inner {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-main {
+            padding: 20px 14px 40px;
+        }
+
+        .welcome-card,
+        .dashboard-section {
             padding: 20px;
         }
 
-        .action-box h3 {
-            margin-top: 0;
-        }
-
-        .action-box p {
-            color: #6b7280;
-
-            font-size: 14px;
-
-            line-height: 1.6;
-        }
-
-        /* ==============================
-           PROFILE
-           ============================== */
-
         .profile-row {
-            display: flex;
-
-            justify-content: space-between;
-
-            gap: 20px;
-
-            padding: 13px 0;
-
-            border-bottom:
-                1px solid #eeeeee;
-        }
-
-        .profile-row:last-child {
-            border-bottom: 0;
-        }
-
-        .profile-label {
-            color: #6b7280;
+            flex-direction: column;
+            gap: 5px;
         }
 
         .profile-value {
-            font-weight: 600;
-
-            text-align: right;
-
-            word-break: break-word;
+            text-align: left;
         }
 
-        /* ==============================
-           LOADING
-           ============================== */
-
-        .dashboard-loading {
-            min-height: 100vh;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            text-align: center;
-
-            padding: 30px;
+        .wallet-header {
+            align-items: flex-start;
+            flex-direction: column;
         }
 
-        .dashboard-loading-box {
-            background: #fff;
-
-            padding: 30px;
-
-            border-radius: 16px;
-
-            box-shadow:
-                0 8px 30px rgba(0,0,0,.08);
+        .wallet-actions {
+            flex-direction: column;
         }
 
-        .dashboard-loading-box h2 {
-            margin-top: 0;
-        }
-
-        .dashboard-loading-box p {
-            color: #6b7280;
-        }
-
-        /* ==============================
-           ERROR
-           ============================== */
-
-        .dashboard-error {
-            background: #fee2e2;
-
-            color: #991b1b;
-
-            padding: 16px;
-
-            border-radius: 10px;
-
-            margin-bottom: 20px;
-
+        .wallet-actions .dashboard-button {
+            width: 100%;
             text-align: center;
         }
+    }
 
-        /* ==============================
-           APPLICATION
-           ============================== */
+</style>
 
-        .application-card {
-            border: 1px solid #e5e7eb;
-
-            border-radius: 12px;
-
-            padding: 18px;
-
-            margin-bottom: 12px;
-        }
-
-        .application-card h3 {
-            margin-top: 0;
-        }
-
-        .application-card p {
-            color: #4b5563;
-        }
-
-        /* ==============================
-           RESPONSIVE
-           ============================== */
-
-        @media (max-width: 900px) {
-
-            .dashboard-grid {
-                grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
-            }
-
-            .dashboard-actions {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 600px) {
-
-            .dashboard-header-inner {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .dashboard-main {
-                padding: 20px 14px 40px;
-            }
-
-            .welcome-card,
-            .dashboard-section {
-                padding: 20px;
-            }
-
-            .profile-row {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .profile-value {
-                text-align: left;
-            }
-        }
-
-    </style>
-
-</head>
-
-
-<body>
-
-
-<!-- =====================================================
+</head><body><!-- =====================================================
      LOADING SCREEN
-     ===================================================== -->
-
-<div
+===================================================== --><div
     id="dashboard-loading"
     class="dashboard-loading"
->
+><div class="dashboard-loading-box">
 
-    <div class="dashboard-loading-box">
+    <h2>
+        Web3Jobs
+    </h2>
 
-        <h2>
-            Web3Jobs
-        </h2>
-
-        <p>
-            Checking your account...
-        </p>
-
-    </div>
+    <p>
+        Checking your account...
+    </p>
 
 </div>
 
-
-
-<!-- =====================================================
+</div><!-- =====================================================
      DASHBOARD
-     ===================================================== -->
-
-<div
+===================================================== --><div
     class="dashboard-page"
     id="dashboard-page"
     style="display:none;"
->
+><!-- HEADER -->
+
+<header class="dashboard-header">
+
+    <div class="dashboard-header-inner">
+
+        <div class="dashboard-logo">
+            Web3Jobs
+        </div>
 
 
-    <!-- ==============================
-         HEADER
-         ============================== -->
+        <nav class="dashboard-nav">
 
-    <header class="dashboard-header">
+            <a href="index.html">
+                Home
+            </a>
 
-        <div class="dashboard-header-inner">
+            <a href="index.html#jobs">
+                Explore Jobs
+            </a>
 
-            <div class="dashboard-logo">
-                Web3Jobs
+            <button
+                type="button"
+                id="dashboard-logout"
+            >
+                Logout
+            </button>
+
+        </nav>
+
+    </div>
+
+</header>
+
+
+<!-- MAIN -->
+
+<main class="dashboard-main">
+
+
+    <!-- WELCOME -->
+
+    <section class="welcome-card">
+
+        <h1>
+
+            Welcome,
+            <span id="dashboard-user-name">
+                User
+            </span>
+
+        </h1>
+
+        <p>
+            Manage your Web3Jobs account and
+            discover new opportunities.
+        </p>
+
+    </section>
+
+
+    <!-- STATISTICS -->
+
+    <section class="dashboard-grid">
+
+        <div class="dashboard-card">
+
+            <h3>
+                Applications
+            </h3>
+
+            <div
+                class="dashboard-number"
+                id="applications-count"
+            >
+                0
             </div>
 
-
-            <nav class="dashboard-nav">
-
-                <a href="index.html">
-                    Home
-                </a>
-
-                <a href="index.html#jobs">
-                    Explore Jobs
-                </a>
-
-                <button
-                    type="button"
-                    id="dashboard-logout"
-                >
-                    Logout
-                </button>
-
-            </nav>
+            <p>
+                Jobs you have applied for
+            </p>
 
         </div>
 
-    </header>
 
+        <div class="dashboard-card">
 
+            <h3>
+                Saved Jobs
+            </h3>
 
-    <!-- ==============================
-         MAIN
-         ============================== -->
-
-    <main class="dashboard-main">
-
-
-        <!-- WELCOME -->
-
-        <section class="welcome-card">
-
-            <h1>
-
-                Welcome,
-                <span id="dashboard-user-name">
-                    User
-                </span>
-
-            </h1>
+            <div
+                class="dashboard-number"
+                id="saved-jobs-count"
+            >
+                0
+            </div>
 
             <p>
-                Manage your Web3Jobs account and
-                discover new opportunities.
+                Jobs saved for later
             </p>
 
-        </section>
+        </div>
 
 
+        <div class="dashboard-card">
 
-        <!-- STATISTICS -->
+            <h3>
+                Profile
+            </h3>
 
-        <section class="dashboard-grid">
+            <div
+                class="dashboard-number"
+                id="profile-status"
+            >
+                —
+            </div>
+
+            <p>
+                Profile completion
+            </p>
+
+        </div>
 
 
-            <div class="dashboard-card">
+        <div class="dashboard-card">
+
+            <h3>
+                Account
+            </h3>
+
+            <div
+                class="dashboard-number"
+                id="account-type"
+            >
+                Individual
+            </div>
+
+            <p>
+                Account type
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- QUICK ACTIONS -->
+
+    <section class="dashboard-section">
+
+        <div class="dashboard-section-header">
+
+            <h2>
+                Quick Actions
+            </h2>
+
+        </div>
+
+
+        <div class="dashboard-actions">
+
+
+            <div class="action-box">
 
                 <h3>
-                    Applications
+                    Explore Jobs
                 </h3>
 
-                <div
-                    class="dashboard-number"
-                    id="applications-count"
-                >
-                    0
-                </div>
-
                 <p>
-                    Jobs you have applied for
+                    Browse available Web3 and
+                    Blockchain opportunities.
                 </p>
+
+                <a
+                    href="index.html#jobs"
+                    class="dashboard-button"
+                >
+                    Explore Jobs
+                </a>
 
             </div>
 
 
-            <div class="dashboard-card">
+            <div class="action-box">
 
                 <h3>
-                    Saved Jobs
+                    My Applications
                 </h3>
 
-                <div
-                    class="dashboard-number"
-                    id="saved-jobs-count"
-                >
-                    0
-                </div>
-
                 <p>
-                    Jobs saved for later
+                    Review the jobs you have
+                    applied for.
                 </p>
+
+                <button
+                    type="button"
+                    class="dashboard-button secondary"
+                    id="view-applications-button"
+                >
+                    View Applications
+                </button>
 
             </div>
 
 
-            <div class="dashboard-card">
+            <div class="action-box">
 
                 <h3>
-                    Profile
+                    My Profile
                 </h3>
 
-                <div
-                    class="dashboard-number"
-                    id="profile-status"
-                >
-                    —
-                </div>
-
                 <p>
-                    Profile completion
+                    Keep your account information
+                    up to date.
                 </p>
 
+                <button
+                    type="button"
+                    class="dashboard-button secondary"
+                    id="edit-profile-button"
+                >
+                    Edit Profile
+                </button>
+
             </div>
 
 
-            <div class="dashboard-card">
+        </div>
 
-                <h3>
-                    Account
-                </h3>
+    </section>
 
-                <div
-                    class="dashboard-number"
-                    id="account-type"
-                >
-                    Individual
+
+    <!-- =================================================
+         WEB3 WALLET
+    ================================================= -->
+
+    <section
+        class="dashboard-section wallet-section"
+        id="wallet-section"
+    >
+
+        <div class="wallet-header">
+
+            <div class="wallet-title">
+
+                <div class="wallet-icon">
+                    🔐
                 </div>
 
-                <p>
-                    Account type
-                </p>
+                <div>
 
-            </div>
-
-
-        </section>
-
-
-
-        <!-- QUICK ACTIONS -->
-
-        <section class="dashboard-section">
-
-            <div class="dashboard-section-header">
-
-                <h2>
-                    Quick Actions
-                </h2>
-
-            </div>
-
-
-            <div class="dashboard-actions">
-
-
-                <div class="action-box">
-
-                    <h3>
-                        Explore Jobs
-                    </h3>
+                    <h2>
+                        Web3 Wallet
+                    </h2>
 
                     <p>
-                        Browse available Web3 and
-                        Blockchain opportunities.
+                        Optional Web3 wallet connection
                     </p>
-
-                    <a
-                        href="index.html#jobs"
-                        class="dashboard-button"
-                    >
-                        Explore Jobs
-                    </a>
-
-                </div>
-
-
-                <div class="action-box">
-
-                    <h3>
-                        My Applications
-                    </h3>
-
-                    <p>
-                        Review the jobs you have
-                        applied for.
-                    </p>
-
-                    <button
-                        type="button"
-                        class="dashboard-button secondary"
-                        id="view-applications-button"
-                    >
-                        View Applications
-                    </button>
-
-                </div>
-
-
-                <div class="action-box">
-
-                    <h3>
-                        My Profile
-                    </h3>
-
-                    <p>
-                        Keep your account information
-                        up to date.
-                    </p>
-
-                    <button
-                        type="button"
-                        class="dashboard-button secondary"
-                        id="edit-profile-button"
-                    >
-                        Edit Profile
-                    </button>
-
-                </div>
-
-
-            </div>
-
-        </section>
-
-
-
-        <!-- ACCOUNT INFORMATION -->
-
-        <section class="dashboard-section">
-
-            <div class="dashboard-section-header">
-
-                <h2>
-                    Account Information
-                </h2>
-
-            </div>
-
-
-            <div id="account-information">
-
-                <div class="dashboard-loading-box">
-
-                    Loading account information...
 
                 </div>
 
             </div>
 
-        </section>
+
+            <div
+                class="wallet-status"
+                id="wallet-status"
+            >
+
+                <span
+                    class="wallet-status-dot"
+                ></span>
+
+                Not Connected
+
+            </div>
+
+        </div>
 
 
+        <p class="wallet-description">
 
-        <!-- APPLICATIONS -->
+            Connect your external Web3 wallet to
+            access future Web3 features on Web3Jobs.
+            Connecting a wallet is completely optional
+            and is not required to log in to your account.
 
-        <section
-            class="dashboard-section"
-            id="applications-section"
+        </p>
+
+
+        <!-- DISCONNECTED -->
+
+        <div
+            class="wallet-connect-box"
+            id="wallet-connect-box"
         >
 
-            <div class="dashboard-section-header">
+            <h3>
+                Connect your wallet
+            </h3>
 
-                <h2>
-                    My Applications
-                </h2>
+            <p>
+                Web3Jobs does not request or store your
+                private key or recovery phrase.
+                Your wallet remains under your control.
+            </p>
 
-            </div>
+            <button
+                type="button"
+                class="dashboard-button"
+                id="connect-wallet-button"
+            >
+                🔗 Connect Wallet
+            </button>
+
+        </div>
 
 
-            <div id="my-applications">
+        <!-- CONNECTED -->
 
-                <div class="dashboard-loading-box">
+        <div
+            class="wallet-connected-box"
+            id="wallet-connected-box"
+        >
 
-                    Loading applications...
+            <div class="wallet-info-grid">
+
+                <div class="wallet-info-card">
+
+                    <span>
+                        Wallet Address
+                    </span>
+
+                    <strong
+                        id="wallet-address"
+                        class="wallet-address"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="wallet-info-card">
+
+                    <span>
+                        Network
+                    </span>
+
+                    <strong
+                        id="wallet-network"
+                    >
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="wallet-info-card">
+
+                    <span>
+                        Balance
+                    </span>
+
+                    <strong
+                        id="wallet-balance"
+                    >
+                        —
+                    </strong>
 
                 </div>
 
             </div>
 
-        </section>
+
+            <div class="wallet-actions">
+
+                <button
+                    type="button"
+                    class="dashboard-button"
+                    id="refresh-wallet-button"
+                >
+                    ↻ Refresh
+
+                </button>
 
 
-    </main>
+                <button
+                    type="button"
+                    class="dashboard-button secondary"
+                    id="disconnect-wallet-button"
+                >
+                    Disconnect
+                </button>
 
-</div>
+            </div>
+
+        </div>
 
 
+        <div
+            id="wallet-message"
+            class="wallet-message"
+        ></div>
 
-<!-- =====================================================
-     SUPABASE LIBRARY
-     ===================================================== -->
 
-<script
+        <div class="wallet-security">
+
+            <strong>
+                🔒 Security:
+            </strong>
+
+            Web3Jobs never asks for your private key,
+            seed phrase, or wallet password.
+            Never share these credentials with anyone,
+            including anyone claiming to represent Web3Jobs.
+
+        </div>
+
+    </section>
+
+
+    <!-- ACCOUNT INFORMATION -->
+
+    <section class="dashboard-section">
+
+        <div class="dashboard-section-header">
+
+            <h2>
+                Account Information
+            </h2>
+
+        </div>
+
+
+        <div id="account-information">
+
+            <div class="dashboard-loading-box">
+                Loading account information...
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- APPLICATIONS -->
+
+    <section
+        class="dashboard-section"
+        id="applications-section"
+    >
+
+        <div class="dashboard-section-header">
+
+            <h2>
+                My Applications
+            </h2>
+
+        </div>
+
+
+        <div id="my-applications">
+
+            <div class="dashboard-loading-box">
+                Loading applications...
+            </div>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+</div><!-- =====================================================
+     SUPABASE
+===================================================== --><script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
-
-
-<!-- =====================================================
+></script><!-- =====================================================
      CENTRAL SUPABASE
-     ===================================================== -->
-
-<script src="js/supabase.js"></script>
-
-
-
-<!-- =====================================================
+===================================================== --><script src="js/supabase.js"></script><!-- =====================================================
      CENTRAL AUTH
-     ===================================================== -->
-
-<script src="js/auth.js"></script>
-
-
-
-<!-- =====================================================
+===================================================== --><script src="js/auth.js"></script><!-- =====================================================
      DASHBOARD SYSTEM
-     ===================================================== -->
-
-<script>
+===================================================== --><script>
 
 "use strict";
 
 
 /* =========================================================
    HELPERS
-   ========================================================= */
+========================================================= */
 
 function escapeDashboardHTML(value) {
 
@@ -813,28 +1070,21 @@ function escapeDashboardHTML(value) {
         value === null ||
         value === undefined
     ) {
-
         return "";
-
     }
 
     return String(value)
-
         .replace(/&/g, "&amp;")
-
         .replace(/</g, "&lt;")
-
         .replace(/>/g, "&gt;")
-
         .replace(/"/g, "&quot;")
-
         .replace(/'/g, "&#039;");
 }
 
 
 /* =========================================================
    GET SUPABASE CLIENT
-   ========================================================= */
+========================================================= */
 
 function getDashboardSupabase() {
 
@@ -850,11 +1100,9 @@ function getDashboardSupabase() {
 
     }
 
-
     console.error(
         "Web3JobsSupabase client not found."
     );
-
 
     return null;
 }
@@ -862,7 +1110,7 @@ function getDashboardSupabase() {
 
 /* =========================================================
    SHOW ERROR
-   ========================================================= */
+========================================================= */
 
 function showDashboardError(message) {
 
@@ -870,7 +1118,6 @@ function showDashboardError(message) {
         document.getElementById(
             "dashboard-loading"
         );
-
 
     if (loading) {
 
@@ -905,7 +1152,7 @@ function showDashboardError(message) {
 
 /* =========================================================
    SHOW DASHBOARD
-   ========================================================= */
+========================================================= */
 
 function showDashboard() {
 
@@ -914,26 +1161,17 @@ function showDashboard() {
             "dashboard-loading"
         );
 
-
     const page =
         document.getElementById(
             "dashboard-page"
         );
 
-
     if (loading) {
-
-        loading.style.display =
-            "none";
-
+        loading.style.display = "none";
     }
 
-
     if (page) {
-
-        page.style.display =
-            "block";
-
+        page.style.display = "block";
     }
 
 }
@@ -941,7 +1179,7 @@ function showDashboard() {
 
 /* =========================================================
    REDIRECT LOGIN
-   ========================================================= */
+========================================================= */
 
 function redirectToLogin() {
 
@@ -954,7 +1192,7 @@ function redirectToLogin() {
 
 /* =========================================================
    LOAD DASHBOARD
-   ========================================================= */
+========================================================= */
 
 async function initializeIndividualDashboard() {
 
@@ -962,13 +1200,7 @@ async function initializeIndividualDashboard() {
         "Web3Jobs Dashboard: starting..."
     );
 
-
     try {
-
-        /*
-         * Wait briefly for the central
-         * authentication system.
-         */
 
         let attempts = 0;
 
@@ -979,16 +1211,12 @@ async function initializeIndividualDashboard() {
 
             await new Promise(
                 resolve =>
-                    setTimeout(
-                        resolve,
-                        100
-                    )
+                    setTimeout(resolve, 100)
             );
 
             attempts++;
 
         }
-
 
         if (!window.Web3JobsAuth) {
 
@@ -1000,13 +1228,7 @@ async function initializeIndividualDashboard() {
 
         }
 
-
-        /*
-         * Get authenticated user.
-         */
-
         let user = null;
-
 
         if (
             typeof
@@ -1020,17 +1242,10 @@ async function initializeIndividualDashboard() {
 
         }
 
-
-        /*
-         * If no user was returned,
-         * read the Supabase session directly.
-         */
-
         if (!user) {
 
             const supabaseClient =
                 getDashboardSupabase();
-
 
             if (supabaseClient) {
 
@@ -1041,7 +1256,6 @@ async function initializeIndividualDashboard() {
                         .auth
                         .getSession();
 
-
                 user =
                     data?.session?.user ||
                     null;
@@ -1050,34 +1264,13 @@ async function initializeIndividualDashboard() {
 
         }
 
-
-        /*
-         * Still no user.
-         */
-
         if (!user) {
-
-            console.warn(
-                "Dashboard: no active session."
-            );
-
 
             redirectToLogin();
 
             return;
 
         }
-
-
-        console.log(
-            "Dashboard user:",
-            user.id
-        );
-
-
-        /*
-         * Determine account type.
-         */
 
         let accountType =
             user.user_metadata?.account_type ||
@@ -1097,12 +1290,8 @@ async function initializeIndividualDashboard() {
                     await window.Web3JobsAuth
                         .getAccountType(user);
 
-
                 if (authType) {
-
-                    accountType =
-                        authType;
-
+                    accountType = authType;
                 }
 
             } catch (error) {
@@ -1123,17 +1312,6 @@ async function initializeIndividualDashboard() {
                 .toLowerCase();
 
 
-        console.log(
-            "Dashboard account type:",
-            accountType
-        );
-
-
-        /*
-         * Company accounts cannot use
-         * individual dashboard.
-         */
-
         if (
             accountType === "company" ||
             accountType === "business"
@@ -1148,12 +1326,7 @@ async function initializeIndividualDashboard() {
         }
 
 
-        /*
-         * Load profile.
-         */
-
         let profile = null;
-
 
         if (
             typeof
@@ -1165,9 +1338,7 @@ async function initializeIndividualDashboard() {
 
                 profile =
                     await window.Web3JobsAuth
-                        .getUserProfile(
-                            user.id
-                        );
+                        .getUserProfile(user.id);
 
             } catch (error) {
 
@@ -1180,10 +1351,6 @@ async function initializeIndividualDashboard() {
 
         }
 
-
-        /*
-         * Display user.
-         */
 
         const metadata =
             user.user_metadata || {};
@@ -1208,10 +1375,6 @@ async function initializeIndividualDashboard() {
             "Individual";
 
 
-        /*
-         * Account information.
-         */
-
         renderAccountInformation(
             user,
             profile,
@@ -1219,20 +1382,15 @@ async function initializeIndividualDashboard() {
         );
 
 
-        /*
-         * Applications.
-         */
-
         await loadApplications(
             user.id
         );
 
 
-        /*
-         * Finally show dashboard.
-         */
-
         showDashboard();
+
+
+        initializeWallet();
 
 
         console.log(
@@ -1247,7 +1405,6 @@ async function initializeIndividualDashboard() {
             error
         );
 
-
         showDashboardError(
             "Unable to load your dashboard. Please try again."
         );
@@ -1259,7 +1416,7 @@ async function initializeIndividualDashboard() {
 
 /* =========================================================
    ACCOUNT INFORMATION
-   ========================================================= */
+========================================================= */
 
 function renderAccountInformation(
     user,
@@ -1271,7 +1428,6 @@ function renderAccountInformation(
         document.getElementById(
             "account-information"
         );
-
 
     if (!container) {
         return;
@@ -1376,17 +1532,14 @@ function renderAccountInformation(
 
 /* =========================================================
    LOAD APPLICATIONS
-   ========================================================= */
+========================================================= */
 
-async function loadApplications(
-    userId
-) {
+async function loadApplications(userId) {
 
     const container =
         document.getElementById(
             "my-applications"
         );
-
 
     if (!container) {
         return;
@@ -1400,11 +1553,9 @@ async function loadApplications(
     if (!supabaseClient) {
 
         container.innerHTML = `
-
             <p>
                 Applications are temporarily unavailable.
             </p>
-
         `;
 
         return;
@@ -1419,16 +1570,9 @@ async function loadApplications(
             error
         } =
             await supabaseClient
-
                 .from("applications")
-
                 .select("*")
-
-                .eq(
-                    "user_id",
-                    userId
-                )
-
+                .eq("user_id", userId)
                 .order(
                     "created_at",
                     {
@@ -1436,11 +1580,6 @@ async function loadApplications(
                     }
                 );
 
-
-        /*
-         * Applications table may not exist yet.
-         * This must NOT block dashboard access.
-         */
 
         if (error) {
 
@@ -1483,16 +1622,12 @@ async function loadApplications(
 
 
         if (count) {
-
             count.textContent =
                 applications.length;
-
         }
 
 
-        if (
-            applications.length === 0
-        ) {
+        if (!applications.length) {
 
             container.innerHTML = `
 
@@ -1528,7 +1663,6 @@ async function loadApplications(
                             </h3>
 
                             <p>
-
                                 <strong>
                                     Job ID:
                                 </strong>
@@ -1536,11 +1670,9 @@ async function loadApplications(
                                 ${escapeDashboardHTML(
                                     application.job_id
                                 )}
-
                             </p>
 
                             <p>
-
                                 <strong>
                                     Status:
                                 </strong>
@@ -1549,7 +1681,6 @@ async function loadApplications(
                                     application.status ||
                                     "Submitted"
                                 )}
-
                             </p>
 
                         </div>
@@ -1583,7 +1714,7 @@ async function loadApplications(
 
 /* =========================================================
    LOGOUT
-   ========================================================= */
+========================================================= */
 
 async function dashboardLogout() {
 
@@ -1632,7 +1763,6 @@ async function dashboardLogout() {
             error
         );
 
-
         window.location.replace(
             "index.html"
         );
@@ -1643,8 +1773,596 @@ async function dashboardLogout() {
 
 
 /* =========================================================
-   VIEW APPLICATIONS
-   ========================================================= */
+   WALLET SYSTEM
+   External Wallet - Optional
+========================================================= */
+
+const Web3JobsWallet = {
+
+    provider: null,
+
+    address: null,
+
+    chainId: null,
+
+
+    async connect() {
+
+        if (
+            !window.ethereum
+        ) {
+
+            showWalletMessage(
+                "No Web3 wallet was detected. Please install MetaMask or open Web3Jobs inside a compatible wallet browser.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            this.provider =
+                window.ethereum;
+
+
+            const accounts =
+                await this.provider.request({
+                    method:
+                        "eth_requestAccounts"
+                });
+
+
+            if (
+                !accounts ||
+                !accounts.length
+            ) {
+
+                throw new Error(
+                    "No wallet account was returned."
+                );
+
+            }
+
+
+            this.address =
+                accounts[0];
+
+
+            await this.refresh();
+
+
+            showWalletMessage(
+                "Wallet connected successfully.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Wallet connection error:",
+                error
+            );
+
+
+            if (
+                error?.code === 4001
+            ) {
+
+                showWalletMessage(
+                    "Wallet connection was cancelled.",
+                    "info"
+                );
+
+            } else {
+
+                showWalletMessage(
+                    "Unable to connect the wallet.",
+                    "error"
+                );
+
+            }
+
+        }
+
+    },
+
+
+    async refresh() {
+
+        if (
+            !this.provider
+        ) {
+
+            this.provider =
+                window.ethereum;
+
+        }
+
+
+        if (
+            !this.provider ||
+            !this.address
+        ) {
+
+            return;
+
+        }
+
+
+        const chainId =
+            await this.provider.request({
+                method:
+                    "eth_chainId"
+            });
+
+
+        this.chainId =
+            chainId;
+
+
+        const balanceHex =
+            await this.provider.request({
+                method:
+                    "eth_getBalance",
+
+                params: [
+                    this.address,
+                    "latest"
+                ]
+            });
+
+
+        const balance =
+            Number(
+                BigInt(balanceHex)
+            ) /
+            1e18;
+
+
+        updateWalletUI(
+            this.address,
+            chainId,
+            balance
+        );
+
+    },
+
+
+    disconnect() {
+
+        this.provider = null;
+
+        this.address = null;
+
+        this.chainId = null;
+
+        resetWalletUI();
+
+        showWalletMessage(
+            "Wallet disconnected from this dashboard.",
+            "info"
+        );
+
+    }
+
+};
+
+
+/* =========================================================
+   NETWORK NAME
+========================================================= */
+
+function getNetworkName(chainId) {
+
+    const networks = {
+
+        "0x1":
+            "Ethereum Mainnet",
+
+        "0x38":
+            "BNB Smart Chain",
+
+        "0x89":
+            "Polygon",
+
+        "0xa":
+            "Optimism",
+
+        "0xa4b1":
+            "Arbitrum One",
+
+        "0xa86a":
+            "Avalanche",
+
+        "0x2105":
+            "Base",
+
+        "0x14a34":
+            "Base Sepolia",
+
+        "0xaa36a7":
+            "Sepolia"
+
+    };
+
+
+    return (
+        networks[chainId] ||
+        `Chain ${chainId}`
+    );
+
+}
+
+
+/* =========================================================
+   FORMAT ADDRESS
+========================================================= */
+
+function formatWalletAddress(address) {
+
+    if (
+        !address ||
+        address.length < 12
+    ) {
+
+        return address || "—";
+
+    }
+
+
+    return (
+        address.slice(0, 6) +
+        "..." +
+        address.slice(-4)
+    );
+
+}
+
+
+/* =========================================================
+   UPDATE WALLET UI
+========================================================= */
+
+function updateWalletUI(
+    address,
+    chainId,
+    balance
+) {
+
+    const connectBox =
+        document.getElementById(
+            "wallet-connect-box"
+        );
+
+
+    const connectedBox =
+        document.getElementById(
+            "wallet-connected-box"
+        );
+
+
+    const status =
+        document.getElementById(
+            "wallet-status"
+        );
+
+
+    const addressElement =
+        document.getElementById(
+            "wallet-address"
+        );
+
+
+    const networkElement =
+        document.getElementById(
+            "wallet-network"
+        );
+
+
+    const balanceElement =
+        document.getElementById(
+            "wallet-balance"
+        );
+
+
+    if (connectBox) {
+        connectBox.style.display =
+            "none";
+    }
+
+
+    if (connectedBox) {
+        connectedBox.style.display =
+            "block";
+    }
+
+
+    if (status) {
+
+        status.classList.add(
+            "connected"
+        );
+
+        status.innerHTML = `
+
+            <span
+                class="wallet-status-dot"
+            ></span>
+
+            Connected
+
+        `;
+
+    }
+
+
+    if (addressElement) {
+
+        addressElement.textContent =
+            formatWalletAddress(
+                address
+            );
+
+        addressElement.title =
+            address;
+
+    }
+
+
+    if (networkElement) {
+
+        networkElement.textContent =
+            getNetworkName(
+                chainId
+            );
+
+    }
+
+
+    if (balanceElement) {
+
+        balanceElement.textContent =
+            `${balance.toFixed(6)} ETH`;
+
+    }
+
+}
+
+
+/* =========================================================
+   RESET WALLET UI
+========================================================= */
+
+function resetWalletUI() {
+
+    const connectBox =
+        document.getElementById(
+            "wallet-connect-box"
+        );
+
+
+    const connectedBox =
+        document.getElementById(
+            "wallet-connected-box"
+        );
+
+
+    const status =
+        document.getElementById(
+            "wallet-status"
+        );
+
+
+    if (connectBox) {
+        connectBox.style.display =
+            "block";
+    }
+
+
+    if (connectedBox) {
+        connectedBox.style.display =
+            "none";
+    }
+
+
+    if (status) {
+
+        status.classList.remove(
+            "connected"
+        );
+
+        status.innerHTML = `
+
+            <span
+                class="wallet-status-dot"
+            ></span>
+
+            Not Connected
+
+        `;
+
+    }
+
+}
+
+
+/* =========================================================
+   WALLET MESSAGE
+========================================================= */
+
+function showWalletMessage(
+    message,
+    type
+) {
+
+    const element =
+        document.getElementById(
+            "wallet-message"
+        );
+
+
+    if (!element) {
+        return;
+    }
+
+
+    element.textContent =
+        message;
+
+
+    element.className =
+        "wallet-message " +
+        (type || "info");
+
+}
+
+
+/* =========================================================
+   INITIALIZE WALLET
+========================================================= */
+
+function initializeWallet() {
+
+    const connectButton =
+        document.getElementById(
+            "connect-wallet-button"
+        );
+
+
+    const refreshButton =
+        document.getElementById(
+            "refresh-wallet-button"
+        );
+
+
+    const disconnectButton =
+        document.getElementById(
+            "disconnect-wallet-button"
+        );
+
+
+    if (connectButton) {
+
+        connectButton.addEventListener(
+            "click",
+            function () {
+
+                Web3JobsWallet.connect();
+
+            }
+        );
+
+    }
+
+
+    if (refreshButton) {
+
+        refreshButton.addEventListener(
+            "click",
+            async function () {
+
+                try {
+
+                    await Web3JobsWallet.refresh();
+
+                    showWalletMessage(
+                        "Wallet information updated.",
+                        "success"
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Wallet refresh error:",
+                        error
+                    );
+
+                    showWalletMessage(
+                        "Unable to refresh wallet information.",
+                        "error"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    if (disconnectButton) {
+
+        disconnectButton.addEventListener(
+            "click",
+            function () {
+
+                Web3JobsWallet.disconnect();
+
+            }
+        );
+
+    }
+
+
+    if (
+        window.ethereum &&
+        typeof
+        window.ethereum.on === "function"
+    ) {
+
+        window.ethereum.on(
+            "accountsChanged",
+            function(accounts) {
+
+                if (
+                    !accounts ||
+                    !accounts.length
+                ) {
+
+                    Web3JobsWallet.disconnect();
+
+                    return;
+
+                }
+
+
+                Web3JobsWallet.address =
+                    accounts[0];
+
+
+                Web3JobsWallet.refresh();
+
+            }
+        );
+
+
+        window.ethereum.on(
+            "chainChanged",
+            function() {
+
+                if (
+                    Web3JobsWallet.address
+                ) {
+
+                    Web3JobsWallet.refresh();
+
+                }
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   DOM READY
+========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -1725,9 +2443,4 @@ document.addEventListener(
     }
 );
 
-</script>
-
-
-</body>
-
-    </html>
+</script></body></html>
