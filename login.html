@@ -12,117 +12,147 @@
 
     <title>Login - Web3Jobs</title>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-    ></script>
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
 
     <style>
 
-        * {
-            box-sizing: border-box;
-        }
-
         body {
             margin: 0;
+            min-height: 100vh;
             font-family: Arial, sans-serif;
             background: #f5f7fb;
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
         }
 
         .auth-container {
             width: 100%;
-            max-width: 440px;
-            background: white;
-            padding: 35px;
-            border-radius: 16px;
-            box-shadow: 0 10px 35px rgba(0,0,0,.10);
+            max-width: 430px;
+            padding: 20px;
         }
 
-        .logo {
+        .auth-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 35px 30px;
+            box-shadow:
+                0 10px 35px rgba(0, 0, 0, 0.10);
+        }
+
+        .auth-logo {
             text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .auth-logo h1 {
+            margin: 0;
+            color: #111827;
             font-size: 30px;
-            font-weight: 700;
-            margin-bottom: 8px;
         }
 
-        .subtitle {
+        .auth-logo p {
+            margin-top: 8px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .auth-title {
             text-align: center;
-            color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }
+
+        .auth-title h2 {
+            margin: 0;
+            color: #111827;
+            font-size: 24px;
         }
 
         .form-group {
             margin-bottom: 18px;
         }
 
-        label {
+        .form-group label {
             display: block;
             margin-bottom: 7px;
             font-weight: 600;
+            color: #374151;
         }
 
-        input {
+        .form-group input {
             width: 100%;
+            box-sizing: border-box;
             padding: 13px 14px;
-            border: 1px solid #d9dce3;
-            border-radius: 9px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
             font-size: 15px;
             outline: none;
+            transition: 0.2s;
         }
 
-        input:focus {
+        .form-group input:focus {
             border-color: #2563eb;
+            box-shadow:
+                0 0 0 3px rgba(37, 99, 235, 0.10);
         }
 
-        button {
+        .login-button {
             width: 100%;
+            border: none;
+            border-radius: 10px;
             padding: 14px;
-            border: 0;
-            border-radius: 9px;
             background: #2563eb;
-            color: white;
+            color: #ffffff;
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
+            transition: 0.2s;
         }
 
-        button:disabled {
-            opacity: .6;
+        .login-button:hover {
+            background: #1d4ed8;
+        }
+
+        .login-button:disabled {
+            opacity: 0.6;
             cursor: not-allowed;
         }
 
-        .message {
-            display: none;
-            margin-bottom: 18px;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .links {
+        .auth-links {
             text-align: center;
             margin-top: 22px;
-            color: #666;
+            line-height: 1.8;
         }
 
-        .links a {
+        .auth-links a {
             color: #2563eb;
             text-decoration: none;
             font-weight: 600;
+        }
+
+        .auth-links a:hover {
+            text-decoration: underline;
+        }
+
+        .home-link {
+            display: block;
+            margin-top: 10px;
+            color: #6b7280 !important;
+            font-weight: normal !important;
+        }
+
+        #auth-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            left: 20px;
+            margin: auto;
+            max-width: 400px;
+            z-index: 999999;
+            display: none;
         }
 
     </style>
@@ -135,251 +165,205 @@
 
 <div class="auth-container">
 
-
-    <div class="logo">
-        Web3Jobs
-    </div>
+    <div class="auth-card">
 
 
-    <div class="subtitle">
-        Login to your account
-    </div>
+        <!-- LOGO -->
 
+        <div class="auth-logo">
 
-    <div
-        id="message"
-        class="message"
-    ></div>
+            <h1>
+                Web3Jobs
+            </h1>
 
-
-    <form id="login-form">
-
-
-        <div class="form-group">
-
-            <label for="email">
-                Email
-            </label>
-
-            <input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                required
-            >
+            <p>
+                Global Web3 & Blockchain Jobs Platform
+            </p>
 
         </div>
 
 
-        <div class="form-group">
+        <!-- TITLE -->
 
-            <label for="password">
-                Password
-            </label>
+        <div class="auth-title">
 
-            <input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                required
-            >
+            <h2>
+                Login
+            </h2>
 
         </div>
 
 
-        <button
-            id="login-button"
-            type="submit"
+        <!-- LOGIN FORM -->
+
+        <form
+            id="login-form"
+            novalidate
         >
-            Login
-        </button>
 
 
-    </form>
+            <!-- EMAIL -->
+
+            <div class="form-group">
+
+                <label for="login-email">
+                    Email
+                </label>
+
+                <input
+                    type="email"
+                    id="login-email"
+                    name="email"
+                    placeholder="Enter your email"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
 
 
-    <div class="links">
+            <!-- PASSWORD -->
 
-        Don't have an account?
+            <div class="form-group">
 
-        <a href="signup.html">
-            Create Account
-        </a>
+                <label for="login-password">
+                    Password
+                </label>
+
+                <input
+                    type="password"
+                    id="login-password"
+                    name="password"
+                    placeholder="Enter your password"
+                    autocomplete="current-password"
+                    required
+                >
+
+            </div>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <button
+                type="submit"
+                class="login-button"
+                id="login-button"
+            >
+                Login
+            </button>
+
+
+        </form>
+
+
+        <!-- LINKS -->
+
+        <div class="auth-links">
+
+            <div>
+                Don't have an account?
+                <a href="signup.html">
+                    Create Account
+                </a>
+            </div>
+
+            <a
+                href="index.html"
+                class="home-link"
+            >
+                ← Back to Web3Jobs
+            </a>
+
+        </div>
+
 
     </div>
-
 
 </div>
 
+
+<!-- =====================================================
+     SUPABASE
+     IMPORTANT:
+     Supabase library MUST load first.
+     ===================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- =====================================================
+     WEB3JOBS SUPABASE CONFIG
+     ===================================================== -->
+
+<script
+    src="js/supabase.js"
+></script>
+
+
+<!-- =====================================================
+     WEB3JOBS AUTHENTICATION
+     ===================================================== -->
+
+<script
+    src="js/auth.js"
+></script>
+
+
+<!-- =====================================================
+     LOGIN BUTTON STATE
+     ===================================================== -->
 
 <script>
 
 "use strict";
 
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
 
-const SUPABASE_URL =
-    "https://jqhemwskrnlycximjpag.supabase.co";
+        const form =
+            document.getElementById(
+                "login-form"
+            );
 
-
-const SUPABASE_KEY =
-    "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
-
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
-
-
-const form =
-    document.getElementById(
-        "login-form"
-    );
-
-
-const button =
-    document.getElementById(
-        "login-button"
-    );
-
-
-const message =
-    document.getElementById(
-        "message"
-    );
-
-
-function showMessage(
-    text,
-    type
-) {
-
-    message.textContent =
-        text;
-
-    message.className =
-        "message " + type;
-
-    message.style.display =
-        "block";
-}
-
-
-form.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        const email =
-            document
-                .getElementById(
-                    "email"
-                )
-                .value
-                .trim();
-
-
-        const password =
-            document
-                .getElementById(
-                    "password"
-                )
-                .value;
-
-
-        button.disabled =
-            true;
-
-        button.textContent =
-            "Logging in...";
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabaseClient.auth.signInWithPassword({
-
-                    email:
-
-                        email,
-
-                    password:
-
-                        password
-
-                });
-
-
-            if (error) {
-
-                throw error;
-            }
-
-
-            showMessage(
-                "Login successful. Redirecting...",
-                "success"
+        const button =
+            document.getElementById(
+                "login-button"
             );
 
 
-            /*
-             * Read account type from
-             * Supabase user metadata.
-             */
-
-            const accountType =
-                data.user?.user_metadata?.account_type;
-
-
-            setTimeout(
-                function() {
-
-                    if (
-                        accountType ===
-                        "company"
-                    ) {
-
-                        window.location.href =
-                            "company-dashboard.html";
-
-                    } else {
-
-                        window.location.href =
-                            "dashboard.html";
-                    }
-
-                },
-                700
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Login error:",
-                error
-            );
-
-
-            showMessage(
-                error.message ||
-                "Invalid email or password.",
-                "error"
-            );
-
-
-            button.disabled =
-                false;
-
-            button.textContent =
-                "Login";
+        if (!form || !button) {
+            return;
         }
+
+
+        form.addEventListener(
+            "submit",
+            function () {
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Signing in...";
+
+
+                setTimeout(
+                    function () {
+
+                        button.disabled =
+                            false;
+
+                        button.textContent =
+                            "Login";
+
+                    },
+                    3000
+                );
+
+            }
+        );
 
     }
 );
