@@ -110,21 +110,16 @@
         }
 
 
-        /* =====================================================
+        /* =========================
            HEADER
-        ===================================================== */
+        ========================= */
 
         header {
             position:sticky;
             top:0;
             z-index:1000;
 
-            background:rgba(
-                6,
-                16,
-                29,
-                .96
-            );
+            background:rgba(6,16,29,.96);
 
             border-bottom:1px solid var(--line);
 
@@ -136,9 +131,7 @@
             min-height:72px;
 
             display:flex;
-
             align-items:center;
-
             justify-content:space-between;
 
             gap:20px;
@@ -147,7 +140,6 @@
 
         .brand {
             display:flex;
-
             align-items:center;
 
             gap:10px;
@@ -155,39 +147,32 @@
             color:white;
 
             font-size:21px;
-
             font-weight:850;
         }
 
 
-        .brand-logo {
-            width:42px;
-            height:42px;
+        /* LOGO */
 
-            display:grid;
+        .brand-logo-image {
+            width:46px;
+            height:46px;
 
-            place-items:center;
+            object-fit:contain;
 
-            border-radius:12px;
+            display:block;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--accent),
-                    var(--blue)
-                );
+            border-radius:10px;
 
-            color:var(--bg);
+            background:#071423;
 
-            font-size:13px;
+            border:1px solid #294563;
 
-            font-weight:950;
+            padding:2px;
         }
 
 
         nav {
             display:flex;
-
             align-items:center;
 
             gap:24px;
@@ -210,28 +195,25 @@
 
         .nav-buttons {
             display:flex;
-
             align-items:center;
 
             gap:8px;
         }
 
 
-        /* =====================================================
+        /* =========================
            BUTTONS
-        ===================================================== */
+        ========================= */
 
         .btn {
             display:inline-flex;
 
             align-items:center;
-
             justify-content:center;
 
             gap:7px;
 
             border:0;
-
             border-radius:10px;
 
             padding:11px 17px;
@@ -239,7 +221,6 @@
             cursor:pointer;
 
             font-size:13px;
-
             font-weight:800;
 
             transition:.2s;
@@ -267,9 +248,9 @@
         }
 
 
-        /* =====================================================
+        /* =========================
            HERO
-        ===================================================== */
+        ========================= */
 
         .hero {
             position:relative;
@@ -288,11 +269,9 @@
             position:absolute;
 
             width:520px;
-
             height:520px;
 
             left:50%;
-
             top:20px;
 
             transform:translateX(-50%);
@@ -300,12 +279,7 @@
             background:
                 radial-gradient(
                     circle,
-                    rgba(
-                        96,
-                        165,
-                        250,
-                        .12
-                    ),
+                    rgba(96,165,250,.12),
                     transparent 68%
                 );
 
@@ -324,21 +298,11 @@
 
             margin-bottom:20px;
 
-            border:1px solid rgba(
-                110,
-                231,
-                183,
-                .2
-            );
+            border:1px solid rgba(110,231,183,.2);
 
             border-radius:999px;
 
-            background:rgba(
-                110,
-                231,
-                183,
-                .06
-            );
+            background:rgba(110,231,183,.06);
 
             color:var(--accent);
 
@@ -353,12 +317,7 @@
 
             margin:0 auto 20px;
 
-            font-size:
-                clamp(
-                    40px,
-                    7vw,
-                    72px
-                );
+            font-size:clamp(40px,7vw,72px);
 
             line-height:1.05;
 
@@ -375,7 +334,6 @@
                 );
 
             -webkit-background-clip:text;
-
             background-clip:text;
 
             color:transparent;
@@ -406,9 +364,9 @@
         }
 
 
-        /* =====================================================
+        /* =========================
            SEARCH
-        ===================================================== */
+        ========================= */
 
         .search-box {
             position:relative;
@@ -435,8 +393,7 @@
             border-radius:18px;
 
             box-shadow:
-                0 20px 50px
-                rgba(0,0,0,.2);
+                0 20px 50px rgba(0,0,0,.2);
         }
 
 
@@ -464,9 +421,9 @@
         }
 
 
-        /* =====================================================
+        /* =========================
            JOBS
-        ===================================================== */
+        ========================= */
 
         .jobs-section {
             padding:30px 0 90px;
@@ -500,12 +457,7 @@
         .section-heading h2 {
             margin-bottom:12px;
 
-            font-size:
-                clamp(
-                    28px,
-                    4vw,
-                    42px
-                );
+            font-size:clamp(28px,4vw,42px);
         }
 
 
@@ -522,10 +474,7 @@
             display:grid;
 
             grid-template-columns:
-                repeat(
-                    3,
-                    1fr
-                );
+                repeat(3,1fr);
 
             gap:18px;
         }
@@ -643,13 +592,7 @@
 
             border-radius:17px;
 
-            background:
-                rgba(
-                    13,
-                    27,
-                    46,
-                    .6
-                );
+            background:rgba(13,27,46,.6);
         }
 
 
@@ -665,9 +608,9 @@
         }
 
 
-        /* =====================================================
+        /* =========================
            FEATURES
-        ===================================================== */
+        ========================= */
 
         .section {
             padding:90px 0;
@@ -678,10 +621,7 @@
             display:grid;
 
             grid-template-columns:
-                repeat(
-                    3,
-                    1fr
-                );
+                repeat(3,1fr);
 
             gap:18px;
         }
@@ -700,7 +640,6 @@
 
         .feature-icon {
             width:48px;
-
             height:48px;
 
             display:grid;
@@ -735,18 +674,15 @@
         }
 
 
-        /* =====================================================
+        /* =========================
            STATS
-        ===================================================== */
+        ========================= */
 
         .stats {
             display:grid;
 
             grid-template-columns:
-                repeat(
-                    4,
-                    1fr
-                );
+                repeat(4,1fr);
 
             gap:15px;
         }
@@ -781,9 +717,9 @@
         }
 
 
-        /* =====================================================
+        /* =========================
            ROADMAP
-        ===================================================== */
+        ========================= */
 
         .roadmap {
             padding:100px 0;
@@ -791,37 +727,13 @@
             background:
                 linear-gradient(
                     180deg,
-                    rgba(
-                        13,
-                        27,
-                        46,
-                        .45
-                    ),
-                    rgba(
-                        7,
-                        17,
-                        31,
-                        .75
-                    )
+                    rgba(13,27,46,.45),
+                    rgba(7,17,31,.75)
                 );
 
-            border-top:
-                1px solid
-                rgba(
-                    29,
-                    53,
-                    83,
-                    .55
-                );
+            border-top:1px solid rgba(29,53,83,.55);
 
-            border-bottom:
-                1px solid
-                rgba(
-                    29,
-                    53,
-                    83,
-                    .55
-                );
+            border-bottom:1px solid rgba(29,53,83,.55);
         }
 
 
@@ -840,7 +752,6 @@
             position:absolute;
 
             top:0;
-
             bottom:0;
 
             left:50%;
@@ -866,8 +777,7 @@
 
             display:grid;
 
-            grid-template-columns:
-                1fr 1fr;
+            grid-template-columns:1fr 1fr;
 
             gap:70px;
 
@@ -895,7 +805,6 @@
             z-index:3;
 
             width:48px;
-
             height:48px;
 
             display:grid;
@@ -940,13 +849,7 @@
 
             border-radius:17px;
 
-            background:
-                rgba(
-                    13,
-                    27,
-                    46,
-                    .88
-                );
+            background:rgba(13,27,46,.88);
         }
 
 
@@ -969,14 +872,7 @@
 
             padding:4px 8px;
 
-            border:
-                1px solid
-                rgba(
-                    96,
-                    165,
-                    250,
-                    .18
-                );
+            border:1px solid rgba(96,165,250,.18);
 
             border-radius:999px;
 
@@ -1042,207 +938,9 @@
         }
 
 
-        /* =====================================================
-           SOCIAL MEDIA
-        ===================================================== */
-
-        .community-section {
-            padding:90px 0;
-
-            background:
-                linear-gradient(
-                    180deg,
-                    #07111f,
-                    #09182a
-                );
-        }
-
-
-        .community-header {
-            max-width:720px;
-
-            margin:0 auto 40px;
-
-            text-align:center;
-        }
-
-
-        .community-header .community-label {
-            display:block;
-
-            margin-bottom:10px;
-
-            color:var(--accent);
-
-            font-size:11px;
-
-            font-weight:850;
-
-            letter-spacing:1.8px;
-        }
-
-
-        .community-header h2 {
-            margin-bottom:12px;
-
-            font-size:
-                clamp(
-                    28px,
-                    4vw,
-                    42px
-                );
-        }
-
-
-        .community-header p {
-            color:var(--muted);
-
-            font-size:14px;
-
-            line-height:1.8;
-        }
-
-
-        .social-grid {
-            display:grid;
-
-            grid-template-columns:
-                repeat(
-                    4,
-                    1fr
-                );
-
-            gap:16px;
-        }
-
-
-        .social-card {
-            position:relative;
-
-            min-height:180px;
-
-            padding:25px 20px;
-
-            display:flex;
-
-            flex-direction:column;
-
-            align-items:center;
-
-            justify-content:center;
-
-            text-align:center;
-
-            background:var(--card);
-
-            border:1px solid var(--line);
-
-            border-radius:18px;
-
-            transition:
-                transform .2s ease,
-                border-color .2s ease,
-                box-shadow .2s ease;
-        }
-
-
-        .social-card:hover {
-            transform:translateY(-6px);
-
-            box-shadow:
-                0 15px 40px
-                rgba(
-                    0,
-                    0,
-                    0,
-                    .25
-                );
-        }
-
-
-        .social-icon {
-            width:58px;
-
-            height:58px;
-
-            margin-bottom:15px;
-
-            display:grid;
-
-            place-items:center;
-
-            border-radius:16px;
-
-            background:#122a43;
-
-            border:1px solid #294966;
-
-            color:white;
-
-            font-size:25px;
-
-            font-weight:900;
-        }
-
-
-        .social-card h3 {
-            margin-bottom:6px;
-
-            font-size:18px;
-        }
-
-
-        .social-card p {
-            color:var(--muted);
-
-            font-size:11px;
-
-            line-height:1.6;
-        }
-
-
-        .social-arrow {
-            margin-top:12px;
-
-            color:var(--accent);
-
-            font-size:18px;
-
-            transition:
-                transform .2s ease;
-        }
-
-
-        .social-card:hover
-        .social-arrow {
-            transform:
-                translateX(5px);
-        }
-
-
-        .social-telegram:hover {
-            border-color:#229ed9;
-        }
-
-
-        .social-whatsapp:hover {
-            border-color:#25d366;
-        }
-
-
-        .social-x:hover {
-            border-color:#ffffff;
-        }
-
-
-        .social-linkedin:hover {
-            border-color:#0a66c2;
-        }
-
-
-        /* =====================================================
+        /* =========================
            CTA
-        ===================================================== */
+        ========================= */
 
         .cta {
             padding:100px 0;
@@ -1270,12 +968,7 @@
         .cta-box h2 {
             margin-bottom:13px;
 
-            font-size:
-                clamp(
-                    28px,
-                    5vw,
-                    44px
-                );
+            font-size:clamp(28px,5vw,44px);
         }
 
 
@@ -1290,9 +983,69 @@
         }
 
 
-        /* =====================================================
+        /* =========================
+           SOCIAL MEDIA
+        ========================= */
+
+        .social-section {
+            padding:70px 0;
+
+            border-top:1px solid var(--line);
+        }
+
+
+        .social-grid {
+            display:flex;
+
+            justify-content:center;
+
+            flex-wrap:wrap;
+
+            gap:12px;
+        }
+
+
+        .social-link {
+            display:inline-flex;
+
+            align-items:center;
+
+            justify-content:center;
+
+            gap:8px;
+
+            min-width:150px;
+
+            padding:12px 18px;
+
+            background:#0d1b2e;
+
+            border:1px solid var(--line);
+
+            border-radius:12px;
+
+            color:#dce8f5;
+
+            font-size:13px;
+
+            font-weight:750;
+
+            transition:.2s;
+        }
+
+
+        .social-link:hover {
+            transform:translateY(-3px);
+
+            border-color:var(--accent);
+
+            color:var(--accent);
+        }
+
+
+        /* =========================
            FOOTER
-        ===================================================== */
+        ========================= */
 
         footer {
             border-top:1px solid var(--line);
@@ -1323,6 +1076,8 @@
             display:flex;
 
             gap:18px;
+
+            flex-wrap:wrap;
         }
 
 
@@ -1333,9 +1088,9 @@
         }
 
 
-        /* =====================================================
+        /* =========================
            MOBILE
-        ===================================================== */
+        ========================= */
 
         @media(max-width:900px) {
 
@@ -1346,10 +1101,7 @@
 
             .features-grid {
                 grid-template-columns:
-                    repeat(
-                        2,
-                        1fr
-                    );
+                    repeat(2,1fr);
             }
 
 
@@ -1366,28 +1118,13 @@
 
             #jobs-list {
                 grid-template-columns:
-                    repeat(
-                        2,
-                        1fr
-                    );
+                    repeat(2,1fr);
             }
 
 
             .stats {
                 grid-template-columns:
-                    repeat(
-                        2,
-                        1fr
-                    );
-            }
-
-
-            .social-grid {
-                grid-template-columns:
-                    repeat(
-                        2,
-                        1fr
-                    );
+                    repeat(2,1fr);
             }
 
         }
@@ -1454,14 +1191,12 @@
                 left:10px;
 
                 width:42px;
-
                 height:42px;
             }
 
 
             .roadmap-step:nth-child(odd)
             .roadmap-content,
-
             .roadmap-step:nth-child(even)
             .roadmap-content {
                 display:block;
@@ -1473,11 +1208,6 @@
             .roadmap-step:nth-child(odd)
             .roadmap-tags {
                 justify-content:flex-start;
-            }
-
-
-            .social-grid {
-                grid-template-columns:1fr;
             }
 
 
@@ -1512,14 +1242,13 @@
             }
 
 
-            .nav-buttons
-            .btn-secondary {
+            .nav-buttons .btn-secondary {
                 display:none;
             }
 
 
-            .social-card {
-                min-height:160px;
+            .social-link {
+                width:100%;
             }
 
         }
@@ -1540,16 +1269,23 @@
 
     <div class="container header-inner">
 
+
         <a
             href="index.html"
             class="brand"
         >
 
-            <span class="brand-logo">
-                W3
-            </span>
+            <!-- LOGO -->
 
-            Web3Jobs
+            <img
+                src="assets/images/logo.jpg"
+                alt="Web3Jobs Logo"
+                class="brand-logo-image"
+            >
+
+            <span>
+                Web3Jobs
+            </span>
 
         </a>
 
@@ -1605,9 +1341,11 @@
 
 <main id="home">
 
+
     <section class="hero">
 
         <div class="container">
+
 
             <div class="hero-badge">
                 ✦ The Future of Web3 Careers
@@ -1639,6 +1377,7 @@
 
             <div class="hero-buttons">
 
+
                 <a
                     href="#jobs"
                     class="btn btn-primary"
@@ -1654,6 +1393,7 @@
                     Create Account
                 </a>
 
+
             </div>
 
         </div>
@@ -1667,7 +1407,9 @@
 
     <div class="container">
 
+
         <div class="search-box">
+
 
             <input
                 id="jobSearch"
@@ -1723,6 +1465,7 @@
                 Search
             </button>
 
+
         </div>
 
     </div>
@@ -1738,6 +1481,7 @@
     >
 
         <div class="container">
+
 
             <div class="section-heading">
 
@@ -1770,7 +1514,6 @@
                         Loading jobs...
                     </h3>
 
-
                     <p>
                         Connecting to Web3Jobs.
                     </p>
@@ -1790,9 +1533,12 @@
 
     <section class="section">
 
+
         <div class="container">
 
+
             <div class="stats">
+
 
                 <div class="stat">
 
@@ -1845,6 +1591,7 @@
 
                 </div>
 
+
             </div>
 
         </div>
@@ -1862,6 +1609,7 @@
     >
 
         <div class="container">
+
 
             <div class="section-heading">
 
@@ -1894,11 +1642,9 @@
                         🔎
                     </div>
 
-
                     <h3>
                         Discover Opportunities
                     </h3>
-
 
                     <p>
                         Search and discover Web3,
@@ -1915,11 +1661,9 @@
                         👤
                     </div>
 
-
                     <h3>
                         Professional Profiles
                     </h3>
-
 
                     <p>
                         Build a professional profile
@@ -1935,11 +1679,9 @@
                         🏢
                     </div>
 
-
                     <h3>
                         Connect With Companies
                     </h3>
-
 
                     <p>
                         Discover innovative Web3 companies
@@ -1955,11 +1697,9 @@
                         🔖
                     </div>
 
-
                     <h3>
                         Save Opportunities
                     </h3>
-
 
                     <p>
                         Save interesting opportunities
@@ -1975,11 +1715,9 @@
                         🎯
                     </div>
 
-
                     <h3>
                         Smart Recruitment
                     </h3>
-
 
                     <p>
                         Give companies tools to discover
@@ -1995,11 +1733,9 @@
                         🌎
                     </div>
 
-
                     <h3>
                         Global Web3 Community
                     </h3>
-
 
                     <p>
                         Connect talent and companies across
@@ -2007,6 +1743,7 @@
                     </p>
 
                 </div>
+
 
             </div>
 
@@ -2025,6 +1762,7 @@
     >
 
         <div class="container">
+
 
             <div class="section-heading">
 
@@ -2056,18 +1794,15 @@
                         01
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             CURRENT
                         </span>
 
-
                         <h3>
                             Foundation
                         </h3>
-
 
                         <p>
                             Launch the core Web3Jobs platform
@@ -2085,18 +1820,15 @@
                         02
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             NEXT
                         </span>
 
-
                         <h3>
                             Profiles
                         </h3>
-
 
                         <p>
                             Build powerful profiles for
@@ -2114,18 +1846,15 @@
                         03
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             PLANNED
                         </span>
 
-
                         <h3>
                             Smart Dashboards
                         </h3>
-
 
                         <p>
                             Introduce dashboards that adapt
@@ -2143,18 +1872,15 @@
                         04
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             PLANNED
                         </span>
 
-
                         <h3>
                             Recruitment System
                         </h3>
-
 
                         <p>
                             Connect companies with qualified
@@ -2172,18 +1898,15 @@
                         05
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             PLANNED
                         </span>
 
-
                         <h3>
                             Web3 Features
                         </h3>
-
 
                         <p>
                             Add blockchain skills, ecosystems
@@ -2201,18 +1924,15 @@
                         06
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             PLANNED
                         </span>
 
-
                         <h3>
                             Trust & Verification
                         </h3>
-
 
                         <p>
                             Improve company verification,
@@ -2230,18 +1950,15 @@
                         07
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             PLANNED
                         </span>
 
-
                         <h3>
                             Global Expansion
                         </h3>
-
 
                         <p>
                             Expand with multilingual support
@@ -2259,18 +1976,15 @@
                         08
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             FUTURE
                         </span>
 
-
                         <h3>
                             Monetization
                         </h3>
-
 
                         <p>
                             Introduce sustainable premium
@@ -2288,18 +2002,15 @@
                         09
                     </div>
 
-
                     <div class="roadmap-content">
 
                         <span class="roadmap-status">
                             VISION
                         </span>
 
-
                         <h3>
                             Web3Jobs Ecosystem
                         </h3>
-
 
                         <p>
                             Transform Web3Jobs into a global
@@ -2319,33 +2030,29 @@
 
 
 <!-- =====================================================
-     COMMUNITY / SOCIAL MEDIA
+     SOCIAL MEDIA
 ===================================================== -->
 
-    <section
-        class="community-section"
-        id="community"
-    >
+    <section class="social-section">
 
         <div class="container">
 
 
-            <div class="community-header">
+            <div class="section-heading">
 
-                <span class="community-label">
-                    JOIN OUR COMMUNITY
+                <span>
+                    CONNECT WITH WEB3JOBS
                 </span>
 
 
                 <h2>
-                    Connect With Web3Jobs
+                    Join Our Community
                 </h2>
 
 
                 <p>
-                    Follow Web3Jobs on social media and
-                    stay updated with the latest Web3 jobs,
-                    opportunities, news and announcements.
+                    Follow Web3Jobs and stay connected
+                    with the latest Web3 opportunities.
                 </p>
 
             </div>
@@ -2354,131 +2061,43 @@
             <div class="social-grid">
 
 
-                <!-- TELEGRAM -->
-
                 <a
+                    class="social-link"
                     href="https://t.me/web3jop"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="social-card social-telegram"
-                    aria-label="Web3Jobs on Telegram"
                 >
-
-                    <div class="social-icon">
-                        ✈
-                    </div>
-
-
-                    <h3>
-                        Telegram
-                    </h3>
-
-
-                    <p>
-                        Join our Web3Jobs Telegram community
-                    </p>
-
-
-                    <span class="social-arrow">
-                        →
-                    </span>
-
+                    ✈️ Telegram
                 </a>
 
 
-                <!-- WHATSAPP -->
-
                 <a
+                    class="social-link"
                     href="https://whatsapp.com/channel/0029Vb8kCXR5q08ftEh9Dc1u"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="social-card social-whatsapp"
-                    aria-label="Web3Jobs on WhatsApp"
                 >
-
-                    <div class="social-icon">
-                        ☎
-                    </div>
-
-
-                    <h3>
-                        WhatsApp
-                    </h3>
-
-
-                    <p>
-                        Follow our WhatsApp channel
-                    </p>
-
-
-                    <span class="social-arrow">
-                        →
-                    </span>
-
+                    💬 WhatsApp
                 </a>
 
 
-                <!-- X -->
-
                 <a
+                    class="social-link"
                     href="https://x.com/crypto1680620"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="social-card social-x"
-                    aria-label="Web3Jobs on X"
                 >
-
-                    <div class="social-icon">
-                        𝕏
-                    </div>
-
-
-                    <h3>
-                        X
-                    </h3>
-
-
-                    <p>
-                        Follow Web3Jobs on X
-                    </p>
-
-
-                    <span class="social-arrow">
-                        →
-                    </span>
-
+                    𝕏 X / Twitter
                 </a>
 
 
-                <!-- LINKEDIN -->
-
                 <a
+                    class="social-link"
                     href="https://www.linkedin.com/me?trk=p_mwlite_feed-secondary_nav"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="social-card social-linkedin"
-                    aria-label="Web3Jobs on LinkedIn"
                 >
-
-                    <div class="social-icon">
-                        in
-                    </div>
-
-
-                    <h3>
-                        LinkedIn
-                    </h3>
-
-
-                    <p>
-                        Connect with Web3Jobs on LinkedIn
-                    </p>
-
-
-                    <span class="social-arrow">
-                        →
-                    </span>
-
+                    💼 LinkedIn
                 </a>
 
 
@@ -2497,7 +2116,9 @@
 
         <div class="container">
 
+
             <div class="cta-box">
+
 
                 <h2>
                     Build Your Future in Web3
@@ -2514,6 +2135,7 @@
 
                 <div class="hero-buttons">
 
+
                     <a
                         href="signup.html"
                         class="btn btn-primary"
@@ -2529,13 +2151,16 @@
                         Explore Jobs
                     </a>
 
+
                 </div>
+
 
             </div>
 
         </div>
 
     </section>
+
 
 </main>
 
@@ -2547,6 +2172,7 @@
 <footer>
 
     <div class="container footer-inner">
+
 
         <div class="footer-text">
 
@@ -2562,26 +2188,17 @@
                 Home
             </a>
 
-
             <a href="#jobs">
                 Jobs
             </a>
-
 
             <a href="#features">
                 Features
             </a>
 
-
             <a href="#roadmap">
                 Roadmap
             </a>
-
-
-            <a href="#community">
-                Community
-            </a>
-
 
             <a href="login.html">
                 Login
@@ -2624,7 +2241,6 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
-
         const searchButton =
             document.getElementById(
                 "searchJobsButton"
@@ -2650,7 +2266,6 @@ document.addEventListener(
 
 
         function performSearch() {
-
 
             const keyword =
                 (
@@ -2691,7 +2306,6 @@ document.addEventListener(
                 results.filter(
                     job => {
 
-
                         const text = [
 
                             job.title,
@@ -2702,9 +2316,7 @@ document.addEventListener(
 
                         ]
                             .filter(Boolean)
-
                             .join(" ")
-
                             .toLowerCase();
 
 
@@ -2792,38 +2404,35 @@ document.addEventListener(
             jobSearch,
             locationSearch
         ]
-            .forEach(
-                input => {
+        .forEach(
+            input => {
 
+                input?.addEventListener(
+                    "keydown",
+                    event => {
 
-                    input?.addEventListener(
-                        "keydown",
-                        event => {
+                        if (
+                            event.key ===
+                            "Enter"
+                        ) {
 
+                            event.preventDefault();
 
-                            if (
-                                event.key ===
-                                "Enter"
-                            ) {
-
-                                event.preventDefault();
-
-                                performSearch();
-
-                            }
+                            performSearch();
 
                         }
-                    );
 
-                }
-            );
+                    }
+                );
+
+            }
+        );
 
 
         jobType?.addEventListener(
             "change",
             performSearch
         );
-
 
     }
 );
