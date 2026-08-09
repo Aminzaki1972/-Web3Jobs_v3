@@ -11,11 +11,14 @@
    - Current User
    - Individual / Company detection
    - Correct dashboard redirect
-   - Prevent unconfirmed users from entering dashboards
+   - GitHub Pages compatible URLs
+   - Profile creation after signup
+   - Prevent unconfirmed users from dashboards
    - Arabic / English error messages
    ========================================================= */
 
 "use strict";
+
 
 /* =========================================================
    SUPABASE
@@ -34,9 +37,10 @@ function initializeAuthSupabase() {
         return authSupabase;
     }
 
+
     /*
      * Preferred:
-     * Use the global Supabase client created by js/supabase.js
+     * Global client from js/supabase.js
      */
 
     if (window.supabaseClient) {
@@ -46,9 +50,10 @@ function initializeAuthSupabase() {
         return authSupabase;
     }
 
+
     /*
      * Fallback:
-     * If supabase.js exposes "supabase"
+     * Global "supabase" client
      */
 
     if (
@@ -62,6 +67,7 @@ function initializeAuthSupabase() {
         return authSupabase;
     }
 
+
     console.error(
         "Web3Jobs Auth: Supabase client is not initialized."
     );
@@ -71,15 +77,14 @@ function initializeAuthSupabase() {
 
 
 /* =========================================================
-   AUTH HELPERS
+   GET SUPABASE CLIENT
    ========================================================= */
 
-/**
- * Get Supabase client
- */
 function getAuthSupabase() {
 
-    const client = initializeAuthSupabase();
+    const client =
+        initializeAuthSupabase();
+
 
     if (!client) {
 
@@ -92,20 +97,25 @@ function getAuthSupabase() {
         return null;
     }
 
+
     return client;
 }
 
 
-/**
- * Get current authenticated user
- */
+/* =========================================================
+   CURRENT USER
+   ========================================================= */
+
 async function getCurrentUser() {
 
-    const client = getAuthSupabase();
+    const client =
+        getAuthSupabase();
+
 
     if (!client) {
         return null;
     }
+
 
     try {
 
@@ -113,6 +123,7 @@ async function getCurrentUser() {
             data,
             error
         } = await client.auth.getUser();
+
 
         if (error) {
 
@@ -123,6 +134,7 @@ async function getCurrentUser() {
 
             return null;
         }
+
 
         return data?.user || null;
 
@@ -142,19 +154,12 @@ async function getCurrentUser() {
    EMAIL CONFIRMATION
    ========================================================= */
 
-/**
- * Check whether user confirmed email
- */
 function isEmailConfirmed(user) {
 
     if (!user) {
         return false;
     }
 
-    /*
-     * Supabase normally provides:
-     * email_confirmed_at
-     */
 
     return Boolean(
         user.email_confirmed_at
@@ -162,33 +167,45 @@ function isEmailConfirmed(user) {
 }
 
 
-/**
- * Get confirmation status
- */
 function getEmailConfirmationStatus(user) {
 
     if (!user) {
 
         return {
+
             confirmed: false,
-            messageAr: "لم يتم العثور على حساب.",
-            messageEn: "Account was not found."
+
+            messageAr:
+                "لم يتم العثور على حساب.",
+
+            messageEn:
+                "Account was not found."
         };
     }
+
 
     if (isEmailConfirmed(user)) {
 
         return {
+
             confirmed: true,
-            messageAr: "تم تأكيد البريد الإلكتروني.",
-            messageEn: "Email address is confirmed."
+
+            messageAr:
+                "تم تأكيد البريد الإلكتروني.",
+
+            messageEn:
+                "Email address is confirmed."
         };
     }
 
+
     return {
+
         confirmed: false,
+
         messageAr:
             "البريد الإلكتروني لم يتم تأكيده بعد.",
+
         messageEn:
             "Your email address has not been confirmed yet."
     };
@@ -199,19 +216,18 @@ function getEmailConfirmationStatus(user) {
    ACCOUNT TYPE
    ========================================================= */
 
-/**
- * Normalize account type
- */
 function normalizeAccountType(accountType) {
 
     if (!accountType) {
         return null;
     }
 
+
     const value =
         String(accountType)
             .trim()
             .toLowerCase();
+
 
     if (
         value === "individual" ||
@@ -224,6 +240,7 @@ function normalizeAccountType(accountType) {
         return "individual";
     }
 
+
     if (
         value === "company" ||
         value === "companies" ||
@@ -234,29 +251,36 @@ function normalizeAccountType(accountType) {
         return "company";
     }
 
+
     return null;
 }
 
 
-/**
- * Get account type from profile
- */
+/* =========================================================
+   GET ACCOUNT TYPE
+   ========================================================= */
+
 async function getAccountType(userId = null) {
 
-    const client = getAuthSupabase();
+    const client =
+        getAuthSupabase();
+
 
     if (!client) {
         return null;
     }
+
 
     try {
 
         const user =
             await getCurrentUser();
 
+
         const id =
             userId ||
             user?.id;
+
 
         if (!id) {
             return null;
@@ -264,7 +288,7 @@ async function getAccountType(userId = null) {
 
 
         /* -------------------------------------------------
-           Try profiles table
+           1. PROFILES
            ------------------------------------------------- */
 
         const {
@@ -272,7 +296,7 @@ async function getAccountType(userId = null) {
             error: profileError
         } = await client
             .from("profiles")
-            .select("*")
+            .select("account_type")
             .eq("id", id)
             .maybeSingle();
 
@@ -284,21 +308,18 @@ async function getAccountType(userId = null) {
 
             const accountType =
                 normalizeAccountType(
-                    profile.account_type ||
-                    profile.accountType ||
-                    profile.role ||
-                    profile.account_role
+                    profile.account_type
                 );
 
-            if (accountType) {
 
+            if (accountType) {
                 return accountType;
             }
         }
 
 
         /* -------------------------------------------------
-           Try company_profiles table
+           2. COMPANY PROFILES
            ------------------------------------------------- */
 
         const {
@@ -306,7 +327,7 @@ async function getAccountType(userId = null) {
             error: companyError
         } = await client
             .from("company_profiles")
-            .select("*")
+            .select("id")
             .eq("id", id)
             .maybeSingle();
 
@@ -321,13 +342,14 @@ async function getAccountType(userId = null) {
 
 
         /* -------------------------------------------------
-           Try user metadata
+           3. USER METADATA
            ------------------------------------------------- */
 
         if (user) {
 
             const metadata =
                 user.user_metadata || {};
+
 
             const metadataType =
                 normalizeAccountType(
@@ -336,6 +358,7 @@ async function getAccountType(userId = null) {
                     metadata.role ||
                     metadata.account_role
                 );
+
 
             if (metadataType) {
 
@@ -359,29 +382,41 @@ async function getAccountType(userId = null) {
 
 
 /* =========================================================
-   SAVE PROFILE
+   SAVE USER PROFILE
    ========================================================= */
 
-/**
- * Create / update user profile
- */
 async function saveUserProfile(
     user,
     accountType,
     fullName = ""
 ) {
 
-    const client = getAuthSupabase();
+    const client =
+        getAuthSupabase();
+
 
     if (!client || !user) {
         return false;
     }
 
+
+    const normalizedType =
+        normalizeAccountType(
+            accountType
+        );
+
+
+    if (!normalizedType) {
+        return false;
+    }
+
+
     try {
 
         const profileData = {
 
-            id: user.id,
+            id:
+                user.id,
 
             email:
                 user.email || null,
@@ -393,7 +428,7 @@ async function saveUserProfile(
                 "",
 
             account_type:
-                accountType,
+                normalizedType,
 
             updated_at:
                 new Date().toISOString()
@@ -438,21 +473,91 @@ async function saveUserProfile(
 
 
 /* =========================================================
+   GET BASE URL
+   ---------------------------------------------------------
+   Important for GitHub Pages project repositories
+   ========================================================= */
+
+function getWeb3JobsBaseUrl() {
+
+    const path =
+        window.location.pathname;
+
+
+    /*
+     * Remove current filename
+     */
+
+    const directory =
+        path.substring(
+            0,
+            path.lastIndexOf("/") + 1
+        );
+
+
+    return (
+        window.location.origin +
+        directory
+    );
+}
+
+
+/* =========================================================
+   GET LOGIN URL
+   ========================================================= */
+
+function getLoginUrl() {
+
+    return (
+        getWeb3JobsBaseUrl() +
+        "login.html"
+    );
+}
+
+
+/* =========================================================
+   GET DASHBOARD URL
+   ========================================================= */
+
+function getDashboardUrl(
+    accountType
+) {
+
+    const type =
+        normalizeAccountType(
+            accountType
+        );
+
+
+    if (type === "company") {
+
+        return (
+            getWeb3JobsBaseUrl() +
+            "company-dashboard.html"
+        );
+    }
+
+
+    if (type === "individual") {
+
+        return (
+            getWeb3JobsBaseUrl() +
+            "dashboard.html"
+        );
+    }
+
+
+    return (
+        getWeb3JobsBaseUrl() +
+        "index.html"
+    );
+}
+
+
+/* =========================================================
    SIGN UP
    ========================================================= */
 
-/**
- * Register new user
- *
- * Expected:
- *
- * {
- *   email: "...",
- *   password: "...",
- *   fullName: "...",
- *   accountType: "individual" | "company"
- * }
- */
 async function signUpUser({
     email,
     password,
@@ -460,9 +565,12 @@ async function signUpUser({
     accountType
 }) {
 
-    const client = getAuthSupabase();
+    const client =
+        getAuthSupabase();
+
 
     if (!client) {
+
         return {
             success: false
         };
@@ -470,7 +578,7 @@ async function signUpUser({
 
 
     /* -------------------------------------------------
-       Validation
+       NORMALIZE
        ------------------------------------------------- */
 
     email =
@@ -478,16 +586,25 @@ async function signUpUser({
             .trim()
             .toLowerCase();
 
+
     password =
         String(password || "");
+
 
     fullName =
         String(fullName || "")
             .trim();
 
-    accountType =
-        normalizeAccountType(accountType);
 
+    accountType =
+        normalizeAccountType(
+            accountType
+        );
+
+
+    /* -------------------------------------------------
+       VALIDATION
+       ------------------------------------------------- */
 
     if (!email) {
 
@@ -546,13 +663,13 @@ async function signUpUser({
 
 
     /* -------------------------------------------------
-       Supabase Sign Up
+       SIGN UP
        ------------------------------------------------- */
 
     try {
 
         const redirectUrl =
-            `${window.location.origin}/login.html`;
+            getLoginUrl();
 
 
         const {
@@ -581,6 +698,10 @@ async function signUpUser({
         });
 
 
+        /* -------------------------------------------------
+           SUPABASE ERROR
+           ------------------------------------------------- */
+
         if (error) {
 
             console.error(
@@ -595,7 +716,9 @@ async function signUpUser({
 
 
             return {
+
                 success: false,
+
                 error
             };
         }
@@ -620,19 +743,44 @@ async function signUpUser({
 
 
         /* -------------------------------------------------
-           If email confirmation is required
+           IMPORTANT FIX
+           -------------------------------------------------
+           Save profile immediately.
+
+           Previously this was skipped when email
+           confirmation was required.
+           ------------------------------------------------- */
+
+        const profileSaved =
+            await saveUserProfile(
+                user,
+                accountType,
+                fullName
+            );
+
+
+        if (!profileSaved) {
+
+            console.warn(
+                "Web3Jobs: User created but profile could not be saved."
+            );
+
+            /*
+             * Do not destroy the Auth account.
+             * Metadata still contains account_type.
+             */
+        }
+
+
+        /* -------------------------------------------------
+           EMAIL CONFIRMATION REQUIRED
            ------------------------------------------------- */
 
         if (!isEmailConfirmed(user)) {
 
-            /*
-             * Supabase may already have created the user.
-             * We do not force dashboard access.
-             */
-
             showAuthMessage(
-                "تم إنشاء الحساب. يرجى فتح رسالة التأكيد التي أرسلناها إلى بريدك الإلكتروني.",
-                "Account created. Please open the confirmation email sent to your inbox.",
+                "تم إنشاء حساب الشركة بنجاح. يرجى فتح رسالة التأكيد التي أرسلناها إلى بريدك الإلكتروني.",
+                "Company account created successfully. Please open the confirmation email sent to your inbox.",
                 "success"
             );
 
@@ -643,19 +791,23 @@ async function signUpUser({
 
                 requiresEmailConfirmation: true,
 
-                user
+                profileSaved,
+
+                user,
+
+                accountType
             };
         }
 
 
         /* -------------------------------------------------
-           Email already confirmed
+           EMAIL ALREADY CONFIRMED
            ------------------------------------------------- */
 
-        await saveUserProfile(
-            user,
-            accountType,
-            fullName
+        showAuthMessage(
+            "تم إنشاء الحساب بنجاح.",
+            "Account created successfully.",
+            "success"
         );
 
 
@@ -664,6 +816,8 @@ async function signUpUser({
             success: true,
 
             requiresEmailConfirmation: false,
+
+            profileSaved,
 
             user,
 
@@ -687,7 +841,9 @@ async function signUpUser({
 
 
         return {
+
             success: false,
+
             error
         };
     }
@@ -698,17 +854,17 @@ async function signUpUser({
    LOGIN
    ========================================================= */
 
-/**
- * Login user
- */
 async function loginUser(
     email,
     password
 ) {
 
-    const client = getAuthSupabase();
+    const client =
+        getAuthSupabase();
+
 
     if (!client) {
+
         return {
             success: false
         };
@@ -719,6 +875,7 @@ async function loginUser(
         String(email || "")
             .trim()
             .toLowerCase();
+
 
     password =
         String(password || "");
@@ -779,7 +936,9 @@ async function loginUser(
 
 
             return {
+
                 success: false,
+
                 error
             };
         }
@@ -804,15 +963,10 @@ async function loginUser(
 
 
         /* -------------------------------------------------
-           BLOCK UNCONFIRMED EMAIL
+           EMAIL CONFIRMATION
            ------------------------------------------------- */
 
         if (!isEmailConfirmed(user)) {
-
-            /*
-             * Immediately sign out.
-             * This prevents access to dashboards.
-             */
 
             await client.auth.signOut();
 
@@ -836,7 +990,7 @@ async function loginUser(
 
 
         /* -------------------------------------------------
-           Get account type
+           GET ACCOUNT TYPE
            ------------------------------------------------- */
 
         let accountType =
@@ -846,8 +1000,7 @@ async function loginUser(
 
 
         /*
-         * If profile does not exist yet,
-         * use metadata.
+         * Metadata fallback
          */
 
         if (!accountType) {
@@ -862,11 +1015,6 @@ async function loginUser(
 
 
         if (!accountType) {
-
-            /*
-             * Logout because account type
-             * is required for dashboard routing.
-             */
 
             await client.auth.signOut();
 
@@ -888,7 +1036,7 @@ async function loginUser(
 
 
         /* -------------------------------------------------
-           Success
+           SUCCESS
            ------------------------------------------------- */
 
         showAuthMessage(
@@ -924,7 +1072,9 @@ async function loginUser(
 
 
         return {
+
             success: false,
+
             error
         };
     }
@@ -937,11 +1087,14 @@ async function loginUser(
 
 async function logoutUser() {
 
-    const client = getAuthSupabase();
+    const client =
+        getAuthSupabase();
+
 
     if (!client) {
         return false;
     }
+
 
     try {
 
@@ -957,19 +1110,18 @@ async function logoutUser() {
                 error
             );
 
+
             showAuthError(
                 error
             );
+
 
             return false;
         }
 
 
-        /*
-         * Redirect to homepage
-         */
-
         window.location.href =
+            getWeb3JobsBaseUrl() +
             "index.html";
 
 
@@ -996,53 +1148,17 @@ async function logoutUser() {
 
 
 /* =========================================================
-   DASHBOARD ROUTING
+   REDIRECT TO DASHBOARD
    ========================================================= */
 
-/**
- * Get dashboard URL
- */
-function getDashboardUrl(
-    accountType
-) {
-
-    const type =
-        normalizeAccountType(
-            accountType
-        );
-
-
-    if (type === "company") {
-
-        return "company-dashboard.html";
-    }
-
-
-    if (type === "individual") {
-
-        return "dashboard.html";
-    }
-
-
-    return "index.html";
-}
-
-
-/**
- * Redirect according to account type
- */
 function redirectToDashboard(
     accountType
 ) {
 
-    const dashboard =
+    window.location.href =
         getDashboardUrl(
             accountType
         );
-
-
-    window.location.href =
-        dashboard;
 }
 
 
@@ -1050,22 +1166,13 @@ function redirectToDashboard(
    PROTECT DASHBOARD
    ========================================================= */
 
-/**
- * Protect dashboard pages
- *
- * Usage:
- *
- * protectDashboard("individual");
- *
- * or
- *
- * protectDashboard("company");
- */
 async function protectDashboard(
     requiredAccountType = null
 ) {
 
-    const client = getAuthSupabase();
+    const client =
+        getAuthSupabase();
+
 
     if (!client) {
         return false;
@@ -1079,20 +1186,20 @@ async function protectDashboard(
 
 
         /* -------------------------------------------------
-           No authenticated user
+           NO USER
            ------------------------------------------------- */
 
         if (!user) {
 
             window.location.href =
-                "login.html";
+                getLoginUrl();
 
             return false;
         }
 
 
         /* -------------------------------------------------
-           Email confirmation
+           EMAIL CONFIRMATION
            ------------------------------------------------- */
 
         if (!isEmailConfirmed(user)) {
@@ -1100,23 +1207,15 @@ async function protectDashboard(
             await client.auth.signOut();
 
 
-            showAuthMessage(
-                "البريد الإلكتروني لم يتم تأكيده. يرجى تأكيد البريد الإلكتروني أولاً.",
-                "Your email has not been confirmed. Please confirm your email first.",
-                "error"
-            );
-
-
             window.location.href =
-                "login.html";
-
+                getLoginUrl();
 
             return false;
         }
 
 
         /* -------------------------------------------------
-           Account type
+           ACCOUNT TYPE
            ------------------------------------------------- */
 
         const accountType =
@@ -1138,15 +1237,14 @@ async function protectDashboard(
 
 
             window.location.href =
-                "login.html";
-
+                getLoginUrl();
 
             return false;
         }
 
 
         /* -------------------------------------------------
-           Required account type
+           REQUIRED ACCOUNT TYPE
            ------------------------------------------------- */
 
         if (requiredAccountType) {
@@ -1162,15 +1260,9 @@ async function protectDashboard(
                 accountType !== required
             ) {
 
-                /*
-                 * User is authenticated,
-                 * but is on the wrong dashboard.
-                 */
-
                 redirectToDashboard(
                     accountType
                 );
-
 
                 return false;
             }
@@ -1198,7 +1290,7 @@ async function protectDashboard(
 
 
         window.location.href =
-            "login.html";
+            getLoginUrl();
 
 
         return false;
@@ -1207,7 +1299,7 @@ async function protectDashboard(
 
 
 /* =========================================================
-   PROTECT COMPANY DASHBOARD
+   COMPANY DASHBOARD
    ========================================================= */
 
 async function protectCompanyDashboard() {
@@ -1219,7 +1311,7 @@ async function protectCompanyDashboard() {
 
 
 /* =========================================================
-   PROTECT INDIVIDUAL DASHBOARD
+   INDIVIDUAL DASHBOARD
    ========================================================= */
 
 async function protectIndividualDashboard() {
@@ -1256,10 +1348,6 @@ function initializeAuthStateListener() {
                 event
             );
 
-
-            /*
-             * Email confirmed
-             */
 
             if (
                 event ===
@@ -1328,12 +1416,12 @@ async function resendConfirmationEmail(
 
             type: "signup",
 
-            email: email,
+            email,
 
             options: {
 
                 emailRedirectTo:
-                    `${window.location.origin}/login.html`
+                    getLoginUrl()
             }
         });
 
@@ -1386,7 +1474,7 @@ async function resendConfirmationEmail(
 
 
 /* =========================================================
-   AUTH ERROR TRANSLATION
+   AUTH ERROR
    ========================================================= */
 
 function showAuthError(
@@ -1400,10 +1488,6 @@ function showAuthError(
             ""
         ).toLowerCase();
 
-
-    /* -------------------------------------------------
-       Invalid login
-       ------------------------------------------------- */
 
     if (
         message.includes(
@@ -1421,10 +1505,6 @@ function showAuthError(
     }
 
 
-    /* -------------------------------------------------
-       Email not confirmed
-       ------------------------------------------------- */
-
     if (
         message.includes(
             "email not confirmed"
@@ -1441,10 +1521,6 @@ function showAuthError(
     }
 
 
-    /* -------------------------------------------------
-       User already registered
-       ------------------------------------------------- */
-
     if (
         message.includes(
             "user already registered"
@@ -1460,10 +1536,6 @@ function showAuthError(
         return;
     }
 
-
-    /* -------------------------------------------------
-       Password
-       ------------------------------------------------- */
 
     if (
         message.includes(
@@ -1486,17 +1558,9 @@ function showAuthError(
     }
 
 
-    /* -------------------------------------------------
-       Email
-       ------------------------------------------------- */
-
     if (
-        message.includes(
-            "email"
-        ) &&
-        message.includes(
-            "invalid"
-        )
+        message.includes("email") &&
+        message.includes("invalid")
     ) {
 
         showAuthMessage(
@@ -1509,17 +1573,9 @@ function showAuthError(
     }
 
 
-    /* -------------------------------------------------
-       Rate limit
-       ------------------------------------------------- */
-
     if (
-        message.includes(
-            "rate limit"
-        ) ||
-        message.includes(
-            "too many requests"
-        )
+        message.includes("rate limit") ||
+        message.includes("too many requests")
     ) {
 
         showAuthMessage(
@@ -1532,17 +1588,9 @@ function showAuthError(
     }
 
 
-    /* -------------------------------------------------
-       Failed to fetch
-       ------------------------------------------------- */
-
     if (
-        message.includes(
-            "failed to fetch"
-        ) ||
-        message.includes(
-            "network"
-        )
+        message.includes("failed to fetch") ||
+        message.includes("network")
     ) {
 
         showAuthMessage(
@@ -1555,10 +1603,6 @@ function showAuthError(
     }
 
 
-    /* -------------------------------------------------
-       Generic
-       ------------------------------------------------- */
-
     showAuthMessage(
         "حدث خطأ أثناء المصادقة. يرجى المحاولة مرة أخرى.",
         "Authentication error. Please try again.",
@@ -1568,7 +1612,7 @@ function showAuthError(
 
 
 /* =========================================================
-   AUTH MESSAGE UI
+   AUTH MESSAGE
    ========================================================= */
 
 function showAuthMessage(
@@ -1576,10 +1620,6 @@ function showAuthMessage(
     messageEn,
     type = "info"
 ) {
-
-    /*
-     * Look for existing message containers
-     */
 
     const element =
         document.getElementById(
@@ -1596,30 +1636,28 @@ function showAuthMessage(
             </div>
         `;
 
+
         element.style.display =
             "block";
 
 
-        /*
-         * Scroll to message
-         */
-
         try {
 
             element.scrollIntoView({
-                behavior: "smooth",
-                block: "center"
+
+                behavior:
+                    "smooth",
+
+                block:
+                    "center"
             });
 
         } catch (e) {}
 
+
         return;
     }
 
-
-    /*
-     * Fallback console
-     */
 
     if (type === "error") {
 
@@ -1688,10 +1726,6 @@ async function initializeAuthPage() {
             .toLowerCase();
 
 
-    /* -------------------------------------------------
-       Company dashboard
-       ------------------------------------------------- */
-
     if (
         page ===
         "company-dashboard.html"
@@ -1702,10 +1736,6 @@ async function initializeAuthPage() {
         return;
     }
 
-
-    /* -------------------------------------------------
-       Individual dashboard
-       ------------------------------------------------- */
 
     if (
         page ===
