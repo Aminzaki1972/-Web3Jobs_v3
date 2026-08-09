@@ -7,7 +7,6 @@
 
 "use strict";
 
-
 /* =========================================================
    SUPABASE
    ========================================================= */
@@ -16,45 +15,41 @@ let authSupabase = null;
 
 
 /* =========================================================
-   INITIALIZE AUTH
+   INITIALIZE AUTH SUPABASE
    ========================================================= */
 
 function initializeAuthSupabase() {
 
     if (
         !window.Web3JobsSupabase ||
-        typeof window.Web3JobsSupabase.getSupabaseClient !==
-            "function"
+        typeof window.Web3JobsSupabase.getSupabaseClient !== "function"
     ) {
 
         console.error(
-            "js/supabase.js is not loaded."
+            "Web3JobsSupabase is not available."
         );
 
         return false;
     }
-
 
     authSupabase =
         window.Web3JobsSupabase.getSupabaseClient();
 
-
     if (!authSupabase) {
 
         console.error(
-            "Unable to initialize Supabase."
+            "Unable to initialize Supabase client."
         );
 
         return false;
     }
-
 
     return true;
 }
 
 
 /* =========================================================
-   MESSAGE
+   MESSAGE SYSTEM
    ========================================================= */
 
 function authMessage(
@@ -67,7 +62,6 @@ function authMessage(
             "auth-message"
         );
 
-
     if (!box) {
 
         box =
@@ -78,7 +72,6 @@ function authMessage(
         box.id =
             "auth-message";
 
-
         Object.assign(
             box.style,
             {
@@ -88,26 +81,22 @@ function authMessage(
                 left: "20px",
                 margin: "auto",
                 zIndex: "999999",
-                maxWidth: "360px",
+                maxWidth: "400px",
                 padding: "14px 18px",
                 borderRadius: "10px",
                 fontSize: "14px",
                 boxShadow:
-                    "0 8px 25px rgba(0,0,0,.2)",
-                textAlign: "center"
+                    "0 8px 25px rgba(0,0,0,.2)"
             }
         );
-
 
         document.body.appendChild(
             box
         );
     }
 
-
     box.textContent =
         message;
-
 
     if (type === "success") {
 
@@ -142,19 +131,16 @@ function authMessage(
             "#ffffff";
     }
 
-
     box.style.display =
         "block";
-
 
     clearTimeout(
         box._timer
     );
 
-
     box._timer =
         setTimeout(
-            () => {
+            function () {
 
                 box.style.display =
                     "none";
@@ -179,7 +165,6 @@ async function getCurrentUser() {
         return null;
     }
 
-
     try {
 
         const {
@@ -188,24 +173,22 @@ async function getCurrentUser() {
         } =
             await authSupabase.auth.getUser();
 
-
         if (error) {
 
             console.error(
-                "Unable to get current user:",
+                "getCurrentUser error:",
                 error
             );
 
             return null;
         }
 
-
         return data?.user || null;
 
     } catch (error) {
 
         console.error(
-            "getCurrentUser error:",
+            "getCurrentUser exception:",
             error
         );
 
@@ -232,6 +215,12 @@ async function createUserProfile(
         return null;
     }
 
+    const normalizedAccountType =
+        String(
+            accountType || "individual"
+        )
+        .trim()
+        .toLowerCase();
 
     try {
 
@@ -253,7 +242,10 @@ async function createUserProfile(
                             fullName || "",
 
                         account_type:
-                            accountType || "individual"
+                            normalizedAccountType,
+
+                        updated_at:
+                            new Date().toISOString()
                     },
                     {
                         onConflict:
@@ -263,24 +255,22 @@ async function createUserProfile(
                 .select()
                 .maybeSingle();
 
-
         if (error) {
 
             console.error(
-                "Profile error:",
+                "createUserProfile error:",
                 error
             );
 
             return null;
         }
 
-
         return data || null;
 
     } catch (error) {
 
         console.error(
-            "createUserProfile error:",
+            "createUserProfile exception:",
             error
         );
 
@@ -298,13 +288,17 @@ async function getUserProfile(
 ) {
 
     if (
-        !authSupabase ||
-        !userId
+        !authSupabase &&
+        !initializeAuthSupabase()
     ) {
 
         return null;
     }
 
+    if (!userId) {
+
+        return null;
+    }
 
     try {
 
@@ -321,24 +315,22 @@ async function getUserProfile(
                 )
                 .maybeSingle();
 
-
         if (error) {
 
             console.error(
-                "Profile loading error:",
+                "getUserProfile error:",
                 error
             );
 
             return null;
         }
 
-
         return data || null;
 
     } catch (error) {
 
         console.error(
-            "getUserProfile error:",
+            "getUserProfile exception:",
             error
         );
 
@@ -360,35 +352,69 @@ async function getAccountType(
         return "individual";
     }
 
+    /*
+     * First source:
+     * profiles table
+     */
 
     const profile =
         await getUserProfile(
             user.id
         );
 
-
     if (
         profile &&
         profile.account_type
     ) {
 
-        return String(
-            profile.account_type
-        ).trim().toLowerCase();
+        const profileType =
+            String(
+                profile.account_type
+            )
+            .trim()
+            .toLowerCase();
+
+        if (
+            profileType === "company"
+        ) {
+
+            return "company";
+        }
+
+        if (
+            profileType === "individual"
+        ) {
+
+            return "individual";
+        }
     }
 
+
+    /*
+     * Second source:
+     * Supabase user metadata
+     */
 
     const metadata =
         user.user_metadata || {};
 
-
-    return String(
-        metadata.account_type ||
-        metadata.user_type ||
-        "individual"
-    )
+    const metadataType =
+        String(
+            metadata.account_type ||
+            metadata.user_type ||
+            ""
+        )
         .trim()
         .toLowerCase();
+
+    if (
+        metadataType === "company"
+    ) {
+
+        return "company";
+    }
+
+    return "individual";
 }
 
 
@@ -402,36 +428,67 @@ async function redirectUser(
 
     if (!user) {
 
+        window.location.href =
+            "login.html";
+
         return;
     }
 
+    try {
 
-    const accountType =
-        await getAccountType(
-            user
+        const accountType =
+            await getAccountType(
+                user
+            );
+
+        console.log(
+            "Web3Jobs account type:",
+            accountType
         );
 
+        /*
+         * COMPANY
+         */
 
-    console.log(
-        "Web3Jobs account type:",
-        accountType
-    );
+        if (
+            accountType === "company"
+        ) {
+
+            console.log(
+                "Redirecting company to company-dashboard.html"
+            );
+
+            window.location.replace(
+                "company-dashboard.html"
+            );
+
+            return;
+        }
 
 
-    if (
-        accountType ===
-        "company"
-    ) {
+        /*
+         * INDIVIDUAL
+         */
 
-        window.location.href =
-            "company-dashboard.html";
+        console.log(
+            "Redirecting individual to dashboard.html"
+        );
 
-        return;
+        window.location.replace(
+            "dashboard.html"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "redirectUser error:",
+            error
+        );
+
+        window.location.replace(
+            "dashboard.html"
+        );
     }
-
-
-    window.location.href =
-        "dashboard.html";
 }
 
 
@@ -454,30 +511,25 @@ async function signUpUser() {
         return;
     }
 
-
     const fullNameInput =
         document.getElementById(
             "signup-full-name"
         );
-
 
     const emailInput =
         document.getElementById(
             "signup-email"
         );
 
-
     const passwordInput =
         document.getElementById(
             "signup-password"
         );
 
-
     const accountTypeInput =
         document.getElementById(
             "signup-account-type"
         );
-
 
     if (
         !emailInput ||
@@ -492,24 +544,24 @@ async function signUpUser() {
         return;
     }
 
-
     const fullName =
         fullNameInput
             ? fullNameInput.value.trim()
             : "";
 
-
     const email =
         emailInput.value.trim();
-
 
     const password =
         passwordInput.value;
 
-
     const accountType =
         accountTypeInput
-            ? accountTypeInput.value
+            ? String(
+                accountTypeInput.value
+              )
+              .trim()
+              .toLowerCase()
             : "individual";
 
 
@@ -535,9 +587,7 @@ async function signUpUser() {
     }
 
 
-    if (
-        password.length < 6
-    ) {
+    if (password.length < 6) {
 
         authMessage(
             "Password must be at least 6 characters.",
@@ -610,9 +660,45 @@ async function signUpUser() {
 
         if (
             data &&
-            data.user &&
-            !data.session
+            data.user
         ) {
+
+            /*
+             * If session exists,
+             * create profile immediately.
+             */
+
+            if (data.session) {
+
+                await createUserProfile(
+                    data.user,
+                    fullName,
+                    accountType
+                );
+
+                authMessage(
+                    "Account created successfully.",
+                    "success"
+                );
+
+                setTimeout(
+                    function () {
+
+                        redirectUser(
+                            data.user
+                        );
+
+                    },
+                    500
+                );
+
+                return;
+            }
+
+
+            /*
+             * Email confirmation required.
+             */
 
             authMessage(
                 "Account created. Please confirm your email, then login.",
@@ -623,48 +709,17 @@ async function signUpUser() {
         }
 
 
-        if (
-            data &&
-            data.user
-        ) {
-
-            await createUserProfile(
-                data.user,
-                fullName,
-                accountType
-            );
-        }
-
-
         authMessage(
-            "Account created successfully.",
-            "success"
+            "Unable to create account.",
+            "error"
         );
-
-
-        /*
-         * Redirect after 2 seconds.
-         */
-
-        setTimeout(
-            () => {
-
-                redirectUser(
-                    data.user
-                );
-
-            },
-            2000
-        );
-
 
     } catch (error) {
 
         console.error(
-            "signUpUser error:",
+            "signUpUser exception:",
             error
         );
-
 
         authMessage(
             "An unexpected error occurred.",
@@ -699,12 +754,10 @@ async function loginUser() {
             "login-email"
         );
 
-
     const passwordInput =
         document.getElementById(
             "login-password"
         );
-
 
     if (
         !emailInput ||
@@ -722,7 +775,6 @@ async function loginUser() {
 
     const email =
         emailInput.value.trim();
-
 
     const password =
         passwordInput.value;
@@ -751,6 +803,10 @@ async function loginUser() {
 
 
     try {
+
+        /*
+         * LOGIN
+         */
 
         const {
             data,
@@ -798,32 +854,122 @@ async function loginUser() {
         }
 
 
+        /*
+         * IMPORTANT:
+         * Read profile after successful login.
+         */
+
+        const user =
+            data.user;
+
+
+        const profile =
+            await getUserProfile(
+                user.id
+            );
+
+
+        /*
+         * If profile exists,
+         * make sure metadata/profile
+         * are consistent.
+         */
+
+        let accountType =
+            "individual";
+
+
+        if (
+            profile &&
+            profile.account_type
+        ) {
+
+            accountType =
+                String(
+                    profile.account_type
+                )
+                .trim()
+                .toLowerCase();
+
+        } else {
+
+            const metadata =
+                user.user_metadata || {};
+
+            accountType =
+                String(
+                    metadata.account_type ||
+                    metadata.user_type ||
+                    "individual"
+                )
+                .trim()
+                .toLowerCase();
+
+
+            /*
+             * Create missing profile.
+             */
+
+            await createUserProfile(
+                user,
+                metadata.full_name || "",
+                accountType
+            );
+        }
+
+
+        console.log(
+            "LOGIN SUCCESS"
+        );
+
+        console.log(
+            "USER ID:",
+            user.id
+        );
+
+        console.log(
+            "PROFILE:",
+            profile
+        );
+
+        console.log(
+            "ACCOUNT TYPE:",
+            accountType
+        );
+
+
         authMessage(
-            "Login successful. Redirecting...",
+            "Login successful.",
             "success"
         );
 
 
         /*
-         * IMPORTANT:
-         * Wait exactly 2 seconds before redirect.
+         * DIRECT REDIRECT
+         *
+         * No unnecessary delay.
          */
 
-        setTimeout(
-            () => {
+        if (
+            accountType === "company"
+        ) {
 
-                redirectUser(
-                    data.user
-                );
+            window.location.replace(
+                "company-dashboard.html"
+            );
 
-            },
-            2000
+            return;
+        }
+
+
+        window.location.replace(
+            "dashboard.html"
         );
 
     } catch (error) {
 
         console.error(
-            "loginUser error:",
+            "loginUser exception:",
             error
         );
 
@@ -849,14 +995,12 @@ async function logoutUser() {
         return;
     }
 
-
     try {
 
         const {
             error
         } =
             await authSupabase.auth.signOut();
-
 
         if (error) {
 
@@ -873,23 +1017,8 @@ async function logoutUser() {
             return;
         }
 
-
-        authMessage(
-            "You have been logged out.",
-            "success"
-        );
-
-
-        setTimeout(
-            () => {
-
-                window.location.href =
-                    "index.html";
-
-            },
-            500
-        );
-
+        window.location.href =
+            "index.html";
 
     } catch (error) {
 
@@ -910,7 +1039,6 @@ async function requireLogin() {
     const user =
         await getCurrentUser();
 
-
     if (!user) {
 
         window.location.href =
@@ -918,7 +1046,6 @@ async function requireLogin() {
 
         return null;
     }
-
 
     return user;
 }
@@ -933,22 +1060,18 @@ async function requireCompany() {
     const user =
         await requireLogin();
 
-
     if (!user) {
 
         return null;
     }
-
 
     const accountType =
         await getAccountType(
             user
         );
 
-
     if (
-        accountType !==
-        "company"
+        accountType !== "company"
     ) {
 
         window.location.href =
@@ -956,7 +1079,6 @@ async function requireCompany() {
 
         return null;
     }
-
 
     return user;
 }
@@ -971,22 +1093,18 @@ async function requireIndividual() {
     const user =
         await requireLogin();
 
-
     if (!user) {
 
         return null;
     }
-
 
     const accountType =
         await getAccountType(
             user
         );
 
-
     if (
-        accountType !==
-        "individual"
+        accountType !== "individual"
     ) {
 
         window.location.href =
@@ -994,7 +1112,6 @@ async function requireIndividual() {
 
         return null;
     }
-
 
     return user;
 }
@@ -1009,7 +1126,6 @@ async function updateAuthUI() {
     const user =
         await getCurrentUser();
 
-
     document
         .querySelectorAll(
             "[data-auth-login]"
@@ -1018,9 +1134,7 @@ async function updateAuthUI() {
             element => {
 
                 element.style.display =
-                    user
-                        ? "none"
-                        : "";
+                    user ? "none" : "";
 
             }
         );
@@ -1034,9 +1148,7 @@ async function updateAuthUI() {
             element => {
 
                 element.style.display =
-                    user
-                        ? ""
-                        : "none";
+                    user ? "" : "none";
 
             }
         );
@@ -1063,7 +1175,7 @@ async function updateAuthUI() {
 
 
 /* =========================================================
-   EVENT LISTENERS
+   AUTH EVENTS
    ========================================================= */
 
 function initializeAuthEvents() {
@@ -1073,12 +1185,17 @@ function initializeAuthEvents() {
             "signup-form"
         );
 
+    if (
+        signupForm &&
+        !signupForm.dataset.authInitialized
+    ) {
 
-    if (signupForm) {
+        signupForm.dataset.authInitialized =
+            "true";
 
         signupForm.addEventListener(
             "submit",
-            event => {
+            function (event) {
 
                 event.preventDefault();
 
@@ -1094,12 +1211,17 @@ function initializeAuthEvents() {
             "login-form"
         );
 
+    if (
+        loginForm &&
+        !loginForm.dataset.authInitialized
+    ) {
 
-    if (loginForm) {
+        loginForm.dataset.authInitialized =
+            "true";
 
         loginForm.addEventListener(
             "submit",
-            event => {
+            function (event) {
 
                 event.preventDefault();
 
@@ -1117,9 +1239,19 @@ function initializeAuthEvents() {
         .forEach(
             button => {
 
+                if (
+                    button.dataset.authInitialized
+                ) {
+
+                    return;
+                }
+
+                button.dataset.authInitialized =
+                    "true";
+
                 button.addEventListener(
                     "click",
-                    event => {
+                    function (event) {
 
                         event.preventDefault();
 
@@ -1127,7 +1259,6 @@ function initializeAuthEvents() {
 
                     }
                 );
-
             }
         );
 }
@@ -1167,7 +1298,7 @@ window.Web3JobsAuth = {
 
 
 /* =========================================================
-   INITIALIZE
+   INITIALIZE AUTH
    ========================================================= */
 
 async function initializeAuth() {
@@ -1179,28 +1310,31 @@ async function initializeAuth() {
         return;
     }
 
-
     initializeAuthEvents();
-
 
     await updateAuthUI();
 
 
     /*
-     * Supabase authentication listener.
+     * Auth state listener
      */
 
     authSupabase.auth.onAuthStateChange(
-        async (
+        async function (
             event,
             session
-        ) => {
+        ) {
 
             console.log(
                 "Auth event:",
                 event
             );
 
+            /*
+             * Do not redirect here.
+             *
+             * loginUser() handles the redirect.
+             */
 
             if (
                 event === "SIGNED_IN" &&
@@ -1210,22 +1344,29 @@ async function initializeAuth() {
                 const user =
                     session.user;
 
-
                 const metadata =
                     user.user_metadata || {};
 
+                /*
+                 * Make sure profile exists.
+                 */
 
-                await createUserProfile(
-                    user,
-                    metadata.full_name || "",
-                    metadata.account_type ||
-                    "individual"
-                );
+                const existingProfile =
+                    await getUserProfile(
+                        user.id
+                    );
+
+                if (!existingProfile) {
+
+                    await createUserProfile(
+                        user,
+                        metadata.full_name || "",
+                        metadata.account_type || "individual"
+                    );
+                }
             }
 
-
             await updateAuthUI();
-
         }
     );
 }
@@ -1236,8 +1377,7 @@ async function initializeAuth() {
    ========================================================= */
 
 if (
-    document.readyState ===
-    "loading"
+    document.readyState === "loading"
 ) {
 
     document.addEventListener(
