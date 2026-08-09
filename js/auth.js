@@ -8,54 +8,47 @@
 "use strict";
 
 /* =========================================================
-   SUPABASE CONFIG
+   SUPABASE
    ========================================================= */
-
-const AUTH_SUPABASE_URL =
-    "https://uewocyaspztybnvnkbmo.supabase.co";
-
-const AUTH_SUPABASE_KEY =
-    "sb_publishable_ap9UMOBhdHdIkW0WFD25nA_NurNviS0";
 
 let authSupabase = null;
 
 
 /* =========================================================
-   INITIALIZE SUPABASE
+   INITIALIZE AUTH
    ========================================================= */
 
 function initializeAuthSupabase() {
 
     if (
-        typeof window.supabase === "undefined" ||
-        typeof window.supabase.createClient !== "function"
+        !window.Web3JobsSupabase ||
+        typeof window.Web3JobsSupabase.getSupabaseClient !==
+        "function"
     ) {
+
         console.error(
-            "Supabase library is not loaded."
+            "js/supabase.js is not loaded."
         );
 
         return false;
     }
 
-    try {
 
-        authSupabase =
-            window.supabase.createClient(
-                AUTH_SUPABASE_URL,
-                AUTH_SUPABASE_KEY
-            );
+    authSupabase =
+        window.Web3JobsSupabase.getSupabaseClient();
 
-        return true;
 
-    } catch (error) {
+    if (!authSupabase) {
 
         console.error(
-            "Supabase initialization error:",
-            error
+            "Unable to initialize Supabase."
         );
 
         return false;
     }
+
+
+    return true;
 }
 
 
@@ -73,6 +66,7 @@ function authMessage(
             "auth-message"
         );
 
+
     if (!box) {
 
         box =
@@ -82,6 +76,7 @@ function authMessage(
 
         box.id =
             "auth-message";
+
 
         Object.assign(
             box.style,
@@ -99,13 +94,16 @@ function authMessage(
             }
         );
 
+
         document.body.appendChild(
             box
         );
     }
 
+
     box.textContent =
         message;
+
 
     if (type === "success") {
 
@@ -140,12 +138,15 @@ function authMessage(
             "#ffffff";
     }
 
+
     box.style.display =
         "block";
+
 
     clearTimeout(
         box._timer
     );
+
 
     box._timer =
         setTimeout(
@@ -161,7 +162,51 @@ function authMessage(
 
 
 /* =========================================================
-   CREATE USER PROFILE
+   GET CURRENT USER
+   ========================================================= */
+
+async function getCurrentUser() {
+
+    if (
+        !authSupabase &&
+        !initializeAuthSupabase()
+    ) {
+
+        return null;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await authSupabase.auth.getUser();
+
+
+        if (error) {
+
+            return null;
+        }
+
+
+        return data?.user || null;
+
+    } catch (error) {
+
+        console.error(
+            "getCurrentUser error:",
+            error
+        );
+
+        return null;
+    }
+}
+
+
+/* =========================================================
+   CREATE / UPDATE PROFILE
    ========================================================= */
 
 async function createUserProfile(
@@ -174,8 +219,10 @@ async function createUserProfile(
         !authSupabase ||
         !user
     ) {
+
         return null;
     }
+
 
     try {
 
@@ -207,21 +254,23 @@ async function createUserProfile(
                 .select()
                 .maybeSingle();
 
+
         if (error) {
 
-            console.warn(
-                "Profile creation warning:",
+            console.error(
+                "Profile error:",
                 error
             );
 
             return null;
         }
 
+
         return data || null;
 
     } catch (error) {
 
-        console.warn(
+        console.error(
             "createUserProfile error:",
             error
         );
@@ -232,7 +281,7 @@ async function createUserProfile(
 
 
 /* =========================================================
-   GET PROFILE
+   GET USER PROFILE
    ========================================================= */
 
 async function getUserProfile(
@@ -243,8 +292,10 @@ async function getUserProfile(
         !authSupabase ||
         !userId
     ) {
+
         return null;
     }
+
 
     try {
 
@@ -261,15 +312,17 @@ async function getUserProfile(
                 )
                 .maybeSingle();
 
+
         if (error) {
 
-            console.warn(
-                "Unable to load profile:",
+            console.error(
+                "Profile loading error:",
                 error
             );
 
             return null;
         }
+
 
         return data || null;
 
@@ -294,17 +347,16 @@ async function getAccountType(
 ) {
 
     if (!user) {
+
         return "individual";
     }
 
-    /*
-     * First try profile table.
-     */
 
     const profile =
         await getUserProfile(
             user.id
         );
+
 
     if (
         profile &&
@@ -316,12 +368,10 @@ async function getAccountType(
         ).toLowerCase();
     }
 
-    /*
-     * Fallback to Auth metadata.
-     */
 
     const metadata =
         user.user_metadata || {};
+
 
     return String(
         metadata.account_type ||
@@ -339,21 +389,26 @@ async function redirectUser(
 ) {
 
     if (!user) {
+
         return;
     }
+
 
     const accountType =
         await getAccountType(
             user
         );
 
+
     console.log(
-        "Account type:",
+        "Web3Jobs account type:",
         accountType
     );
 
+
     if (
-        accountType === "company"
+        accountType ===
+        "company"
     ) {
 
         window.location.href =
@@ -361,6 +416,7 @@ async function redirectUser(
 
         return;
     }
+
 
     window.location.href =
         "dashboard.html";
@@ -373,41 +429,43 @@ async function redirectUser(
 
 async function signUpUser() {
 
-    if (!authSupabase) {
+    if (
+        !authSupabase &&
+        !initializeAuthSupabase()
+    ) {
 
-        const initialized =
-            initializeAuthSupabase();
+        authMessage(
+            "Supabase is not available.",
+            "error"
+        );
 
-        if (!initialized) {
-
-            authMessage(
-                "Supabase is not available.",
-                "error"
-            );
-
-            return;
-        }
+        return;
     }
+
 
     const fullNameInput =
         document.getElementById(
             "signup-full-name"
         );
 
+
     const emailInput =
         document.getElementById(
             "signup-email"
         );
+
 
     const passwordInput =
         document.getElementById(
             "signup-password"
         );
 
+
     const accountTypeInput =
         document.getElementById(
             "signup-account-type"
         );
+
 
     if (
         !emailInput ||
@@ -422,21 +480,26 @@ async function signUpUser() {
         return;
     }
 
+
     const fullName =
         fullNameInput
             ? fullNameInput.value.trim()
             : "";
 
+
     const email =
         emailInput.value.trim();
 
+
     const password =
         passwordInput.value;
+
 
     const accountType =
         accountTypeInput
             ? accountTypeInput.value
             : "individual";
+
 
     if (!email) {
 
@@ -448,6 +511,7 @@ async function signUpUser() {
         return;
     }
 
+
     if (!password) {
 
         authMessage(
@@ -458,7 +522,10 @@ async function signUpUser() {
         return;
     }
 
-    if (password.length < 6) {
+
+    if (
+        password.length < 6
+    ) {
 
         authMessage(
             "Password must be at least 6 characters.",
@@ -467,6 +534,7 @@ async function signUpUser() {
 
         return;
     }
+
 
     if (
         accountType !== "individual" &&
@@ -480,6 +548,7 @@ async function signUpUser() {
 
         return;
     }
+
 
     try {
 
@@ -509,6 +578,7 @@ async function signUpUser() {
                 }
             );
 
+
         if (error) {
 
             console.error(
@@ -525,44 +595,10 @@ async function signUpUser() {
             return;
         }
 
-        /*
-         * If Supabase immediately creates a session,
-         * create the profile now.
-         */
-
-        if (
-            data &&
-            data.user &&
-            data.session
-        ) {
-
-            await createUserProfile(
-                data.user,
-                fullName,
-                accountType
-            );
-
-            authMessage(
-                "Account created successfully.",
-                "success"
-            );
-
-            setTimeout(
-                () => {
-
-                    redirectUser(
-                        data.user
-                    );
-
-                },
-                700
-            );
-
-            return;
-        }
 
         /*
-         * Email confirmation is enabled.
+         * User created but email
+         * confirmation may be required.
          */
 
         if (
@@ -572,17 +608,49 @@ async function signUpUser() {
         ) {
 
             authMessage(
-                "Account created. Please check your email to confirm your account.",
+                "Account created. Please confirm your email, then login.",
                 "success"
             );
 
             return;
         }
 
+
+        /*
+         * Create profile immediately
+         * when session exists.
+         */
+
+        if (
+            data &&
+            data.user
+        ) {
+
+            await createUserProfile(
+                data.user,
+                fullName,
+                accountType
+            );
+        }
+
+
         authMessage(
             "Account created successfully.",
             "success"
         );
+
+
+        setTimeout(
+            () => {
+
+                redirectUser(
+                    data.user
+                );
+
+            },
+            700
+        );
+
 
     } catch (error) {
 
@@ -590,6 +658,7 @@ async function signUpUser() {
             "signUpUser error:",
             error
         );
+
 
         authMessage(
             "An unexpected error occurred.",
@@ -605,31 +674,31 @@ async function signUpUser() {
 
 async function loginUser() {
 
-    if (!authSupabase) {
+    if (
+        !authSupabase &&
+        !initializeAuthSupabase()
+    ) {
 
-        const initialized =
-            initializeAuthSupabase();
+        authMessage(
+            "Supabase is not available.",
+            "error"
+        );
 
-        if (!initialized) {
-
-            authMessage(
-                "Supabase is not available.",
-                "error"
-            );
-
-            return;
-        }
+        return;
     }
+
 
     const emailInput =
         document.getElementById(
             "login-email"
         );
 
+
     const passwordInput =
         document.getElementById(
             "login-password"
         );
+
 
     if (
         !emailInput ||
@@ -644,11 +713,14 @@ async function loginUser() {
         return;
     }
 
+
     const email =
         emailInput.value.trim();
 
+
     const password =
         passwordInput.value;
+
 
     if (!email) {
 
@@ -660,6 +732,7 @@ async function loginUser() {
         return;
     }
 
+
     if (!password) {
 
         authMessage(
@@ -669,6 +742,7 @@ async function loginUser() {
 
         return;
     }
+
 
     try {
 
@@ -686,6 +760,7 @@ async function loginUser() {
                 }
             );
 
+
         if (error) {
 
             console.error(
@@ -702,6 +777,7 @@ async function loginUser() {
             return;
         }
 
+
         if (
             !data ||
             !data.user
@@ -715,10 +791,12 @@ async function loginUser() {
             return;
         }
 
+
         authMessage(
             "Login successful.",
             "success"
         );
+
 
         setTimeout(
             () => {
@@ -730,6 +808,7 @@ async function loginUser() {
             },
             500
         );
+
 
     } catch (error) {
 
@@ -752,14 +831,14 @@ async function loginUser() {
 
 async function logoutUser() {
 
-    if (!authSupabase) {
+    if (
+        !authSupabase &&
+        !initializeAuthSupabase()
+    ) {
 
-        initializeAuthSupabase();
-    }
-
-    if (!authSupabase) {
         return;
     }
+
 
     try {
 
@@ -767,6 +846,7 @@ async function logoutUser() {
             error
         } =
             await authSupabase.auth.signOut();
+
 
         if (error) {
 
@@ -783,10 +863,12 @@ async function logoutUser() {
             return;
         }
 
+
         authMessage(
             "You have been logged out.",
             "success"
         );
+
 
         setTimeout(
             () => {
@@ -798,54 +880,13 @@ async function logoutUser() {
             500
         );
 
+
     } catch (error) {
 
         console.error(
             "logoutUser error:",
             error
         );
-    }
-}
-
-
-/* =========================================================
-   GET CURRENT USER
-   ========================================================= */
-
-async function getCurrentUser() {
-
-    if (!authSupabase) {
-
-        const initialized =
-            initializeAuthSupabase();
-
-        if (!initialized) {
-            return null;
-        }
-    }
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await authSupabase.auth.getUser();
-
-        if (error) {
-            return null;
-        }
-
-        return data?.user || null;
-
-    } catch (error) {
-
-        console.error(
-            "getCurrentUser error:",
-            error
-        );
-
-        return null;
     }
 }
 
@@ -859,6 +900,7 @@ async function requireLogin() {
     const user =
         await getCurrentUser();
 
+
     if (!user) {
 
         window.location.href =
@@ -866,6 +908,7 @@ async function requireLogin() {
 
         return null;
     }
+
 
     return user;
 }
@@ -880,17 +923,22 @@ async function requireCompany() {
     const user =
         await requireLogin();
 
+
     if (!user) {
+
         return null;
     }
+
 
     const accountType =
         await getAccountType(
             user
         );
 
+
     if (
-        accountType !== "company"
+        accountType !==
+        "company"
     ) {
 
         window.location.href =
@@ -898,6 +946,7 @@ async function requireCompany() {
 
         return null;
     }
+
 
     return user;
 }
@@ -912,17 +961,22 @@ async function requireIndividual() {
     const user =
         await requireLogin();
 
+
     if (!user) {
+
         return null;
     }
+
 
     const accountType =
         await getAccountType(
             user
         );
 
+
     if (
-        accountType !== "individual"
+        accountType !==
+        "individual"
     ) {
 
         window.location.href =
@@ -931,12 +985,13 @@ async function requireIndividual() {
         return null;
     }
 
+
     return user;
 }
 
 
 /* =========================================================
-   AUTO UPDATE AUTH UI
+   UPDATE AUTH UI
    ========================================================= */
 
 async function updateAuthUI() {
@@ -944,55 +999,54 @@ async function updateAuthUI() {
     const user =
         await getCurrentUser();
 
-    const loginButtons =
-        document.querySelectorAll(
+
+    document
+        .querySelectorAll(
             "[data-auth-login]"
+        )
+        .forEach(
+            element => {
+
+                element.style.display =
+                    user
+                        ? "none"
+                        : "";
+
+            }
         );
 
-    const logoutButtons =
-        document.querySelectorAll(
+
+    document
+        .querySelectorAll(
             "[data-auth-logout]"
+        )
+        .forEach(
+            element => {
+
+                element.style.display =
+                    user
+                        ? ""
+                        : "none";
+
+            }
         );
 
-    const userElements =
-        document.querySelectorAll(
+
+    document
+        .querySelectorAll(
             "[data-auth-user]"
+        )
+        .forEach(
+            element => {
+
+                element.textContent =
+                    user
+                        ? user.email || ""
+                        : "";
+
+            }
         );
 
-    loginButtons.forEach(
-        element => {
-
-            element.style.display =
-                user
-                    ? "none"
-                    : "";
-
-        }
-    );
-
-    logoutButtons.forEach(
-        element => {
-
-            element.style.display =
-                user
-                    ? ""
-                    : "none";
-
-        }
-    );
-
-    userElements.forEach(
-        element => {
-
-            element.textContent =
-                user
-                    ? (
-                        user.email || ""
-                    )
-                    : "";
-
-        }
-    );
 
     return user;
 }
@@ -1009,6 +1063,7 @@ function initializeAuthEvents() {
             "signup-form"
         );
 
+
     if (signupForm) {
 
         signupForm.addEventListener(
@@ -1023,10 +1078,12 @@ function initializeAuthEvents() {
         );
     }
 
+
     const loginForm =
         document.getElementById(
             "login-form"
         );
+
 
     if (loginForm) {
 
@@ -1041,6 +1098,7 @@ function initializeAuthEvents() {
             }
         );
     }
+
 
     document
         .querySelectorAll(
@@ -1099,21 +1157,28 @@ window.Web3JobsAuth = {
 
 
 /* =========================================================
-   INITIALIZE AUTH
+   INITIALIZE
    ========================================================= */
 
 async function initializeAuth() {
 
-    const initialized =
-        initializeAuthSupabase();
+    if (
+        !initializeAuthSupabase()
+    ) {
 
-    if (!initialized) {
         return;
     }
 
+
     initializeAuthEvents();
 
+
     await updateAuthUI();
+
+
+    /*
+     * Supabase authentication listener.
+     */
 
     authSupabase.auth.onAuthStateChange(
         async (
@@ -1126,10 +1191,6 @@ async function initializeAuth() {
                 event
             );
 
-            /*
-             * When user signs in, make sure
-             * the profile exists.
-             */
 
             if (
                 event === "SIGNED_IN" &&
@@ -1139,8 +1200,10 @@ async function initializeAuth() {
                 const user =
                     session.user;
 
+
                 const metadata =
                     user.user_metadata || {};
+
 
                 await createUserProfile(
                     user,
@@ -1148,6 +1211,7 @@ async function initializeAuth() {
                     metadata.account_type || "individual"
                 );
             }
+
 
             await updateAuthUI();
 
