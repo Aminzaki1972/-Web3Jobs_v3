@@ -1,573 +1,429 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
+<!DOCTYPE html>
+<html lang="en">
 
-«»
+<head>
 
-<title>Login - Web3Jobs</title><link
-    rel="stylesheet"
-    href="css/style.css"
-><style>
+    <meta charset="UTF-8">
 
-body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: Arial, sans-serif;
-    background: #f5f7fb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-.auth-container {
-    width: 100%;
-    max-width: 430px;
-    padding: 20px;
-}
+    <meta
+        name="description"
+        content="Login to Web3Jobs - Web3 and Blockchain Jobs Platform"
+    >
 
-.auth-card {
-    background: #ffffff;
-    border-radius: 18px;
-    padding: 35px 30px;
-    box-shadow:
-        0 10px 35px rgba(0, 0, 0, 0.10);
-}
+    <title>Login - Web3Jobs</title>
 
-.auth-logo {
-    text-align: center;
-    margin-bottom: 25px;
-}
+    <!-- Main stylesheet -->
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
 
-.auth-logo h1 {
-    margin: 0;
-    color: #111827;
-    font-size: 30px;
-}
+    <style>
 
-.auth-logo p {
-    margin-top: 8px;
-    color: #6b7280;
-    font-size: 14px;
-}
-
-.auth-title {
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.auth-title h2 {
-    margin: 0;
-    color: #111827;
-    font-size: 24px;
-}
-
-.form-group {
-    margin-bottom: 18px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 7px;
-    font-weight: 600;
-    color: #374151;
-}
-
-.form-group input {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 13px 14px;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    font-size: 15px;
-    outline: none;
-    transition: 0.2s;
-}
-
-.form-group input:focus {
-    border-color: #2563eb;
-    box-shadow:
-        0 0 0 3px rgba(37, 99, 235, 0.10);
-}
-
-.login-button {
-    width: 100%;
-    border: none;
-    border-radius: 10px;
-    padding: 14px;
-    background: #2563eb;
-    color: #ffffff;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: 0.2s;
-}
-
-.login-button:hover {
-    background: #1d4ed8;
-}
-
-.login-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.auth-links {
-    text-align: center;
-    margin-top: 22px;
-    line-height: 1.8;
-}
-
-.auth-links a {
-    color: #2563eb;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.auth-links a:hover {
-    text-decoration: underline;
-}
-
-.home-link {
-    display: block;
-    margin-top: 10px;
-    color: #6b7280 !important;
-    font-weight: normal !important;
-}
-
-#auth-message {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    left: 20px;
-    margin: auto;
-    max-width: 400px;
-    z-index: 999999;
-    display: none;
-}
-
-.auth-message-error,
-.auth-message-success,
-.auth-message-info {
-    padding: 14px 16px;
-    border-radius: 10px;
-    background: #ffffff;
-    box-shadow:
-        0 8px 25px rgba(0, 0, 0, 0.12);
-    line-height: 1.6;
-}
-
-.auth-message-error {
-    border-left: 4px solid #dc2626;
-}
-
-.auth-message-success {
-    border-left: 4px solid #16a34a;
-}
-
-.auth-message-info {
-    border-left: 4px solid #2563eb;
-}
-
-.auth-message-error div,
-.auth-message-success div,
-.auth-message-info div {
-    margin: 2px 0;
-}
-
-</style></head><body><div
-    id="auth-message"
-></div><div class="auth-container"><div class="auth-card"><!-- LOGO --><div class="auth-logo"><h1>
-Web3Jobs
-</h1><p>
-Global Web3 & Blockchain Jobs Platform
-</p></div><!-- TITLE --><div class="auth-title"><h2>
-Login
-</h2></div><!-- LOGIN FORM --><form
-    id="login-form"
-    novalidate
-><!-- EMAIL --><div class="form-group"><label for="login-email">
-Email
-</label><input
-type="email"
-id="login-email"
-name="email"
-placeholder="Enter your email"
-autocomplete="email"
-required
-
-«»
-
-</div><!-- PASSWORD --><div class="form-group"><label for="login-password">
-Password
-</label><input
-type="password"
-id="login-password"
-name="password"
-placeholder="Enter your password"
-autocomplete="current-password"
-required
-
-«»
-
-</div><!-- LOGIN BUTTON --><button
-type="submit"
-class="login-button"
-id="login-button"
-
-«»
-
-Login
-</button>
-
-</form><!-- LINKS --><div class="auth-links"><div>Don't have an account?
-
-<a href="signup.html">
-Create Account
-</a></div><a
-href="index.html"
-class="home-link"
-
-«»
-
-← Back to Web3Jobs
-</a>
-
-</div></div></div><!-- =====================================================
-     SUPABASE LIBRARY
-     ===================================================== --><script
-src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script><!-- =====================================================
-     WEB3JOBS SUPABASE
-     ===================================================== --><script
-src="js/supabase.js"
-></script><!-- =====================================================
-     WEB3JOBS AUTH
-     ===================================================== --><script
-src="js/auth.js"
-></script><!-- =====================================================
-     LOGIN HANDLER
-     ===================================================== --><script>
-
-"use strict";
-
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
-
-
-        const form =
-            document.getElementById(
-                "login-form"
-            );
-
-
-        const emailInput =
-            document.getElementById(
-                "login-email"
-            );
-
-
-        const passwordInput =
-            document.getElementById(
-                "login-password"
-            );
-
-
-        const button =
-            document.getElementById(
-                "login-button"
-            );
-
-
-        if (
-            !form ||
-            !emailInput ||
-            !passwordInput ||
-            !button
-        ) {
-
-            console.error(
-                "Web3Jobs Login: Required elements were not found."
-            );
-
-            return;
+        * {
+            box-sizing: border-box;
         }
 
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
 
-        /* -------------------------------------------------
-           LOGIN SUBMIT
-           ------------------------------------------------- */
+        body {
+            min-height: 100vh;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
 
-        form.addEventListener(
-            "submit",
-            async function (event) {
+            background:
+                radial-gradient(
+                    circle at top left,
+                    #1d3557 0%,
+                    #0b1220 45%,
+                    #050810 100%
+                );
 
-                event.preventDefault();
+            color: #ffffff;
 
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-                if (button.disabled) {
-                    return;
-                }
+            padding: 30px 16px;
+        }
 
+        .login-page {
+            width: 100%;
+            max-width: 460px;
+        }
 
-                const email =
-                    emailInput.value
-                        .trim()
-                        .toLowerCase();
+        .login-card {
+            width: 100%;
 
+            background: rgba(15, 23, 42, 0.96);
 
-                const password =
-                    passwordInput.value;
+            border: 1px solid rgba(255, 255, 255, 0.10);
 
+            border-radius: 22px;
 
-                if (!email) {
+            padding: 38px 34px;
 
-                    Web3JobsAuth.showMessage(
+            box-shadow:
+                0 25px 70px rgba(0, 0, 0, 0.45);
 
-                        "يرجى إدخال البريد الإلكتروني.",
+            backdrop-filter: blur(12px);
+        }
 
-                        "Please enter your email address.",
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
 
-                        "error"
+        .brand a {
+            color: #ffffff;
+            text-decoration: none;
+        }
 
-                    );
+        .brand-title {
+            margin: 0;
 
-                    emailInput.focus();
+            font-size: 34px;
+            font-weight: 800;
 
-                    return;
-                }
+            letter-spacing: -1px;
+        }
 
+        .brand-title span {
+            color: #38bdf8;
+        }
 
-                if (!password) {
+        .brand-subtitle {
+            margin: 8px 0 0;
 
-                    Web3JobsAuth.showMessage(
+            color: #94a3b8;
 
-                        "يرجى إدخال كلمة المرور.",
+            font-size: 14px;
+        }
 
-                        "Please enter your password.",
+        .form-title {
+            margin: 0 0 8px;
 
-                        "error"
+            font-size: 25px;
+            font-weight: 700;
 
-                    );
+            text-align: center;
+        }
 
-                    passwordInput.focus();
+        .form-description {
+            margin: 0 0 25px;
 
-                    return;
-                }
+            text-align: center;
 
+            color: #94a3b8;
 
-                /* -------------------------------------------------
-                   BUTTON LOADING
-                   ------------------------------------------------- */
+            font-size: 14px;
 
-                button.disabled = true;
+            line-height: 1.6;
+        }
 
-                button.textContent =
-                    "Signing in...";
+        .form-group {
+            margin-bottom: 18px;
+        }
 
+        .form-group label {
+            display: block;
 
-                try {
+            margin-bottom: 8px;
 
+            color: #e2e8f0;
 
-                    /* -------------------------------------------------
-                       CHECK AUTH API
-                       ------------------------------------------------- */
+            font-size: 14px;
+            font-weight: 600;
+        }
 
-                    if (
-                        !window.Web3JobsAuth ||
-                        typeof Web3JobsAuth.login !==
-                            "function"
-                    ) {
+        .form-group input {
+            width: 100%;
 
-                        throw new Error(
-                            "Authentication system is not available."
-                        );
-                    }
+            height: 50px;
 
+            padding: 0 15px;
 
-                    /* -------------------------------------------------
-                       REAL LOGIN
-                       ------------------------------------------------- */
+            border-radius: 10px;
 
-                    const result =
-                        await Web3JobsAuth.login(
-                            email,
-                            password
-                        );
+            border: 1px solid #334155;
 
+            outline: none;
 
-                    console.log(
-                        "Web3Jobs login result:",
-                        result
-                    );
+            background: #0f172a;
 
+            color: #ffffff;
 
-                    /* -------------------------------------------------
-                       LOGIN FAILED
-                       ------------------------------------------------- */
+            font-size: 15px;
 
-                    if (
-                        !result ||
-                        result.success !== true
-                    ) {
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
 
-                        button.disabled = false;
+        .form-group input::placeholder {
+            color: #64748b;
+        }
 
-                        button.textContent =
-                            "Login";
+        .form-group input:focus {
+            border-color: #38bdf8;
 
-                        return;
-                    }
+            box-shadow:
+                0 0 0 3px rgba(56, 189, 248, 0.12);
+        }
 
+        .login-button {
+            width: 100%;
 
-                    /* -------------------------------------------------
-                       LOGIN SUCCESS
-                       ------------------------------------------------- */
+            min-height: 50px;
 
-                    const accountType =
-                        result.accountType;
+            border: none;
 
+            border-radius: 10px;
 
-                    if (
-                        accountType ===
-                        "company"
-                    ) {
+            background:
+                linear-gradient(
+                    135deg,
+                    #0ea5e9,
+                    #2563eb
+                );
 
-                        button.textContent =
-                            "Opening Company Dashboard...";
+            color: #ffffff;
 
+            font-size: 16px;
 
-                        window.location.href =
-                            "company-dashboard.html";
+            font-weight: 700;
 
+            cursor: pointer;
 
-                        return;
-                    }
+            transition:
+                transform 0.2s ease,
+                opacity 0.2s ease,
+                box-shadow 0.2s ease;
+        }
 
+        .login-button:hover {
+            transform: translateY(-1px);
 
-                    if (
-                        accountType ===
-                        "individual"
-                    ) {
+            box-shadow:
+                0 10px 25px rgba(37, 99, 235, 0.25);
+        }
 
-                        button.textContent =
-                            "Opening Dashboard...";
+        .login-button:disabled {
+            opacity: 0.65;
 
+            cursor: not-allowed;
 
-                        window.location.href =
-                            "dashboard.html";
+            transform: none;
 
+            box-shadow: none;
+        }
 
-                        return;
-                    }
+        .message {
+            display: none;
 
+            margin: 16px 0 0;
 
-                    /* -------------------------------------------------
-                       UNKNOWN ACCOUNT TYPE
-                       ------------------------------------------------- */
+            padding: 12px 14px;
 
-                    Web3JobsAuth.showMessage(
+            border-radius: 10px;
 
-                        "تم تسجيل الدخول ولكن لم يتم تحديد نوع الحساب.",
+            font-size: 14px;
 
-                        "Login succeeded but the account type could not be determined.",
+            line-height: 1.5;
 
-                        "error"
+            text-align: center;
+        }
 
-                    );
+        .message.show {
+            display: block;
+        }
 
+        .message.error {
+            color: #fecaca;
 
-                    button.disabled = false;
+            background: rgba(127, 29, 29, 0.35);
 
-                    button.textContent =
-                        "Login";
+            border: 1px solid rgba(248, 113, 113, 0.35);
+        }
 
+        .message.success {
+            color: #bbf7d0;
 
-                } catch (error) {
+            background: rgba(20, 83, 45, 0.35);
 
+            border: 1px solid rgba(74, 222, 128, 0.30);
+        }
 
-                    console.error(
-                        "Web3Jobs login handler error:",
-                        error
-                    );
+        .confirmation-box {
+            display: none;
 
+            margin-top: 18px;
 
-                    Web3JobsAuth.showError(
-                        error
-                    );
+            padding: 16px;
 
+            border-radius: 12px;
 
-                    button.disabled = false;
+            background: rgba(30, 41, 59, 0.75);
 
-                    button.textContent =
-                        "Login";
+            border: 1px solid rgba(148, 163, 184, 0.18);
 
-                }
+            text-align: center;
+        }
 
-            }
-        );
+        .confirmation-box.show {
+            display: block;
+        }
 
+        .confirmation-box p {
+            margin: 0 0 12px;
 
-        /* -------------------------------------------------
-           ENTER KEY SUPPORT
-           ------------------------------------------------- */
+            color: #cbd5e1;
 
-        passwordInput.addEventListener(
-            "keydown",
-            function (event) {
+            font-size: 14px;
 
-                if (
-                    event.key ===
-                    "Enter"
-                ) {
-
-                    event.preventDefault();
-
-                    form.requestSubmit();
-
-                }
-
-            }
-        );
-
-
-    }
-);
-
-</script></body></html>        }
-
+            line-height: 1.6;
+        }
 
         #resend-button {
-            margin-top: 10px;
-            width: 100%;
-            padding: 11px 14px;
-            border: 1px solid #f97316;
-            border-radius: 9px;
-            background: #ffffff;
-            color: #c2410c;
-            font-weight: 700;
-            cursor: pointer;
-        }
+            border: none;
 
+            background: transparent;
+
+            color: #38bdf8;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            padding: 5px;
+        }
 
         #resend-button:hover {
-            background: #fff7ed;
+            text-decoration: underline;
         }
 
-
         #resend-button:disabled {
-            opacity: 0.6;
+            opacity: 0.5;
+
             cursor: not-allowed;
         }
 
+        .register-link {
+            margin-top: 24px;
 
-        /* =================================================
-           LOADING
-           ================================================= */
+            padding-top: 20px;
 
-        .login-loading {
-            pointer-events: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+            text-align: center;
+
+            color: #94a3b8;
+
+            font-size: 14px;
+        }
+
+        .register-link a {
+            color: #38bdf8;
+
+            font-weight: 700;
+
+            text-decoration: none;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+
+        .back-home {
+            display: block;
+
+            margin-top: 20px;
+
+            text-align: center;
+
+            color: #64748b;
+
+            text-decoration: none;
+
+            font-size: 13px;
+        }
+
+        .back-home:hover {
+            color: #cbd5e1;
+        }
+
+        .loading {
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            gap: 8px;
+        }
+
+        .spinner {
+            width: 16px;
+
+            height: 16px;
+
+            border: 2px solid rgba(255, 255, 255, 0.35);
+
+            border-top-color: #ffffff;
+
+            border-radius: 50%;
+
+            animation:
+                loginSpin 0.8s linear infinite;
+        }
+
+        @keyframes loginSpin {
+
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+
+        }
+
+        @media (max-width: 520px) {
+
+            body {
+                padding: 18px 12px;
+            }
+
+            .login-card {
+                padding: 30px 22px;
+
+                border-radius: 18px;
+            }
+
+            .brand-title {
+                font-size: 30px;
+            }
+
+            .form-title {
+                font-size: 22px;
+            }
+
         }
 
     </style>
@@ -577,161 +433,124 @@ document.addEventListener(
 
 <body>
 
+    <main class="login-page">
 
-<div class="auth-container">
+        <section class="login-card">
 
-    <div class="auth-card">
+            <div class="brand">
 
+                <a href="index.html">
 
-        <!-- =================================================
-             LOGO
-             ================================================= -->
+                    <h1 class="brand-title">
+                        Web<span>3</span>Jobs
+                    </h1>
 
-        <div class="auth-logo">
+                    <p class="brand-subtitle">
+                        Web3 & Blockchain Jobs Platform
+                    </p>
 
-            <h1>
-                Web3Jobs
-            </h1>
+                </a>
 
-            <p>
-                Global Web3 & Blockchain Jobs Platform
-            </p>
-
-        </div>
+            </div>
 
 
-        <!-- =================================================
-             TITLE
-             ================================================= -->
-
-        <div class="auth-title">
-
-            <h2>
-                Login
+            <h2 class="form-title">
+                Welcome Back
             </h2>
 
-        </div>
+
+            <p class="form-description">
+                Login to your Web3Jobs account
+            </p>
 
 
-        <!-- =================================================
-             AUTH MESSAGE
-             ================================================= -->
+            <form
+                id="login-form"
+                novalidate
+            >
 
-        <div
-            id="auth-message"
-            role="alert"
-            aria-live="polite"
-        ></div>
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        autocomplete="email"
+                        placeholder="Enter your email"
+                        required
+                    >
+
+                </div>
 
 
-        <!-- =================================================
-             LOGIN FORM
-             ================================================= -->
+                <div class="form-group">
 
-        <form
-            id="login-form"
-            novalidate
-        >
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+                </div>
 
 
-            <!-- EMAIL -->
+                <button
+                    type="submit"
+                    id="login-button"
+                    class="login-button"
+                >
+                    Login
+                </button>
 
-            <div class="form-group">
 
-                <label for="login-email">
-                    Email
-                </label>
+                <div
+                    id="login-message"
+                    class="message"
+                    role="alert"
+                    aria-live="polite"
+                ></div>
 
-                <input
-                    type="email"
-                    id="login-email"
-                    name="email"
-                    placeholder="Enter your email"
-                    autocomplete="email"
-                    required
+
+                <div
+                    id="confirmation-box"
+                    class="confirmation-box"
                 >
 
-            </div>
+                    <p>
+                        Your email address has not been confirmed yet.
+                        Please check your inbox and confirm your email
+                        before logging in.
+                    </p>
+
+                    <button
+                        type="button"
+                        id="resend-button"
+                    >
+                        Resend confirmation email
+                    </button>
+
+                </div>
+
+            </form>
 
 
-            <!-- PASSWORD -->
-
-            <div class="form-group">
-
-                <label for="login-password">
-                    Password
-                </label>
-
-                <input
-                    type="password"
-                    id="login-password"
-                    name="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
-                >
-
-            </div>
-
-
-            <!-- LOGIN BUTTON -->
-
-            <button
-                type="submit"
-                class="login-button"
-                id="login-button"
-            >
-                Login
-            </button>
-
-
-        </form>
-
-
-        <!-- =================================================
-             EMAIL CONFIRMATION
-             ================================================= -->
-
-        <div
-            id="confirmation-area"
-        >
-
-            <div>
-                <strong>
-                    Email Not Confirmed
-                </strong>
-            </div>
-
-            <div>
-                البريد الإلكتروني لم يتم تأكيده بعد.
-            </div>
-
-            <div>
-                Please check your inbox and confirm your email.
-            </div>
-
-            <button
-                type="button"
-                id="resend-button"
-            >
-                Resend Confirmation Email
-            </button>
-
-        </div>
-
-
-        <!-- =================================================
-             LINKS
-             ================================================= -->
-
-        <div class="auth-links">
-
-            <div>
+            <div class="register-link">
 
                 Don't have an account?
 
-                <a href="signup.html">
-                    Create Account
+                <a href="register.html">
+                    Create an account
                 </a>
 
             </div>
@@ -739,531 +558,522 @@ document.addEventListener(
 
             <a
                 href="index.html"
-                class="home-link"
+                class="back-home"
             >
                 ← Back to Web3Jobs
             </a>
 
-        </div>
+        </section>
+
+    </main>
 
 
-    </div>
+    <!-- =====================================================
+         SUPABASE
+         ===================================================== -->
 
-</div>
-
-
-<!-- =====================================================
-     SUPABASE LIBRARY
-     MUST LOAD FIRST
-     ===================================================== -->
-
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
 
 
-<!-- =====================================================
-     WEB3JOBS SUPABASE
-     ===================================================== -->
+    <!-- =====================================================
+         WEB3JOBS SUPABASE CONFIG
+         ===================================================== -->
 
-<script
-    src="js/supabase.js"
-></script>
+    <script src="js/supabase.js"></script>
 
 
-<!-- =====================================================
-     WEB3JOBS AUTHENTICATION
-     ===================================================== -->
+    <!-- =====================================================
+         WEB3JOBS AUTHENTICATION
+         ===================================================== -->
 
-<script
-    src="js/auth.js"
-></script>
+    <script src="js/auth.js"></script>
 
 
-<!-- =====================================================
-     LOGIN SYSTEM
-     ===================================================== -->
+    <!-- =====================================================
+         LOGIN PAGE INITIALIZATION
+         ===================================================== -->
 
-<script>
+    <script>
 
-"use strict";
-
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+        "use strict";
 
 
-        /* =================================================
-           ELEMENTS
-           ================================================= */
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
 
-        const form =
-            document.getElementById(
-                "login-form"
-            );
+                const loginForm =
+                    document.getElementById("login-form");
 
+                const emailInput =
+                    document.getElementById("email");
 
-        const emailInput =
-            document.getElementById(
-                "login-email"
-            );
+                const passwordInput =
+                    document.getElementById("password");
 
+                const loginButton =
+                    document.getElementById("login-button");
 
-        const passwordInput =
-            document.getElementById(
-                "login-password"
-            );
+                const loginMessage =
+                    document.getElementById("login-message");
 
+                const confirmationBox =
+                    document.getElementById("confirmation-box");
 
-        const button =
-            document.getElementById(
-                "login-button"
-            );
+                const resendButton =
+                    document.getElementById("resend-button");
 
 
-        const confirmationArea =
-            document.getElementById(
-                "confirmation-area"
-            );
+                /*
+                 * Show message
+                 */
 
-
-        const resendButton =
-            document.getElementById(
-                "resend-button"
-            );
-
-
-        if (
-            !form ||
-            !emailInput ||
-            !passwordInput ||
-            !button
-        ) {
-
-            console.error(
-                "Web3Jobs Login: Required elements not found."
-            );
-
-            return;
-        }
-
-
-        /* =================================================
-           SHOW MESSAGE
-           ================================================= */
-
-        function showMessage(
-            arabic,
-            english,
-            type
-        ) {
-
-            if (
-                window.Web3JobsAuth &&
-                typeof
-                window.Web3JobsAuth.showMessage ===
-                "function"
-            ) {
-
-                window.Web3JobsAuth.showMessage(
-                    arabic,
-                    english,
+                function showMessage(
+                    message,
                     type
-                );
+                ) {
 
-            }
-
-        }
-
-
-        /* =================================================
-           HIDE CONFIRMATION
-           ================================================= */
-
-        function hideConfirmation() {
-
-            if (confirmationArea) {
-
-                confirmationArea.style.display =
-                    "none";
-            }
-        }
-
-
-        /* =================================================
-           SHOW CONFIRMATION
-           ================================================= */
-
-        function showConfirmation() {
-
-            if (confirmationArea) {
-
-                confirmationArea.style.display =
-                    "block";
-            }
-        }
-
-
-        /* =================================================
-           LOGIN
-           ================================================= */
-
-        form.addEventListener(
-            "submit",
-            async function (event) {
-
-                event.preventDefault();
-
-
-                hideConfirmation();
-
-
-                const email =
-                    emailInput.value
-                        .trim()
-                        .toLowerCase();
-
-
-                const password =
-                    passwordInput.value;
-
-
-                /* -----------------------------------------
-                   Validation
-                   ----------------------------------------- */
-
-                if (!email) {
-
-                    showMessage(
-                        "يرجى إدخال البريد الإلكتروني.",
-                        "Please enter your email address.",
-                        "error"
-                    );
-
-                    emailInput.focus();
-
-                    return;
-                }
-
-
-                if (!password) {
-
-                    showMessage(
-                        "يرجى إدخال كلمة المرور.",
-                        "Please enter your password.",
-                        "error"
-                    );
-
-                    passwordInput.focus();
-
-                    return;
-                }
-
-
-                /* -----------------------------------------
-                   Loading
-                   ----------------------------------------- */
-
-                button.disabled =
-                    true;
-
-                button.classList.add(
-                    "login-loading"
-                );
-
-                button.textContent =
-                    "Signing in...";
-
-
-                try {
-
-                    /* -------------------------------------
-                       Check auth.js
-                       ------------------------------------- */
-
-                    if (
-                        !window.Web3JobsAuth ||
-                        typeof
-                        window.Web3JobsAuth.login !==
-                        "function"
-                    ) {
-
-                        throw new Error(
-                            "Authentication system is not available."
-                        );
+                    if (!loginMessage) {
+                        return;
                     }
 
+                    loginMessage.textContent =
+                        message || "";
 
-                    /* -------------------------------------
-                       Login
-                       ------------------------------------- */
+                    loginMessage.className =
+                        "message show " +
+                        (type || "error");
 
-                    const result =
-                        await window.Web3JobsAuth.login(
-                            email,
-                            password
-                        );
+                }
 
 
-                    /* -------------------------------------
-                       Login failed
-                       ------------------------------------- */
+                /*
+                 * Hide message
+                 */
 
-                    if (
-                        !result ||
-                        result.success !== true
-                    ) {
+                function hideMessage() {
+
+                    if (!loginMessage) {
+                        return;
+                    }
+
+                    loginMessage.textContent = "";
+
+                    loginMessage.className =
+                        "message";
+
+                }
 
 
-                        /*
-                         * Email not confirmed
-                         */
+                /*
+                 * Show email confirmation area
+                 */
 
-                        if (
-                            result &&
-                            result.emailNotConfirmed
-                        ) {
+                function showConfirmationBox() {
 
-                            showConfirmation();
+                    if (!confirmationBox) {
+                        return;
+                    }
+
+                    confirmationBox.classList.add(
+                        "show"
+                    );
+
+                }
+
+
+                /*
+                 * Hide email confirmation area
+                 */
+
+                function hideConfirmationBox() {
+
+                    if (!confirmationBox) {
+                        return;
+                    }
+
+                    confirmationBox.classList.remove(
+                        "show"
+                    );
+
+                }
+
+
+                /*
+                 * Login button loading state
+                 */
+
+                function setLoading(
+                    loading
+                ) {
+
+                    if (!loginButton) {
+                        return;
+                    }
+
+                    loginButton.disabled =
+                        loading;
+
+                    if (loading) {
+
+                        loginButton.innerHTML =
+                            '<span class="loading">' +
+                            '<span class="spinner"></span>' +
+                            'Signing in...' +
+                            '</span>';
+
+                    } else {
+
+                        loginButton.textContent =
+                            "Login";
+
+                    }
+
+                }
+
+
+                /*
+                 * Login form
+                 */
+
+                if (loginForm) {
+
+                    loginForm.addEventListener(
+                        "submit",
+                        async function (event) {
+
+                            event.preventDefault();
+
+                            hideMessage();
+
+                            hideConfirmationBox();
+
+
+                            const email =
+                                emailInput
+                                    ? emailInput.value.trim()
+                                    : "";
+
+                            const password =
+                                passwordInput
+                                    ? passwordInput.value
+                                    : "";
+
+
+                            if (!email) {
+
+                                showMessage(
+                                    "Please enter your email address.",
+                                    "error"
+                                );
+
+                                if (emailInput) {
+                                    emailInput.focus();
+                                }
+
+                                return;
+                            }
+
+
+                            if (!password) {
+
+                                showMessage(
+                                    "Please enter your password.",
+                                    "error"
+                                );
+
+                                if (passwordInput) {
+                                    passwordInput.focus();
+                                }
+
+                                return;
+                            }
+
+
+                            setLoading(true);
+
+
+                            try {
+
+                                /*
+                                 * auth.js should provide
+                                 * loginUser(email, password)
+                                 */
+
+                                if (
+                                    typeof window.loginUser !==
+                                    "function"
+                                ) {
+
+                                    throw new Error(
+                                        "Authentication system is not available."
+                                    );
+
+                                }
+
+
+                                const result =
+                                    await window.loginUser(
+                                        email,
+                                        password
+                                    );
+
+
+                                /*
+                                 * auth.js may return an object
+                                 * containing an error.
+                                 */
+
+                                if (
+                                    result &&
+                                    result.error
+                                ) {
+
+                                    const errorMessage =
+                                        result.error.message ||
+                                        result.error ||
+                                        "Login failed.";
+
+                                    const lowerMessage =
+                                        String(
+                                            errorMessage
+                                        ).toLowerCase();
+
+
+                                    if (
+                                        lowerMessage.includes(
+                                            "confirm"
+                                        ) ||
+                                        lowerMessage.includes(
+                                            "email not confirmed"
+                                        ) ||
+                                        lowerMessage.includes(
+                                            "not confirmed"
+                                        )
+                                    ) {
+
+                                        showMessage(
+                                            "Please confirm your email address before logging in.",
+                                            "error"
+                                        );
+
+                                        showConfirmationBox();
+
+                                    } else {
+
+                                        showMessage(
+                                            String(
+                                                errorMessage
+                                            ),
+                                            "error"
+                                        );
+
+                                    }
+
+                                    return;
+                                }
+
+
+                                /*
+                                 * If auth.js handles the redirect,
+                                 * the page will automatically change.
+                                 */
+
+                                if (
+                                    result === false
+                                ) {
+
+                                    showMessage(
+                                        "Login failed. Please check your email and password.",
+                                        "error"
+                                    );
+
+                                }
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Login error:",
+                                    error
+                                );
+
+
+                                const errorText =
+                                    error &&
+                                    error.message
+                                        ? error.message
+                                        : "Unable to login. Please try again.";
+
+
+                                const lowerMessage =
+                                    String(
+                                        errorText
+                                    ).toLowerCase();
+
+
+                                if (
+                                    lowerMessage.includes(
+                                        "confirm"
+                                    ) ||
+                                    lowerMessage.includes(
+                                        "email not confirmed"
+                                    ) ||
+                                    lowerMessage.includes(
+                                        "not confirmed"
+                                    )
+                                ) {
+
+                                    showMessage(
+                                        "Please confirm your email address before logging in.",
+                                        "error"
+                                    );
+
+                                    showConfirmationBox();
+
+                                } else {
+
+                                    showMessage(
+                                        errorText,
+                                        "error"
+                                    );
+
+                                }
+
+                            } finally {
+
+                                setLoading(false);
+
+                            }
 
                         }
-
-
-                        return;
-                    }
-
-
-                    /* -------------------------------------
-                       Account type
-                       ------------------------------------- */
-
-                    const accountType =
-                        result.accountType;
-
-
-                    if (
-                        accountType ===
-                        "company"
-                    ) {
-
-                        button.textContent =
-                            "Company Dashboard...";
-
-
-                        window.location.href =
-                            "company-dashboard.html";
-
-
-                        return;
-                    }
-
-
-                    if (
-                        accountType ===
-                        "individual"
-                    ) {
-
-                        button.textContent =
-                            "Dashboard...";
-
-
-                        window.location.href =
-                            "dashboard.html";
-
-
-                        return;
-                    }
-
-
-                    /* -------------------------------------
-                       Unknown account type
-                       ------------------------------------- */
-
-                    showMessage(
-                        "تم تسجيل الدخول، ولكن لم يتم تحديد نوع الحساب.",
-                        "Login succeeded, but the account type could not be determined.",
-                        "error"
                     );
 
-
-                    if (
-                        window.Web3JobsSupabase &&
-                        typeof
-                        window.Web3JobsSupabase.signOut ===
-                        "function"
-                    ) {
-
-                        await
-                            window.Web3JobsSupabase.signOut();
-                    }
+                }
 
 
-                } catch (error) {
+                /*
+                 * Resend confirmation email
+                 */
 
-                    console.error(
-                        "Web3Jobs Login Error:",
-                        error
+                if (resendButton) {
+
+                    resendButton.addEventListener(
+                        "click",
+                        async function () {
+
+                            const email =
+                                emailInput
+                                    ? emailInput.value.trim()
+                                    : "";
+
+
+                            if (!email) {
+
+                                showMessage(
+                                    "Please enter your email address first.",
+                                    "error"
+                                );
+
+                                if (emailInput) {
+                                    emailInput.focus();
+                                }
+
+                                return;
+
+                            }
+
+
+                            resendButton.disabled =
+                                true;
+
+
+                            resendButton.textContent =
+                                "Sending...";
+
+
+                            try {
+
+                                /*
+                                 * auth.js should provide
+                                 * resendConfirmationEmail(email)
+                                 */
+
+                                if (
+                                    typeof window.resendConfirmationEmail !==
+                                    "function"
+                                ) {
+
+                                    throw new Error(
+                                        "Email confirmation service is not available."
+                                    );
+
+                                }
+
+
+                                const result =
+                                    await window.resendConfirmationEmail(
+                                        email
+                                    );
+
+
+                                if (
+                                    result &&
+                                    result.error
+                                ) {
+
+                                    throw new Error(
+                                        result.error.message ||
+                                        String(
+                                            result.error
+                                        )
+                                    );
+
+                                }
+
+
+                                showMessage(
+                                    "A new confirmation email has been sent. Please check your inbox.",
+                                    "success"
+                                );
+
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Resend confirmation error:",
+                                    error
+                                );
+
+
+                                showMessage(
+                                    error &&
+                                    error.message
+                                        ? error.message
+                                        : "Unable to resend the confirmation email.",
+                                    "error"
+                                );
+
+                            } finally {
+
+                                resendButton.disabled =
+                                    false;
+
+                                resendButton.textContent =
+                                    "Resend confirmation email";
+
+                            }
+
+                        }
                     );
-
-
-                    showMessage(
-                        "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.",
-                        "An error occurred while signing in. Please try again.",
-                        "error"
-                    );
-
-
-                } finally {
-
-                    /*
-                     * Do not reset if we are navigating.
-                     */
-
-                    if (
-                        !window.location.pathname
-                            .toLowerCase()
-                            .includes(
-                                "dashboard"
-                            )
-                    ) {
-
-                        button.disabled =
-                            false;
-
-                        button.classList.remove(
-                            "login-loading"
-                        );
-
-                        button.textContent =
-                            "Login";
-                    }
 
                 }
 
             }
         );
 
-
-        /* =================================================
-           RESEND CONFIRMATION
-           ================================================= */
-
-        if (resendButton) {
-
-            resendButton.addEventListener(
-                "click",
-                async function () {
-
-                    const email =
-                        emailInput.value
-                            .trim()
-                            .toLowerCase();
-
-
-                    if (!email) {
-
-                        showMessage(
-                            "أدخل البريد الإلكتروني أولاً لإعادة إرسال رسالة التأكيد.",
-                            "Enter your email address first to resend the confirmation email.",
-                            "error"
-                        );
-
-                        emailInput.focus();
-
-                        return;
-                    }
-
-
-                    resendButton.disabled =
-                        true;
-
-                    resendButton.textContent =
-                        "Sending...";
-
-
-                    try {
-
-                        if (
-                            !window.Web3JobsAuth ||
-                            typeof
-                            window.Web3JobsAuth.resendConfirmation !==
-                            "function"
-                        ) {
-
-                            throw new Error(
-                                "Resend confirmation function is not available."
-                            );
-                        }
-
-
-                        const success =
-                            await
-                            window.Web3JobsAuth
-                                .resendConfirmation(
-                                    email
-                                );
-
-
-                        if (success) {
-
-                            resendButton.textContent =
-                                "Email Sent";
-
-                        } else {
-
-                            resendButton.textContent =
-                                "Resend Confirmation Email";
-                        }
-
-
-                    } catch (error) {
-
-                        console.error(
-                            "Resend confirmation error:",
-                            error
-                        );
-
-
-                        showMessage(
-                            "تعذر إعادة إرسال رسالة التأكيد.",
-                            "Unable to resend the confirmation email.",
-                            "error"
-                        );
-
-
-                        resendButton.textContent =
-                            "Resend Confirmation Email";
-
-
-                    } finally {
-
-                        setTimeout(
-                            function () {
-
-                                resendButton.disabled =
-                                    false;
-
-                                resendButton.textContent =
-                                    "Resend Confirmation Email";
-
-                            },
-                            5000
-                        );
-
-                    }
-
-                }
-            );
-
-        }
-
-
-    }
-);
-
-</script>
-
+    </script>
 
 </body>
 
