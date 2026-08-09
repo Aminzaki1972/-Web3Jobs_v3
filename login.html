@@ -29,11 +29,13 @@
             justify-content: center;
         }
 
+
         .auth-container {
             width: 100%;
             max-width: 430px;
             padding: 20px;
         }
+
 
         .auth-card {
             background: #ffffff;
@@ -43,10 +45,12 @@
                 0 10px 35px rgba(0, 0, 0, 0.10);
         }
 
+
         .auth-logo {
             text-align: center;
             margin-bottom: 25px;
         }
+
 
         .auth-logo h1 {
             margin: 0;
@@ -54,16 +58,19 @@
             font-size: 30px;
         }
 
+
         .auth-logo p {
             margin-top: 8px;
             color: #6b7280;
             font-size: 14px;
         }
 
+
         .auth-title {
             text-align: center;
             margin-bottom: 25px;
         }
+
 
         .auth-title h2 {
             margin: 0;
@@ -71,9 +78,11 @@
             font-size: 24px;
         }
 
+
         .form-group {
             margin-bottom: 18px;
         }
+
 
         .form-group label {
             display: block;
@@ -81,6 +90,7 @@
             font-weight: 600;
             color: #374151;
         }
+
 
         .form-group input {
             width: 100%;
@@ -93,11 +103,13 @@
             transition: 0.2s;
         }
 
+
         .form-group input:focus {
             border-color: #2563eb;
             box-shadow:
                 0 0 0 3px rgba(37, 99, 235, 0.10);
         }
+
 
         .login-button {
             width: 100%;
@@ -112,14 +124,17 @@
             transition: 0.2s;
         }
 
+
         .login-button:hover {
             background: #1d4ed8;
         }
+
 
         .login-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
+
 
         .auth-links {
             text-align: center;
@@ -127,15 +142,18 @@
             line-height: 1.8;
         }
 
+
         .auth-links a {
             color: #2563eb;
             text-decoration: none;
             font-weight: 600;
         }
 
+
         .auth-links a:hover {
             text-decoration: underline;
         }
+
 
         .home-link {
             display: block;
@@ -144,15 +162,104 @@
             font-weight: normal !important;
         }
 
+
+        /* =================================================
+           AUTH MESSAGE
+           ================================================= */
+
         #auth-message {
             position: fixed;
             top: 20px;
             right: 20px;
             left: 20px;
             margin: auto;
-            max-width: 400px;
+            max-width: 430px;
             z-index: 999999;
             display: none;
+        }
+
+
+        .auth-message-error,
+        .auth-message-success,
+        .auth-message-info {
+            border-radius: 12px;
+            padding: 15px 17px;
+            line-height: 1.7;
+            font-size: 14px;
+            box-shadow:
+                0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+
+
+        .auth-message-error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+
+        .auth-message-success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+
+        .auth-message-info {
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+
+
+        /* =================================================
+           CONFIRMATION AREA
+           ================================================= */
+
+        #confirmation-area {
+            display: none;
+            margin-top: 18px;
+            padding: 15px;
+            border-radius: 12px;
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            color: #9a3412;
+            text-align: center;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+
+        #resend-button {
+            margin-top: 10px;
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid #f97316;
+            border-radius: 9px;
+            background: #ffffff;
+            color: #c2410c;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+
+        #resend-button:hover {
+            background: #fff7ed;
+        }
+
+
+        #resend-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+
+        /* =================================================
+           LOADING
+           ================================================= */
+
+        .login-loading {
+            pointer-events: none;
         }
 
     </style>
@@ -168,7 +275,9 @@
     <div class="auth-card">
 
 
-        <!-- LOGO -->
+        <!-- =================================================
+             LOGO
+             ================================================= -->
 
         <div class="auth-logo">
 
@@ -183,7 +292,9 @@
         </div>
 
 
-        <!-- TITLE -->
+        <!-- =================================================
+             TITLE
+             ================================================= -->
 
         <div class="auth-title">
 
@@ -194,7 +305,20 @@
         </div>
 
 
-        <!-- LOGIN FORM -->
+        <!-- =================================================
+             AUTH MESSAGE
+             ================================================= -->
+
+        <div
+            id="auth-message"
+            role="alert"
+            aria-live="polite"
+        ></div>
+
+
+        <!-- =================================================
+             LOGIN FORM
+             ================================================= -->
 
         <form
             id="login-form"
@@ -256,16 +380,54 @@
         </form>
 
 
-        <!-- LINKS -->
+        <!-- =================================================
+             EMAIL CONFIRMATION
+             ================================================= -->
+
+        <div
+            id="confirmation-area"
+        >
+
+            <div>
+                <strong>
+                    Email Not Confirmed
+                </strong>
+            </div>
+
+            <div>
+                البريد الإلكتروني لم يتم تأكيده بعد.
+            </div>
+
+            <div>
+                Please check your inbox and confirm your email.
+            </div>
+
+            <button
+                type="button"
+                id="resend-button"
+            >
+                Resend Confirmation Email
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             LINKS
+             ================================================= -->
 
         <div class="auth-links">
 
             <div>
+
                 Don't have an account?
+
                 <a href="signup.html">
                     Create Account
                 </a>
+
             </div>
+
 
             <a
                 href="index.html"
@@ -283,9 +445,8 @@
 
 
 <!-- =====================================================
-     SUPABASE
-     IMPORTANT:
-     Supabase library MUST load first.
+     SUPABASE LIBRARY
+     MUST LOAD FIRST
      ===================================================== -->
 
 <script
@@ -294,7 +455,7 @@
 
 
 <!-- =====================================================
-     WEB3JOBS SUPABASE CONFIG
+     WEB3JOBS SUPABASE
      ===================================================== -->
 
 <script
@@ -312,21 +473,40 @@
 
 
 <!-- =====================================================
-     LOGIN BUTTON STATE
+     LOGIN SYSTEM
      ===================================================== -->
 
 <script>
 
 "use strict";
 
+
 document.addEventListener(
     "DOMContentLoaded",
     function () {
+
+
+        /* =================================================
+           ELEMENTS
+           ================================================= */
 
         const form =
             document.getElementById(
                 "login-form"
             );
+
+
+        const emailInput =
+            document.getElementById(
+                "login-email"
+            );
+
+
+        const passwordInput =
+            document.getElementById(
+                "login-password"
+            );
+
 
         const button =
             document.getElementById(
@@ -334,36 +514,442 @@ document.addEventListener(
             );
 
 
-        if (!form || !button) {
+        const confirmationArea =
+            document.getElementById(
+                "confirmation-area"
+            );
+
+
+        const resendButton =
+            document.getElementById(
+                "resend-button"
+            );
+
+
+        if (
+            !form ||
+            !emailInput ||
+            !passwordInput ||
+            !button
+        ) {
+
+            console.error(
+                "Web3Jobs Login: Required elements not found."
+            );
+
             return;
         }
 
 
+        /* =================================================
+           SHOW MESSAGE
+           ================================================= */
+
+        function showMessage(
+            arabic,
+            english,
+            type
+        ) {
+
+            if (
+                window.Web3JobsAuth &&
+                typeof
+                window.Web3JobsAuth.showMessage ===
+                "function"
+            ) {
+
+                window.Web3JobsAuth.showMessage(
+                    arabic,
+                    english,
+                    type
+                );
+
+            }
+
+        }
+
+
+        /* =================================================
+           HIDE CONFIRMATION
+           ================================================= */
+
+        function hideConfirmation() {
+
+            if (confirmationArea) {
+
+                confirmationArea.style.display =
+                    "none";
+            }
+        }
+
+
+        /* =================================================
+           SHOW CONFIRMATION
+           ================================================= */
+
+        function showConfirmation() {
+
+            if (confirmationArea) {
+
+                confirmationArea.style.display =
+                    "block";
+            }
+        }
+
+
+        /* =================================================
+           LOGIN
+           ================================================= */
+
         form.addEventListener(
             "submit",
-            function () {
+            async function (event) {
 
-                button.disabled = true;
+                event.preventDefault();
+
+
+                hideConfirmation();
+
+
+                const email =
+                    emailInput.value
+                        .trim()
+                        .toLowerCase();
+
+
+                const password =
+                    passwordInput.value;
+
+
+                /* -----------------------------------------
+                   Validation
+                   ----------------------------------------- */
+
+                if (!email) {
+
+                    showMessage(
+                        "يرجى إدخال البريد الإلكتروني.",
+                        "Please enter your email address.",
+                        "error"
+                    );
+
+                    emailInput.focus();
+
+                    return;
+                }
+
+
+                if (!password) {
+
+                    showMessage(
+                        "يرجى إدخال كلمة المرور.",
+                        "Please enter your password.",
+                        "error"
+                    );
+
+                    passwordInput.focus();
+
+                    return;
+                }
+
+
+                /* -----------------------------------------
+                   Loading
+                   ----------------------------------------- */
+
+                button.disabled =
+                    true;
+
+                button.classList.add(
+                    "login-loading"
+                );
 
                 button.textContent =
                     "Signing in...";
 
 
-                setTimeout(
-                    function () {
+                try {
+
+                    /* -------------------------------------
+                       Check auth.js
+                       ------------------------------------- */
+
+                    if (
+                        !window.Web3JobsAuth ||
+                        typeof
+                        window.Web3JobsAuth.login !==
+                        "function"
+                    ) {
+
+                        throw new Error(
+                            "Authentication system is not available."
+                        );
+                    }
+
+
+                    /* -------------------------------------
+                       Login
+                       ------------------------------------- */
+
+                    const result =
+                        await window.Web3JobsAuth.login(
+                            email,
+                            password
+                        );
+
+
+                    /* -------------------------------------
+                       Login failed
+                       ------------------------------------- */
+
+                    if (
+                        !result ||
+                        result.success !== true
+                    ) {
+
+
+                        /*
+                         * Email not confirmed
+                         */
+
+                        if (
+                            result &&
+                            result.emailNotConfirmed
+                        ) {
+
+                            showConfirmation();
+
+                        }
+
+
+                        return;
+                    }
+
+
+                    /* -------------------------------------
+                       Account type
+                       ------------------------------------- */
+
+                    const accountType =
+                        result.accountType;
+
+
+                    if (
+                        accountType ===
+                        "company"
+                    ) {
+
+                        button.textContent =
+                            "Company Dashboard...";
+
+
+                        window.location.href =
+                            "company-dashboard.html";
+
+
+                        return;
+                    }
+
+
+                    if (
+                        accountType ===
+                        "individual"
+                    ) {
+
+                        button.textContent =
+                            "Dashboard...";
+
+
+                        window.location.href =
+                            "dashboard.html";
+
+
+                        return;
+                    }
+
+
+                    /* -------------------------------------
+                       Unknown account type
+                       ------------------------------------- */
+
+                    showMessage(
+                        "تم تسجيل الدخول، ولكن لم يتم تحديد نوع الحساب.",
+                        "Login succeeded, but the account type could not be determined.",
+                        "error"
+                    );
+
+
+                    if (
+                        window.Web3JobsSupabase &&
+                        typeof
+                        window.Web3JobsSupabase.signOut ===
+                        "function"
+                    ) {
+
+                        await
+                            window.Web3JobsSupabase.signOut();
+                    }
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Web3Jobs Login Error:",
+                        error
+                    );
+
+
+                    showMessage(
+                        "حدث خطأ أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.",
+                        "An error occurred while signing in. Please try again.",
+                        "error"
+                    );
+
+
+                } finally {
+
+                    /*
+                     * Do not reset if we are navigating.
+                     */
+
+                    if (
+                        !window.location.pathname
+                            .toLowerCase()
+                            .includes(
+                                "dashboard"
+                            )
+                    ) {
 
                         button.disabled =
                             false;
 
+                        button.classList.remove(
+                            "login-loading"
+                        );
+
                         button.textContent =
                             "Login";
+                    }
 
-                    },
-                    3000
-                );
+                }
 
             }
         );
+
+
+        /* =================================================
+           RESEND CONFIRMATION
+           ================================================= */
+
+        if (resendButton) {
+
+            resendButton.addEventListener(
+                "click",
+                async function () {
+
+                    const email =
+                        emailInput.value
+                            .trim()
+                            .toLowerCase();
+
+
+                    if (!email) {
+
+                        showMessage(
+                            "أدخل البريد الإلكتروني أولاً لإعادة إرسال رسالة التأكيد.",
+                            "Enter your email address first to resend the confirmation email.",
+                            "error"
+                        );
+
+                        emailInput.focus();
+
+                        return;
+                    }
+
+
+                    resendButton.disabled =
+                        true;
+
+                    resendButton.textContent =
+                        "Sending...";
+
+
+                    try {
+
+                        if (
+                            !window.Web3JobsAuth ||
+                            typeof
+                            window.Web3JobsAuth.resendConfirmation !==
+                            "function"
+                        ) {
+
+                            throw new Error(
+                                "Resend confirmation function is not available."
+                            );
+                        }
+
+
+                        const success =
+                            await
+                            window.Web3JobsAuth
+                                .resendConfirmation(
+                                    email
+                                );
+
+
+                        if (success) {
+
+                            resendButton.textContent =
+                                "Email Sent";
+
+                        } else {
+
+                            resendButton.textContent =
+                                "Resend Confirmation Email";
+                        }
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Resend confirmation error:",
+                            error
+                        );
+
+
+                        showMessage(
+                            "تعذر إعادة إرسال رسالة التأكيد.",
+                            "Unable to resend the confirmation email.",
+                            "error"
+                        );
+
+
+                        resendButton.textContent =
+                            "Resend Confirmation Email";
+
+
+                    } finally {
+
+                        setTimeout(
+                            function () {
+
+                                resendButton.disabled =
+                                    false;
+
+                                resendButton.textContent =
+                                    "Resend Confirmation Email";
+
+                            },
+                            5000
+                        );
+
+                    }
+
+                }
+            );
+
+        }
+
 
     }
 );
@@ -373,4 +959,4 @@ document.addEventListener(
 
 </body>
 
-</html>
+        </html>
