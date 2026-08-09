@@ -19,10 +19,25 @@
 
     <style>
 
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            color: #111827;
+        }
+
         .dashboard-page {
             min-height: 100vh;
             background: #f5f7fb;
         }
+
+        /* ==========================================
+           HEADER
+           ========================================== */
 
         .dashboard-header {
             background: #111827;
@@ -33,9 +48,11 @@
         .dashboard-header-inner {
             max-width: 1200px;
             margin: auto;
+
             display: flex;
             align-items: center;
             justify-content: space-between;
+
             gap: 20px;
         }
 
@@ -53,13 +70,21 @@
 
         .dashboard-nav a,
         .dashboard-nav button {
+
             border: 0;
+
             background: transparent;
+
             color: #ffffff;
+
             text-decoration: none;
+
             cursor: pointer;
+
             padding: 9px 12px;
+
             border-radius: 8px;
+
             font-size: 14px;
         }
 
@@ -68,18 +93,40 @@
             background: rgba(255,255,255,.1);
         }
 
+
+        /* ==========================================
+           MAIN
+           ========================================== */
+
         .dashboard-main {
+
             max-width: 1200px;
+
             margin: auto;
-            padding: 30px 20px 60px;
+
+            padding:
+                30px
+                20px
+                60px;
         }
 
+
+        /* ==========================================
+           WELCOME
+           ========================================== */
+
         .welcome-card {
+
             background: #ffffff;
+
             border-radius: 16px;
+
             padding: 28px;
+
             margin-bottom: 24px;
-            box-shadow: 0 8px 30px rgba(0,0,0,.06);
+
+            box-shadow:
+                0 8px 30px rgba(0,0,0,.06);
         }
 
         .welcome-card h1 {
@@ -91,51 +138,95 @@
             color: #6b7280;
         }
 
+
+        /* ==========================================
+           GRID
+           ========================================== */
+
         .dashboard-grid {
+
             display: grid;
+
             grid-template-columns:
-                repeat(4, minmax(0, 1fr));
+                repeat(
+                    4,
+                    minmax(0, 1fr)
+                );
+
             gap: 18px;
+
             margin-bottom: 28px;
         }
 
         .dashboard-card {
+
             background: #ffffff;
+
             border-radius: 14px;
+
             padding: 22px;
-            box-shadow: 0 8px 25px rgba(0,0,0,.05);
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,.05);
         }
 
         .dashboard-card h3 {
-            margin: 0 0 8px;
+
+            margin:
+                0
+                0
+                8px;
+
             font-size: 16px;
         }
 
         .dashboard-number {
+
             font-size: 30px;
+
             font-weight: 700;
+
             margin-bottom: 5px;
         }
 
         .dashboard-card p {
+
             color: #6b7280;
+
             margin: 0;
+
             font-size: 14px;
         }
 
+
+        /* ==========================================
+           SECTIONS
+           ========================================== */
+
         .dashboard-section {
+
             background: #ffffff;
+
             border-radius: 16px;
+
             padding: 24px;
+
             margin-bottom: 24px;
-            box-shadow: 0 8px 25px rgba(0,0,0,.05);
+
+            box-shadow:
+                0 8px 25px rgba(0,0,0,.05);
         }
 
         .dashboard-section-header {
+
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
+
             gap: 15px;
+
             margin-bottom: 20px;
         }
 
@@ -143,15 +234,31 @@
             margin: 0;
         }
 
+
+        /* ==========================================
+           BUTTONS
+           ========================================== */
+
         .dashboard-button {
+
             display: inline-block;
+
             border: 0;
+
             background: #2563eb;
+
             color: #ffffff;
-            padding: 11px 18px;
+
+            padding:
+                11px
+                18px;
+
             border-radius: 9px;
+
             text-decoration: none;
+
             cursor: pointer;
+
             font-weight: 600;
         }
 
@@ -160,20 +267,38 @@
         }
 
         .dashboard-button.secondary {
+
             background: #e5e7eb;
+
             color: #111827;
         }
 
+
+        /* ==========================================
+           ACTIONS
+           ========================================== */
+
         .dashboard-actions {
+
             display: grid;
+
             grid-template-columns:
-                repeat(3, minmax(0, 1fr));
+                repeat(
+                    3,
+                    minmax(0, 1fr)
+                );
+
             gap: 15px;
         }
 
         .action-box {
-            border: 1px solid #e5e7eb;
+
+            border:
+                1px solid
+                #e5e7eb;
+
             border-radius: 12px;
+
             padding: 20px;
         }
 
@@ -182,17 +307,34 @@
         }
 
         .action-box p {
+
             color: #6b7280;
+
             font-size: 14px;
+
             line-height: 1.6;
         }
 
+
+        /* ==========================================
+           PROFILE
+           ========================================== */
+
         .profile-row {
+
             display: flex;
-            justify-content: space-between;
+
+            justify-content:
+                space-between;
+
             gap: 20px;
-            padding: 13px 0;
-            border-bottom: 1px solid #eeeeee;
+
+            padding:
+                13px 0;
+
+            border-bottom:
+                1px solid
+                #eeeeee;
         }
 
         .profile-row:last-child {
@@ -204,22 +346,62 @@
         }
 
         .profile-value {
+
             font-weight: 600;
+
             text-align: right;
+
             word-break: break-word;
         }
 
+
+        /* ==========================================
+           LOADING
+           ========================================== */
+
         .loading {
+
             text-align: center;
+
             padding: 30px;
+
             color: #6b7280;
         }
+
+
+        /* ==========================================
+           ERROR
+           ========================================== */
+
+        .dashboard-error {
+
+            background: #fee2e2;
+
+            color: #991b1b;
+
+            padding: 16px;
+
+            border-radius: 10px;
+
+            margin-bottom: 20px;
+
+            text-align: center;
+        }
+
+
+        /* ==========================================
+           RESPONSIVE
+           ========================================== */
 
         @media (max-width: 900px) {
 
             .dashboard-grid {
+
                 grid-template-columns:
-                    repeat(2, minmax(0, 1fr));
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
             }
 
             .dashboard-actions {
@@ -228,11 +410,16 @@
 
         }
 
+
         @media (max-width: 600px) {
 
             .dashboard-header-inner {
-                align-items: flex-start;
-                flex-direction: column;
+
+                align-items:
+                    flex-start;
+
+                flex-direction:
+                    column;
             }
 
             .dashboard-grid {
@@ -240,12 +427,28 @@
             }
 
             .dashboard-main {
-                padding: 20px 14px 40px;
+
+                padding:
+                    20px
+                    14px
+                    40px;
             }
 
             .welcome-card,
             .dashboard-section {
                 padding: 20px;
+            }
+
+            .profile-row {
+
+                flex-direction:
+                    column;
+
+                gap: 5px;
+            }
+
+            .profile-value {
+                text-align: left;
             }
 
         }
@@ -256,6 +459,7 @@
 
 
 <body>
+
 
 <div
     class="dashboard-page"
@@ -271,20 +475,26 @@
 
         <div class="dashboard-header-inner">
 
+
             <div class="dashboard-logo">
+
                 Web3Jobs
+
             </div>
 
 
             <nav class="dashboard-nav">
 
+
                 <a href="index.html">
                     Home
                 </a>
 
+
                 <a href="index.html#jobs">
                     Explore Jobs
                 </a>
+
 
                 <button
                     type="button"
@@ -292,6 +502,7 @@
                 >
                     Logout
                 </button>
+
 
             </nav>
 
@@ -315,15 +526,20 @@
         <section class="welcome-card">
 
             <h1>
+
                 Welcome,
                 <span id="dashboard-user-name">
                     User
                 </span>
+
             </h1>
 
+
             <p>
+
                 Manage your Web3Jobs account and
                 discover new opportunities.
+
             </p>
 
         </section>
@@ -357,6 +573,7 @@
             </div>
 
 
+
             <div class="dashboard-card">
 
                 <h3>
@@ -375,6 +592,7 @@
                 </p>
 
             </div>
+
 
 
             <div class="dashboard-card">
@@ -397,6 +615,7 @@
             </div>
 
 
+
             <div class="dashboard-card">
 
                 <h3>
@@ -416,6 +635,7 @@
 
             </div>
 
+
         </section>
 
 
@@ -425,6 +645,7 @@
              ====================================== -->
 
         <section class="dashboard-section">
+
 
             <div class="dashboard-section-header">
 
@@ -445,8 +666,10 @@
                     </h3>
 
                     <p>
+
                         Browse available Web3 and
                         Blockchain opportunities.
+
                     </p>
 
                     <a
@@ -459,6 +682,7 @@
                 </div>
 
 
+
                 <div class="action-box">
 
                     <h3>
@@ -466,8 +690,10 @@
                     </h3>
 
                     <p>
+
                         Review the jobs you have
                         applied for.
+
                     </p>
 
                     <button
@@ -481,6 +707,7 @@
                 </div>
 
 
+
                 <div class="action-box">
 
                     <h3>
@@ -488,8 +715,10 @@
                     </h3>
 
                     <p>
+
                         Keep your account information
                         up to date.
+
                     </p>
 
                     <button
@@ -501,6 +730,7 @@
                     </button>
 
                 </div>
+
 
             </div>
 
@@ -514,6 +744,7 @@
 
         <section class="dashboard-section">
 
+
             <div class="dashboard-section-header">
 
                 <h2>
@@ -526,10 +757,13 @@
             <div id="account-information">
 
                 <div class="loading">
+
                     Loading account information...
+
                 </div>
 
             </div>
+
 
         </section>
 
@@ -544,6 +778,7 @@
             id="applications-section"
         >
 
+
             <div class="dashboard-section-header">
 
                 <h2>
@@ -556,10 +791,13 @@
             <div id="my-applications">
 
                 <div class="loading">
+
                     Loading applications...
+
                 </div>
 
             </div>
+
 
         </section>
 
@@ -570,147 +808,210 @@
 
 
 
-<!-- ==========================================
-     SUPABASE
-     ========================================== -->
+<!-- =====================================================
+     SUPABASE JAVASCRIPT LIBRARY
+     ===================================================== -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ></script>
 
 
-<!-- ==========================================
-     AUTH SYSTEM
-     ========================================== -->
+
+<!-- =====================================================
+     CENTRAL WEB3JOBS SUPABASE CONFIGURATION
+     ===================================================== -->
+
+<script
+    src="js/supabase.js"
+></script>
+
+
+
+<!-- =====================================================
+     CENTRAL WEB3JOBS AUTHENTICATION
+     ===================================================== -->
 
 <script
     src="js/auth.js"
 ></script>
 
 
-<!-- ==========================================
+
+<!-- =====================================================
      DASHBOARD LOGIC
-     ========================================== -->
+     ===================================================== -->
 
 <script>
 
 "use strict";
 
 
-/* ==========================================
-   DASHBOARD SUPABASE
-   ========================================== */
+/* =========================================================
+   DASHBOARD INITIALIZATION
+   ========================================================= */
 
-const DASHBOARD_URL =
-    "https://uewocyaspztybnvnkbmo.supabase.co";
+async function initializeIndividualDashboard() {
 
-const DASHBOARD_KEY =
-    "sb_publishable_ap9UMOBhdHdIkW0FCD25nA_NurNviS0";
-
-let dashboardSupabase = null;
+    console.log(
+        "Web3Jobs Individual Dashboard starting..."
+    );
 
 
-/* ==========================================
-   INITIALIZE
-   ========================================== */
-
-function initializeDashboardSupabase() {
+    /*
+     * Make sure the central Supabase system
+     * is available.
+     */
 
     if (
-        typeof window.supabase === "undefined"
+        !window.Web3JobsSupabase ||
+        typeof
+            window.Web3JobsSupabase.getSupabaseClient
+            !== "function"
     ) {
-        return false;
-    }
-
-    try {
-
-        dashboardSupabase =
-            window.supabase.createClient(
-                DASHBOARD_URL,
-                DASHBOARD_KEY
-            );
-
-        return true;
-
-    } catch (error) {
 
         console.error(
-            "Dashboard Supabase error:",
-            error
+            "Web3Jobs Supabase system is not available."
         );
 
-        return false;
+        showDashboardError(
+            "Supabase could not be initialized."
+        );
+
+        return;
     }
+
+
+    /*
+     * Make sure the central authentication
+     * system is available.
+     */
+
+    if (
+        !window.Web3JobsAuth ||
+        typeof
+            window.Web3JobsAuth.getCurrentUser
+            !== "function"
+    ) {
+
+        console.error(
+            "Web3Jobs authentication system is not available."
+        );
+
+        showDashboardError(
+            "Authentication system could not be loaded."
+        );
+
+        return;
+    }
+
+
+    /*
+     * Get the current authenticated user.
+     */
+
+    const user =
+        await window.Web3JobsAuth.getCurrentUser();
+
+
+    /*
+     * No authenticated user.
+     */
+
+    if (!user) {
+
+        console.warn(
+            "No authenticated user found."
+        );
+
+        window.location.replace(
+            "login.html"
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "Authenticated user:",
+        user.id
+    );
+
+
+    /*
+     * Get account type using the central
+     * authentication system.
+     */
+
+    const accountType =
+        await window.Web3JobsAuth.getAccountType(
+            user
+        );
+
+
+    console.log(
+        "Dashboard account type:",
+        accountType
+    );
+
+
+    /*
+     * Company accounts must use the
+     * company dashboard.
+     */
+
+    if (
+        String(accountType).toLowerCase()
+        ===
+        "company"
+    ) {
+
+        window.location.replace(
+            "company-dashboard.html"
+        );
+
+        return;
+    }
+
+
+    /*
+     * Load the dashboard.
+     */
+
+    await loadDashboardUser(
+        user
+    );
+
 }
 
 
-/* ==========================================
-   LOAD USER
-   ========================================== */
 
-async function loadIndividualDashboard() {
+/* =========================================================
+   LOAD DASHBOARD USER
+   ========================================================= */
 
-    if (
-        !dashboardSupabase &&
-        !initializeDashboardSupabase()
-    ) {
+async function loadDashboardUser(
+    user
+) {
 
-        return;
-    }
-
-
-    const {
-        data,
-        error
-    } =
-        await dashboardSupabase.auth.getUser();
-
-
-    if (
-        error ||
-        !data ||
-        !data.user
-    ) {
-
-        window.location.href =
-            "login.html";
-
-        return;
-    }
-
-
-    const user =
-        data.user;
+    const profile =
+        await window.Web3JobsAuth.getUserProfile(
+            user.id
+        );
 
 
     const metadata =
         user.user_metadata || {};
 
 
-    const fullName =
-        metadata.full_name ||
-        "User";
-
-
-    const accountType =
-        metadata.account_type ||
-        "individual";
-
-
     /*
-     * Prevent company accounts from using
-     * the individual dashboard.
+     * Prefer profile data when available.
      */
 
-    if (
-        accountType === "company"
-    ) {
-
-        window.location.href =
-            "company-dashboard.html";
-
-        return;
-    }
+    const fullName =
+        profile?.full_name ||
+        metadata.full_name ||
+        "User";
 
 
     document.getElementById(
@@ -725,11 +1026,20 @@ async function loadIndividualDashboard() {
         "Individual";
 
 
+    /*
+     * Load account information.
+     */
+
     loadAccountInformation(
         user,
+        profile,
         metadata
     );
 
+
+    /*
+     * Load applications.
+     */
 
     await loadApplications(
         user.id
@@ -738,12 +1048,14 @@ async function loadIndividualDashboard() {
 }
 
 
-/* ==========================================
-   ACCOUNT INFORMATION
-   ========================================== */
+
+/* =========================================================
+   LOAD ACCOUNT INFORMATION
+   ========================================================= */
 
 function loadAccountInformation(
     user,
+    profile,
     metadata
 ) {
 
@@ -758,6 +1070,18 @@ function loadAccountInformation(
     }
 
 
+    const fullName =
+        profile?.full_name ||
+        metadata.full_name ||
+        "";
+
+
+    const accountType =
+        profile?.account_type ||
+        metadata.account_type ||
+        "individual";
+
+
     container.innerHTML = `
 
         <div class="profile-row">
@@ -767,10 +1091,12 @@ function loadAccountInformation(
             </span>
 
             <span class="profile-value">
+
                 ${escapeDashboardHTML(
-                    metadata.full_name ||
+                    fullName ||
                     "Not provided"
                 )}
+
             </span>
 
         </div>
@@ -783,10 +1109,12 @@ function loadAccountInformation(
             </span>
 
             <span class="profile-value">
+
                 ${escapeDashboardHTML(
                     user.email ||
                     "Not available"
                 )}
+
             </span>
 
         </div>
@@ -799,7 +1127,11 @@ function loadAccountInformation(
             </span>
 
             <span class="profile-value">
-                Individual
+
+                ${escapeDashboardHTML(
+                    accountType
+                )}
+
             </span>
 
         </div>
@@ -812,9 +1144,11 @@ function loadAccountInformation(
             </span>
 
             <span class="profile-value">
+
                 ${escapeDashboardHTML(
                     user.id
                 )}
+
             </span>
 
         </div>
@@ -822,18 +1156,32 @@ function loadAccountInformation(
     `;
 
 
-    document.getElementById(
-        "profile-status"
-    ).textContent =
-        metadata.full_name
-            ? "100%"
-            : "50%";
+    /*
+     * Simple profile completion.
+     */
+
+    const profileStatus =
+        document.getElementById(
+            "profile-status"
+        );
+
+
+    if (profileStatus) {
+
+        profileStatus.textContent =
+            fullName
+                ? "100%"
+                : "50%";
+
+    }
+
 }
 
 
-/* ==========================================
+
+/* =========================================================
    LOAD APPLICATIONS
-   ========================================== */
+   ========================================================= */
 
 async function loadApplications(
     userId
@@ -850,13 +1198,37 @@ async function loadApplications(
     }
 
 
+    /*
+     * Get the same central Supabase
+     * client used by the entire website.
+     */
+
+    const supabaseClient =
+        window.Web3JobsSupabase
+            .getSupabaseClient();
+
+
+    if (!supabaseClient) {
+
+        container.innerHTML = `
+
+            <p>
+                Applications are temporarily unavailable.
+            </p>
+
+        `;
+
+        return;
+    }
+
+
     try {
 
         const {
             data,
             error
         } =
-            await dashboardSupabase
+            await supabaseClient
                 .from("applications")
                 .select("*")
                 .eq(
@@ -871,11 +1243,19 @@ async function loadApplications(
                 );
 
 
+        /*
+         * If applications table does not
+         * exist yet, do NOT redirect the user.
+         *
+         * The dashboard itself should remain
+         * accessible.
+         */
+
         if (error) {
 
             console.warn(
-                "Applications could not be loaded:",
-                error
+                "Applications loading warning:",
+                error.message || error
             );
 
 
@@ -886,6 +1266,13 @@ async function loadApplications(
                     after you apply for a job.
                 </p>
 
+                <a
+                    href="index.html#jobs"
+                    class="dashboard-button"
+                >
+                    Explore Jobs
+                </a>
+
             `;
 
             return;
@@ -893,13 +1280,23 @@ async function loadApplications(
 
 
         const applications =
-            data || [];
+            Array.isArray(data)
+                ? data
+                : [];
 
 
-        document.getElementById(
-            "applications-count"
-        ).textContent =
-            applications.length;
+        const applicationsCount =
+            document.getElementById(
+                "applications-count"
+            );
+
+
+        if (applicationsCount) {
+
+            applicationsCount.textContent =
+                applications.length;
+
+        }
 
 
         if (
@@ -929,29 +1326,35 @@ async function loadApplications(
         container.innerHTML =
             applications
                 .map(
-                    application => `
+                    application => {
 
-                        <div
-                            class="profile-row"
-                        >
+                        return `
 
-                            <span
-                                class="profile-label"
+                            <div
+                                class="profile-row"
                             >
-                                Job ID
-                            </span>
 
-                            <span
-                                class="profile-value"
-                            >
-                                ${escapeDashboardHTML(
-                                    application.job_id
-                                )}
-                            </span>
+                                <span
+                                    class="profile-label"
+                                >
+                                    Job ID
+                                </span>
 
-                        </div>
+                                <span
+                                    class="profile-value"
+                                >
 
-                    `
+                                    ${escapeDashboardHTML(
+                                        application.job_id
+                                    )}
+
+                                </span>
+
+                            </div>
+
+                        `;
+
+                    }
                 )
                 .join("");
 
@@ -963,13 +1366,25 @@ async function loadApplications(
             error
         );
 
+
+        container.innerHTML = `
+
+            <p>
+                Applications will appear here
+                after you apply for a job.
+            </p>
+
+        `;
+
     }
+
 }
 
 
-/* ==========================================
+
+/* =========================================================
    ESCAPE HTML
-   ========================================== */
+   ========================================================= */
 
 function escapeDashboardHTML(
     value
@@ -981,36 +1396,110 @@ function escapeDashboardHTML(
     ) {
 
         return "";
+
     }
 
 
     return String(value)
+
         .replace(
             /&/g,
             "&amp;"
         )
+
         .replace(
             /</g,
             "&lt;"
         )
+
         .replace(
             />/g,
             "&gt;"
         )
+
         .replace(
             /"/g,
             "&quot;"
         )
+
         .replace(
             /'/g,
             "&#039;"
         );
+
 }
 
 
-/* ==========================================
-   BUTTONS
-   ========================================== */
+
+/* =========================================================
+   SHOW DASHBOARD ERROR
+   ========================================================= */
+
+function showDashboardError(
+    message
+) {
+
+    const page =
+        document.getElementById(
+            "dashboard-page"
+        );
+
+
+    if (!page) {
+        return;
+    }
+
+
+    const existing =
+        document.querySelector(
+            ".dashboard-error"
+        );
+
+
+    if (existing) {
+
+        existing.textContent =
+            message;
+
+        return;
+    }
+
+
+    const errorBox =
+        document.createElement(
+            "div"
+        );
+
+
+    errorBox.className =
+        "dashboard-error";
+
+
+    errorBox.textContent =
+        message;
+
+
+    const main =
+        document.querySelector(
+            ".dashboard-main"
+        );
+
+
+    if (main) {
+
+        main.prepend(
+            errorBox
+        );
+
+    }
+
+}
+
+
+
+/* =========================================================
+   VIEW APPLICATIONS
+   ========================================================= */
 
 document
     .getElementById(
@@ -1018,19 +1507,30 @@ document
     )
     ?.addEventListener(
         "click",
-        () => {
+        function () {
 
-            document
-                .getElementById(
+            const section =
+                document.getElementById(
                     "applications-section"
-                )
-                ?.scrollIntoView({
+                );
+
+
+            if (section) {
+
+                section.scrollIntoView({
                     behavior: "smooth"
                 });
+
+            }
 
         }
     );
 
+
+
+/* =========================================================
+   EDIT PROFILE
+   ========================================================= */
 
 document
     .getElementById(
@@ -1038,7 +1538,7 @@ document
     )
     ?.addEventListener(
         "click",
-        () => {
+        function () {
 
             alert(
                 "Profile editing will be available in the next dashboard update."
@@ -1048,9 +1548,10 @@ document
     );
 
 
-/* ==========================================
-   START
-   ========================================== */
+
+/* =========================================================
+   START DASHBOARD
+   ========================================================= */
 
 if (
     document.readyState ===
@@ -1059,12 +1560,13 @@ if (
 
     document.addEventListener(
         "DOMContentLoaded",
-        loadIndividualDashboard
+        initializeIndividualDashboard
     );
 
 } else {
 
-    loadIndividualDashboard();
+    initializeIndividualDashboard();
+
 }
 
 </script>
@@ -1072,4 +1574,4 @@ if (
 
 </body>
 
-              </html>
+</html>
