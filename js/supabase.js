@@ -6,6 +6,7 @@
 
 "use strict";
 
+
 /* =========================================================
    SUPABASE CONFIGURATION
    ========================================================= */
@@ -30,14 +31,20 @@ let web3jobsSupabase = null;
 
 function initializeSupabase() {
 
-    /* Already initialized */
+    /* -----------------------------------------------------
+       Already initialized
+       ----------------------------------------------------- */
+
     if (web3jobsSupabase) {
 
         return web3jobsSupabase;
     }
 
 
-    /* Check Supabase library */
+    /* -----------------------------------------------------
+       Check Supabase JavaScript library
+       ----------------------------------------------------- */
+
     if (
         typeof window === "undefined" ||
         !window.supabase ||
@@ -45,12 +52,16 @@ function initializeSupabase() {
     ) {
 
         console.error(
-            "Supabase JavaScript library is not loaded."
+            "Web3Jobs: Supabase JavaScript library is not loaded."
         );
 
         return null;
     }
 
+
+    /* -----------------------------------------------------
+       Create Supabase client
+       ----------------------------------------------------- */
 
     try {
 
@@ -61,6 +72,16 @@ function initializeSupabase() {
             );
 
 
+        /*
+         * Global client
+         *
+         * auth.js uses this variable.
+         */
+
+        window.supabaseClient =
+            web3jobsSupabase;
+
+
         console.log(
             "Web3Jobs Supabase initialized successfully."
         );
@@ -68,14 +89,20 @@ function initializeSupabase() {
 
         return web3jobsSupabase;
 
+
     } catch (error) {
 
         console.error(
-            "Supabase initialization failed:",
+            "Web3Jobs Supabase initialization failed:",
             error
         );
 
+
         web3jobsSupabase = null;
+
+        window.supabaseClient =
+            null;
+
 
         return null;
     }
@@ -88,11 +115,34 @@ function initializeSupabase() {
 
 function getSupabaseClient() {
 
+    /*
+     * Already initialized
+     */
+
     if (web3jobsSupabase) {
 
         return web3jobsSupabase;
     }
 
+
+    /*
+     * If auth.js or another file initialized it
+     */
+
+    if (
+        window.supabaseClient
+    ) {
+
+        web3jobsSupabase =
+            window.supabaseClient;
+
+        return web3jobsSupabase;
+    }
+
+
+    /*
+     * Initialize
+     */
 
     return initializeSupabase();
 }
@@ -158,12 +208,14 @@ async function testSupabaseConnection() {
 
         return true;
 
+
     } catch (error) {
 
         console.error(
             "Supabase connection error:",
             error
         );
+
 
         return false;
     }
@@ -217,10 +269,164 @@ async function testSupabaseAuth() {
 
         return true;
 
+
     } catch (error) {
 
         console.error(
             "Supabase Auth connection error:",
+            error
+        );
+
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   GET CURRENT SESSION
+   ========================================================= */
+
+async function getSupabaseSession() {
+
+    const client =
+        getSupabaseClient();
+
+
+    if (!client) {
+
+        return null;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await client.auth.getSession();
+
+
+        if (error) {
+
+            console.error(
+                "Get Supabase session error:",
+                error
+            );
+
+            return null;
+        }
+
+
+        return data?.session || null;
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected session error:",
+            error
+        );
+
+        return null;
+    }
+}
+
+
+/* =========================================================
+   GET CURRENT USER
+   ========================================================= */
+
+async function getSupabaseUser() {
+
+    const client =
+        getSupabaseClient();
+
+
+    if (!client) {
+
+        return null;
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await client.auth.getUser();
+
+
+        if (error) {
+
+            console.error(
+                "Get Supabase user error:",
+                error
+            );
+
+            return null;
+        }
+
+
+        return data?.user || null;
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected user error:",
+            error
+        );
+
+        return null;
+    }
+}
+
+
+/* =========================================================
+   SIGN OUT
+   ========================================================= */
+
+async function signOutSupabase() {
+
+    const client =
+        getSupabaseClient();
+
+
+    if (!client) {
+
+        return false;
+    }
+
+
+    try {
+
+        const {
+            error
+        } =
+            await client.auth.signOut();
+
+
+        if (error) {
+
+            console.error(
+                "Supabase sign out error:",
+                error
+            );
+
+            return false;
+        }
+
+
+        return true;
+
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected sign out error:",
             error
         );
 
@@ -235,26 +441,40 @@ async function testSupabaseAuth() {
 
 window.Web3JobsSupabase = {
 
+    /*
+     * Project URL
+     */
     url:
         SUPABASE_URL,
 
+
+    /*
+     * Publishable key
+     */
     publishableKey:
         SUPABASE_PUBLISHABLE_KEY,
 
+
+    /*
+     * Initialize
+     */
     initialize:
         initializeSupabase,
 
+
     /*
-     * Main function used by auth.js
+     * Main client
      */
     getSupabaseClient:
         getSupabaseClient,
 
+
     /*
-     * Compatibility alias
+     * Compatibility
      */
     getClient:
         getClient,
+
 
     /*
      * Connection test
@@ -262,11 +482,33 @@ window.Web3JobsSupabase = {
     testConnection:
         testSupabaseConnection,
 
+
     /*
      * Authentication test
      */
     testAuth:
-        testSupabaseAuth
+        testSupabaseAuth,
+
+
+    /*
+     * Session
+     */
+    getSession:
+        getSupabaseSession,
+
+
+    /*
+     * Current user
+     */
+    getUser:
+        getSupabaseUser,
+
+
+    /*
+     * Logout
+     */
+    signOut:
+        signOutSupabase
 };
 
 
@@ -275,7 +517,8 @@ window.Web3JobsSupabase = {
    ========================================================= */
 
 if (
-    document.readyState === "loading"
+    document.readyState ===
+    "loading"
 ) {
 
     document.addEventListener(
@@ -287,3 +530,8 @@ if (
 
     initializeSupabase();
 }
+
+
+/* =========================================================
+   END OF FILE
+   ========================================================= */
