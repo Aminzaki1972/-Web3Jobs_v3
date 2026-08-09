@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        Company Dashboard - Web3Jobs
+    </title>
+
+    <!-- =====================================================
+         MAIN CSS
+         ===================================================== -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <style>
+
+        /* =====================================================
+           COMPANY DASHBOARD
+           ===================================================== */
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+            background: #f5f7fb;
+            color: #1f2937;
+        }
+
+        .company-dashboard {
+            min-height: 100vh;
+        }
+
+        /* =====================================================
+           HEADER
+           ===================================================== */
+
+        .company-header {
+            background: #111827;
+            color: #ffffff;
+            padding: 18px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .company-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .company-brand h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .company-brand span {
+            font-size: 13px;
+            opacity: .7;
+        }
+
+        .company-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-button {
+            border: 0;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .logout-button {
+            background: #dc3545;
+            color: #ffffff;
+        }
+
+        .logout-button:hover {
+            opacity: .9;
+        }
+
+        /* =====================================================
+           MAIN
+           ===================================================== */
+
+        .company-main {
+            width: min(1200px, 94%);
+            margin: 0 auto;
+            padding: 35px 0 60px;
+        }
+
+        /* =====================================================
+           WELCOME
+           ===================================================== */
+
+        .company-welcome {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, .06);
+        }
+
+        .company-welcome h2 {
+            margin: 0 0 8px;
+            font-size: 28px;
+        }
+
+        .company-welcome p {
+            margin: 5px 0;
+            color: #6b7280;
+        }
+
+        .company-email {
+            font-size: 14px;
+        }
+
+        /* =====================================================
+           STATS
+           ===================================================== */
+
+        .company-stats {
+            display: grid;
+            grid-template-columns:
+                repeat(
+                    3,
+                    minmax(0, 1fr)
+                );
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 24px;
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, .06);
+        }
+
+        .stat-card .stat-title {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        /* =====================================================
+           CREATE JOB
+           ===================================================== */
+
+        .dashboard-section {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow:
+                0 5px 20px rgba(0, 0, 0, .06);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 22px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .section-header p {
+            margin: 5px 0 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .job-form {
+            display: grid;
+            gap: 18px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 13px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            outline: none;
+            font-size: 15px;
+            background: #ffffff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #2563eb;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns:
+                repeat(
+                    2,
+                    minmax(0, 1fr)
+                );
+            gap: 18px;
+        }
+
+        .publish-button {
+            border: 0;
+            background: #2563eb;
+            color: #ffffff;
+            padding: 14px 22px;
+            border-radius: 9px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .publish-button:hover {
+            background: #1d4ed8;
+        }
+
+        /* =====================================================
+           JOBS LIST
+           ===================================================== */
+
+        #company-jobs-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .company-job-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 20px;
+            background: #ffffff;
+        }
+
+        .company-job-content {
+            flex: 1;
+        }
+
+        .company-job-content h3 {
+            margin: 0 0 10px;
+            font-size: 19px;
+        }
+
+        .company-job-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .company-job-content p {
+            margin: 0;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .company-job-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .company-job-actions button {
+            border: 0;
+            background: #dc3545;
+            color: #ffffff;
+            padding: 9px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .company-job-actions button:hover {
+            opacity: .9;
+        }
+
+        /* =====================================================
+           EMPTY STATE
+           ===================================================== */
+
+        .no-company-jobs {
+            text-align: center;
+            padding: 45px 20px;
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+        }
+
+        .no-company-jobs h3 {
+            margin: 0 0 8px;
+        }
+
+        .no-company-jobs p {
+            color: #6b7280;
+            margin-bottom: 20px;
+        }
+
+        .company-create-job-button {
+            border: 0;
+            background: #2563eb;
+            color: #ffffff;
+            padding: 11px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        /* =====================================================
+           FOOTER
+           ===================================================== */
+
+        .company-footer {
+            text-align: center;
+            padding: 25px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 768px) {
+
+            .company-header {
+                padding: 15px 18px;
+            }
+
+            .company-brand h1 {
+                font-size: 18px;
+            }
+
+            .company-brand span {
+                display: none;
+            }
+
+            .company-main {
+                width: 92%;
+                padding-top: 22px;
+            }
+
+            .company-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .company-job-card {
+                flex-direction: column;
+            }
+
+            .company-job-actions {
+                width: 100%;
+            }
+
+            .company-job-actions button {
+                width: 100%;
+            }
+
+        }
+
+        @media (max-width: 480px) {
+
+            .company-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .company-header-actions {
+                justify-content: flex-end;
+            }
+
+            .company-welcome h2 {
+                font-size: 23px;
+            }
+
+            .dashboard-section {
+                padding: 20px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="company-dashboard">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="company-header">
+
+        <div class="company-brand">
+
+            <div>
+
+                <h1>
+                    Web3Jobs
+                </h1>
+
+                <span>
+                    Company Dashboard
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="company-header-actions">
+
+            <button
+                type="button"
+                class="header-button logout-button"
+                data-action="logout"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="company-main">
+
+
+        <!-- =================================================
+             WELCOME
+             ================================================= -->
+
+        <section class="company-welcome">
+
+            <h2>
+                Welcome,
+                <span
+                    id="company-name"
+                    data-company-name
+                >
+                    Company
+                </span>
+            </h2>
+
+            <p>
+                Manage your jobs and find the right talent
+                for your company.
+            </p>
+
+            <p
+                class="company-email"
+                id="company-email"
+                data-company-email
+            >
+                Loading account...
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             STATISTICS
+             ================================================= -->
+
+        <section class="company-stats">
+
+
+            <div class="stat-card">
+
+                <div class="stat-title">
+                    Total Jobs
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="total-jobs"
+                    data-total-jobs
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-title">
+                    Active Jobs
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="active-jobs"
+                    data-active-jobs
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-title">
+                    Applications
+                </div>
+
+                <div
+                    class="stat-number"
+                    id="total-applications"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <!-- =================================================
+             CREATE JOB
+             ================================================= -->
+
+        <section class="dashboard-section">
+
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        Create New Job
+                    </h2>
+
+                    <p>
+                        Publish a new opportunity for Web3
+                        professionals.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <form
+                id="create-job-form"
+                class="job-form"
+            >
+
+
+                <!-- JOB TITLE -->
+
+                <div class="form-group">
+
+                    <label for="job-title">
+                        Job Title
+                    </label>
+
+                    <input
+                        type="text"
+                        id="job-title"
+                        name="title"
+                        placeholder="e.g. Senior Blockchain Developer"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- COMPANY -->
+
+                <div class="form-group">
+
+                    <label for="job-company">
+                        Company Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="job-company"
+                        name="company"
+                        placeholder="Company name"
+                    >
+
+                </div>
+
+
+                <!-- LOCATION + TYPE -->
+
+                <div class="form-row">
+
+
+                    <div class="form-group">
+
+                        <label for="job-location">
+                            Location
+                        </label>
+
+                        <input
+                            type="text"
+                            id="job-location"
+                            name="location"
+                            placeholder="Remote / Cairo / Worldwide"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="job-type">
+                            Job Type
+                        </label>
+
+                        <select
+                            id="job-type"
+                            name="type"
+                        >
+
+                            <option value="Full Time">
+                                Full Time
+                            </option>
+
+                            <option value="Part Time">
+                                Part Time
+                            </option>
+
+                            <option value="Contract">
+                                Contract
+                            </option>
+
+                            <option value="Freelance">
+                                Freelance
+                            </option>
+
+                            <option value="Internship">
+                                Internship
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- DESCRIPTION -->
+
+                <div class="form-group">
+
+                    <label for="job-description">
+                        Job Description
+                    </label>
+
+                    <textarea
+                        id="job-description"
+                        name="description"
+                        placeholder="Describe the role, responsibilities, requirements and benefits..."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- SUBMIT -->
+
+                <div>
+
+                    <button
+                        type="submit"
+                        class="publish-button"
+                    >
+                        Publish Job
+                    </button>
+
+                </div>
+
+
+            </form>
+
+        </section>
+
+
+        <!-- =================================================
+             COMPANY JOBS
+             ================================================= -->
+
+        <section class="dashboard-section">
+
+
+            <div class="section-header">
+
+                <div>
+
+                    <h2>
+                        My Jobs
+                    </h2>
+
+                    <p>
+                        Manage the jobs published by your company.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="company-jobs-list"
+                data-company-jobs
+            >
+
+                <div class="no-company-jobs">
+
+                    <h3>
+                        Loading jobs...
+                    </h3>
+
+                    <p>
+                        Please wait.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="company-footer">
+
+        Web3Jobs © 2026
+
+    </footer>
+
+
+</div>
+
+
+<!-- =========================================================
+     SUPABASE
+     ========================================================= -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- =========================================================
+     COMPANY DASHBOARD JS
+     ========================================================= -->
+
+<script
+    src="js/company-dashboard.js"
+></script>
+
+
+</body>
+
+  </html>
