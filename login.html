@@ -1,709 +1,848 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="en">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+<head>
 
-<meta
-    name="description"
-    content="Web3Jobs - Login to your Web3Jobs account."
->
+    <meta charset="UTF-8">
 
-<title>Login - Web3Jobs</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<style>
+    <meta
+        name="description"
+        content="Web3Jobs - Login to your Web3Jobs account."
+    >
 
-    :root {
-        --bg: #06101d;
-        --bg2: #09182a;
-        --card: #0d1b2e;
-        --text: #f5f8ff;
-        --muted: #9db0c8;
-        --line: #1d3553;
-        --accent: #6ee7b7;
-        --blue: #60a5fa;
-        --danger: #fb7185;
-    }
+    <title>Login - Web3Jobs</title>
 
-    * {
-        box-sizing: border-box;
-    }
 
-    html,
-    body {
-        margin: 0;
-        padding: 0;
-        min-height: 100%;
-    }
+    <style>
 
-    body {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 25px;
+        :root {
+            --bg: #06101d;
+            --bg2: #09182a;
+            --card: #0d1b2e;
+            --text: #f5f8ff;
+            --muted: #9db0c8;
+            --line: #1d3553;
+            --accent: #6ee7b7;
+            --blue: #60a5fa;
+            --danger: #fb7185;
+        }
 
-        background:
-            radial-gradient(
-                circle at top,
-                rgba(96, 165, 250, 0.14),
-                transparent 45%
-            ),
-            linear-gradient(
-                180deg,
-                var(--bg),
-                var(--bg2)
-            );
 
-        color: var(--text);
+        * {
+            box-sizing: border-box;
+        }
 
-        font-family:
-            Inter,
-            system-ui,
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            Arial,
-            sans-serif;
-    }
 
-    a {
-        color: inherit;
-        text-decoration: none;
-    }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
 
-    button,
-    input {
-        font: inherit;
-    }
-
-    .login-wrapper {
-        width: 100%;
-        max-width: 440px;
-    }
-
-    /* =====================================================
-       BRAND
-    ===================================================== */
-
-    .brand {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 24px;
-        text-align: center;
-    }
-
-    .brand-logo {
-        width: 92px;
-        height: 92px;
-
-        object-fit: cover;
-
-        border-radius: 20px;
-
-        margin-bottom: 14px;
-
-        border: 1px solid var(--line);
-
-        box-shadow:
-            0 18px 45px rgba(0, 0, 0, 0.35);
-    }
-
-    .brand-name {
-        color: white;
-        font-size: 25px;
-        font-weight: 850;
-    }
-
-    .brand-name span {
-        color: var(--accent);
-    }
-
-    /* =====================================================
-       LOGIN CARD
-    ===================================================== */
-
-    .login-card {
-        padding: 32px;
-
-        background:
-            rgba(13, 27, 46, 0.97);
-
-        border: 1px solid var(--line);
-
-        border-radius: 20px;
-
-        box-shadow:
-            0 25px 70px rgba(0, 0, 0, 0.38);
-    }
-
-    .login-card h1 {
-        margin: 0 0 8px;
-
-        text-align: center;
-
-        font-size: 28px;
-    }
-
-    .subtitle {
-        margin: 0 0 25px;
-
-        text-align: center;
-
-        color: var(--muted);
-
-        font-size: 13px;
-    }
-
-    /* =====================================================
-       AUTH MESSAGE
-    ===================================================== */
-
-    #auth-message {
-        display: none;
-
-        margin-bottom: 18px;
-
-        padding: 12px 14px;
-
-        border-radius: 10px;
-
-        font-size: 12px;
-
-        line-height: 1.7;
-    }
-
-    .auth-message-error {
-        padding: 10px;
-
-        border:
-            1px solid
-            rgba(251, 113, 133, 0.35);
-
-        border-radius: 8px;
-
-        background:
-            rgba(251, 113, 133, 0.08);
-
-        color: #fda4af;
-    }
-
-    .auth-message-success {
-        padding: 10px;
-
-        border:
-            1px solid
-            rgba(110, 231, 183, 0.35);
-
-        border-radius: 8px;
-
-        background:
-            rgba(110, 231, 183, 0.08);
-
-        color: var(--accent);
-    }
-
-    .auth-message-info {
-        padding: 10px;
-
-        border:
-            1px solid
-            rgba(96, 165, 250, 0.35);
-
-        border-radius: 8px;
-
-        background:
-            rgba(96, 165, 250, 0.08);
-
-        color: #93c5fd;
-    }
-
-    /* =====================================================
-       FORM
-    ===================================================== */
-
-    .form-group {
-        margin-bottom: 17px;
-    }
-
-    .form-group label {
-        display: block;
-
-        margin-bottom: 7px;
-
-        color: #dbe7f4;
-
-        font-size: 13px;
-
-        font-weight: 700;
-    }
-
-    .form-group input {
-        width: 100%;
-
-        padding: 13px 14px;
-
-        border:
-            1px solid
-            #284563;
-
-        border-radius: 10px;
-
-        outline: none;
-
-        background: #071423;
-
-        color: white;
-
-        font-size: 14px;
-
-        transition: border-color .2s;
-    }
-
-    .form-group input:focus {
-        border-color: var(--blue);
-    }
-
-    .form-group input::placeholder {
-        color: #60758d;
-    }
-
-    /* =====================================================
-       PASSWORD
-    ===================================================== */
-
-    .password-wrapper {
-        position: relative;
-    }
-
-    .password-wrapper input {
-        padding-right: 50px;
-    }
-
-    .toggle-password {
-        position: absolute;
-
-        top: 50%;
-        right: 10px;
-
-        transform:
-            translateY(-50%);
-
-        border: 0;
-
-        background: transparent;
-
-        color: var(--muted);
-
-        cursor: pointer;
-
-        font-size: 16px;
-    }
-
-    /* =====================================================
-       LOGIN BUTTON
-    ===================================================== */
-
-    .login-button {
-        width: 100%;
-
-        margin-top: 5px;
-
-        padding: 13px;
-
-        border: 0;
-
-        border-radius: 10px;
-
-        background: var(--accent);
-
-        color: var(--bg);
-
-        font-size: 14px;
-
-        font-weight: 850;
-
-        cursor: pointer;
-
-        transition: .2s;
-    }
-
-    .login-button:hover {
-        transform: translateY(-1px);
-
-        opacity: .92;
-    }
-
-    .login-button:disabled {
-        opacity: .55;
-
-        cursor: not-allowed;
-
-        transform: none;
-    }
-
-    /* =====================================================
-       LINKS
-    ===================================================== */
-
-    .forgot {
-        display: block;
-
-        margin: 16px 0;
-
-        text-align: center;
-
-        color: #8dbdf3;
-
-        font-size: 12px;
-    }
-
-    .forgot:hover {
-        color: var(--accent);
-    }
-
-    .divider {
-        display: flex;
-
-        align-items: center;
-
-        gap: 10px;
-
-        margin: 23px 0;
-
-        color: #71869e;
-
-        font-size: 10px;
-    }
-
-    .divider::before,
-    .divider::after {
-        content: "";
-
-        flex: 1;
-
-        height: 1px;
-
-        background: var(--line);
-    }
-
-    .signup {
-        text-align: center;
-
-        color: var(--muted);
-
-        font-size: 12px;
-    }
-
-    .signup a {
-        color: var(--accent);
-
-        font-weight: 800;
-    }
-
-    .back-home {
-        display: block;
-
-        margin-top: 20px;
-
-        text-align: center;
-
-        color: #8da1b8;
-
-        font-size: 11px;
-    }
-
-    .back-home:hover {
-        color: white;
-    }
-
-    /* =====================================================
-       SOCIAL MEDIA
-    ===================================================== */
-
-    .social-section {
-        margin-top: 22px;
-
-        text-align: center;
-    }
-
-    .social-title {
-        margin-bottom: 10px;
-
-        color: #71869e;
-
-        font-size: 10px;
-
-        letter-spacing: .5px;
-    }
-
-    .social-links {
-        display: flex;
-
-        justify-content: center;
-
-        flex-wrap: wrap;
-
-        gap: 8px;
-    }
-
-    .social-links a {
-        padding: 7px 10px;
-
-        border:
-            1px solid
-            var(--line);
-
-        border-radius: 8px;
-
-        background:
-            rgba(13, 27, 46, .7);
-
-        color: #9db0c8;
-
-        font-size: 10px;
-
-        transition: .2s;
-    }
-
-    .social-links a:hover {
-        border-color: var(--accent);
-
-        color: var(--accent);
-    }
-
-    /* =====================================================
-       MOBILE
-    ===================================================== */
-
-    @media (max-width: 500px) {
 
         body {
-            padding: 15px;
+            min-height: 100vh;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 25px;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    rgba(96, 165, 250, 0.14),
+                    transparent 45%
+                ),
+                linear-gradient(
+                    180deg,
+                    var(--bg),
+                    var(--bg2)
+                );
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
         }
 
-        .login-card {
-            padding: 25px 20px;
+
+        a {
+            color: inherit;
+
+            text-decoration: none;
         }
+
+
+        button,
+        input {
+            font: inherit;
+        }
+
+
+        .login-wrapper {
+            width: 100%;
+
+            max-width: 440px;
+        }
+
+
+        /* =====================================================
+           BRAND
+        ===================================================== */
+
+        .brand {
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            margin-bottom: 24px;
+
+            text-align: center;
+        }
+
 
         .brand-logo {
-            width: 76px;
-            height: 76px;
+            width: 92px;
+
+            height: 92px;
+
+            object-fit: cover;
+
+            border-radius: 20px;
+
+            margin-bottom: 14px;
+
+            border:
+                1px solid
+                var(--line);
+
+            box-shadow:
+                0 18px 45px
+                rgba(0, 0, 0, 0.35);
         }
+
 
         .brand-name {
-            font-size: 22px;
+            color: white;
+
+            font-size: 25px;
+
+            font-weight: 850;
         }
-    }
-
-</style>
-
-</head><body><div class="login-wrapper"><!-- =====================================================
-     BRAND / LOGO
-===================================================== -->
-
-<div class="brand">
-
-    <img
-        class="brand-logo"
-        src="IMG_20260809_214500_497.jpg"
-        alt="Web3Jobs Logo"
-    >
-
-    <div class="brand-name">
-        Web3<span>Jobs</span>
-    </div>
-
-</div>
 
 
-<!-- =====================================================
-     LOGIN CARD
-===================================================== -->
-
-<div class="login-card">
-
-    <h1>
-        Welcome Back
-    </h1>
-
-    <p class="subtitle">
-        Login to your Web3Jobs account
-    </p>
+        .brand-name span {
+            color: var(--accent);
+        }
 
 
-    <!-- AUTH MESSAGE -->
+        /* =====================================================
+           LOGIN CARD
+        ===================================================== */
 
-    <div
-        id="auth-message"
-        role="alert"
-        aria-live="polite"
-    ></div>
+        .login-card {
+            padding: 32px;
+
+            background:
+                rgba(13, 27, 46, 0.97);
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 20px;
+
+            box-shadow:
+                0 25px 70px
+                rgba(0, 0, 0, 0.38);
+        }
 
 
-    <!-- LOGIN FORM -->
+        .login-card h1 {
+            margin: 0 0 8px;
 
-    <form
-        id="loginForm"
-        novalidate
-    >
+            text-align: center;
 
-        <div class="form-group">
+            font-size: 28px;
+        }
 
-            <label for="email">
-                Email Address
-            </label>
 
-            <input
-                id="email"
-                name="email"
-                type="email"
-                autocomplete="email"
-                placeholder="Enter your email"
-                required
-            >
+        .subtitle {
+            margin: 0 0 25px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           AUTH MESSAGE
+        ===================================================== */
+
+        #auth-message {
+            display: none;
+
+            margin-bottom: 18px;
+
+            padding: 12px 14px;
+
+            border-radius: 10px;
+
+            font-size: 12px;
+
+            line-height: 1.7;
+        }
+
+
+        .auth-message-error {
+            padding: 10px;
+
+            border:
+                1px solid
+                rgba(251, 113, 133, 0.35);
+
+            border-radius: 8px;
+
+            background:
+                rgba(251, 113, 133, 0.08);
+
+            color: #fda4af;
+        }
+
+
+        .auth-message-success {
+            padding: 10px;
+
+            border:
+                1px solid
+                rgba(110, 231, 183, 0.35);
+
+            border-radius: 8px;
+
+            background:
+                rgba(110, 231, 183, 0.08);
+
+            color: var(--accent);
+        }
+
+
+        .auth-message-info {
+            padding: 10px;
+
+            border:
+                1px solid
+                rgba(96, 165, 250, 0.35);
+
+            border-radius: 8px;
+
+            background:
+                rgba(96, 165, 250, 0.08);
+
+            color: #93c5fd;
+        }
+
+
+        /* =====================================================
+           FORM
+        ===================================================== */
+
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+
+        .form-group label {
+            display: block;
+
+            margin-bottom: 7px;
+
+            color: #dbe7f4;
+
+            font-size: 13px;
+
+            font-weight: 700;
+        }
+
+
+        .form-group input {
+            width: 100%;
+
+            padding: 13px 14px;
+
+            border:
+                1px solid
+                #284563;
+
+            border-radius: 10px;
+
+            outline: none;
+
+            background: #071423;
+
+            color: white;
+
+            font-size: 14px;
+
+            transition:
+                border-color .2s;
+        }
+
+
+        .form-group input:focus {
+            border-color: var(--blue);
+        }
+
+
+        .form-group input::placeholder {
+            color: #60758d;
+        }
+
+
+        /* =====================================================
+           PASSWORD
+        ===================================================== */
+
+        .password-wrapper {
+            position: relative;
+        }
+
+
+        .password-wrapper input {
+            padding-right: 50px;
+        }
+
+
+        .toggle-password {
+            position: absolute;
+
+            top: 50%;
+
+            right: 10px;
+
+            transform:
+                translateY(-50%);
+
+            border: 0;
+
+            background: transparent;
+
+            color: var(--muted);
+
+            cursor: pointer;
+
+            font-size: 16px;
+        }
+
+
+        /* =====================================================
+           LOGIN BUTTON
+        ===================================================== */
+
+        .login-button {
+            width: 100%;
+
+            margin-top: 5px;
+
+            padding: 13px;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            background: var(--accent);
+
+            color: var(--bg);
+
+            font-size: 14px;
+
+            font-weight: 850;
+
+            cursor: pointer;
+
+            transition: .2s;
+        }
+
+
+        .login-button:hover {
+            transform:
+                translateY(-1px);
+
+            opacity: .92;
+        }
+
+
+        .login-button:disabled {
+            opacity: .55;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+
+        /* =====================================================
+           LINKS
+        ===================================================== */
+
+        .forgot {
+            display: block;
+
+            margin: 16px 0;
+
+            text-align: center;
+
+            color: #8dbdf3;
+
+            font-size: 12px;
+        }
+
+
+        .forgot:hover {
+            color: var(--accent);
+        }
+
+
+        .divider {
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+            margin: 23px 0;
+
+            color: #71869e;
+
+            font-size: 10px;
+        }
+
+
+        .divider::before,
+        .divider::after {
+            content: "";
+
+            flex: 1;
+
+            height: 1px;
+
+            background:
+                var(--line);
+        }
+
+
+        .signup {
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 12px;
+        }
+
+
+        .signup a {
+            color: var(--accent);
+
+            font-weight: 800;
+        }
+
+
+        .back-home {
+            display: block;
+
+            margin-top: 20px;
+
+            text-align: center;
+
+            color: #8da1b8;
+
+            font-size: 11px;
+        }
+
+
+        .back-home:hover {
+            color: white;
+        }
+
+
+        /* =====================================================
+           SOCIAL MEDIA
+        ===================================================== */
+
+        .social-section {
+            margin-top: 22px;
+
+            text-align: center;
+        }
+
+
+        .social-title {
+            margin-bottom: 10px;
+
+            color: #71869e;
+
+            font-size: 10px;
+
+            letter-spacing: .5px;
+        }
+
+
+        .social-links {
+            display: flex;
+
+            justify-content: center;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+        }
+
+
+        .social-links a {
+            padding: 7px 10px;
+
+            border:
+                1px solid
+                var(--line);
+
+            border-radius: 8px;
+
+            background:
+                rgba(13, 27, 46, .7);
+
+            color: #9db0c8;
+
+            font-size: 10px;
+
+            transition: .2s;
+        }
+
+
+        .social-links a:hover {
+            border-color:
+                var(--accent);
+
+            color:
+                var(--accent);
+        }
+
+
+        /* =====================================================
+           MOBILE
+        ===================================================== */
+
+        @media (max-width: 500px) {
+
+            body {
+                padding: 15px;
+            }
+
+
+            .login-card {
+                padding: 25px 20px;
+            }
+
+
+            .brand-logo {
+                width: 76px;
+
+                height: 76px;
+            }
+
+
+            .brand-name {
+                font-size: 22px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div class="login-wrapper">
+
+
+    <!-- =====================================================
+         BRAND / LOGO
+    ===================================================== -->
+
+    <div class="brand">
+
+        <img
+            class="brand-logo"
+            src="IMG_20260809_214500_497.jpg"
+            alt="Web3Jobs Logo"
+        >
+
+        <div class="brand-name">
+
+            Web3<span>Jobs</span>
 
         </div>
 
+    </div>
 
-        <div class="form-group">
 
-            <label for="password">
-                Password
-            </label>
+    <!-- =====================================================
+         LOGIN CARD
+    ===================================================== -->
 
-            <div class="password-wrapper">
+    <div class="login-card">
+
+        <h1>
+            Welcome Back
+        </h1>
+
+
+        <p class="subtitle">
+            Login to your Web3Jobs account
+        </p>
+
+
+        <!-- =================================================
+             AUTH MESSAGE
+        ================================================= -->
+
+        <div
+            id="auth-message"
+            role="alert"
+            aria-live="polite"
+        ></div>
+
+
+        <!-- =================================================
+             LOGIN FORM
+        ================================================= -->
+
+        <form
+            id="loginForm"
+            novalidate
+        >
+
+
+            <div class="form-group">
+
+                <label for="email">
+                    Email Address
+                </label>
+
 
                 <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autocomplete="current-password"
-                    placeholder="Enter your password"
+                    id="email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    placeholder="Enter your email"
                     required
                 >
 
-                <button
-                    type="button"
-                    id="togglePassword"
-                    class="toggle-password"
-                    aria-label="Show password"
-                >
-                    👁
-                </button>
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="password">
+                    Password
+                </label>
+
+
+                <div class="password-wrapper">
+
+
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                        required
+                    >
+
+
+                    <button
+                        type="button"
+                        id="togglePassword"
+                        class="toggle-password"
+                        aria-label="Show password"
+                    >
+                        👁
+                    </button>
+
+
+                </div>
 
             </div>
+
+
+            <button
+                type="submit"
+                id="loginButton"
+                class="login-button"
+            >
+                Login
+            </button>
+
+
+        </form>
+
+
+        <a
+            href="forgot-password.html"
+            class="forgot"
+        >
+            Forgot your password?
+        </a>
+
+
+        <div class="divider">
+            OR
+        </div>
+
+
+        <div class="signup">
+
+            Don't have an account?
+
+
+            <a href="signup.html">
+                Create Account
+            </a>
 
         </div>
 
 
-        <button
-            type="submit"
-            id="loginButton"
-            class="login-button"
-        >
-            Login
-        </button>
+    </div>
 
-    </form>
 
+    <!-- =====================================================
+         SOCIAL MEDIA
+    ===================================================== -->
+
+    <div class="social-section">
+
+
+        <div class="social-title">
+            FOLLOW WEB3JOBS
+        </div>
+
+
+        <div class="social-links">
+
+
+            <a
+                href="https://t.me/web3jop"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Telegram
+            </a>
+
+
+            <a
+                href="https://whatsapp.com/channel/0029Vb8kCXR5q08ftEh9Dc1u"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                WhatsApp
+            </a>
+
+
+            <a
+                href="https://x.com/crypto1680620"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                X
+            </a>
+
+
+            <a
+                href="https://www.linkedin.com/me?trk=p_mwlite_feed-secondary_nav"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                LinkedIn
+            </a>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         BACK HOME
+    ===================================================== -->
 
     <a
-        href="forgot-password.html"
-        class="forgot"
+        href="index.html"
+        class="back-home"
     >
-        Forgot your password?
+        ← Back to Web3Jobs
     </a>
 
 
-    <div class="divider">
-        OR
-    </div>
-
-
-    <div class="signup">
-
-        Don't have an account?
-
-        <a href="signup.html">
-            Create Account
-        </a>
-
-    </div>
-
 </div>
 
 
-<!-- =====================================================
-     SOCIAL MEDIA
-===================================================== -->
-
-<div class="social-section">
-
-    <div class="social-title">
-        FOLLOW WEB3JOBS
-    </div>
-
-    <div class="social-links">
-
-        <a
-            href="https://t.me/web3jop"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            Telegram
-        </a>
-
-        <a
-            href="https://whatsapp.com/channel/0029Vb8kCXR5q08ftEh9Dc1u"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            WhatsApp
-        </a>
-
-        <a
-            href="https://x.com/crypto1680620"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            X
-        </a>
-
-        <a
-            href="https://www.linkedin.com/me?trk=p_mwlite_feed-secondary_nav"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            LinkedIn
-        </a>
-
-    </div>
-
-</div>
-
-
-<a
-    href="index.html"
-    class="back-home"
->
-    ← Back to Web3Jobs
-</a>
-
-</div><!-- =====================================================
+<!-- =========================================================
      SUPABASE LIBRARY
-===================================================== --><script
+========================================================= -->
+
+<script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script><!-- =====================================================
+></script>
+
+
+<!-- =========================================================
      CENTRAL SUPABASE
      MUST LOAD BEFORE auth.js
-===================================================== --><script src="js/supabase.js"></script><!-- =====================================================
+========================================================= -->
+
+<script
+    src="js/supabase.js"
+></script>
+
+
+<!-- =========================================================
      AUTHENTICATION SYSTEM
-===================================================== --><script src="js/auth.js"></script><!-- =====================================================
+========================================================= -->
+
+<script
+    src="js/auth.js"
+></script>
+
+
+<!-- =========================================================
      LOGIN PAGE CONTROLLER
-===================================================== --><script>
+========================================================= -->
+
+<script>
 
 "use strict";
 
@@ -712,30 +851,83 @@ document.addEventListener(
     "DOMContentLoaded",
     function () {
 
+
+        /* =====================================================
+           ELEMENTS
+        ===================================================== */
+
         const form =
             document.getElementById(
                 "loginForm"
             );
+
 
         const emailInput =
             document.getElementById(
                 "email"
             );
 
+
         const passwordInput =
             document.getElementById(
                 "password"
             );
+
 
         const loginButton =
             document.getElementById(
                 "loginButton"
             );
 
+
         const togglePassword =
             document.getElementById(
                 "togglePassword"
             );
+
+
+        /* =====================================================
+           CHECK REQUIRED ELEMENTS
+        ===================================================== */
+
+        if (!form) {
+
+            console.error(
+                "Web3Jobs: loginForm was not found."
+            );
+
+            return;
+        }
+
+
+        if (!emailInput) {
+
+            console.error(
+                "Web3Jobs: email input was not found."
+            );
+
+            return;
+        }
+
+
+        if (!passwordInput) {
+
+            console.error(
+                "Web3Jobs: password input was not found."
+            );
+
+            return;
+        }
+
+
+        if (!loginButton) {
+
+            console.error(
+                "Web3Jobs: login button was not found."
+            );
+
+            return;
+        }
 
 
         /* =====================================================
@@ -746,29 +938,37 @@ document.addEventListener(
             "click",
             function () {
 
+
                 if (
                     passwordInput.type ===
                     "password"
                 ) {
 
+
                     passwordInput.type =
                         "text";
 
+
                     togglePassword.textContent =
                         "🙈";
+
 
                     togglePassword.setAttribute(
                         "aria-label",
                         "Hide password"
                     );
 
+
                 } else {
+
 
                     passwordInput.type =
                         "password";
 
+
                     togglePassword.textContent =
                         "👁";
+
 
                     togglePassword.setAttribute(
                         "aria-label",
@@ -782,24 +982,34 @@ document.addEventListener(
 
 
         /* =====================================================
-           LOGIN
+           LOGIN FORM
         ===================================================== */
 
-        form?.addEventListener(
+        form.addEventListener(
             "submit",
             async function (event) {
 
+
                 event.preventDefault();
 
+
+                /* -------------------------------------------------
+                   READ FORM VALUES
+                ------------------------------------------------- */
 
                 const email =
                     emailInput.value
                         .trim()
                         .toLowerCase();
 
+
                 const password =
                     passwordInput.value;
 
+
+                /* -------------------------------------------------
+                   VALIDATE EMAIL
+                ------------------------------------------------- */
 
                 if (!email) {
 
@@ -809,11 +1019,17 @@ document.addEventListener(
                         "error"
                     );
 
+
                     emailInput.focus();
+
 
                     return;
                 }
 
+
+                /* -------------------------------------------------
+                   VALIDATE PASSWORD
+                ------------------------------------------------- */
 
                 if (!password) {
 
@@ -823,16 +1039,24 @@ document.addEventListener(
                         "error"
                     );
 
+
                     passwordInput.focus();
+
 
                     return;
                 }
 
 
+                /* -------------------------------------------------
+                   CHECK AUTH SYSTEM
+                ------------------------------------------------- */
+
                 if (
-                    typeof window.loginUser !==
+                    !window.Web3JobsAuth ||
+                    typeof window.Web3JobsAuth.login !==
                     "function"
                 ) {
+
 
                     showAuthMessage(
                         "تعذر تحميل نظام تسجيل الدخول.",
@@ -840,16 +1064,23 @@ document.addEventListener(
                         "error"
                     );
 
+
                     console.error(
-                        "Web3Jobs: loginUser() is not available."
+                        "Web3Jobs: Web3JobsAuth.login() is not available."
                     );
+
 
                     return;
                 }
 
 
+                /* -------------------------------------------------
+                   DISABLE BUTTON
+                ------------------------------------------------- */
+
                 loginButton.disabled =
                     true;
+
 
                 loginButton.textContent =
                     "Signing in...";
@@ -857,37 +1088,49 @@ document.addEventListener(
 
                 try {
 
+
+                    /* =================================================
+                       CALL AUTH SYSTEM
+                    ================================================= */
+
                     const result =
-                        await window.loginUser(
+                        await window.Web3JobsAuth.login(
                             email,
                             password
                         );
 
 
-                    /*
-                     * auth.js returns:
-                     *
-                     * {
-                     *   success: true,
-                     *   user,
-                     *   accountType
-                     * }
-                     */
+                    console.log(
+                        "Web3Jobs Login Result:",
+                        result
+                    );
+
+
+                    /* =================================================
+                       LOGIN FAILED
+                    ================================================= */
 
                     if (
                         !result ||
                         result.success !== true
                     ) {
 
+
                         loginButton.disabled =
                             false;
+
 
                         loginButton.textContent =
                             "Login";
 
+
                         return;
                     }
 
+
+                    /* =================================================
+                       ACCOUNT TYPE
+                    ================================================= */
 
                     const accountType =
                         String(
@@ -907,8 +1150,10 @@ document.addEventListener(
                         "company"
                     ) {
 
+
                         window.location.href =
                             "company-dashboard.html";
+
 
                         return;
                     }
@@ -923,16 +1168,18 @@ document.addEventListener(
                         "individual"
                     ) {
 
+
                         window.location.href =
                             "dashboard.html";
+
 
                         return;
                     }
 
 
-                    /*
-                     * Safety fallback
-                     */
+                    /* =================================================
+                       UNKNOWN ACCOUNT TYPE
+                    ================================================= */
 
                     showAuthMessage(
                         "تم تسجيل الدخول ولكن تعذر تحديد نوع الحساب.",
@@ -944,11 +1191,13 @@ document.addEventListener(
                     loginButton.disabled =
                         false;
 
+
                     loginButton.textContent =
                         "Login";
 
 
                 } catch (error) {
+
 
                     console.error(
                         "Web3Jobs login page error:",
@@ -966,6 +1215,7 @@ document.addEventListener(
                     loginButton.disabled =
                         false;
 
+
                     loginButton.textContent =
                         "Login";
 
@@ -977,4 +1227,9 @@ document.addEventListener(
     }
 );
 
-</script></body></html>
+</script>
+
+
+</body>
+
+    </html>
