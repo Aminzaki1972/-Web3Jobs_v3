@@ -6,18 +6,6 @@
 
 "use strict";
 
-/* =========================================================
-   SUPABASE CONFIGURATION
-   ========================================================= */
-
-const DASHBOARD_SUPABASE_URL =
-    "https://uewocyaspztybnvnkbmo.supabase.co";
-
-const DASHBOARD_SUPABASE_KEY =
-    "sb_publishable_ap9UMOBhdHdIkW0WFD25nA_NurNviS0";
-
-let dashboardSupabase = null;
-
 
 /* =========================================================
    DASHBOARD STATE
@@ -39,42 +27,42 @@ const DashboardSystem = {
 
 
 /* =========================================================
-   INITIALIZE SUPABASE
+   GET CENTRAL SUPABASE CLIENT
    ========================================================= */
 
-function initializeDashboardSupabase() {
+function getDashboardSupabase() {
 
     if (
-        typeof window.supabase === "undefined" ||
-        typeof window.supabase.createClient !== "function"
+        !window.Web3JobsSupabase ||
+        typeof
+            window.Web3JobsSupabase.getSupabaseClient
+            !== "function"
     ) {
 
         console.error(
-            "Supabase library is not available."
+            "Web3Jobs Supabase system is not available."
         );
 
-        return false;
+        return null;
     }
 
-    try {
 
-        dashboardSupabase =
-            window.supabase.createClient(
-                DASHBOARD_SUPABASE_URL,
-                DASHBOARD_SUPABASE_KEY
-            );
+    const client =
+        window.Web3JobsSupabase
+            .getSupabaseClient();
 
-        return true;
 
-    } catch (error) {
+    if (!client) {
 
         console.error(
-            "Dashboard Supabase error:",
-            error
+            "Unable to get Supabase client."
         );
 
-        return false;
+        return null;
     }
+
+
+    return client;
 }
 
 
@@ -82,7 +70,9 @@ function initializeDashboardSupabase() {
    HTML ESCAPE
    ========================================================= */
 
-function dashboardEscapeHTML(value) {
+function dashboardEscapeHTML(
+    value
+) {
 
     if (
         value === null ||
@@ -91,6 +81,7 @@ function dashboardEscapeHTML(value) {
 
         return "";
     }
+
 
     return String(value)
 
@@ -125,14 +116,18 @@ function dashboardEscapeHTML(value) {
    DATE FORMAT
    ========================================================= */
 
-function dashboardFormatDate(value) {
+function dashboardFormatDate(
+    value
+) {
 
     if (!value) {
         return "";
     }
 
+
     const date =
         new Date(value);
+
 
     if (
         Number.isNaN(
@@ -142,6 +137,7 @@ function dashboardFormatDate(value) {
 
         return "";
     }
+
 
     return date.toLocaleDateString(
         "en-US",
@@ -176,6 +172,7 @@ function showDashboardMessage(
                 "div"
             );
 
+
         box.id =
             "dashboard-message";
 
@@ -194,9 +191,11 @@ function showDashboardMessage(
 
                 maxWidth: "360px",
 
-                padding: "14px 18px",
+                padding:
+                    "14px 18px",
 
-                borderRadius: "10px",
+                borderRadius:
+                    "10px",
 
                 boxShadow:
                     "0 8px 25px rgba(0,0,0,.2)",
@@ -219,29 +218,35 @@ function showDashboardMessage(
         message;
 
 
-    if (type === "success") {
+    if (
+        type === "success"
+    ) {
 
         box.style.background =
             "#198754";
 
         box.style.color =
-            "#fff";
+            "#ffffff";
 
-    } else if (type === "error") {
+    } else if (
+        type === "error"
+    ) {
 
         box.style.background =
             "#dc3545";
 
         box.style.color =
-            "#fff";
+            "#ffffff";
 
-    } else if (type === "warning") {
+    } else if (
+        type === "warning"
+    ) {
 
         box.style.background =
             "#ffc107";
 
         box.style.color =
-            "#111";
+            "#111111";
 
     } else {
 
@@ -249,7 +254,7 @@ function showDashboardMessage(
             "#212529";
 
         box.style.color =
-            "#fff";
+            "#ffffff";
     }
 
 
@@ -281,9 +286,47 @@ function showDashboardMessage(
 
 async function getDashboardUser() {
 
-    if (!dashboardSupabase) {
+    /*
+     * Prefer the central authentication system.
+     */
+
+    if (
+        window.Web3JobsAuth &&
+        typeof
+            window.Web3JobsAuth.getCurrentUser
+            === "function"
+    ) {
+
+        const user =
+            await window.Web3JobsAuth
+                .getCurrentUser();
+
+
+        DashboardSystem.user =
+            user || null;
+
+
+        return DashboardSystem.user;
+    }
+
+
+    /*
+     * Fallback to the central Supabase
+     * client if auth.js is unavailable.
+     */
+
+    const supabase =
+        getDashboardSupabase();
+
+
+    if (!supabase) {
+
+        DashboardSystem.user =
+            null;
+
         return null;
     }
+
 
     try {
 
@@ -291,7 +334,7 @@ async function getDashboardUser() {
             data,
             error
         } =
-            await dashboardSupabase
+            await supabase
                 .auth
                 .getUser();
 
@@ -299,9 +342,14 @@ async function getDashboardUser() {
         if (error) {
 
             console.error(
-                "Get user error:",
+                "Get dashboard user error:",
                 error
             );
+
+
+            DashboardSystem.user =
+                null;
+
 
             return null;
         }
@@ -320,6 +368,11 @@ async function getDashboardUser() {
             error
         );
 
+
+        DashboardSystem.user =
+            null;
+
+
         return null;
     }
 }
@@ -332,9 +385,44 @@ async function getDashboardUser() {
 async function getDashboardProfile() {
 
     if (
-        !dashboardSupabase ||
         !DashboardSystem.user
     ) {
+
+        return null;
+    }
+
+
+    /*
+     * Prefer central auth system.
+     */
+
+    if (
+        window.Web3JobsAuth &&
+        typeof
+            window.Web3JobsAuth.getUserProfile
+            === "function"
+    ) {
+
+        const profile =
+            await window.Web3JobsAuth
+                .getUserProfile(
+                    DashboardSystem.user.id
+                );
+
+
+        DashboardSystem.profile =
+            profile || null;
+
+
+        return DashboardSystem.profile;
+    }
+
+
+    const supabase =
+        getDashboardSupabase();
+
+
+    if (!supabase) {
 
         return null;
     }
@@ -346,17 +434,13 @@ async function getDashboardProfile() {
             data,
             error
         } =
-            await dashboardSupabase
-
+            await supabase
                 .from("profiles")
-
                 .select("*")
-
                 .eq(
                     "id",
                     DashboardSystem.user.id
                 )
-
                 .maybeSingle();
 
 
@@ -366,6 +450,7 @@ async function getDashboardProfile() {
                 "Profile error:",
                 error
             );
+
 
             return null;
         }
@@ -384,28 +469,84 @@ async function getDashboardProfile() {
             error
         );
 
+
         return null;
     }
 }
 
 
 /* =========================================================
-   ACCOUNT TYPE
+   GET ACCOUNT TYPE
    ========================================================= */
 
-function getDashboardAccountType() {
+async function getDashboardAccountType() {
 
-    return (
+    if (
+        DashboardSystem.user &&
+        window.Web3JobsAuth &&
+        typeof
+            window.Web3JobsAuth.getAccountType
+            === "function"
+    ) {
 
-        DashboardSystem.profile?.account_type ||
+        const accountType =
+            await window.Web3JobsAuth
+                .getAccountType(
+                    DashboardSystem.user
+                );
 
-        DashboardSystem.profile?.user_type ||
 
-        DashboardSystem.profile?.role ||
+        return String(
+            accountType ||
+            "individual"
+        ).toLowerCase();
+    }
 
-        null
 
-    );
+    const profile =
+        DashboardSystem.profile;
+
+
+    if (
+        profile?.account_type
+    ) {
+
+        return String(
+            profile.account_type
+        ).toLowerCase();
+    }
+
+
+    if (
+        profile?.user_type
+    ) {
+
+        return String(
+            profile.user_type
+        ).toLowerCase();
+    }
+
+
+    if (
+        profile?.role
+    ) {
+
+        return String(
+            profile.role
+        ).toLowerCase();
+    }
+
+
+    const metadata =
+        DashboardSystem.user
+            ?.user_metadata ||
+        {};
+
+
+    return String(
+        metadata.account_type ||
+        "individual"
+    ).toLowerCase();
 }
 
 
@@ -417,6 +558,7 @@ function updateDashboardUserUI() {
 
     const profile =
         DashboardSystem.profile;
+
 
     const user =
         DashboardSystem.user;
@@ -443,6 +585,7 @@ function updateDashboardUserUI() {
 
                 element.textContent =
                     name;
+
             }
         );
 
@@ -456,6 +599,7 @@ function updateDashboardUserUI() {
 
                 element.textContent =
                     email;
+
             }
         );
 
@@ -468,10 +612,38 @@ function updateDashboardUserUI() {
             element => {
 
                 element.textContent =
-                    getDashboardAccountType() ||
-                    "User";
+                    "individual";
+
             }
         );
+
+
+    const nameElement =
+        document.getElementById(
+            "dashboard-user-name"
+        );
+
+
+    if (nameElement) {
+
+        nameElement.textContent =
+            name;
+
+    }
+
+
+    const accountElement =
+        document.getElementById(
+            "account-type"
+        );
+
+
+    if (accountElement) {
+
+        accountElement.textContent =
+            "Individual";
+
+    }
 }
 
 
@@ -481,8 +653,12 @@ function updateDashboardUserUI() {
 
 async function loadCompanyJobs() {
 
+    const supabase =
+        getDashboardSupabase();
+
+
     if (
-        !dashboardSupabase ||
+        !supabase ||
         !DashboardSystem.user
     ) {
 
@@ -496,7 +672,7 @@ async function loadCompanyJobs() {
             data,
             error
         } =
-            await dashboardSupabase
+            await supabase
 
                 .from("jobs")
 
@@ -522,6 +698,7 @@ async function loadCompanyJobs() {
                 error
             );
 
+
             return [];
         }
 
@@ -539,6 +716,7 @@ async function loadCompanyJobs() {
             error
         );
 
+
         return [];
     }
 }
@@ -550,8 +728,12 @@ async function loadCompanyJobs() {
 
 async function loadUserApplications() {
 
+    const supabase =
+        getDashboardSupabase();
+
+
     if (
-        !dashboardSupabase ||
+        !supabase ||
         !DashboardSystem.user
     ) {
 
@@ -565,7 +747,7 @@ async function loadUserApplications() {
             data,
             error
         } =
-            await dashboardSupabase
+            await supabase
 
                 .from("applications")
 
@@ -586,10 +768,15 @@ async function loadUserApplications() {
 
         if (error) {
 
-            console.error(
-                "Applications error:",
+            console.warn(
+                "Applications loading warning:",
                 error
             );
+
+
+            DashboardSystem.applications =
+                [];
+
 
             return [];
         }
@@ -607,6 +794,11 @@ async function loadUserApplications() {
             "loadUserApplications error:",
             error
         );
+
+
+        DashboardSystem.applications =
+            [];
+
 
         return [];
     }
@@ -652,6 +844,7 @@ function renderCompanyJobs() {
 
         `;
 
+
         return;
     }
 
@@ -663,7 +856,9 @@ function renderCompanyJobs() {
 
                     <div
                         class="dashboard-job"
-                        data-job-id="${dashboardEscapeHTML(job.id)}"
+                        data-job-id="${dashboardEscapeHTML(
+                            job.id
+                        )}"
                     >
 
                         <div>
@@ -697,7 +892,9 @@ function renderCompanyJobs() {
 
                             <button
                                 type="button"
-                                data-delete-job="${dashboardEscapeHTML(job.id)}"
+                                data-delete-job="${dashboardEscapeHTML(
+                                    job.id
+                                )}"
                             >
                                 Delete
                             </button>
@@ -751,13 +948,20 @@ async function renderUserApplications() {
 
         `;
 
+
         return;
     }
 
 
-    /*
-     * Load related jobs individually.
-     */
+    const supabase =
+        getDashboardSupabase();
+
+
+    if (!supabase) {
+
+        return;
+    }
+
 
     const rows = [];
 
@@ -775,7 +979,7 @@ async function renderUserApplications() {
             const {
                 data
             } =
-                await dashboardSupabase
+                await supabase
 
                     .from("jobs")
 
@@ -791,7 +995,8 @@ async function renderUserApplications() {
                     .maybeSingle();
 
 
-            job = data || null;
+            job =
+                data || null;
 
         } catch (error) {
 
@@ -803,11 +1008,8 @@ async function renderUserApplications() {
 
 
         rows.push({
-
             application,
-
             job
-
         });
     }
 
@@ -819,6 +1021,7 @@ async function renderUserApplications() {
 
                     const job =
                         row.job;
+
 
                     const application =
                         row.application;
@@ -839,6 +1042,7 @@ async function renderUserApplications() {
 
 
                             <p>
+
                                 <strong>
                                     Company:
                                 </strong>
@@ -847,10 +1051,12 @@ async function renderUserApplications() {
                                     job?.company ||
                                     "Not specified"
                                 )}
+
                             </p>
 
 
                             <p>
+
                                 <strong>
                                     Location:
                                 </strong>
@@ -859,10 +1065,12 @@ async function renderUserApplications() {
                                     job?.location ||
                                     "Remote"
                                 )}
+
                             </p>
 
 
                             <p>
+
                                 <strong>
                                     Status:
                                 </strong>
@@ -871,14 +1079,17 @@ async function renderUserApplications() {
                                     application.status ||
                                     "Submitted"
                                 )}
+
                             </p>
 
 
                             <small>
+
                                 Applied:
                                 ${dashboardFormatDate(
                                     application.created_at
                                 )}
+
                             </small>
 
                         </div>
@@ -913,6 +1124,7 @@ function updateDashboardStats() {
 
                 element.textContent =
                     jobsCount;
+
             }
         );
 
@@ -926,6 +1138,7 @@ function updateDashboardStats() {
 
                 element.textContent =
                     applicationsCount;
+
             }
         );
 
@@ -940,8 +1153,23 @@ function updateDashboardStats() {
                 element.textContent =
                     jobsCount +
                     applicationsCount;
+
             }
         );
+
+
+    const applicationsElement =
+        document.getElementById(
+            "applications-count"
+        );
+
+
+    if (applicationsElement) {
+
+        applicationsElement.textContent =
+            applicationsCount;
+
+    }
 }
 
 
@@ -953,8 +1181,12 @@ async function deleteDashboardJob(
     jobId
 ) {
 
+    const supabase =
+        getDashboardSupabase();
+
+
     if (
-        !dashboardSupabase ||
+        !supabase ||
         !DashboardSystem.user
     ) {
 
@@ -962,6 +1194,7 @@ async function deleteDashboardJob(
             "Please sign in first.",
             "warning"
         );
+
 
         return;
     }
@@ -983,7 +1216,7 @@ async function deleteDashboardJob(
         const {
             error
         } =
-            await dashboardSupabase
+            await supabase
 
                 .from("jobs")
 
@@ -1012,6 +1245,7 @@ async function deleteDashboardJob(
                 "Unable to delete the job.",
                 "error"
             );
+
 
             return;
         }
@@ -1060,8 +1294,12 @@ async function createDashboardJob(
     form
 ) {
 
+    const supabase =
+        getDashboardSupabase();
+
+
     if (
-        !dashboardSupabase ||
+        !supabase ||
         !DashboardSystem.user
     ) {
 
@@ -1069,6 +1307,7 @@ async function createDashboardJob(
             "Please sign in first.",
             "warning"
         );
+
 
         return;
     }
@@ -1094,461 +1333,4 @@ async function createDashboardJob(
 
     const location =
         String(
-            formData.get("location") ||
-            "Remote"
-        ).trim();
-
-
-    const type =
-        String(
-            formData.get("type") ||
-            "Full Time"
-        ).trim();
-
-
-    const description =
-        String(
-            formData.get("description") ||
-            ""
-        ).trim();
-
-
-    if (!title) {
-
-        showDashboardMessage(
-            "Job title is required.",
-            "warning"
-        );
-
-        return;
-    }
-
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await dashboardSupabase
-
-                .from("jobs")
-
-                .insert({
-
-                    title,
-
-                    company,
-
-                    location,
-
-                    type,
-
-                    description,
-
-                    created_by:
-                        DashboardSystem.user.id
-
-                })
-
-                .select()
-
-                .single();
-
-
-        if (error) {
-
-            console.error(
-                "Create dashboard job error:",
-                error
-            );
-
-
-            showDashboardMessage(
-                "Unable to publish the job.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        DashboardSystem.jobs.unshift(
-            data
-        );
-
-
-        renderCompanyJobs();
-
-        updateDashboardStats();
-
-
-        form.reset();
-
-
-        showDashboardMessage(
-            "Job published successfully.",
-            "success"
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "createDashboardJob error:",
-            error
-        );
-
-
-        showDashboardMessage(
-            "An unexpected error occurred.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   FORM EVENT
-   ========================================================= */
-
-function initializeDashboardForms() {
-
-    document
-        .querySelectorAll(
-            "#create-job-form, [data-create-job-form]"
-        )
-        .forEach(
-            form => {
-
-                form.addEventListener(
-                    "submit",
-                    event => {
-
-                        event.preventDefault();
-
-                        createDashboardJob(
-                            form
-                        );
-                    }
-                );
-            }
-        );
-}
-
-
-/* =========================================================
-   DASHBOARD CLICK EVENTS
-   ========================================================= */
-
-function initializeDashboardEvents() {
-
-    document.addEventListener(
-        "click",
-        event => {
-
-            const deleteButton =
-                event.target.closest(
-                    "[data-delete-job]"
-                );
-
-
-            if (
-                deleteButton
-            ) {
-
-                const jobId =
-                    deleteButton.dataset.deleteJob;
-
-
-                if (jobId) {
-
-                    deleteDashboardJob(
-                        jobId
-                    );
-                }
-            }
-        }
-    );
-}
-
-
-/* =========================================================
-   PROTECT DASHBOARD
-   ========================================================= */
-
-async function protectDashboard() {
-
-    if (!DashboardSystem.user) {
-
-        showDashboardMessage(
-            "Please sign in to access your dashboard.",
-            "warning"
-        );
-
-
-        setTimeout(
-            () => {
-
-                window.location.href =
-                    "login.html";
-
-            },
-            900
-        );
-
-
-        return false;
-    }
-
-
-    return true;
-}
-
-
-/* =========================================================
-   LOAD DASHBOARD
-   ========================================================= */
-
-async function loadDashboardData() {
-
-    const accountType =
-        getDashboardAccountType();
-
-
-    if (
-        accountType === "company" ||
-        accountType === "business"
-    ) {
-
-        await loadCompanyJobs();
-
-    } else {
-
-        await loadUserApplications();
-    }
-
-
-    updateDashboardUserUI();
-
-    renderCompanyJobs();
-
-    await renderUserApplications();
-
-    updateDashboardStats();
-}
-
-
-/* =========================================================
-   LOGOUT
-   ========================================================= */
-
-async function dashboardLogout() {
-
-    if (!dashboardSupabase) {
-        return;
-    }
-
-
-    try {
-
-        const {
-            error
-        } =
-            await dashboardSupabase
-                .auth
-                .signOut();
-
-
-        if (error) {
-            throw error;
-        }
-
-
-        DashboardSystem.user =
-            null;
-
-        DashboardSystem.profile =
-            null;
-
-
-        window.location.href =
-            "index.html";
-
-
-    } catch (error) {
-
-        console.error(
-            "Dashboard logout error:",
-            error
-        );
-
-
-        showDashboardMessage(
-            "Unable to sign out.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   LOGOUT BUTTONS
-   ========================================================= */
-
-function initializeDashboardLogout() {
-
-    document
-        .querySelectorAll(
-            "#logout-btn, .logout-btn, [data-dashboard-logout]"
-        )
-        .forEach(
-            button => {
-
-                button.addEventListener(
-                    "click",
-                    event => {
-
-                        event.preventDefault();
-
-                        dashboardLogout();
-                    }
-                );
-            }
-        );
-}
-
-
-/* =========================================================
-   INITIALIZE DASHBOARD
-   ========================================================= */
-
-async function initializeDashboard() {
-
-    if (
-        DashboardSystem.initialized
-    ) {
-
-        return;
-    }
-
-
-    DashboardSystem.initialized =
-        true;
-
-
-    const initialized =
-        initializeDashboardSupabase();
-
-
-    if (!initialized) {
-
-        showDashboardMessage(
-            "Supabase is not available.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    await getDashboardUser();
-
-
-    const protectedPage =
-        document.querySelector(
-            "[data-dashboard-protected]"
-        ) ||
-        document.querySelector(
-            ".dashboard"
-        ) ||
-        document.querySelector(
-            "#dashboard"
-        );
-
-
-    if (
-        protectedPage &&
-        !DashboardSystem.user
-    ) {
-
-        await protectDashboard();
-
-        return;
-    }
-
-
-    if (
-        DashboardSystem.user
-    ) {
-
-        await getDashboardProfile();
-
-        await loadDashboardData();
-    }
-
-
-    initializeDashboardForms();
-
-    initializeDashboardEvents();
-
-    initializeDashboardLogout();
-
-
-    console.log(
-        "Web3Jobs Dashboard initialized."
-    );
-}
-
-
-/* =========================================================
-   GLOBAL API
-   ========================================================= */
-
-window.DashboardSystem =
-    DashboardSystem;
-
-
-window.Web3JobsDashboard = {
-
-    initializeDashboard,
-
-    getDashboardUser,
-
-    getDashboardProfile,
-
-    getDashboardAccountType,
-
-    loadCompanyJobs,
-
-    loadUserApplications,
-
-    loadDashboardData,
-
-    createDashboardJob,
-
-    deleteDashboardJob,
-
-    dashboardLogout
-
-};
-
-
-/* =========================================================
-   START
-   ========================================================= */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeDashboard
-    );
-
-} else {
-
-    initializeDashboard();
-              }
+            formData
