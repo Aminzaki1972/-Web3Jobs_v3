@@ -11,10 +11,10 @@
    ========================================================= */
 
 const JOBS_SUPABASE_URL =
-    "https://uewocyaspztybnvnkbmo.supabase.co";
+    "https://jqhemwskrnlycximjpag.supabase.co";
 
 const JOBS_SUPABASE_KEY =
-    "sb_publishable_ap9UMOBhdHdIkW0WFD25nA_NurNviS0";
+    "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
 
 let jobsSupabase = null;
 
@@ -74,7 +74,14 @@ function initializeJobsSupabase() {
         jobsSupabase =
             window.supabase.createClient(
                 JOBS_SUPABASE_URL,
-                JOBS_SUPABASE_KEY
+                JOBS_SUPABASE_KEY,
+                {
+                    auth: {
+                        persistSession: true,
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true
+                    }
+                }
             );
 
         console.log(
@@ -116,6 +123,16 @@ function jobsEscapeHTML(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+
+/* =========================================================
+   ATTRIBUTE ESCAPE
+   ========================================================= */
+
+function jobsEscapeAttribute(value) {
+
+    return jobsEscapeHTML(value);
 }
 
 
@@ -189,22 +206,28 @@ async function jobsGetCurrentUser() {
 
     try {
 
-        const {
-            data,
-            error
-        } =
+        const result =
             await jobsSupabase.auth.getUser();
 
-        if (error) {
+        if (
+            result.error
+        ) {
 
-            JobsSystem.currentUser = null;
+            console.warn(
+                "Web3Jobs: Unable to get current user:",
+                result.error
+            );
+
+            JobsSystem.currentUser =
+                null;
 
             return null;
         }
 
         JobsSystem.currentUser =
-            data && data.user
-                ? data.user
+            result.data &&
+            result.data.user
+                ? result.data.user
                 : null;
 
         return JobsSystem.currentUser;
@@ -212,11 +235,12 @@ async function jobsGetCurrentUser() {
     } catch (error) {
 
         console.error(
-            "Web3Jobs: Unable to get current user:",
+            "Web3Jobs: Current user error:",
             error
         );
 
-        JobsSystem.currentUser = null;
+        JobsSystem.currentUser =
+            null;
 
         return null;
     }
@@ -262,7 +286,7 @@ function findJobsContainer() {
 
 
 /* =========================================================
-   SHOW LOADING STATE
+   SHOW LOADING
    ========================================================= */
 
 function showJobsLoading() {
@@ -295,7 +319,7 @@ function showJobsLoading() {
 async function loadAllJobs() {
 
     console.log(
-        "Web3Jobs: loadAllJobs started."
+        "Web3Jobs: Loading jobs..."
     );
 
     if (!jobsSupabase) {
@@ -310,38 +334,28 @@ async function loadAllJobs() {
         }
     }
 
-    JobsSystem.loading = true;
+    JobsSystem.loading =
+        true;
 
     showJobsLoading();
 
     try {
 
-        console.log(
-            "Web3Jobs: Requesting jobs from Supabase..."
-        );
-
-        /*
-         * Use select("*") instead of a fixed column list.
-         * This prevents the query from failing when optional
-         * columns are not present in the jobs table.
-         */
-
-        const {
-            data,
-            error
-        } =
+        const response =
             await jobsSupabase
                 .from("jobs")
                 .select("*");
 
+        const data =
+            response.data;
+
+        const error =
+            response.error;
+
         if (error) {
 
             console.error(
-                "Web3Jobs: Failed to load jobs."
-            );
-
-            console.error(
-                "Error:",
+                "Web3Jobs: Supabase jobs error:",
                 error
             );
 
@@ -365,57 +379,56 @@ async function loadAllJobs() {
                 error.hint
             );
 
-            JobsSystem.jobs = [];
+            JobsSystem.jobs =
+                [];
 
-            JobsSystem.filteredJobs = [];
-
-            showJobsError(
-                error.message ||
-                "Unable to load jobs."
-            );
+            JobsSystem.filteredJobs =
+                [];
 
             renderAllJobs([]);
 
+            showJobsError(
+                jobsBuildSupabaseErrorMessage(
+                    error
+                )
+            );
+
             return [];
         }
-
-        console.log(
-            "Web3Jobs: Supabase returned:",
-            data
-        );
 
         if (!Array.isArray(data)) {
 
-            JobsSystem.jobs = [];
+            JobsSystem.jobs =
+                [];
 
-            JobsSystem.filteredJobs = [];
+            JobsSystem.filteredJobs =
+                [];
 
             renderAllJobs([]);
 
             return [];
         }
-
-        /*
-         * Sort in JavaScript so the code does not depend
-         * on created_at existing in the database.
-         */
 
         data.sort(
             (a, b) => {
 
-                const dateA =
+                const timeA =
                     a &&
                     a.created_at
-                        ? new Date(a.created_at).getTime()
+                        ? new Date(
+                            a.created_at
+                        ).getTime()
                         : 0;
 
-                const dateB =
+                const timeB =
                     b &&
                     b.created_at
-                        ? new Date(b.created_at).getTime()
+                        ? new Date(
+                            b.created_at
+                        ).getTime()
                         : 0;
 
-                return dateB - dateA;
+                return timeB - timeA;
             }
         );
 
@@ -423,38 +436,111 @@ async function loadAllJobs() {
             data;
 
         console.log(
-            "Web3Jobs: Number of jobs:",
-            JobsSystem.jobs.length
+            "Web3Jobs: Jobs loaded:",
+            data.length
         );
 
         applyJobsFilters();
 
-        return JobsSystem.jobs;
+        return data;
 
     } catch (error) {
 
         console.error(
-            "Web3Jobs: Unexpected load error:",
+            "Web3Jobs: Unexpected jobs loading error:",
             error
         );
 
-        JobsSystem.jobs = [];
+        JobsSystem.jobs =
+            [];
 
-        JobsSystem.filteredJobs = [];
+        JobsSystem.filteredJobs =
+            [];
+
+        renderAllJobs([]);
 
         showJobsError(
             error.message ||
             "Unable to load jobs."
         );
 
-        renderAllJobs([]);
-
         return [];
 
     } finally {
 
-        JobsSystem.loading = false;
+        JobsSystem.loading =
+            false;
     }
+}
+
+
+/* =========================================================
+   SUPABASE ERROR MESSAGE
+   ========================================================= */
+
+function jobsBuildSupabaseErrorMessage(
+    error
+) {
+
+    if (!error) {
+        return "Unable to load jobs.";
+    }
+
+    const code =
+        String(
+            error.code || ""
+        );
+
+    const message =
+        String(
+            error.message || ""
+        );
+
+    const lowerMessage =
+        message.toLowerCase();
+
+    if (
+        code === "42501" ||
+        lowerMessage.includes(
+            "row-level security"
+        ) ||
+        lowerMessage.includes(
+            "permission denied"
+        ) ||
+        lowerMessage.includes(
+            "not allowed"
+        )
+    ) {
+
+        return "Unable to load jobs because database access is restricted.";
+    }
+
+    if (
+        lowerMessage.includes(
+            "failed to fetch"
+        ) ||
+        lowerMessage.includes(
+            "network"
+        )
+    ) {
+
+        return "Unable to connect to the database.";
+    }
+
+    if (
+        lowerMessage.includes(
+            "relation"
+        ) &&
+        lowerMessage.includes(
+            "does not exist"
+        )
+    ) {
+
+        return "The jobs table was not found.";
+    }
+
+    return message ||
+        "Unable to load jobs.";
 }
 
 
@@ -469,7 +555,7 @@ function createJobCard(job) {
     }
 
     const id =
-        jobsEscapeHTML(
+        jobsEscapeAttribute(
             jobsValue(
                 job.id,
                 ""
@@ -671,7 +757,9 @@ function renderAllJobs(
 
     container.innerHTML =
         jobs
-            .map(createJobCard)
+            .map(
+                createJobCard
+            )
             .join("");
 }
 
@@ -683,27 +771,34 @@ function renderAllJobs(
 function applyJobsFilters() {
 
     let result =
-        Array.isArray(JobsSystem.jobs)
-            ? [...JobsSystem.jobs]
+        Array.isArray(
+            JobsSystem.jobs
+        )
+            ? [
+                ...JobsSystem.jobs
+            ]
             : [];
 
     const keyword =
         String(
-            JobsSystem.searchQuery || ""
+            JobsSystem.searchQuery ||
+            ""
         )
             .trim()
             .toLowerCase();
 
     const type =
         String(
-            JobsSystem.typeFilter || ""
+            JobsSystem.typeFilter ||
+            ""
         )
             .trim()
             .toLowerCase();
 
     const location =
         String(
-            JobsSystem.locationFilter || ""
+            JobsSystem.locationFilter ||
+            ""
         )
             .trim()
             .toLowerCase();
@@ -713,6 +808,10 @@ function applyJobsFilters() {
         result =
             result.filter(
                 job => {
+
+                    if (!job) {
+                        return false;
+                    }
 
                     const searchableText = [
 
@@ -755,7 +854,10 @@ function applyJobsFilters() {
             result.filter(
                 job =>
                     String(
-                        job.type || ""
+                        job &&
+                        job.type
+                            ? job.type
+                            : ""
                     )
                         .toLowerCase()
                         .includes(type)
@@ -768,7 +870,10 @@ function applyJobsFilters() {
             result.filter(
                 job =>
                     String(
-                        job.location || ""
+                        job &&
+                        job.location
+                            ? job.location
+                            : ""
                     )
                         .toLowerCase()
                         .includes(location)
@@ -779,10 +884,10 @@ function applyJobsFilters() {
         result;
 
     renderAllJobs(
-        JobsSystem.filteredJobs
+        result
     );
 
-    return JobsSystem.filteredJobs;
+    return result;
 }
 
 
@@ -795,7 +900,9 @@ function searchJobs(
 ) {
 
     JobsSystem.searchQuery =
-        String(query || "");
+        String(
+            query || ""
+        );
 
     return applyJobsFilters();
 }
@@ -810,7 +917,9 @@ function filterJobsByType(
 ) {
 
     JobsSystem.typeFilter =
-        String(type || "");
+        String(
+            type || ""
+        );
 
     return applyJobsFilters();
 }
@@ -825,7 +934,9 @@ function filterJobsByLocation(
 ) {
 
     JobsSystem.locationFilter =
-        String(location || "");
+        String(
+            location || ""
+        );
 
     return applyJobsFilters();
 }
@@ -837,11 +948,14 @@ function filterJobsByLocation(
 
 function clearJobFilters() {
 
-    JobsSystem.searchQuery = "";
+    JobsSystem.searchQuery =
+        "";
 
-    JobsSystem.typeFilter = "";
+    JobsSystem.typeFilter =
+        "";
 
-    JobsSystem.locationFilter = "";
+    JobsSystem.locationFilter =
+        "";
 
     return applyJobsFilters();
 }
@@ -857,7 +971,8 @@ function getJobById(
 
     if (
         jobId === null ||
-        jobId === undefined
+        jobId === undefined ||
+        jobId === ""
     ) {
         return null;
     }
@@ -865,9 +980,15 @@ function getJobById(
     return (
         JobsSystem.jobs.find(
             job =>
-                String(job.id) ===
-                String(jobId)
-        ) || null
+                job &&
+                String(
+                    job.id
+                ) ===
+                String(
+                    jobId
+                )
+        ) ||
+        null
     );
 }
 
@@ -897,10 +1018,7 @@ async function loadJobById(
 
     try {
 
-        const {
-            data,
-            error
-        } =
+        const response =
             await jobsSupabase
                 .from("jobs")
                 .select("*")
@@ -910,23 +1028,25 @@ async function loadJobById(
                 )
                 .maybeSingle();
 
-        if (error) {
+        if (response.error) {
 
             console.error(
                 "Web3Jobs: Unable to load job:",
-                error
+                response.error
             );
 
             showJobsError(
-                error.message ||
-                "Unable to load job."
+                jobsBuildSupabaseErrorMessage(
+                    response.error
+                )
             );
 
             return null;
         }
 
         JobsSystem.currentJob =
-            data || null;
+            response.data ||
+            null;
 
         return JobsSystem.currentJob;
 
@@ -1263,21 +1383,35 @@ function showJobDetails(
 
                     try {
 
-                        const opened =
-                            window.open(
+                        const safeURL =
+                            new URL(
                                 applicationURL,
-                                "_blank",
-                                "noopener,noreferrer"
+                                window.location.href
                             );
 
-                        if (opened) {
-                            return;
+                        if (
+                            safeURL.protocol ===
+                                "http:" ||
+                            safeURL.protocol ===
+                                "https:"
+                        ) {
+
+                            const opened =
+                                window.open(
+                                    safeURL.href,
+                                    "_blank",
+                                    "noopener,noreferrer"
+                                );
+
+                            if (opened) {
+                                return;
+                            }
                         }
 
                     } catch (error) {
 
                         console.error(
-                            "Web3Jobs: Unable to open application URL:",
+                            "Web3Jobs: Invalid application URL:",
                             error
                         );
                     }
@@ -1395,10 +1529,7 @@ async function applyForJob(
 
     try {
 
-        const {
-            data: existingApplications,
-            error: checkError
-        } =
+        const checkResponse =
             await jobsSupabase
                 .from("applications")
                 .select("id")
@@ -1412,15 +1543,15 @@ async function applyForJob(
                 )
                 .limit(1);
 
-        if (checkError) {
+        if (checkResponse.error) {
 
             console.error(
                 "Web3Jobs: Application check error:",
-                checkError
+                checkResponse.error
             );
 
             showJobsMessage(
-                checkError.message ||
+                checkResponse.error.message ||
                 "Unable to verify your application.",
                 "error"
             );
@@ -1430,9 +1561,9 @@ async function applyForJob(
 
         if (
             Array.isArray(
-                existingApplications
+                checkResponse.data
             ) &&
-            existingApplications.length > 0
+            checkResponse.data.length > 0
         ) {
 
             showJobsMessage(
@@ -1443,34 +1574,34 @@ async function applyForJob(
             return false;
         }
 
-        const {
-            data,
-            error
-        } =
+        /*
+         * Do not use select() after insert here.
+         * This avoids failures caused by restrictive
+         * SELECT policies on the applications table.
+         */
+
+        const insertResponse =
             await jobsSupabase
                 .from("applications")
                 .insert({
-
                     job_id:
                         jobId,
 
                     user_id:
                         user.id
+                });
 
-                })
-                .select()
-                .maybeSingle();
-
-        if (error) {
+        if (insertResponse.error) {
 
             console.error(
                 "Web3Jobs: Application insert error:",
-                error
+                insertResponse.error
             );
 
             if (
                 String(
-                    error.code || ""
+                    insertResponse.error.code ||
+                    ""
                 ) === "23505"
             ) {
 
@@ -1483,18 +1614,13 @@ async function applyForJob(
             }
 
             showJobsMessage(
-                error.message ||
+                insertResponse.error.message ||
                 "Unable to submit application.",
                 "error"
             );
 
             return false;
         }
-
-        console.log(
-            "Web3Jobs: Application result:",
-            data
-        );
 
         showJobsMessage(
             "Application submitted successfully.",
@@ -1567,116 +1693,115 @@ async function createJob(
         return null;
     }
 
+    const insertData = {
+
+        title:
+            title,
+
+        company:
+            jobsValue(
+                jobData.company,
+                ""
+            ),
+
+        location:
+            jobsValue(
+                jobData.location,
+                "Remote"
+            ),
+
+        type:
+            jobsValue(
+                jobData.type,
+                "Full Time"
+            ),
+
+        description:
+            jobsValue(
+                jobData.description,
+                ""
+            ),
+
+        skills:
+            jobsValue(
+                jobData.skills,
+                ""
+            ),
+
+        salary:
+            jobsValue(
+                jobData.salary,
+                ""
+            ),
+
+        application_url:
+            jobsValue(
+                jobData.application_url ||
+                jobData.apply_link,
+                ""
+            )
+
+    };
+
     try {
-
-        const insertData = {
-
-            title:
-                title,
-
-            company:
-                jobsValue(
-                    jobData.company,
-                    ""
-                ),
-
-            location:
-                jobsValue(
-                    jobData.location,
-                    "Remote"
-                ),
-
-            type:
-                jobsValue(
-                    jobData.type,
-                    "Full Time"
-                ),
-
-            description:
-                jobsValue(
-                    jobData.description,
-                    ""
-                ),
-
-            skills:
-                jobsValue(
-                    jobData.skills,
-                    ""
-                ),
-
-            salary:
-                jobsValue(
-                    jobData.salary,
-                    ""
-                ),
-
-            application_url:
-                jobsValue(
-                    jobData.application_url ||
-                    jobData.apply_link,
-                    ""
-                )
-
-        };
-
-        /*
-         * Add company_id only when available.
-         * This prevents the insert from failing if the
-         * database does not contain that column.
-         */
-
-        if (
-            user &&
-            user.id
-        ) {
-
-            insertData.company_id =
-                user.id;
-        }
 
         console.log(
             "Web3Jobs: Creating job:",
             insertData
         );
 
-        const {
-            data,
-            error
-        } =
+        /*
+         * Insert only columns known to exist in the
+         * current jobs table.
+         */
+
+        const response =
             await jobsSupabase
                 .from("jobs")
                 .insert(
                     insertData
                 )
-                .select()
-                .single();
+                .select("*")
+                .maybeSingle();
 
-        if (error) {
+        if (response.error) {
+
+            console.error(
+                "Web3Jobs: Create job error:",
+                response.error
+            );
 
             /*
-             * If company_id does not exist,
-             * retry without it.
+             * If the database accepts INSERT but
+             * SELECT is blocked by RLS, retry without
+             * requesting the inserted row.
              */
 
-            if (
-                insertData.company_id &&
+            const errorMessage =
                 String(
-                    error.message || ""
-                )
-                    .toLowerCase()
-                    .includes("company_id")
-            ) {
+                    response.error.message ||
+                    ""
+                ).toLowerCase();
 
-                delete insertData.company_id;
+            if (
+                errorMessage.includes(
+                    "row-level security"
+                ) ||
+                errorMessage.includes(
+                    "permission denied"
+                ) ||
+                String(
+                    response.error.code ||
+                    ""
+                ) === "42501"
+            ) {
 
                 const retry =
                     await jobsSupabase
                         .from("jobs")
                         .insert(
                             insertData
-                        )
-                        .select()
-                        .single();
+                        );
 
                 if (retry.error) {
 
@@ -1694,30 +1819,18 @@ async function createJob(
                     return null;
                 }
 
-                if (retry.data) {
-
-                    JobsSystem.jobs.unshift(
-                        retry.data
-                    );
-                }
-
-                applyJobsFilters();
-
                 showJobsMessage(
                     "Job published successfully.",
                     "success"
                 );
 
-                return retry.data || null;
+                await loadAllJobs();
+
+                return true;
             }
 
-            console.error(
-                "Web3Jobs: Create job error:",
-                error
-            );
-
             showJobsMessage(
-                error.message ||
+                response.error.message ||
                 "Unable to publish job.",
                 "error"
             );
@@ -1725,21 +1838,30 @@ async function createJob(
             return null;
         }
 
-        if (data) {
+        if (response.data) {
 
             JobsSystem.jobs.unshift(
-                data
+                response.data
             );
+
+            applyJobsFilters();
+
+            showJobsMessage(
+                "Job published successfully.",
+                "success"
+            );
+
+            return response.data;
         }
 
-        applyJobsFilters();
+        await loadAllJobs();
 
         showJobsMessage(
             "Job published successfully.",
             "success"
         );
 
-        return data || null;
+        return true;
 
     } catch (error) {
 
@@ -1807,8 +1929,13 @@ async function deleteJob(
 
     try {
 
-        let query =
-            jobsSupabase
+        /*
+         * The database RLS policy should control
+         * whether the current user can delete the job.
+         */
+
+        const response =
+            await jobsSupabase
                 .from("jobs")
                 .delete()
                 .eq(
@@ -1816,44 +1943,15 @@ async function deleteJob(
                     jobId
                 );
 
-        /*
-         * Only filter by company_id when the job
-         * actually has this property.
-         */
-
-        const job =
-            getJobById(jobId);
-
-        if (
-            job &&
-            Object.prototype.hasOwnProperty.call(
-                job,
-                "company_id"
-            ) &&
-            job.company_id
-        ) {
-
-            query =
-                query.eq(
-                    "company_id",
-                    user.id
-                );
-        }
-
-        const {
-            error
-        } =
-            await query;
-
-        if (error) {
+        if (response.error) {
 
             console.error(
                 "Web3Jobs: Delete job error:",
-                error
+                response.error
             );
 
             showJobsMessage(
-                error.message ||
+                response.error.message ||
                 "Unable to delete job.",
                 "error"
             );
@@ -1864,8 +1962,12 @@ async function deleteJob(
         JobsSystem.jobs =
             JobsSystem.jobs.filter(
                 job =>
-                    String(job.id) !==
-                    String(jobId)
+                    String(
+                        job.id
+                    ) !==
+                    String(
+                        jobId
+                    )
             );
 
         applyJobsFilters();
@@ -2148,7 +2250,9 @@ function showJobsMessage(
     }
 
     box.textContent =
-        String(message || "");
+        String(
+            message || ""
+        );
 
     switch (type) {
 
@@ -2252,6 +2356,9 @@ async function initializeJobs() {
 
     if (!initialized) {
 
+        JobsSystem.initialized =
+            false;
+
         showJobsError(
             "Supabase is not available."
         );
@@ -2288,6 +2395,16 @@ async function initializeJobs() {
 
 
 /* =========================================================
+   REFRESH JOBS
+   ========================================================= */
+
+async function refreshJobs() {
+
+    return await loadAllJobs();
+}
+
+
+/* =========================================================
    GLOBAL API
    ========================================================= */
 
@@ -2299,6 +2416,8 @@ window.Web3JobsJobs = {
     initializeJobs,
 
     loadAllJobs,
+
+    refreshJobs,
 
     renderAllJobs,
 
