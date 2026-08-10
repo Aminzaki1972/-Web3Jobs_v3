@@ -35,6 +35,8 @@ const JobsSystem = {
 
     initialized: false,
 
+    loading: false,
+
     searchQuery: "",
 
     typeFilter: "",
@@ -56,7 +58,7 @@ function initializeJobsSupabase() {
 
     if (
         typeof window === "undefined" ||
-        typeof window.supabase === "undefined" ||
+        !window.supabase ||
         typeof window.supabase.createClient !== "function"
     ) {
 
@@ -76,7 +78,7 @@ function initializeJobsSupabase() {
             );
 
         console.log(
-            "Web3Jobs: Supabase initialized."
+            "Web3Jobs: Supabase initialized successfully."
         );
 
         return true;
@@ -197,16 +199,11 @@ async function jobsGetCurrentUser() {
 
             JobsSystem.currentUser = null;
 
-            console.log(
-                "Web3Jobs: No authenticated user."
-            );
-
             return null;
         }
 
         JobsSystem.currentUser =
-            data &&
-            data.user
+            data && data.user
                 ? data.user
                 : null;
 
@@ -227,18 +224,78 @@ async function jobsGetCurrentUser() {
 
 
 /* =========================================================
+   FIND JOBS CONTAINER
+   ========================================================= */
+
+function findJobsContainer() {
+
+    const selectors = [
+
+        "#jobs-list",
+
+        "#jobs-container",
+
+        ".jobs-list",
+
+        ".jobs-container",
+
+        "[data-jobs-container]"
+
+    ];
+
+    for (
+        const selector of selectors
+    ) {
+
+        const element =
+            document.querySelector(
+                selector
+            );
+
+        if (element) {
+            return element;
+        }
+    }
+
+    return null;
+}
+
+
+/* =========================================================
+   SHOW LOADING STATE
+   ========================================================= */
+
+function showJobsLoading() {
+
+    const container =
+        findJobsContainer();
+
+    if (!container) {
+        return;
+    }
+
+    container.innerHTML = `
+
+        <div class="jobs-loading">
+
+            <p>
+                Loading jobs...
+            </p>
+
+        </div>
+
+    `;
+}
+
+
+/* =========================================================
    LOAD ALL JOBS
    ========================================================= */
 
 async function loadAllJobs() {
 
     console.log(
-        "NEW jobs.js is running"
-    );
-
-    console.log(
-        "Supabase URL:",
-        JOBS_SUPABASE_URL
+        "Web3Jobs: loadAllJobs started."
     );
 
     if (!jobsSupabase) {
@@ -246,12 +303,16 @@ async function loadAllJobs() {
         if (!initializeJobsSupabase()) {
 
             showJobsError(
-                "Supabase is not available."
+                "Database connection is unavailable."
             );
 
             return [];
         }
     }
+
+    JobsSystem.loading = true;
+
+    showJobsLoading();
 
     try {
 
@@ -259,46 +320,48 @@ async function loadAllJobs() {
             "Web3Jobs: Requesting jobs from Supabase..."
         );
 
+        /*
+         * Use select("*") instead of a fixed column list.
+         * This prevents the query from failing when optional
+         * columns are not present in the jobs table.
+         */
+
         const {
             data,
             error
         } =
             await jobsSupabase
                 .from("jobs")
-                .select(
-                    "id,title,company,location,type,description,skills,salary,application_url,company_id,created_at,updated_at"
-                )
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                );
+                .select("*");
 
         if (error) {
 
             console.error(
-                "Web3Jobs: Failed to load jobs:",
+                "Web3Jobs: Failed to load jobs."
+            );
+
+            console.error(
+                "Error:",
                 error
             );
 
             console.error(
-                "Web3Jobs: Error code:",
+                "Code:",
                 error.code
             );
 
             console.error(
-                "Web3Jobs: Error message:",
+                "Message:",
                 error.message
             );
 
             console.error(
-                "Web3Jobs: Error details:",
+                "Details:",
                 error.details
             );
 
             console.error(
-                "Web3Jobs: Error hint:",
+                "Hint:",
                 error.hint
             );
 
@@ -311,25 +374,58 @@ async function loadAllJobs() {
                 "Unable to load jobs."
             );
 
+            renderAllJobs([]);
+
             return [];
         }
 
         console.log(
-            "Web3Jobs: Jobs loaded successfully:",
+            "Web3Jobs: Supabase returned:",
             data
         );
 
-        console.log(
-            "Web3Jobs: Number of jobs:",
-            Array.isArray(data)
-                ? data.length
-                : 0
+        if (!Array.isArray(data)) {
+
+            JobsSystem.jobs = [];
+
+            JobsSystem.filteredJobs = [];
+
+            renderAllJobs([]);
+
+            return [];
+        }
+
+        /*
+         * Sort in JavaScript so the code does not depend
+         * on created_at existing in the database.
+         */
+
+        data.sort(
+            (a, b) => {
+
+                const dateA =
+                    a &&
+                    a.created_at
+                        ? new Date(a.created_at).getTime()
+                        : 0;
+
+                const dateB =
+                    b &&
+                    b.created_at
+                        ? new Date(b.created_at).getTime()
+                        : 0;
+
+                return dateB - dateA;
+            }
         );
 
         JobsSystem.jobs =
-            Array.isArray(data)
-                ? data
-                : [];
+            data;
+
+        console.log(
+            "Web3Jobs: Number of jobs:",
+            JobsSystem.jobs.length
+        );
 
         applyJobsFilters();
 
@@ -338,7 +434,7 @@ async function loadAllJobs() {
     } catch (error) {
 
         console.error(
-            "Web3Jobs: loadAllJobs error:",
+            "Web3Jobs: Unexpected load error:",
             error
         );
 
@@ -351,7 +447,13 @@ async function loadAllJobs() {
             "Unable to load jobs."
         );
 
+        renderAllJobs([]);
+
         return [];
+
+    } finally {
+
+        JobsSystem.loading = false;
     }
 }
 
@@ -368,7 +470,10 @@ function createJobCard(job) {
 
     const id =
         jobsEscapeHTML(
-            job.id
+            jobsValue(
+                job.id,
+                ""
+            )
         );
 
     const title =
@@ -382,7 +487,8 @@ function createJobCard(job) {
     const company =
         jobsEscapeHTML(
             jobsValue(
-                job.company,
+                job.company ||
+                job.company_name,
                 "Web3 Company"
             )
         );
@@ -433,6 +539,7 @@ function createJobCard(job) {
         );
 
     return `
+
         <article
             class="job-card"
             data-job-id="${id}"
@@ -513,45 +620,8 @@ function createJobCard(job) {
             </div>
 
         </article>
+
     `;
-}
-
-
-/* =========================================================
-   FIND JOBS CONTAINER
-   ========================================================= */
-
-function findJobsContainer() {
-
-    const selectors = [
-
-        "#jobs-list",
-
-        "#jobs-container",
-
-        ".jobs-list",
-
-        ".jobs-container",
-
-        "[data-jobs-container]"
-
-    ];
-
-    for (
-        const selector of selectors
-    ) {
-
-        const element =
-            document.querySelector(
-                selector
-            );
-
-        if (element) {
-            return element;
-        }
-    }
-
-    return null;
 }
 
 
@@ -589,8 +659,7 @@ function renderAllJobs(
                 </h3>
 
                 <p>
-                    There are currently no
-                    available opportunities.
+                    There are currently no available opportunities.
                 </p>
 
             </div>
@@ -614,7 +683,9 @@ function renderAllJobs(
 function applyJobsFilters() {
 
     let result =
-        [...JobsSystem.jobs];
+        Array.isArray(JobsSystem.jobs)
+            ? [...JobsSystem.jobs]
+            : [];
 
     const keyword =
         String(
@@ -645,9 +716,13 @@ function applyJobsFilters() {
 
                     const searchableText = [
 
+                        job.id,
+
                         job.title,
 
                         job.company,
+
+                        job.company_name,
 
                         job.location,
 
@@ -828,9 +903,7 @@ async function loadJobById(
         } =
             await jobsSupabase
                 .from("jobs")
-                .select(
-                    "id,title,company,location,type,description,skills,salary,application_url,company_id,created_at,updated_at"
-                )
+                .select("*")
                 .eq(
                     "id",
                     jobId
@@ -916,9 +989,7 @@ function createJobsModal() {
                 ×
             </button>
 
-            <div
-                class="jobs-modal-body"
-            ></div>
+            <div class="jobs-modal-body"></div>
 
         </div>
 
@@ -1025,7 +1096,8 @@ function showJobDetails(
     const company =
         jobsEscapeHTML(
             jobsValue(
-                job.company,
+                job.company ||
+                job.company_name,
                 "Not specified"
             )
         );
@@ -1072,7 +1144,8 @@ function showJobDetails(
 
     const applicationURL =
         jobsValue(
-            job.application_url,
+            job.application_url ||
+            job.apply_link,
             ""
         );
 
@@ -1188,15 +1261,25 @@ function showJobDetails(
 
                 if (applicationURL) {
 
-                    const opened =
-                        window.open(
-                            applicationURL,
-                            "_blank",
-                            "noopener,noreferrer"
-                        );
+                    try {
 
-                    if (opened) {
-                        return;
+                        const opened =
+                            window.open(
+                                applicationURL,
+                                "_blank",
+                                "noopener,noreferrer"
+                            );
+
+                        if (opened) {
+                            return;
+                        }
+
+                    } catch (error) {
+
+                        console.error(
+                            "Web3Jobs: Unable to open application URL:",
+                            error
+                        );
                     }
                 }
 
@@ -1408,12 +1491,10 @@ async function applyForJob(
             return false;
         }
 
-        if (!data) {
-
-            console.log(
-                "Web3Jobs: Application submitted."
-            );
-        }
+        console.log(
+            "Web3Jobs: Application result:",
+            data
+        );
 
         showJobsMessage(
             "Application submitted successfully.",
@@ -1534,12 +1615,24 @@ async function createJob(
                     jobData.application_url ||
                     jobData.apply_link,
                     ""
-                ),
-
-            company_id:
-                user.id
+                )
 
         };
+
+        /*
+         * Add company_id only when available.
+         * This prevents the insert from failing if the
+         * database does not contain that column.
+         */
+
+        if (
+            user &&
+            user.id
+        ) {
+
+            insertData.company_id =
+                user.id;
+        }
 
         console.log(
             "Web3Jobs: Creating job:",
@@ -1559,6 +1652,64 @@ async function createJob(
                 .single();
 
         if (error) {
+
+            /*
+             * If company_id does not exist,
+             * retry without it.
+             */
+
+            if (
+                insertData.company_id &&
+                String(
+                    error.message || ""
+                )
+                    .toLowerCase()
+                    .includes("company_id")
+            ) {
+
+                delete insertData.company_id;
+
+                const retry =
+                    await jobsSupabase
+                        .from("jobs")
+                        .insert(
+                            insertData
+                        )
+                        .select()
+                        .single();
+
+                if (retry.error) {
+
+                    console.error(
+                        "Web3Jobs: Create job retry error:",
+                        retry.error
+                    );
+
+                    showJobsMessage(
+                        retry.error.message ||
+                        "Unable to publish job.",
+                        "error"
+                    );
+
+                    return null;
+                }
+
+                if (retry.data) {
+
+                    JobsSystem.jobs.unshift(
+                        retry.data
+                    );
+                }
+
+                applyJobsFilters();
+
+                showJobsMessage(
+                    "Job published successfully.",
+                    "success"
+                );
+
+                return retry.data || null;
+            }
 
             console.error(
                 "Web3Jobs: Create job error:",
@@ -1656,20 +1807,43 @@ async function deleteJob(
 
     try {
 
-        const {
-            error
-        } =
-            await jobsSupabase
+        let query =
+            jobsSupabase
                 .from("jobs")
                 .delete()
                 .eq(
                     "id",
                     jobId
-                )
-                .eq(
+                );
+
+        /*
+         * Only filter by company_id when the job
+         * actually has this property.
+         */
+
+        const job =
+            getJobById(jobId);
+
+        if (
+            job &&
+            Object.prototype.hasOwnProperty.call(
+                job,
+                "company_id"
+            ) &&
+            job.company_id
+        ) {
+
+            query =
+                query.eq(
                     "company_id",
                     user.id
                 );
+        }
+
+        const {
+            error
+        } =
+            await query;
 
         if (error) {
 
@@ -2034,7 +2208,7 @@ function showJobsMessage(
                     "none";
 
             },
-            4000
+            5000
         );
 }
 
@@ -2096,21 +2270,19 @@ async function initializeJobs() {
     const jobsContainer =
         findJobsContainer();
 
-    if (jobsContainer) {
-
-        await loadAllJobs();
-
-        renderAllJobs();
-
-    } else {
+    if (!jobsContainer) {
 
         console.warn(
             "Web3Jobs: Jobs container was not found."
         );
+
+        return;
     }
 
+    await loadAllJobs();
+
     console.log(
-        "Web3Jobs Jobs System initialized."
+        "Web3Jobs: Jobs System initialized."
     );
 }
 
@@ -2176,4 +2348,4 @@ if (
 
     initializeJobs();
 
-           }
+}
