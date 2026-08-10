@@ -2,109 +2,2055 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Web3Jobs - Company Dashboard">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Web3Jobs Company Dashboard"
+    >
+
+    <meta
+        name="theme-color"
+        content="#06101d"
+    >
+
     <title>Company Dashboard - Web3Jobs</title>
 
-    <!-- SUPABASE LIBRARIES -->
+
+    <!-- =====================================================
+         SUPABASE
+         ===================================================== -->
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="js/supabase.js"></script>
+
     <script src="js/auth.js"></script>
+
     <script src="js/company-dashboard.js"></script>
 
+
+    <!-- =====================================================
+         DASHBOARD CSS
+         ===================================================== -->
+
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #06101d;
-            color: #f5f8ff;
-            font-family: Inter, system-ui, -apple-system, sans-serif;
+
+        :root {
+
+            --bg: #06101d;
+            --bg2: #09182a;
+            --card: #0d1b2e;
+            --card2: #10233a;
+
+            --border: #1d3553;
+            --border2: #294563;
+
+            --text: #f5f8ff;
+            --muted: #9db0c8;
+
+            --green: #6ee7b7;
+            --blue: #60a5fa;
+            --red: #f87171;
+            --yellow: #fbbf24;
+
         }
+
+
+        * {
+
+            box-sizing: border-box;
+
+            margin: 0;
+
+            padding: 0;
+
+        }
+
+
+        html {
+
+            scroll-behavior: smooth;
+
+        }
+
+
+        body {
+
+            min-height: 100vh;
+
+            margin: 0;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    var(--bg),
+                    var(--bg2)
+                );
+
+            color: var(--text);
+
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Arial,
+                sans-serif;
+
+        }
+
+
+        button,
+        input,
+        select,
+        textarea {
+
+            font: inherit;
+
+        }
+
+
+        button {
+
+            cursor: pointer;
+
+        }
+
+
+        a {
+
+            text-decoration: none;
+
+            color: inherit;
+
+        }
+
+
+        /* =================================================
+           LOADING
+           ================================================= */
 
         #loading-spinner {
-            text-align: center;
-            padding: 50px;
-            font-size: 18px;
-            color: #6ee7b7;
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 99999;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            background: var(--bg);
+
+            padding: 20px;
+
         }
 
-        #dashboard-content {
-            display: none;
-            padding: 20px;
+
+        .loading-box {
+
+            width: min(420px, 100%);
+
+            padding: 35px 25px;
+
+            text-align: center;
+
+            background: var(--card);
+
+            border: 1px solid var(--border);
+
+            border-radius: 18px;
+
         }
+
+
+        .loading-icon {
+
+            width: 58px;
+
+            height: 58px;
+
+            margin: 0 auto 18px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 15px;
+
+            border: 1px solid var(--border2);
+
+            background: #071423;
+
+            color: var(--green);
+
+            font-size: 25px;
+
+        }
+
+
+        .loading-box h2 {
+
+            margin-bottom: 8px;
+
+            font-size: 20px;
+
+        }
+
+
+        .loading-box p {
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
+
+
+        .loading-circle {
+
+            width: 34px;
+
+            height: 34px;
+
+            margin: 20px auto 0;
+
+            border: 3px solid #1a3048;
+
+            border-top-color: var(--green);
+
+            border-radius: 50%;
+
+            animation: spin .8s linear infinite;
+
+        }
+
+
+        @keyframes spin {
+
+            to {
+
+                transform: rotate(360deg);
+
+            }
+
+        }
+
+
+        /* =================================================
+           DASHBOARD
+           ================================================= */
+
+        #dashboard-content {
+
+            display: none;
+
+            min-height: 100vh;
+
+        }
+
+
+        .container {
+
+            width: min(1180px, 92%);
+
+            margin: 0 auto;
+
+        }
+
+
+        /* =================================================
+           HEADER
+           ================================================= */
+
+        .dashboard-header {
+
+            position: sticky;
+
+            top: 0;
+
+            z-index: 1000;
+
+            background:
+                rgba(
+                    6,
+                    16,
+                    29,
+                    .96
+                );
+
+            border-bottom: 1px solid var(--border);
+
+            backdrop-filter: blur(14px);
+
+        }
+
+
+        .header-inner {
+
+            min-height: 72px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+        }
+
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            min-width: 0;
+
+        }
+
+
+        .brand-icon {
+
+            width: 43px;
+
+            height: 43px;
+
+            flex: 0 0 43px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 11px;
+
+            border: 1px solid var(--border2);
+
+            background: #0b1d31;
+
+            color: var(--green);
+
+            font-weight: 900;
+
+            font-size: 20px;
+
+        }
+
+
+        .brand-title {
+
+            font-size: 16px;
+
+            font-weight: 850;
+
+        }
+
+
+        .brand-subtitle {
+
+            margin-top: 2px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+        }
+
+
+        .header-actions {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+        }
+
+
+        .header-button {
+
+            min-height: 40px;
+
+            display: inline-flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            padding: 9px 14px;
+
+            border-radius: 9px;
+
+            border: 1px solid var(--border2);
+
+            background: #10233a;
+
+            color: var(--text);
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+        }
+
+
+        .header-button:hover {
+
+            border-color: var(--blue);
+
+        }
+
+
+        .logout-button {
+
+            border-color:
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .35
+                );
+
+            color: #fecaca;
+
+            background:
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .05
+                );
+
+        }
+
+
+        .logout-button:hover {
+
+            border-color: var(--red);
+
+        }
+
+
+        /* =================================================
+           MAIN
+           ================================================= */
+
+        .dashboard-main {
+
+            padding: 38px 0 70px;
+
+        }
+
+
+        /* =================================================
+           WELCOME
+           ================================================= */
+
+        .welcome-card {
+
+            position: relative;
+
+            overflow: hidden;
+
+            margin-bottom: 20px;
+
+            padding: 30px;
+
+            border-radius: 20px;
+
+            border: 1px solid var(--border);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0e2035,
+                    #0b192b
+                );
+
+        }
+
+
+        .welcome-card::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 250px;
+
+            height: 250px;
+
+            right: -100px;
+
+            top: -100px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(
+                        110,
+                        231,
+                        183,
+                        .13
+                    ),
+                    transparent 70%
+                );
+
+            pointer-events: none;
+
+        }
+
+
+        .welcome-label {
+
+            margin-bottom: 10px;
+
+            color: var(--green);
+
+            font-size: 10px;
+
+            font-weight: 850;
+
+            letter-spacing: 1px;
+
+        }
+
+
+        .welcome-card h1 {
+
+            margin-bottom: 7px;
+
+            font-size:
+                clamp(
+                    28px,
+                    5vw,
+                    40px
+                );
+
+            line-height: 1.15;
+
+        }
+
+
+        .welcome-card p {
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
+
+
+        #company-email {
+
+            display: inline-block;
+
+            margin-top: 6px;
+
+            color: #c9d7e7;
+
+        }
+
+
+        /* =================================================
+           STATS
+           ================================================= */
+
+        .stats-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    1fr
+                );
+
+            gap: 15px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .stat-card {
+
+            padding: 22px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 16px;
+
+            background: var(--card);
+
+        }
+
+
+        .stat-top {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 10px;
+
+            margin-bottom: 13px;
+
+        }
+
+
+        .stat-label {
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+            font-weight: 750;
+
+        }
+
+
+        .stat-icon {
+
+            width: 37px;
+
+            height: 37px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 10px;
+
+            background: #122a43;
+
+            border: 1px solid var(--border2);
+
+        }
+
+
+        .stat-value {
+
+            font-size: 30px;
+
+            font-weight: 900;
+
+        }
+
+
+        /* =================================================
+           SECTION
+           ================================================= */
+
+        .dashboard-section {
+
+            margin-bottom: 20px;
+
+            padding: 24px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 18px;
+
+            background: var(--card);
+
+        }
+
+
+        .section-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 20px;
+
+        }
+
+
+        .section-title {
+
+            font-size: 20px;
+
+            font-weight: 850;
+
+        }
+
+
+        .section-description {
+
+            margin-top: 4px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+        }
+
+
+        /* =================================================
+           FORM
+           ================================================= */
+
+        #create-job-form {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    1fr
+                );
+
+            gap: 14px;
+
+        }
+
+
+        .form-group {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 7px;
+
+        }
+
+
+        .form-group.full {
+
+            grid-column: 1 / -1;
+
+        }
+
+
+        .form-group label {
+
+            color: #d9e5f2;
+
+            font-size: 11px;
+
+            font-weight: 750;
+
+        }
+
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+
+            width: 100%;
+
+            outline: none;
+
+            padding: 12px 13px;
+
+            border-radius: 10px;
+
+            border: 1px solid var(--border2);
+
+            background: #071423;
+
+            color: var(--text);
+
+            font-size: 12px;
+
+        }
+
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+
+            color: #627891;
+
+        }
+
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+
+            border-color: var(--blue);
+
+            box-shadow:
+                0 0 0 3px
+                rgba(
+                    96,
+                    165,
+                    250,
+                    .08
+                );
+
+        }
+
+
+        .form-group textarea {
+
+            min-height: 125px;
+
+            resize: vertical;
+
+        }
+
+
+        .form-actions {
+
+            grid-column: 1 / -1;
+
+            display: flex;
+
+            justify-content: flex-end;
+
+            margin-top: 3px;
+
+        }
+
+
+        .primary-button {
+
+            min-height: 42px;
+
+            padding: 10px 17px;
+
+            border: 0;
+
+            border-radius: 9px;
+
+            background: var(--green);
+
+            color: #06101d;
+
+            font-size: 11px;
+
+            font-weight: 850;
+
+        }
+
+
+        .primary-button:hover {
+
+            filter: brightness(1.06);
+
+        }
+
+
+        /* =================================================
+           JOBS
+           ================================================= */
+
+        #company-jobs-list {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    1fr
+                );
+
+            gap: 14px;
+
+        }
+
+
+        .company-job-card {
+
+            display: flex;
+
+            flex-direction: column;
+
+            justify-content: space-between;
+
+            min-height: 220px;
+
+            padding: 20px;
+
+            border-radius: 15px;
+
+            border: 1px solid var(--border);
+
+            background: #0b192b;
+
+        }
+
+
+        .company-job-card:hover {
+
+            border-color: var(--border2);
+
+            background: var(--card2);
+
+        }
+
+
+        .company-job-content h3 {
+
+            margin-bottom: 10px;
+
+            font-size: 17px;
+
+        }
+
+
+        .company-job-meta {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 7px;
+
+            margin-bottom: 12px;
+
+        }
+
+
+        .company-job-meta span {
+
+            padding: 5px 8px;
+
+            border-radius: 999px;
+
+            border: 1px solid var(--border);
+
+            background: #10243b;
+
+            color: var(--muted);
+
+            font-size: 9px;
+
+        }
+
+
+        .company-job-content p {
+
+            margin-top: 10px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+            line-height: 1.7;
+
+            display: -webkit-box;
+
+            -webkit-line-clamp: 4;
+
+            -webkit-box-orient: vertical;
+
+            overflow: hidden;
+
+        }
+
+
+        .company-job-actions {
+
+            display: flex;
+
+            justify-content: flex-end;
+
+            margin-top: 15px;
+
+        }
+
+
+        .company-job-actions button {
+
+            min-height: 36px;
+
+            padding: 8px 13px;
+
+            border-radius: 9px;
+
+            border: 1px solid
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .35
+                );
+
+            background:
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .05
+                );
+
+            color: #fca5a5;
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+        }
+
+
+        .company-job-actions button:hover {
+
+            border-color: var(--red);
+
+        }
+
+
+        /* =================================================
+           EMPTY STATE
+           ================================================= */
+
+        .no-company-jobs {
+
+            grid-column: 1 / -1;
+
+            padding: 42px 20px;
+
+            text-align: center;
+
+            border: 1px dashed var(--border2);
+
+            border-radius: 15px;
+
+            background: #071423;
+
+        }
+
+
+        .no-company-jobs h3 {
+
+            margin-bottom: 7px;
+
+            font-size: 18px;
+
+        }
+
+
+        .no-company-jobs p {
+
+            margin-bottom: 17px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+        }
+
+
+        .company-create-job-button {
+
+            min-height: 40px;
+
+            padding: 9px 16px;
+
+            border: 0;
+
+            border-radius: 9px;
+
+            background: var(--green);
+
+            color: #06101d;
+
+            font-size: 11px;
+
+            font-weight: 850;
+
+        }
+
+
+        /* =================================================
+           FOOTER
+           ================================================= */
+
+        .dashboard-footer {
+
+            padding: 25px 0;
+
+            border-top: 1px solid var(--border);
+
+        }
+
+
+        .footer-inner {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 20px;
+
+        }
+
+
+        .footer-text {
+
+            color: #71869e;
+
+            font-size: 10px;
+
+        }
+
+
+        .footer-links {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 15px;
+
+        }
+
+
+        .footer-links a {
+
+            color: #9db0c8;
+
+            font-size: 10px;
+
+        }
+
+
+        .footer-links a:hover {
+
+            color: var(--green);
+
+        }
+
+
+        /* =================================================
+           MOBILE
+           ================================================= */
+
+        @media (max-width: 850px) {
+
+            #company-jobs-list {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .dashboard-main {
+
+                padding: 25px 0 55px;
+
+            }
+
+
+            .header-inner {
+
+                min-height: 64px;
+
+            }
+
+
+            .brand-subtitle {
+
+                display: none;
+
+            }
+
+
+            .header-button {
+
+                min-height: 37px;
+
+                padding: 8px 10px;
+
+                font-size: 10px;
+
+            }
+
+
+            .stats-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            #create-job-form {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
+            .form-group.full {
+
+                grid-column: auto;
+
+            }
+
+
+            .form-actions {
+
+                grid-column: auto;
+
+            }
+
+
+            .dashboard-section {
+
+                padding: 18px;
+
+            }
+
+
+            .welcome-card {
+
+                padding: 24px 20px;
+
+            }
+
+
+            .section-header {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+            }
+
+
+            .footer-inner {
+
+                flex-direction: column;
+
+                text-align: center;
+
+            }
+
+        }
+
+
+        @media (max-width: 430px) {
+
+            .container {
+
+                width: 94%;
+
+            }
+
+
+            .brand-title {
+
+                font-size: 14px;
+
+            }
+
+
+            .brand-icon {
+
+                width: 39px;
+
+                height: 39px;
+
+                flex-basis: 39px;
+
+            }
+
+
+            .header-actions {
+
+                gap: 5px;
+
+            }
+
+
+            .header-button {
+
+                padding: 7px 8px;
+
+            }
+
+        }
+
     </style>
+
 </head>
+
 
 <body>
 
-    <!-- LOADING STATE -->
+
+    <!-- =====================================================
+         LOADING
+         ===================================================== -->
+
     <div id="loading-spinner">
-        <h2>Authenticating account, please wait...</h2>
+
+        <div class="loading-box">
+
+            <div class="loading-icon">
+                ◈
+            </div>
+
+            <h2>
+                Authenticating Company Account
+            </h2>
+
+            <p>
+                Please wait...
+            </p>
+
+            <div class="loading-circle"></div>
+
+        </div>
+
     </div>
 
-    <!-- DASHBOARD CONTAINER -->
+
+    <!-- =====================================================
+         DASHBOARD
+         ===================================================== -->
+
     <div id="dashboard-content">
-        <h1>Company Dashboard</h1>
-        <p>Welcome back, <span id="company-name">Company</span>!</p>
-        <p>Email: <span id="company-email"></span></p>
+
+
+        <!-- =================================================
+             HEADER
+             ================================================= -->
+
+        <header class="dashboard-header">
+
+            <div class="container header-inner">
+
+
+                <a
+                    href="index.html"
+                    class="brand"
+                >
+
+                    <div class="brand-icon">
+                        ◈
+                    </div>
+
+                    <div>
+
+                        <div class="brand-title">
+                            Web3Jobs
+                        </div>
+
+                        <div class="brand-subtitle">
+                            Company Dashboard
+                        </div>
+
+                    </div>
+
+                </a>
+
+
+                <div class="header-actions">
+
+
+                    <a
+                        href="jobs.html"
+                        class="header-button"
+                    >
+                        Browse Jobs
+                    </a>
+
+
+                    <button
+                        type="button"
+                        id="company-logout"
+                        class="header-button logout-button"
+                        data-action="logout"
+                    >
+                        Logout
+                    </button>
+
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- =================================================
+             MAIN
+             ================================================= -->
+
+        <main class="dashboard-main">
+
+            <div class="container">
+
+
+                <!-- =========================================
+                     WELCOME
+                     ========================================= -->
+
+                <section class="welcome-card">
+
+                    <div class="welcome-label">
+                        COMPANY ACCOUNT
+                    </div>
+
+
+                    <h1>
+
+                        Welcome back,
+                        <span id="company-name">
+                            Company
+                        </span>
+
+                    </h1>
+
+
+                    <p>
+                        Manage your company and Web3 job opportunities.
+                    </p>
+
+
+                    <span id="company-email"></span>
+
+                </section>
+
+
+                <!-- =========================================
+                     STATISTICS
+                     ========================================= -->
+
+                <section class="stats-grid">
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-top">
+
+                            <span class="stat-label">
+                                Published Jobs
+                            </span>
+
+                            <div class="stat-icon">
+                                💼
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="total-jobs"
+                            class="stat-value"
+                            data-total-jobs
+                        >
+                            0
+                        </div>
+
+                    </article>
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-top">
+
+                            <span class="stat-label">
+                                Active Jobs
+                            </span>
+
+                            <div class="stat-icon">
+                                ⚡
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            id="active-jobs"
+                            class="stat-value"
+                            data-active-jobs
+                        >
+                            0
+                        </div>
+
+                    </article>
+
+
+                    <article class="stat-card">
+
+                        <div class="stat-top">
+
+                            <span class="stat-label">
+                                Account Status
+                            </span>
+
+                            <div class="stat-icon">
+                                ✓
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="stat-value"
+                            style="
+                                font-size:20px;
+                                color:#6ee7b7;
+                            "
+                        >
+                            Active
+                        </div>
+
+                    </article>
+
+
+                </section>
+
+
+                <!-- =========================================
+                     CREATE JOB
+                     ========================================= -->
+
+                <section class="dashboard-section">
+
+
+                    <div class="section-header">
+
+                        <div>
+
+                            <h2 class="section-title">
+                                Post a New Job
+                            </h2>
+
+                            <p class="section-description">
+                                Publish a new opportunity for Web3 professionals.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        id="create-job-form"
+                        class="create-job-form"
+                        data-create-job-form
+                    >
+
+
+                        <div class="form-group">
+
+                            <label for="job-title">
+                                Job Title
+                            </label>
+
+                            <input
+                                id="job-title"
+                                type="text"
+                                name="title"
+                                placeholder="Senior Solidity Developer"
+                                required
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="job-company">
+                                Company
+                            </label>
+
+                            <input
+                                id="job-company"
+                                type="text"
+                                name="company"
+                                placeholder="Company name"
+                                autocomplete="organization"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="job-location">
+                                Location
+                            </label>
+
+                            <input
+                                id="job-location"
+                                type="text"
+                                name="location"
+                                placeholder="Remote / London / New York"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="job-type">
+                                Job Type
+                            </label>
+
+                            <select
+                                id="job-type"
+                                name="type"
+                            >
+
+                                <option value="Full Time">
+                                    Full Time
+                                </option>
+
+                                <option value="Part Time">
+                                    Part Time
+                                </option>
+
+                                <option value="Remote">
+                                    Remote
+                                </option>
+
+                                <option value="Freelance">
+                                    Freelance
+                                </option>
+
+                                <option value="Internship">
+                                    Internship
+                                </option>
+
+                                <option value="Contract">
+                                    Contract
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="job-skills">
+                                Skills
+                            </label>
+
+                            <input
+                                id="job-skills"
+                                type="text"
+                                name="skills"
+                                placeholder="Solidity, React, Ethereum"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="job-salary">
+                                Salary
+                            </label>
+
+                            <input
+                                id="job-salary"
+                                type="text"
+                                name="salary"
+                                placeholder="$80k - $120k"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group full">
+
+                            <label for="job-application-url">
+                                Application URL
+                            </label>
+
+                            <input
+                                id="job-application-url"
+                                type="url"
+                                name="application_url"
+                                placeholder="https://example.com/apply"
+                                autocomplete="url"
+                            >
+
+                        </div>
+
+
+                        <div class="form-group full">
+
+                            <label for="job-description">
+                                Job Description
+                            </label>
+
+                            <textarea
+                                id="job-description"
+                                name="description"
+                                placeholder="Describe the role, responsibilities and requirements..."
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="form-actions">
+
+                            <button
+                                type="submit"
+                                class="primary-button"
+                            >
+                                Publish Job
+                            </button>
+
+                        </div>
+
+
+                    </form>
+
+                </section>
+
+
+                <!-- =========================================
+                     COMPANY JOBS
+                     ========================================= -->
+
+                <section class="dashboard-section">
+
+
+                    <div class="section-header">
+
+                        <div>
+
+                            <h2 class="section-title">
+                                Your Published Jobs
+                            </h2>
+
+                            <p class="section-description">
+                                Manage the jobs published by your company.
+                            </p>
+
+                        </div>
+
+
+                        <button
+                            type="button"
+                            class="primary-button"
+                            data-action="create-job"
+                        >
+                            + New Job
+                        </button>
+
+                    </div>
+
+
+                    <div
+                        id="company-jobs-list"
+                        class="company-jobs-list"
+                        data-company-jobs
+                    >
+
+                        <div class="no-company-jobs">
+
+                            <h3>
+                                Loading Jobs...
+                            </h3>
+
+                            <p>
+                                Please wait while your jobs are loaded.
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                </section>
+
+
+            </div>
+
+        </main>
+
+
+        <!-- =================================================
+             FOOTER
+             ================================================= -->
+
+        <footer class="dashboard-footer">
+
+            <div class="container footer-inner">
+
+
+                <div class="footer-text">
+                    © 2026 Web3Jobs. All rights reserved.
+                </div>
+
+
+                <div class="footer-links">
+
+                    <a href="index.html">
+                        Home
+                    </a>
+
+                    <a href="jobs.html">
+                        Jobs
+                    </a>
+
+                    <a href="companies.html">
+                        Companies
+                    </a>
+
+                </div>
+
+
+            </div>
+
+        </footer>
+
+
     </div>
 
-    <!-- AUTHENTICATION LOGIC -->
+
+    <!-- =====================================================
+         COMPANY AUTHENTICATION
+         ===================================================== -->
+
     <script>
+
         "use strict";
 
-        document.addEventListener("DOMContentLoaded", async function () {
-            const loadingSpinner = document.getElementById("loading-spinner");
-            const dashboardContent = document.getElementById("dashboard-content");
 
-            try {
-                // 1. Verify dependencies
-                if (!window.Web3JobsAuth || typeof window.Web3JobsAuth.protectCompanyDashboard !== "function") {
-                    throw new Error("Authentication system is not loaded.");
+        document.addEventListener(
+            "DOMContentLoaded",
+            async function () {
+
+
+                const loadingSpinner =
+                    document.getElementById(
+                        "loading-spinner"
+                    );
+
+
+                const dashboardContent =
+                    document.getElementById(
+                        "dashboard-content"
+                    );
+
+
+                try {
+
+
+                    /* -----------------------------------------
+                       CHECK AUTH SYSTEM
+                       ----------------------------------------- */
+
+                    if (
+                        !window.Web3JobsAuth ||
+                        typeof
+                        window.Web3JobsAuth
+                            .protectCompanyDashboard
+                        !== "function"
+                    ) {
+
+                        throw new Error(
+                            "Authentication system is not loaded."
+                        );
+
+                    }
+
+
+                    /* -----------------------------------------
+                       PROTECT COMPANY DASHBOARD
+                       ----------------------------------------- */
+
+                    const result =
+                        await
+                        window.Web3JobsAuth
+                            .protectCompanyDashboard();
+
+
+                    /* -----------------------------------------
+                       NOT LOGGED IN
+                       ----------------------------------------- */
+
+                    if (
+                        !result ||
+                        !result.authenticated
+                    ) {
+
+                        window.location.href =
+                            "login.html";
+
+                        return;
+
+                    }
+
+
+                    /* -----------------------------------------
+                       WRONG ACCOUNT TYPE
+                       ----------------------------------------- */
+
+                    if (
+                        String(
+                            result.accountType || ""
+                        )
+                        .trim()
+                        .toLowerCase()
+                        !==
+                        "company"
+                    ) {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                        return;
+
+                    }
+
+
+                    /* -----------------------------------------
+                       COMPANY NAME
+                       ----------------------------------------- */
+
+                    const nameElement =
+                        document.getElementById(
+                            "company-name"
+                        );
+
+
+                    if (
+                        nameElement &&
+                        result.user
+                    ) {
+
+                        const metadata =
+                            result.user
+                                .user_metadata || {};
+
+
+                        nameElement.textContent =
+                            metadata.company_name ||
+                            metadata.full_name ||
+                            metadata.name ||
+                            "Company";
+
+                    }
+
+
+                    /* -----------------------------------------
+                       COMPANY EMAIL
+                       ----------------------------------------- */
+
+                    const emailElement =
+                        document.getElementById(
+                            "company-email"
+                        );
+
+
+                    if (
+                        emailElement &&
+                        result.user
+                    ) {
+
+                        emailElement.textContent =
+                            result.user.email || "";
+
+                    }
+
+
+                    /* -----------------------------------------
+                       SHOW DASHBOARD
+                       ----------------------------------------- */
+
+                    if (loadingSpinner) {
+
+                        loadingSpinner.style.display =
+                            "none";
+
+                    }
+
+
+                    if (dashboardContent) {
+
+                        dashboardContent.style.display =
+                            "block";
+
+                    }
+
+
+                } catch (error) {
+
+
+                    console.error(
+                        "Company Dashboard Initialization Error:",
+                        error
+                    );
+
+
+                    if (loadingSpinner) {
+
+                        loadingSpinner.innerHTML = `
+                            <div class="loading-box">
+                                <div class="loading-icon">
+                                    !
+                                </div>
+
+                                <h2>
+                                    Unable to load dashboard
+                                </h2>
+
+                                <p>
+                                    Redirecting to login...
+                                </p>
+                            </div>
+                        `;
+
+                    }
+
+
+                    setTimeout(
+                        function () {
+
+                            window.location.href =
+                                "login.html";
+
+                        },
+                        1200
+                    );
+
                 }
 
-                // 2. Protect Route
-                const result = await window.Web3JobsAuth.protectCompanyDashboard();
-
-                if (!result || !result.authenticated) {
-                    console.warn("User not authenticated. Redirecting to login...");
-                    window.location.href = "login.html";
-                    return;
-                }
-
-                if (result.accountType !== "company") {
-                    console.warn("Account is not a company. Redirecting to individual dashboard...");
-                    window.location.href = "dashboard.html";
-                    return;
-                }
-
-                // 3. Render Profile Info safely
-                const emailElement = document.getElementById("company-email");
-                if (emailElement && result.user) {
-                    emailElement.textContent = result.user.email || "";
-                }
-
-                const nameElement = document.getElementById("company-name");
-                if (nameElement && result.user) {
-                    const metadata = result.user.user_metadata || {};
-                    nameElement.textContent = metadata.full_name || metadata.company_name || metadata.name || "Company";
-                }
-
-                // 4. Hide loading indicator and show main dashboard
-                if (loadingSpinner) loadingSpinner.style.display = "none";
-                if (dashboardContent) dashboardContent.style.display = "block";
-
-            } catch (error) {
-                console.error("Company Dashboard Initialization Error:", error);
-                
-                // Redirect gracefully on critical failure
-                setTimeout(function () {
-                    window.location.href = "login.html";
-                }, 1000);
             }
-        });
+        );
+
     </script>
+
 
 </body>
 
