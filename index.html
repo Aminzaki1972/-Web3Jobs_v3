@@ -25,38 +25,32 @@
         content="Web3Jobs"
     >
 
-    <title>
-        Web3Jobs - Find Your Future in Web3
-    </title>
-
+    <title>Web3Jobs - Find Your Future in Web3</title>
 
     <style>
 
         :root {
-            --bg:#06101d;
-            --bg2:#09182a;
-            --card:#0d1b2e;
-            --text:#f5f8ff;
-            --muted:#9db0c8;
-            --line:#1d3553;
-            --accent:#6ee7b7;
-            --blue:#60a5fa;
-            --danger:#fb7185;
-            --max-width:1180px;
+            --bg: #06101d;
+            --bg2: #09182a;
+            --card: #0d1b2e;
+            --text: #f5f8ff;
+            --muted: #9db0c8;
+            --line: #1d3553;
+            --accent: #6ee7b7;
+            --blue: #60a5fa;
+            --danger: #fb7185;
+            --max-width: 1180px;
         }
-
 
         * {
-            box-sizing:border-box;
-            margin:0;
-            padding:0;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-
 
         html {
-            scroll-behavior:smooth;
+            scroll-behavior: smooth;
         }
-
 
         body {
             background:
@@ -66,9 +60,7 @@
                     var(--bg2) 50%,
                     #07111f
                 );
-
-            color:var(--text);
-
+            color: var(--text);
             font-family:
                 Inter,
                 system-ui,
@@ -77,253 +69,168 @@
                 "Segoe UI",
                 Arial,
                 sans-serif;
-
-            line-height:1.5;
+            line-height: 1.5;
         }
-
 
         a {
-            color:inherit;
-            text-decoration:none;
+            color: inherit;
+            text-decoration: none;
         }
-
 
         button,
         input,
         select {
-            font:inherit;
+            font: inherit;
         }
-
 
         button {
-            cursor:pointer;
+            cursor: pointer;
         }
-
 
         .container {
-            width:min(
-                var(--max-width),
-                92%
-            );
-
-            margin:auto;
+            width: min(var(--max-width), 92%);
+            margin: auto;
         }
 
-
-        /* =========================
-           HEADER
-        ========================= */
+        /* HEADER */
 
         header {
-            position:sticky;
-            top:0;
-            z-index:1000;
-
-            background:rgba(6,16,29,.96);
-
-            border-bottom:1px solid var(--line);
-
-            backdrop-filter:blur(14px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(6, 16, 29, 0.96);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(14px);
         }
-
 
         .header-inner {
-            min-height:72px;
-
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-
-            gap:20px;
+            min-height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
         }
-
 
         .brand {
-            display:flex;
-            align-items:center;
-
-            gap:10px;
-
-            color:white;
-
-            font-size:21px;
-            font-weight:850;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+            font-size: 21px;
+            font-weight: 850;
         }
-
-
-        /* LOGO */
 
         .brand-logo-image {
-            width:46px;
-            height:46px;
-
-            object-fit:contain;
-
-            display:block;
-
-            border-radius:10px;
-
-            background:#071423;
-
-            border:1px solid #294563;
-
-            padding:2px;
+            width: 46px;
+            height: 46px;
+            object-fit: contain;
+            display: block;
+            border-radius: 10px;
+            background: #071423;
+            border: 1px solid #294563;
+            padding: 2px;
         }
-
 
         nav {
-            display:flex;
-            align-items:center;
-
-            gap:24px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
         }
-
 
         nav a {
-            color:#b9c9dc;
-
-            font-size:14px;
-
-            font-weight:650;
+            color: #b9c9dc;
+            font-size: 14px;
+            font-weight: 650;
         }
-
 
         nav a:hover {
-            color:var(--accent);
+            color: var(--accent);
         }
-
 
         .nav-buttons {
-            display:flex;
-            align-items:center;
-
-            gap:8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-
-        /* =========================
-           BUTTONS
-        ========================= */
+        /* BUTTONS */
 
         .btn {
-            display:inline-flex;
-
-            align-items:center;
-            justify-content:center;
-
-            gap:7px;
-
-            border:0;
-            border-radius:10px;
-
-            padding:11px 17px;
-
-            cursor:pointer;
-
-            font-size:13px;
-            font-weight:800;
-
-            transition:.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            border: 0;
+            border-radius: 10px;
+            padding: 11px 17px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 800;
+            transition: 0.2s;
         }
-
 
         .btn:hover {
-            transform:translateY(-2px);
+            transform: translateY(-2px);
         }
-
 
         .btn-primary {
-            background:var(--accent);
-
-            color:var(--bg);
+            background: var(--accent);
+            color: var(--bg);
         }
-
 
         .btn-secondary {
-            background:#13263e;
-
-            color:#eaf1f8;
-
-            border:1px solid #294563;
+            background: #13263e;
+            color: #eaf1f8;
+            border: 1px solid #294563;
         }
 
-
-        /* =========================
-           HERO
-        ========================= */
+        /* HERO */
 
         .hero {
-            position:relative;
-
-            overflow:hidden;
-
-            padding:100px 0 90px;
-
-            text-align:center;
+            position: relative;
+            overflow: hidden;
+            padding: 100px 0 90px;
+            text-align: center;
         }
 
-
         .hero::before {
-            content:"";
-
-            position:absolute;
-
-            width:520px;
-            height:520px;
-
-            left:50%;
-            top:20px;
-
-            transform:translateX(-50%);
-
+            content: "";
+            position: absolute;
+            width: 520px;
+            height: 520px;
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
             background:
                 radial-gradient(
                     circle,
-                    rgba(96,165,250,.12),
+                    rgba(96, 165, 250, 0.12),
                     transparent 68%
                 );
-
-            pointer-events:none;
+            pointer-events: none;
         }
-
 
         .hero-badge {
-            display:inline-flex;
-
-            align-items:center;
-
-            gap:8px;
-
-            padding:7px 12px;
-
-            margin-bottom:20px;
-
-            border:1px solid rgba(110,231,183,.2);
-
-            border-radius:999px;
-
-            background:rgba(110,231,183,.06);
-
-            color:var(--accent);
-
-            font-size:11px;
-
-            font-weight:800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(110, 231, 183, 0.2);
+            border-radius: 999px;
+            background: rgba(110, 231, 183, 0.06);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 800;
         }
-
 
         .hero h1 {
-            max-width:850px;
-
-            margin:0 auto 20px;
-
-            font-size:clamp(40px,7vw,72px);
-
-            line-height:1.05;
-
-            letter-spacing:-2px;
+            max-width: 850px;
+            margin: 0 auto 20px;
+            font-size: clamp(40px, 7vw, 72px);
+            line-height: 1.05;
+            letter-spacing: -2px;
         }
-
 
         .hero h1 span {
             background:
@@ -332,434 +239,278 @@
                     var(--accent),
                     var(--blue)
                 );
-
-            -webkit-background-clip:text;
-            background-clip:text;
-
-            color:transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
-
 
         .hero p {
-            max-width:700px;
-
-            margin:0 auto 30px;
-
-            color:var(--muted);
-
-            font-size:16px;
-
-            line-height:1.8;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            color: var(--muted);
+            font-size: 16px;
+            line-height: 1.8;
         }
-
 
         .hero-buttons {
-            display:flex;
-
-            justify-content:center;
-
-            flex-wrap:wrap;
-
-            gap:12px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-
-        /* =========================
-           SEARCH
-        ========================= */
+        /* SEARCH */
 
         .search-box {
-            position:relative;
-
-            z-index:5;
-
-            max-width:950px;
-
-            margin:-25px auto 60px;
-
-            padding:18px;
-
-            display:grid;
-
-            grid-template-columns:
-                1.5fr 1fr 1fr auto;
-
-            gap:10px;
-
-            background:var(--card);
-
-            border:1px solid var(--line);
-
-            border-radius:18px;
-
-            box-shadow:
-                0 20px 50px rgba(0,0,0,.2);
+            position: relative;
+            z-index: 5;
+            max-width: 950px;
+            margin: -25px auto 60px;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr auto;
+            gap: 10px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
         }
-
 
         .search-box input,
         .search-box select {
-            width:100%;
-
-            padding:13px;
-
-            border:1px solid #284563;
-
-            border-radius:10px;
-
-            outline:none;
-
-            background:#071423;
-
-            color:white;
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #284563;
+            border-radius: 10px;
+            outline: none;
+            background: #071423;
+            color: white;
         }
-
 
         .search-box input:focus,
         .search-box select:focus {
-            border-color:var(--blue);
+            border-color: var(--blue);
         }
 
-
-        /* =========================
-           JOBS
-        ========================= */
+        /* SECTIONS */
 
         .jobs-section {
-            padding:30px 0 90px;
+            padding: 30px 0 90px;
         }
-
-
-        .section-heading {
-            max-width:720px;
-
-            margin:0 auto 35px;
-
-            text-align:center;
-        }
-
-
-        .section-heading span {
-            display:block;
-
-            margin-bottom:10px;
-
-            color:var(--accent);
-
-            font-size:11px;
-
-            font-weight:850;
-
-            letter-spacing:1.8px;
-        }
-
-
-        .section-heading h2 {
-            margin-bottom:12px;
-
-            font-size:clamp(28px,4vw,42px);
-        }
-
-
-        .section-heading p {
-            color:var(--muted);
-
-            font-size:14px;
-
-            line-height:1.8;
-        }
-
-
-        #jobs-list {
-            display:grid;
-
-            grid-template-columns:
-                repeat(3,1fr);
-
-            gap:18px;
-        }
-
-
-        .job-card {
-            padding:22px;
-
-            background:var(--card);
-
-            border:1px solid var(--line);
-
-            border-radius:17px;
-
-            transition:.2s;
-        }
-
-
-        .job-card:hover {
-            transform:translateY(-4px);
-
-            border-color:#355979;
-        }
-
-
-        .job-card h3 {
-            margin-bottom:6px;
-
-            font-size:18px;
-        }
-
-
-        .job-company {
-            color:var(--accent);
-
-            font-size:13px;
-
-            font-weight:700;
-        }
-
-
-        .job-meta {
-            display:flex;
-
-            flex-wrap:wrap;
-
-            gap:8px;
-
-            margin:16px 0;
-        }
-
-
-        .job-meta span {
-            padding:5px 8px;
-
-            border:1px solid #244866;
-
-            border-radius:999px;
-
-            background:#122a43;
-
-            color:#9db0c8;
-
-            font-size:10px;
-        }
-
-
-        .job-description {
-            color:var(--muted);
-
-            font-size:12px;
-
-            line-height:1.7;
-
-            display:-webkit-box;
-
-            -webkit-line-clamp:4;
-
-            -webkit-box-orient:vertical;
-
-            overflow:hidden;
-        }
-
-
-        .job-card-actions {
-            margin-top:18px;
-        }
-
-
-        .job-view-button {
-            width:100%;
-
-            padding:11px;
-
-            border:0;
-
-            border-radius:9px;
-
-            background:var(--accent);
-
-            color:var(--bg);
-
-            font-weight:800;
-        }
-
-
-        .no-jobs {
-            grid-column:1/-1;
-
-            text-align:center;
-
-            padding:50px 20px;
-
-            border:1px dashed var(--line);
-
-            border-radius:17px;
-
-            background:rgba(13,27,46,.6);
-        }
-
-
-        .no-jobs h3 {
-            margin-bottom:8px;
-        }
-
-
-        .no-jobs p {
-            color:var(--muted);
-
-            font-size:13px;
-        }
-
-
-        /* =========================
-           FEATURES
-        ========================= */
 
         .section {
-            padding:90px 0;
+            padding: 90px 0;
         }
 
+        .section-heading {
+            max-width: 720px;
+            margin: 0 auto 35px;
+            text-align: center;
+        }
+
+        .section-heading span {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 850;
+            letter-spacing: 1.8px;
+        }
+
+        .section-heading h2 {
+            margin-bottom: 12px;
+            font-size: clamp(28px, 4vw, 42px);
+        }
+
+        .section-heading p {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* JOBS */
+
+        #jobs-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .job-card {
+            padding: 22px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            transition: 0.2s;
+        }
+
+        .job-card:hover {
+            transform: translateY(-4px);
+            border-color: #355979;
+        }
+
+        .job-card h3 {
+            margin-bottom: 6px;
+            font-size: 18px;
+        }
+
+        .job-company {
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .job-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 16px 0;
+        }
+
+        .job-meta span {
+            padding: 5px 8px;
+            border: 1px solid #244866;
+            border-radius: 999px;
+            background: #122a43;
+            color: #9db0c8;
+            font-size: 10px;
+        }
+
+        .job-description {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .job-card-actions {
+            margin-top: 18px;
+        }
+
+        .job-view-button {
+            width: 100%;
+            padding: 11px;
+            border: 0;
+            border-radius: 9px;
+            background: var(--accent);
+            color: var(--bg);
+            font-weight: 800;
+        }
+
+        .no-jobs {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 50px 20px;
+            border: 1px dashed var(--line);
+            border-radius: 17px;
+            background: rgba(13, 27, 46, 0.6);
+        }
+
+        .no-jobs h3 {
+            margin-bottom: 8px;
+        }
+
+        .no-jobs p {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* FEATURES */
 
         .features-grid {
-            display:grid;
-
-            grid-template-columns:
-                repeat(3,1fr);
-
-            gap:18px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
         }
-
 
         .feature-card {
-            padding:26px;
-
-            background:var(--card);
-
-            border:1px solid var(--line);
-
-            border-radius:17px;
+            padding: 26px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 17px;
         }
-
 
         .feature-icon {
-            width:48px;
-            height:48px;
-
-            display:grid;
-
-            place-items:center;
-
-            margin-bottom:18px;
-
-            border-radius:13px;
-
-            background:#122a43;
-
-            border:1px solid #294966;
-
-            font-size:22px;
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 18px;
+            border-radius: 13px;
+            background: #122a43;
+            border: 1px solid #294966;
+            font-size: 22px;
         }
-
 
         .feature-card h3 {
-            margin-bottom:8px;
-
-            font-size:18px;
+            margin-bottom: 8px;
+            font-size: 18px;
         }
-
 
         .feature-card p {
-            color:var(--muted);
-
-            font-size:12px;
-
-            line-height:1.7;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.7;
         }
 
-
-        /* =========================
-           STATS
-        ========================= */
+        /* STATS */
 
         .stats {
-            display:grid;
-
-            grid-template-columns:
-                repeat(4,1fr);
-
-            gap:15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
         }
-
 
         .stat {
-            padding:25px;
-
-            text-align:center;
-
-            background:var(--card);
-
-            border:1px solid var(--line);
-
-            border-radius:16px;
+            padding: 25px;
+            text-align: center;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
         }
-
 
         .stat strong {
-            display:block;
-
-            margin-bottom:5px;
-
-            font-size:30px;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 30px;
         }
-
 
         .stat span {
-            color:var(--muted);
-
-            font-size:11px;
+            color: var(--muted);
+            font-size: 11px;
         }
 
-
-        /* =========================
-           ROADMAP
-        ========================= */
+        /* ROADMAP */
 
         .roadmap {
-            padding:100px 0;
-
+            padding: 100px 0;
             background:
                 linear-gradient(
                     180deg,
-                    rgba(13,27,46,.45),
-                    rgba(7,17,31,.75)
+                    rgba(13, 27, 46, 0.45),
+                    rgba(7, 17, 31, 0.75)
                 );
-
-            border-top:1px solid rgba(29,53,83,.55);
-
-            border-bottom:1px solid rgba(29,53,83,.55);
+            border-top: 1px solid rgba(29, 53, 83, 0.55);
+            border-bottom: 1px solid rgba(29, 53, 83, 0.55);
         }
-
 
         .roadmap-timeline {
-            position:relative;
-
-            max-width:900px;
-
-            margin:auto;
+            position: relative;
+            max-width: 900px;
+            margin: auto;
         }
 
-
         .roadmap-timeline::before {
-            content:"";
-
-            position:absolute;
-
-            top:0;
-            bottom:0;
-
-            left:50%;
-
-            width:2px;
-
-            transform:translateX(-50%);
-
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            transform: translateX(-50%);
             background:
                 linear-gradient(
                     180deg,
@@ -767,195 +518,142 @@
                     var(--blue),
                     #1d3553
                 );
-
-            opacity:.55;
+            opacity: 0.55;
         }
-
 
         .roadmap-step {
-            position:relative;
-
-            display:grid;
-
-            grid-template-columns:1fr 1fr;
-
-            gap:70px;
-
-            min-height:190px;
+            position: relative;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 70px;
+            min-height: 190px;
         }
-
 
         .roadmap-step:nth-child(odd) {
-            text-align:right;
+            text-align: right;
         }
-
 
         .roadmap-step:nth-child(even) {
-            text-align:left;
+            text-align: left;
         }
 
-
         .roadmap-number {
-            position:absolute;
-
-            top:22px;
-
-            left:50%;
-
-            z-index:3;
-
-            width:48px;
-            height:48px;
-
-            display:grid;
-
-            place-items:center;
-
-            transform:translateX(-50%);
-
-            border:2px solid #294563;
-
-            border-radius:50%;
-
-            background:#0d1b2e;
-
-            color:#9db0c8;
-
-            font-size:11px;
-
-            font-weight:900;
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            z-index: 3;
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            transform: translateX(-50%);
+            border: 2px solid #294563;
+            border-radius: 50%;
+            background: #0d1b2e;
+            color: #9db0c8;
+            font-size: 11px;
+            font-weight: 900;
         }
 
-
-        .roadmap-step.active
-        .roadmap-number {
-            border-color:var(--accent);
-
+        .roadmap-step.active .roadmap-number {
+            border-color: var(--accent);
             background:
                 linear-gradient(
                     135deg,
                     var(--accent),
                     var(--blue)
                 );
-
-            color:#06101d;
+            color: #06101d;
         }
-
 
         .roadmap-content {
-            padding:22px;
-
-            border:1px solid var(--line);
-
-            border-radius:17px;
-
-            background:rgba(13,27,46,.88);
+            padding: 22px;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            background: rgba(13, 27, 46, 0.88);
         }
 
-
-        .roadmap-step:nth-child(odd)
-        .roadmap-content {
-            grid-column:1;
+        .roadmap-step:nth-child(odd) .roadmap-content {
+            grid-column: 1;
         }
 
-
-        .roadmap-step:nth-child(even)
-        .roadmap-content {
-            grid-column:2;
+        .roadmap-step:nth-child(even) .roadmap-content {
+            grid-column: 2;
         }
-
 
         .roadmap-status {
-            display:inline-block;
-
-            margin-bottom:8px;
-
-            padding:4px 8px;
-
-            border:1px solid rgba(96,165,250,.18);
-
-            border-radius:999px;
-
-            color:#8dbdf3;
-
-            font-size:8px;
-
-            font-weight:850;
+            display: inline-block;
+            margin-bottom: 8px;
+            padding: 4px 8px;
+            border: 1px solid rgba(96, 165, 250, 0.18);
+            border-radius: 999px;
+            color: #8dbdf3;
+            font-size: 8px;
+            font-weight: 850;
         }
 
-
-        .roadmap-step.active
-        .roadmap-status {
-            color:var(--accent);
+        .roadmap-step.active .roadmap-status {
+            color: var(--accent);
         }
-
 
         .roadmap-content h3 {
-            margin-bottom:8px;
-
-            font-size:18px;
+            margin-bottom: 8px;
+            font-size: 18px;
         }
-
 
         .roadmap-content p {
-            color:var(--muted);
-
-            font-size:11px;
-
-            line-height:1.7;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.7;
         }
 
+        /* SOCIAL */
 
-        .roadmap-tags {
-            display:flex;
-
-            flex-wrap:wrap;
-
-            gap:5px;
-
-            margin-top:14px;
+        .social-section {
+            padding: 70px 0;
+            border-top: 1px solid var(--line);
         }
 
-
-        .roadmap-step:nth-child(odd)
-        .roadmap-tags {
-            justify-content:flex-end;
+        .social-grid {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-
-        .roadmap-tags span {
-            padding:4px 7px;
-
-            border:1px solid #244866;
-
-            border-radius:999px;
-
-            background:#122a43;
-
-            color:#9db0c8;
-
-            font-size:8px;
+        .social-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 150px;
+            padding: 12px 18px;
+            background: #0d1b2e;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: #dce8f5;
+            font-size: 13px;
+            font-weight: 750;
+            transition: 0.2s;
         }
 
+        .social-link:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
 
-        /* =========================
-           CTA
-        ========================= */
+        /* CTA */
 
         .cta {
-            padding:100px 0;
-
-            text-align:center;
+            padding: 100px 0;
+            text-align: center;
         }
 
-
         .cta-box {
-            padding:55px 25px;
-
-            border:1px solid #294563;
-
-            border-radius:22px;
-
+            padding: 55px 25px;
+            border: 1px solid #294563;
+            border-radius: 22px;
             background:
                 linear-gradient(
                     135deg,
@@ -964,354 +662,202 @@
                 );
         }
 
-
         .cta-box h2 {
-            margin-bottom:13px;
-
-            font-size:clamp(28px,5vw,44px);
+            margin-bottom: 13px;
+            font-size: clamp(28px, 5vw, 44px);
         }
-
 
         .cta-box p {
-            max-width:650px;
-
-            margin:0 auto 25px;
-
-            color:var(--muted);
-
-            font-size:14px;
+            max-width: 650px;
+            margin: 0 auto 25px;
+            color: var(--muted);
+            font-size: 14px;
         }
 
-
-        /* =========================
-           SOCIAL MEDIA
-        ========================= */
-
-        .social-section {
-            padding:70px 0;
-
-            border-top:1px solid var(--line);
-        }
-
-
-        .social-grid {
-            display:flex;
-
-            justify-content:center;
-
-            flex-wrap:wrap;
-
-            gap:12px;
-        }
-
-
-        .social-link {
-            display:inline-flex;
-
-            align-items:center;
-
-            justify-content:center;
-
-            gap:8px;
-
-            min-width:150px;
-
-            padding:12px 18px;
-
-            background:#0d1b2e;
-
-            border:1px solid var(--line);
-
-            border-radius:12px;
-
-            color:#dce8f5;
-
-            font-size:13px;
-
-            font-weight:750;
-
-            transition:.2s;
-        }
-
-
-        .social-link:hover {
-            transform:translateY(-3px);
-
-            border-color:var(--accent);
-
-            color:var(--accent);
-        }
-
-
-        /* =========================
-           FOOTER
-        ========================= */
+        /* FOOTER */
 
         footer {
-            border-top:1px solid var(--line);
-
-            padding:35px 0;
+            border-top: 1px solid var(--line);
+            padding: 35px 0;
         }
-
 
         .footer-inner {
-            display:flex;
-
-            align-items:center;
-
-            justify-content:space-between;
-
-            gap:20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
         }
-
 
         .footer-text {
-            color:#71869e;
-
-            font-size:11px;
+            color: #71869e;
+            font-size: 11px;
         }
-
 
         .footer-links {
-            display:flex;
-
-            gap:18px;
-
-            flex-wrap:wrap;
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
         }
-
 
         .footer-links a {
-            color:#9db0c8;
-
-            font-size:11px;
+            color: #9db0c8;
+            font-size: 11px;
         }
 
+        /* MOBILE */
 
-        /* =========================
-           MOBILE
-        ========================= */
-
-        @media(max-width:900px) {
+        @media (max-width: 900px) {
 
             nav {
-                display:none;
+                display: none;
             }
-
 
             .features-grid {
-                grid-template-columns:
-                    repeat(2,1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
-
 
             .search-box {
-                grid-template-columns:
-                    1fr 1fr;
+                grid-template-columns: 1fr 1fr;
             }
-
 
             .search-box .btn {
-                grid-column:1/-1;
+                grid-column: 1 / -1;
             }
-
 
             #jobs-list {
-                grid-template-columns:
-                    repeat(2,1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
-
 
             .stats {
-                grid-template-columns:
-                    repeat(2,1fr);
+                grid-template-columns: repeat(2, 1fr);
             }
-
         }
 
-
-        @media(max-width:760px) {
+        @media (max-width: 760px) {
 
             .hero {
-                padding:75px 0 70px;
+                padding: 75px 0 70px;
             }
-
 
             .search-box {
-                grid-template-columns:1fr;
-
-                margin-top:-10px;
+                grid-template-columns: 1fr;
+                margin-top: -10px;
             }
-
 
             .search-box .btn {
-                grid-column:auto;
+                grid-column: auto;
             }
-
 
             .features-grid,
             #jobs-list {
-                grid-template-columns:1fr;
+                grid-template-columns: 1fr;
             }
-
 
             .roadmap {
-                padding:70px 0;
+                padding: 70px 0;
             }
-
 
             .roadmap-timeline {
-                padding-left:30px;
+                padding-left: 30px;
             }
-
 
             .roadmap-timeline::before {
-                left:10px;
+                left: 10px;
             }
-
 
             .roadmap-step {
-                display:block;
-
-                min-height:auto;
-
-                margin-bottom:20px;
-
-                padding-left:25px;
+                display: block;
+                min-height: auto;
+                margin-bottom: 20px;
+                padding-left: 25px;
             }
-
 
             .roadmap-step:nth-child(odd),
             .roadmap-step:nth-child(even) {
-                text-align:left;
+                text-align: left;
             }
-
 
             .roadmap-number {
-                left:10px;
-
-                width:42px;
-                height:42px;
+                left: 10px;
+                width: 42px;
+                height: 42px;
             }
 
-
-            .roadmap-step:nth-child(odd)
-            .roadmap-content,
-            .roadmap-step:nth-child(even)
-            .roadmap-content {
-                display:block;
-
-                width:100%;
+            .roadmap-step:nth-child(odd) .roadmap-content,
+            .roadmap-step:nth-child(even) .roadmap-content {
+                display: block;
+                width: 100%;
             }
-
-
-            .roadmap-step:nth-child(odd)
-            .roadmap-tags {
-                justify-content:flex-start;
-            }
-
 
             .footer-inner {
-                flex-direction:column;
-
-                text-align:center;
+                flex-direction: column;
+                text-align: center;
             }
-
         }
 
-
-        @media(max-width:520px) {
+        @media (max-width: 520px) {
 
             .stats {
-                grid-template-columns:1fr;
+                grid-template-columns: 1fr;
             }
-
 
             .hero h1 {
-                letter-spacing:-1px;
+                letter-spacing: -1px;
             }
-
 
             .hero-buttons {
-                flex-direction:column;
+                flex-direction: column;
             }
-
 
             .hero-buttons .btn {
-                width:100%;
+                width: 100%;
             }
-
 
             .nav-buttons .btn-secondary {
-                display:none;
+                display: none;
             }
-
 
             .social-link {
-                width:100%;
+                width: 100%;
             }
-
         }
 
     </style>
 
 </head>
 
-
 <body>
-
-
-<!-- =====================================================
-     HEADER
-===================================================== -->
 
 <header>
 
     <div class="container header-inner">
-
 
         <a
             href="index.html"
             class="brand"
         >
 
-            <!-- LOGO -->
-
             <img
-                <img
-    src="IMG_20260809_214500_497.jpg"
-    alt="Web3Jobs Logo"
-    class="brand-logo-image"
->
+                src="IMG_20260809_214500_497.jpg"
+                alt="Web3Jobs Logo"
+                class="brand-logo-image"
             >
 
-            <span>
-                Web3Jobs
-            </span>
+            <span>Web3Jobs</span>
 
         </a>
 
-
         <nav>
 
-            <a href="#home">
-                Home
-            </a>
+            <a href="#home">Home</a>
 
-            <a href="#jobs">
-                Jobs
-            </a>
+            <a href="#jobs">Jobs</a>
 
-            <a href="#features">
-                Features
-            </a>
+            <a href="#features">Features</a>
 
-            <a href="#roadmap">
-                Roadmap
-            </a>
+            <a href="#roadmap">Roadmap</a>
 
         </nav>
-
 
         <div class="nav-buttons">
 
@@ -1321,7 +867,6 @@
             >
                 Login
             </a>
-
 
             <a
                 href="signup.html"
@@ -1336,49 +881,30 @@
 
 </header>
 
-
-<!-- =====================================================
-     HERO
-===================================================== -->
-
 <main id="home">
-
 
     <section class="hero">
 
         <div class="container">
 
-
             <div class="hero-badge">
                 ✦ The Future of Web3 Careers
             </div>
 
-
             <h1>
-
                 Find Your Future
-
                 <br>
-
-                <span>
-                    in Web3
-                </span>
-
+                <span>in Web3</span>
             </h1>
 
-
             <p>
-
                 Discover Web3, blockchain and crypto
                 career opportunities. Connect with innovative
                 companies and build the future of the
                 decentralized world.
-
             </p>
 
-
             <div class="hero-buttons">
-
 
                 <a
                     href="#jobs"
@@ -1387,7 +913,6 @@
                     🔎 Explore Jobs
                 </a>
 
-
                 <a
                     href="signup.html"
                     class="btn btn-secondary"
@@ -1395,23 +920,15 @@
                     Create Account
                 </a>
 
-
             </div>
 
         </div>
 
     </section>
 
-
-<!-- =====================================================
-     SEARCH
-===================================================== -->
-
     <div class="container">
 
-
         <div class="search-box">
-
 
             <input
                 id="jobSearch"
@@ -1421,7 +938,6 @@
                 autocomplete="off"
             >
 
-
             <input
                 id="locationSearch"
                 type="search"
@@ -1429,12 +945,9 @@
                 autocomplete="off"
             >
 
-
             <select id="jobType">
 
-                <option value="">
-                    Any Job Type
-                </option>
+                <option value="">Any Job Type</option>
 
                 <option value="Full-time">
                     Full-time
@@ -1458,7 +971,6 @@
 
             </select>
 
-
             <button
                 type="button"
                 id="searchJobsButton"
@@ -1467,15 +979,9 @@
                 Search
             </button>
 
-
         </div>
 
     </div>
-
-
-<!-- =====================================================
-     JOBS
-===================================================== -->
 
     <section
         class="jobs-section"
@@ -1484,18 +990,15 @@
 
         <div class="container">
 
-
             <div class="section-heading">
 
                 <span>
                     LATEST OPPORTUNITIES
                 </span>
 
-
                 <h2>
                     Explore Web3 Jobs
                 </h2>
-
 
                 <p>
                     Discover the latest opportunities
@@ -1503,7 +1006,6 @@
                 </p>
 
             </div>
-
 
             <div
                 id="jobs-list"
@@ -1528,82 +1030,37 @@
 
     </section>
 
-
-<!-- =====================================================
-     STATS
-===================================================== -->
-
     <section class="section">
-
 
         <div class="container">
 
-
             <div class="stats">
 
-
                 <div class="stat">
-
-                    <strong>
-                        1K+
-                    </strong>
-
-                    <span>
-                        Web3 Opportunities
-                    </span>
-
+                    <strong>1K+</strong>
+                    <span>Web3 Opportunities</span>
                 </div>
 
-
                 <div class="stat">
-
-                    <strong>
-                        500+
-                    </strong>
-
-                    <span>
-                        Companies
-                    </span>
-
+                    <strong>500+</strong>
+                    <span>Companies</span>
                 </div>
 
-
                 <div class="stat">
-
-                    <strong>
-                        50+
-                    </strong>
-
-                    <span>
-                        Countries
-                    </span>
-
+                    <strong>50+</strong>
+                    <span>Countries</span>
                 </div>
 
-
                 <div class="stat">
-
-                    <strong>
-                        24/7
-                    </strong>
-
-                    <span>
-                        Global Opportunities
-                    </span>
-
+                    <strong>24/7</strong>
+                    <span>Global Opportunities</span>
                 </div>
-
 
             </div>
 
         </div>
 
     </section>
-
-
-<!-- =====================================================
-     FEATURES
-===================================================== -->
 
     <section
         class="section"
@@ -1612,19 +1069,14 @@
 
         <div class="container">
 
-
             <div class="section-heading">
 
-                <span>
-                    WHY WEB3JOBS
-                </span>
-
+                <span>WHY WEB3JOBS</span>
 
                 <h2>
                     Everything You Need
                     to Build Your Web3 Career
                 </h2>
-
 
                 <p>
                     A modern platform designed to connect
@@ -1634,15 +1086,11 @@
 
             </div>
 
-
             <div class="features-grid">
-
 
                 <div class="feature-card">
 
-                    <div class="feature-icon">
-                        🔎
-                    </div>
+                    <div class="feature-icon">🔎</div>
 
                     <h3>
                         Discover Opportunities
@@ -1656,12 +1104,9 @@
 
                 </div>
 
-
                 <div class="feature-card">
 
-                    <div class="feature-icon">
-                        👤
-                    </div>
+                    <div class="feature-icon">👤</div>
 
                     <h3>
                         Professional Profiles
@@ -1674,12 +1119,9 @@
 
                 </div>
 
-
                 <div class="feature-card">
 
-                    <div class="feature-icon">
-                        🏢
-                    </div>
+                    <div class="feature-icon">🏢</div>
 
                     <h3>
                         Connect With Companies
@@ -1692,12 +1134,9 @@
 
                 </div>
 
-
                 <div class="feature-card">
 
-                    <div class="feature-icon">
-                        🔖
-                    </div>
+                    <div class="feature-icon">🔖</div>
 
                     <h3>
                         Save Opportunities
@@ -1710,12 +1149,9 @@
 
                 </div>
 
-
                 <div class="feature-card">
 
-                    <div class="feature-icon">
-                        🎯
-                    </div>
+                    <div class="feature-icon">🎯</div>
 
                     <h3>
                         Smart Recruitment
@@ -1728,12 +1164,9 @@
 
                 </div>
 
-
                 <div class="feature-card">
 
-                    <div class="feature-icon">
-                        🌎
-                    </div>
+                    <div class="feature-icon">🌎</div>
 
                     <h3>
                         Global Web3 Community
@@ -1746,17 +1179,11 @@
 
                 </div>
 
-
             </div>
 
         </div>
 
     </section>
-
-
-<!-- =====================================================
-     ROADMAP
-===================================================== -->
 
     <section
         class="roadmap"
@@ -1765,19 +1192,14 @@
 
         <div class="container">
 
-
             <div class="section-heading">
 
-                <span>
-                    OUR ROADMAP
-                </span>
-
+                <span>OUR ROADMAP</span>
 
                 <h2>
                     Building the Future
                     of Web3 Careers
                 </h2>
-
 
                 <p>
                     Our roadmap outlines the evolution
@@ -1786,15 +1208,11 @@
 
             </div>
 
-
             <div class="roadmap-timeline">
-
 
                 <div class="roadmap-step active">
 
-                    <div class="roadmap-number">
-                        01
-                    </div>
+                    <div class="roadmap-number">01</div>
 
                     <div class="roadmap-content">
 
@@ -1802,9 +1220,7 @@
                             CURRENT
                         </span>
 
-                        <h3>
-                            Foundation
-                        </h3>
+                        <h3>Foundation</h3>
 
                         <p>
                             Launch the core Web3Jobs platform
@@ -1815,12 +1231,9 @@
 
                 </div>
 
-
                 <div class="roadmap-step">
 
-                    <div class="roadmap-number">
-                        02
-                    </div>
+                    <div class="roadmap-number">02</div>
 
                     <div class="roadmap-content">
 
@@ -1828,9 +1241,7 @@
                             NEXT
                         </span>
 
-                        <h3>
-                            Profiles
-                        </h3>
+                        <h3>Profiles</h3>
 
                         <p>
                             Build powerful profiles for
@@ -1841,12 +1252,9 @@
 
                 </div>
 
-
                 <div class="roadmap-step">
 
-                    <div class="roadmap-number">
-                        03
-                    </div>
+                    <div class="roadmap-number">03</div>
 
                     <div class="roadmap-content">
 
@@ -1854,9 +1262,7 @@
                             PLANNED
                         </span>
 
-                        <h3>
-                            Smart Dashboards
-                        </h3>
+                        <h3>Smart Dashboards</h3>
 
                         <p>
                             Introduce dashboards that adapt
@@ -1867,12 +1273,9 @@
 
                 </div>
 
-
                 <div class="roadmap-step">
 
-                    <div class="roadmap-number">
-                        04
-                    </div>
+                    <div class="roadmap-number">04</div>
 
                     <div class="roadmap-content">
 
@@ -1880,9 +1283,7 @@
                             PLANNED
                         </span>
 
-                        <h3>
-                            Recruitment System
-                        </h3>
+                        <h3>Recruitment System</h3>
 
                         <p>
                             Connect companies with qualified
@@ -1893,12 +1294,9 @@
 
                 </div>
 
-
                 <div class="roadmap-step">
 
-                    <div class="roadmap-number">
-                        05
-                    </div>
+                    <div class="roadmap-number">05</div>
 
                     <div class="roadmap-content">
 
@@ -1906,9 +1304,7 @@
                             PLANNED
                         </span>
 
-                        <h3>
-                            Web3 Features
-                        </h3>
+                        <h3>Web3 Features</h3>
 
                         <p>
                             Add blockchain skills, ecosystems
@@ -1919,12 +1315,9 @@
 
                 </div>
 
-
                 <div class="roadmap-step">
 
-                    <div class="roadmap-number">
-                        06
-                    </div>
+                    <div class="roadmap-number">06</div>
 
                     <div class="roadmap-content">
 
@@ -1932,9 +1325,7 @@
                             PLANNED
                         </span>
 
-                        <h3>
-                            Trust & Verification
-                        </h3>
+                        <h3>Trust & Verification</h3>
 
                         <p>
                             Improve company verification,
@@ -1945,12 +1336,9 @@
 
                 </div>
 
-
                 <div class="roadmap-step">
 
-                    <div class="roadmap-number">
-                        07
-                    </div>
+                    <div class="roadmap-number">07</div>
 
                     <div class="roadmap-content">
 
@@ -1958,9 +1346,7 @@
                             PLANNED
                         </span>
 
-                        <h3>
-                            Global Expansion
-                        </h3>
+                        <h3>Global Expansion</h3>
 
                         <p>
                             Expand with multilingual support
@@ -1971,12 +1357,9 @@
 
                 </div>
 
-
                 <div class="roadmap-step">
 
-                    <div class="roadmap-number">
-                        08
-                    </div>
+                    <div class="roadmap-number">08</div>
 
                     <div class="roadmap-content">
 
@@ -1984,9 +1367,7 @@
                             FUTURE
                         </span>
 
-                        <h3>
-                            Monetization
-                        </h3>
+                        <h3>Monetization</h3>
 
                         <p>
                             Introduce sustainable premium
@@ -1997,12 +1378,9 @@
 
                 </div>
 
-
                 <div class="roadmap-step">
 
-                    <div class="roadmap-number">
-                        09
-                    </div>
+                    <div class="roadmap-number">09</div>
 
                     <div class="roadmap-content">
 
@@ -2010,9 +1388,7 @@
                             VISION
                         </span>
 
-                        <h3>
-                            Web3Jobs Ecosystem
-                        </h3>
+                        <h3>Web3Jobs Ecosystem</h3>
 
                         <p>
                             Transform Web3Jobs into a global
@@ -2023,34 +1399,23 @@
 
                 </div>
 
-
             </div>
 
         </div>
 
     </section>
 
-
-<!-- =====================================================
-     SOCIAL MEDIA
-===================================================== -->
-
     <section class="social-section">
 
         <div class="container">
 
-
             <div class="section-heading">
 
-                <span>
-                    CONNECT WITH WEB3JOBS
-                </span>
-
+                <span>CONNECT WITH WEB3JOBS</span>
 
                 <h2>
                     Join Our Community
                 </h2>
-
 
                 <p>
                     Follow Web3Jobs and stay connected
@@ -2059,9 +1424,7 @@
 
             </div>
 
-
             <div class="social-grid">
-
 
                 <a
                     class="social-link"
@@ -2072,7 +1435,6 @@
                     ✈️ Telegram
                 </a>
 
-
                 <a
                     class="social-link"
                     href="https://whatsapp.com/channel/0029Vb8kCXR5q08ftEh9Dc1u"
@@ -2081,7 +1443,6 @@
                 >
                     💬 WhatsApp
                 </a>
-
 
                 <a
                     class="social-link"
@@ -2092,7 +1453,6 @@
                     𝕏 X / Twitter
                 </a>
 
-
                 <a
                     class="social-link"
                     href="https://www.linkedin.com/me?trk=p_mwlite_feed-secondary_nav"
@@ -2102,30 +1462,21 @@
                     💼 LinkedIn
                 </a>
 
-
             </div>
 
         </div>
 
     </section>
 
-
-<!-- =====================================================
-     CTA
-===================================================== -->
-
     <section class="cta">
 
         <div class="container">
 
-
             <div class="cta-box">
-
 
                 <h2>
                     Build Your Future in Web3
                 </h2>
-
 
                 <p>
                     Whether you are looking for your next
@@ -2134,9 +1485,7 @@
                     right people.
                 </p>
 
-
                 <div class="hero-buttons">
-
 
                     <a
                         href="signup.html"
@@ -2145,7 +1494,6 @@
                         Get Started
                     </a>
 
-
                     <a
                         href="#jobs"
                         class="btn btn-secondary"
@@ -2153,9 +1501,7 @@
                         Explore Jobs
                     </a>
 
-
                 </div>
-
 
             </div>
 
@@ -2163,48 +1509,27 @@
 
     </section>
 
-
 </main>
-
-
-<!-- =====================================================
-     FOOTER
-===================================================== -->
 
 <footer>
 
     <div class="container footer-inner">
 
-
         <div class="footer-text">
-
-            © 2026 Web3Jobs.
-            All rights reserved.
-
+            © 2026 Web3Jobs. All rights reserved.
         </div>
-
 
         <div class="footer-links">
 
-            <a href="#home">
-                Home
-            </a>
+            <a href="#home">Home</a>
 
-            <a href="#jobs">
-                Jobs
-            </a>
+            <a href="#jobs">Jobs</a>
 
-            <a href="#features">
-                Features
-            </a>
+            <a href="#features">Features</a>
 
-            <a href="#roadmap">
-                Roadmap
-            </a>
+            <a href="#roadmap">Roadmap</a>
 
-            <a href="login.html">
-                Login
-            </a>
+            <a href="login.html">Login</a>
 
         </div>
 
@@ -2212,32 +1537,23 @@
 
 </footer>
 
-
-<!-- =====================================================
-     SUPABASE
-===================================================== -->
+<!-- SUPABASE -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ></script>
 
-
-<!-- =====================================================
-     WEB3JOBS JAVASCRIPT
-===================================================== -->
+<!-- WEB3JOBS JAVASCRIPT -->
 
 <script src="js/app.js"></script>
-
 <script src="js/auth.js"></script>
-
 <script src="js/jobs.js"></script>
 
-
-<!-- =====================================================
-     INDEX SEARCH CONTROLLER
-===================================================== -->
+<!-- INDEX SEARCH -->
 
 <script>
+
+"use strict";
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -2248,102 +1564,85 @@ document.addEventListener(
                 "searchJobsButton"
             );
 
-
         const jobSearch =
             document.getElementById(
                 "jobSearch"
             );
-
 
         const locationSearch =
             document.getElementById(
                 "locationSearch"
             );
 
-
         const jobType =
             document.getElementById(
                 "jobType"
             );
 
-
         function performSearch() {
 
             const keyword =
-                (
-                    jobSearch?.value ||
-                    ""
+                String(
+                    jobSearch?.value || ""
                 )
                 .trim()
                 .toLowerCase();
-
 
             const location =
-                (
-                    locationSearch?.value ||
-                    ""
+                String(
+                    locationSearch?.value || ""
                 )
                 .trim()
                 .toLowerCase();
-
 
             const type =
-                (
-                    jobType?.value ||
-                    ""
+                String(
+                    jobType?.value || ""
                 )
                 .trim()
                 .toLowerCase();
 
+            let results = [];
 
-            let results =
+            if (
+                window.JobsSystem &&
                 Array.isArray(
-                    window.JobsSystem?.jobs
+                    window.JobsSystem.jobs
                 )
-                    ? window.JobsSystem.jobs
-                    : [];
-
+            ) {
+                results =
+                    window.JobsSystem.jobs;
+            }
 
             results =
                 results.filter(
-                    job => {
+                    function (job) {
 
                         const text = [
-
                             job.title,
-
                             job.company,
-
-                            job.description
-
+                            job.description,
+                            job.skills
                         ]
                             .filter(Boolean)
                             .join(" ")
                             .toLowerCase();
 
-
                         const jobLocation =
                             String(
-                                job.location ||
-                                ""
+                                job.location || ""
                             )
                             .toLowerCase();
-
 
                         const jobTypeValue =
                             String(
-                                job.type ||
-                                ""
+                                job.type || ""
                             )
                             .toLowerCase();
 
-
                         const keywordMatch =
                             !keyword ||
-                            text.includes(
-                                keyword
-                            );
-
+                            text.includes(keyword);
 
                         const locationMatch =
                             !location ||
@@ -2351,34 +1650,33 @@ document.addEventListener(
                                 location
                             );
 
-
                         const typeMatch =
                             !type ||
                             jobTypeValue.includes(
                                 type
                             );
 
-
                         return (
                             keywordMatch &&
                             locationMatch &&
                             typeMatch
                         );
-
                     }
                 );
 
+            if (
+                window.JobsSystem
+            ) {
+                window.JobsSystem.filteredJobs =
+                    results;
+            }
 
             if (
                 window.Web3JobsJobs &&
                 typeof
-                window.Web3JobsJobs.renderAllJobs
-                === "function"
+                window.Web3JobsJobs.renderAllJobs ===
+                "function"
             ) {
-
-                window.JobsSystem.filteredJobs =
-                    results;
-
 
                 window.Web3JobsJobs.renderAllJobs(
                     results
@@ -2386,36 +1684,44 @@ document.addEventListener(
 
             }
 
+            const jobsSection =
+                document.getElementById("jobs");
 
-            document
-                .getElementById("jobs")
-                ?.scrollIntoView({
-                    behavior:"smooth"
+            if (jobsSection) {
+
+                jobsSection.scrollIntoView({
+                    behavior: "smooth"
                 });
+
+            }
 
         }
 
+        if (searchButton) {
 
-        searchButton?.addEventListener(
-            "click",
-            performSearch
-        );
+            searchButton.addEventListener(
+                "click",
+                performSearch
+            );
 
+        }
 
         [
             jobSearch,
             locationSearch
-        ]
-        .forEach(
-            input => {
+        ].forEach(
+            function (input) {
 
-                input?.addEventListener(
+                if (!input) {
+                    return;
+                }
+
+                input.addEventListener(
                     "keydown",
-                    event => {
+                    function (event) {
 
                         if (
-                            event.key ===
-                            "Enter"
+                            event.key === "Enter"
                         ) {
 
                             event.preventDefault();
@@ -2430,18 +1736,20 @@ document.addEventListener(
             }
         );
 
+        if (jobType) {
 
-        jobType?.addEventListener(
-            "change",
-            performSearch
-        );
+            jobType.addEventListener(
+                "change",
+                performSearch
+            );
+
+        }
 
     }
 );
 
 </script>
 
-
 </body>
 
-    </html>
+</html>
