@@ -12,10 +12,10 @@
    ========================================================= */
 
 const SUPABASE_URL =
-    "https://uewocyaspztybnvnkbmo.supabase.co";
+    "https://jqhemwskrnlycximjpag.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_ap9UMOBhdHdIkW0FCD25nA_NurNviS0";
+    "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
 
 
 /* =========================================================
