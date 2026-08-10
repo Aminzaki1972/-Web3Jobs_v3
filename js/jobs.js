@@ -117,7 +117,10 @@ function jobsEscapeHTML(value) {
    NORMALIZE VALUE
    ========================================================= */
 
-function jobsValue(value, fallback = "") {
+function jobsValue(
+    value,
+    fallback = ""
+) {
 
     if (
         value === null ||
@@ -188,10 +191,6 @@ async function jobsGetCurrentUser() {
 
         if (error) {
 
-            /*
-             * A missing session is not a fatal error.
-             */
-
             JobsSystem.currentUser =
                 null;
 
@@ -230,6 +229,11 @@ async function loadAllJobs() {
     if (!jobsSupabase) {
 
         if (!initializeJobsSupabase()) {
+
+            showJobsError(
+                "Supabase is not available."
+            );
+
             return [];
         }
     }
@@ -242,7 +246,9 @@ async function loadAllJobs() {
         } =
             await jobsSupabase
                 .from("jobs")
-                .select("*")
+                .select(
+                    "id,title,company,location,type,description,skills,salary,application_url,company_id,created_at,updated_at"
+                )
                 .order(
                     "created_at",
                     {
@@ -257,10 +263,27 @@ async function loadAllJobs() {
                 error
             );
 
+            console.error(
+                "Web3Jobs: Error message:",
+                error.message
+            );
+
+            console.error(
+                "Web3Jobs: Error details:",
+                error.details
+            );
+
+            console.error(
+                "Web3Jobs: Error hint:",
+                error.hint
+            );
+
             JobsSystem.jobs = [];
+
             JobsSystem.filteredJobs = [];
 
             showJobsError(
+                error.message ||
                 "Unable to load jobs."
             );
 
@@ -284,7 +307,13 @@ async function loadAllJobs() {
         );
 
         JobsSystem.jobs = [];
+
         JobsSystem.filteredJobs = [];
+
+        showJobsError(
+            error.message ||
+            "Unable to load jobs."
+        );
 
         return [];
     }
@@ -346,6 +375,14 @@ function createJobCard(job) {
             )
         );
 
+    const salary =
+        jobsEscapeHTML(
+            jobsValue(
+                job.salary,
+                ""
+            )
+        );
+
     const date =
         jobsFormatDate(
             job.created_at
@@ -382,6 +419,16 @@ function createJobCard(job) {
                 <span class="job-type">
                     💼 ${type}
                 </span>
+
+                ${
+                    salary
+                        ? `
+                            <span class="job-salary">
+                                💰 ${salary}
+                            </span>
+                        `
+                        : ""
+                }
 
                 ${
                     date
@@ -537,10 +584,6 @@ function applyJobsFilters() {
             .toLowerCase();
 
 
-    /*
-     * Search
-     */
-
     if (keyword) {
 
         result =
@@ -557,7 +600,11 @@ function applyJobsFilters() {
 
                         job.type,
 
-                        job.description
+                        job.description,
+
+                        job.skills,
+
+                        job.salary
 
                     ]
                         .filter(
@@ -575,10 +622,6 @@ function applyJobsFilters() {
     }
 
 
-    /*
-     * Type
-     */
-
     if (type) {
 
         result =
@@ -592,10 +635,6 @@ function applyJobsFilters() {
             );
     }
 
-
-    /*
-     * Location
-     */
 
     if (location) {
 
@@ -626,7 +665,9 @@ function applyJobsFilters() {
    SEARCH JOBS
    ========================================================= */
 
-function searchJobs(query = "") {
+function searchJobs(
+    query = ""
+) {
 
     JobsSystem.searchQuery =
         String(query || "");
@@ -639,7 +680,9 @@ function searchJobs(query = "") {
    FILTER BY TYPE
    ========================================================= */
 
-function filterJobsByType(type = "") {
+function filterJobsByType(
+    type = ""
+) {
 
     JobsSystem.typeFilter =
         String(type || "");
@@ -669,11 +712,14 @@ function filterJobsByLocation(
 
 function clearJobFilters() {
 
-    JobsSystem.searchQuery = "";
+    JobsSystem.searchQuery =
+        "";
 
-    JobsSystem.typeFilter = "";
+    JobsSystem.typeFilter =
+        "";
 
-    JobsSystem.locationFilter = "";
+    JobsSystem.locationFilter =
+        "";
 
     return applyJobsFilters();
 }
@@ -706,7 +752,9 @@ function getJobById(jobId) {
    LOAD SINGLE JOB
    ========================================================= */
 
-async function loadJobById(jobId) {
+async function loadJobById(
+    jobId
+) {
 
     if (
         jobId === null ||
@@ -731,7 +779,9 @@ async function loadJobById(jobId) {
         } =
             await jobsSupabase
                 .from("jobs")
-                .select("*")
+                .select(
+                    "id,title,company,location,type,description,skills,salary,application_url,company_id,created_at,updated_at"
+                )
                 .eq(
                     "id",
                     jobId
@@ -743,6 +793,11 @@ async function loadJobById(jobId) {
             console.error(
                 "Web3Jobs: Unable to load job:",
                 error
+            );
+
+            showJobsError(
+                error.message ||
+                "Unable to load job."
             );
 
             return null;
@@ -882,7 +937,9 @@ function createJobsModal() {
    SHOW JOB DETAILS
    ========================================================= */
 
-function showJobDetails(job) {
+function showJobDetails(
+    job
+) {
 
     if (!job) {
 
@@ -953,6 +1010,28 @@ function showJobDetails(job) {
             )
         );
 
+    const skills =
+        jobsEscapeHTML(
+            jobsValue(
+                job.skills,
+                ""
+            )
+        );
+
+    const salary =
+        jobsEscapeHTML(
+            jobsValue(
+                job.salary,
+                ""
+            )
+        );
+
+    const applicationURL =
+        jobsValue(
+            job.application_url,
+            ""
+        );
+
     const date =
         jobsFormatDate(
             job.created_at
@@ -989,6 +1068,32 @@ function showJobDetails(job) {
             </p>
 
             ${
+                salary
+                    ? `
+                        <p>
+                            <strong>
+                                Salary:
+                            </strong>
+                            ${salary}
+                        </p>
+                    `
+                    : ""
+            }
+
+            ${
+                skills
+                    ? `
+                        <p>
+                            <strong>
+                                Skills:
+                            </strong>
+                            ${skills}
+                        </p>
+                    `
+                    : ""
+            }
+
+            ${
                 date
                     ? `
                         <p>
@@ -1015,14 +1120,27 @@ function showJobDetails(job) {
 
         <div class="job-application-area">
 
-            <button
-                type="button"
-                id="job-apply-button"
-                class="job-apply-button"
-                data-job-id="${jobsEscapeHTML(job.id)}"
-            >
-                Apply Now
-            </button>
+            ${
+                applicationURL
+                    ? `
+                        <button
+                            type="button"
+                            id="job-apply-button"
+                            class="job-apply-button"
+                        >
+                            Apply Now
+                        </button>
+                    `
+                    : `
+                        <button
+                            type="button"
+                            id="job-apply-button"
+                            class="job-apply-button"
+                        >
+                            Apply Now
+                        </button>
+                    `
+            }
 
         </div>
 
@@ -1040,6 +1158,20 @@ function showJobDetails(job) {
         applyButton.addEventListener(
             "click",
             async () => {
+
+                if (applicationURL) {
+
+                    const opened =
+                        window.open(
+                            applicationURL,
+                            "_blank",
+                            "noopener,noreferrer"
+                        );
+
+                    if (opened) {
+                        return;
+                    }
+                }
 
                 applyButton.disabled =
                     true;
@@ -1102,7 +1234,9 @@ function closeJobDetails() {
    APPLY FOR JOB
    ========================================================= */
 
-async function applyForJob(jobId) {
+async function applyForJob(
+    jobId
+) {
 
     if (
         jobId === null ||
@@ -1161,14 +1295,6 @@ async function applyForJob(jobId) {
 
     try {
 
-        /*
-         * Check if this user already applied.
-         *
-         * limit(1) is used instead of maybeSingle()
-         * so duplicate database rows do not break
-         * the check.
-         */
-
         const {
             data: existingApplications,
             error: checkError
@@ -1195,6 +1321,7 @@ async function applyForJob(jobId) {
             );
 
             showJobsMessage(
+                checkError.message ||
                 "Unable to verify your application.",
                 "error"
             );
@@ -1218,10 +1345,6 @@ async function applyForJob(jobId) {
             return false;
         }
 
-
-        /*
-         * Insert application.
-         */
 
         const {
             data,
@@ -1249,12 +1372,6 @@ async function applyForJob(jobId) {
                 error
             );
 
-
-            /*
-             * Handle duplicate constraint
-             * even if database protection exists.
-             */
-
             if (
                 String(
                     error.code || ""
@@ -1271,6 +1388,7 @@ async function applyForJob(jobId) {
 
 
             showJobsMessage(
+                error.message ||
                 "Unable to submit application.",
                 "error"
             );
@@ -1280,12 +1398,6 @@ async function applyForJob(jobId) {
 
 
         if (!data) {
-
-            /*
-             * Some RLS configurations may allow
-             * insert without returning the row.
-             * The insert itself succeeded if no error.
-             */
 
             console.log(
                 "Web3Jobs: Application submitted."
@@ -1311,12 +1423,11 @@ async function applyForJob(jobId) {
             error
         );
 
-
         showJobsMessage(
+            error.message ||
             "An unexpected error occurred.",
             "error"
         );
-
 
         return false;
     }
@@ -1377,39 +1488,52 @@ async function createJob(
         const insertData = {
 
             title:
-
                 title,
 
             company:
-
                 jobsValue(
                     jobData.company,
                     ""
                 ),
 
             location:
-
                 jobsValue(
                     jobData.location,
                     "Remote"
                 ),
 
             type:
-
                 jobsValue(
                     jobData.type,
                     "Full Time"
                 ),
 
             description:
-
                 jobsValue(
                     jobData.description,
                     ""
                 ),
 
-            created_by:
+            skills:
+                jobsValue(
+                    jobData.skills,
+                    ""
+                ),
 
+            salary:
+                jobsValue(
+                    jobData.salary,
+                    ""
+                ),
+
+            application_url:
+                jobsValue(
+                    jobData.application_url ||
+                    jobData.apply_link,
+                    ""
+                ),
+
+            company_id:
                 user.id
 
         };
@@ -1435,20 +1559,15 @@ async function createJob(
                 error
             );
 
-
             showJobsMessage(
+                error.message ||
                 "Unable to publish job.",
                 "error"
             );
 
-
             return null;
         }
 
-
-        /*
-         * Update local state.
-         */
 
         if (data) {
 
@@ -1477,6 +1596,7 @@ async function createJob(
         );
 
         showJobsMessage(
+            error.message ||
             "Unable to publish job.",
             "error"
         );
@@ -1490,7 +1610,9 @@ async function createJob(
    DELETE JOB
    ========================================================= */
 
-async function deleteJob(jobId) {
+async function deleteJob(
+    jobId
+) {
 
     if (
         jobId === null ||
@@ -1549,7 +1671,7 @@ async function deleteJob(jobId) {
                     jobId
                 )
                 .eq(
-                    "created_by",
+                    "company_id",
                     user.id
                 );
 
@@ -1561,12 +1683,11 @@ async function deleteJob(jobId) {
                 error
             );
 
-
             showJobsMessage(
+                error.message ||
                 "Unable to delete job.",
                 "error"
             );
-
 
             return false;
         }
@@ -1598,12 +1719,11 @@ async function deleteJob(jobId) {
             error
         );
 
-
         showJobsMessage(
+            error.message ||
             "Unable to delete job.",
             "error"
         );
-
 
         return false;
     }
@@ -2005,16 +2125,8 @@ async function initializeJobs() {
     }
 
 
-    /*
-     * Get current authenticated user.
-     */
-
     await jobsGetCurrentUser();
 
-
-    /*
-     * Initialize UI.
-     */
 
     initializeJobsSearch();
 
@@ -2022,11 +2134,6 @@ async function initializeJobs() {
 
     initializeJobsKeyboard();
 
-
-    /*
-     * Load jobs only when
-     * a jobs container exists.
-     */
 
     const jobsContainer =
         findJobsContainer();
@@ -2107,4 +2214,5 @@ if (
 } else {
 
     initializeJobs();
-           }
+
+}
