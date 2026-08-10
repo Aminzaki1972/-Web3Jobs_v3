@@ -2,33 +2,12 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="Web3Jobs - Discover Web3, blockchain and crypto career opportunities."
-    >
-
-    <meta
-        name="keywords"
-        content="Web3 jobs, blockchain jobs, crypto jobs, remote Web3 jobs"
-    >
-
-    <meta
-        name="author"
-        content="Web3Jobs"
-    >
-
-    <title>Web3Jobs - Find Your Future in Web3</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web3Jobs - Login to your Web3Jobs account.">
+    <title>Login - Web3Jobs</title>
 
     <style>
-
         :root {
             --bg: #06101d;
             --bg2: #09182a;
@@ -39,37 +18,37 @@
             --accent: #6ee7b7;
             --blue: #60a5fa;
             --danger: #fb7185;
-            --max-width: 1180px;
         }
 
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
-        html {
-            scroll-behavior: smooth;
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
         }
 
         body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 25px;
             background:
+                radial-gradient(
+                    circle at top,
+                    rgba(96, 165, 250, 0.14),
+                    transparent 45%
+                ),
                 linear-gradient(
                     180deg,
                     var(--bg),
-                    var(--bg2) 50%,
-                    #07111f
+                    var(--bg2)
                 );
             color: var(--text);
-            font-family:
-                Inter,
-                system-ui,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Arial,
-                sans-serif;
-            line-height: 1.5;
+            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
         }
 
         a {
@@ -77,1679 +56,462 @@
             text-decoration: none;
         }
 
-        button,
-        input,
-        select {
+        button, input {
             font: inherit;
         }
 
-        button {
-            cursor: pointer;
+        .login-wrapper {
+            width: 100%;
+            max-width: 440px;
         }
 
-        .container {
-            width: min(var(--max-width), 92%);
-            margin: auto;
-        }
-
-        /* HEADER */
-
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background: rgba(6, 16, 29, 0.96);
-            border-bottom: 1px solid var(--line);
-            backdrop-filter: blur(14px);
-        }
-
-        .header-inner {
-            min-height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
+        /* BRAND */
         .brand {
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 10px;
-            color: white;
-            font-size: 21px;
-            font-weight: 850;
-        }
-
-        .brand-logo-image {
-            width: 46px;
-            height: 46px;
-            object-fit: contain;
-            display: block;
-            border-radius: 10px;
-            background: #071423;
-            border: 1px solid #294563;
-            padding: 2px;
-        }
-
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        nav a {
-            color: #b9c9dc;
-            font-size: 14px;
-            font-weight: 650;
-        }
-
-        nav a:hover {
-            color: var(--accent);
-        }
-
-        .nav-buttons {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* BUTTONS */
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 7px;
-            border: 0;
-            border-radius: 10px;
-            padding: 11px 17px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 800;
-            transition: 0.2s;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: var(--bg);
-        }
-
-        .btn-secondary {
-            background: #13263e;
-            color: #eaf1f8;
-            border: 1px solid #294563;
-        }
-
-        /* HERO */
-
-        .hero {
-            position: relative;
-            overflow: hidden;
-            padding: 100px 0 90px;
+            margin-bottom: 24px;
             text-align: center;
         }
 
-        .hero::before {
-            content: "";
-            position: absolute;
-            width: 520px;
-            height: 520px;
-            left: 50%;
-            top: 20px;
-            transform: translateX(-50%);
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(96, 165, 250, 0.12),
-                    transparent 68%
-                );
-            pointer-events: none;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 12px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(110, 231, 183, 0.2);
-            border-radius: 999px;
-            background: rgba(110, 231, 183, 0.06);
-            color: var(--accent);
-            font-size: 11px;
-            font-weight: 800;
-        }
-
-        .hero h1 {
-            max-width: 850px;
-            margin: 0 auto 20px;
-            font-size: clamp(40px, 7vw, 72px);
-            line-height: 1.05;
-            letter-spacing: -2px;
-        }
-
-        .hero h1 span {
-            background:
-                linear-gradient(
-                    90deg,
-                    var(--accent),
-                    var(--blue)
-                );
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .hero p {
-            max-width: 700px;
-            margin: 0 auto 30px;
-            color: var(--muted);
-            font-size: 16px;
-            line-height: 1.8;
-        }
-
-        .hero-buttons {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        /* SEARCH */
-
-        .search-box {
-            position: relative;
-            z-index: 5;
-            max-width: 950px;
-            margin: -25px auto 60px;
-            padding: 18px;
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr auto;
-            gap: 10px;
-            background: var(--card);
+        .brand-logo {
+            width: 92px;
+            height: 92px;
+            object-fit: cover;
+            border-radius: 20px;
+            margin-bottom: 14px;
             border: 1px solid var(--line);
-            border-radius: 18px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
         }
 
-        .search-box input,
-        .search-box select {
+        .brand-name {
+            color: white;
+            font-size: 25px;
+            font-weight: 850;
+        }
+
+        .brand-name span {
+            color: var(--accent);
+        }
+
+        /* LOGIN CARD */
+        .login-card {
+            padding: 32px;
+            background: rgba(13, 27, 46, 0.97);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.38);
+        }
+
+        .login-card h1 {
+            margin: 0 0 8px;
+            text-align: center;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            margin: 0 0 25px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        /* AUTH MESSAGE */
+        #auth-message {
+            display: none;
+            margin-bottom: 18px;
+            padding: 12px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .auth-message-error {
+            border: 1px solid rgba(251, 113, 133, 0.35);
+            background: rgba(251, 113, 133, 0.08);
+            color: #fda4af;
+        }
+
+        .auth-message-success {
+            border: 1px solid rgba(110, 231, 183, 0.35);
+            background: rgba(110, 231, 183, 0.08);
+            color: var(--accent);
+        }
+
+        .auth-message-info {
+            border: 1px solid rgba(96, 165, 250, 0.35);
+            background: rgba(96, 165, 250, 0.08);
+            color: #93c5fd;
+        }
+
+        /* FORM */
+        .form-group {
+            margin-bottom: 17px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 7px;
+            color: #dbe7f4;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .form-group input {
             width: 100%;
-            padding: 13px;
+            padding: 13px 14px;
             border: 1px solid #284563;
             border-radius: 10px;
             outline: none;
             background: #071423;
             color: white;
+            font-size: 14px;
+            transition: border-color .2s;
         }
 
-        .search-box input:focus,
-        .search-box select:focus {
+        .form-group input:focus {
             border-color: var(--blue);
         }
 
-        /* SECTIONS */
-
-        .jobs-section {
-            padding: 30px 0 90px;
+        .form-group input::placeholder {
+            color: #60758d;
         }
 
-        .section {
-            padding: 90px 0;
+        /* PASSWORD */
+        .password-wrapper {
+            position: relative;
         }
 
-        .section-heading {
-            max-width: 720px;
-            margin: 0 auto 35px;
-            text-align: center;
+        .password-wrapper input {
+            padding-right: 50px;
         }
 
-        .section-heading span {
-            display: block;
-            margin-bottom: 10px;
-            color: var(--accent);
-            font-size: 11px;
-            font-weight: 850;
-            letter-spacing: 1.8px;
-        }
-
-        .section-heading h2 {
-            margin-bottom: 12px;
-            font-size: clamp(28px, 4vw, 42px);
-        }
-
-        .section-heading p {
+        .toggle-password {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            border: 0;
+            background: transparent;
             color: var(--muted);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        /* LOGIN BUTTON */
+        .login-button {
+            width: 100%;
+            margin-top: 5px;
+            padding: 13px;
+            border: 0;
+            border-radius: 10px;
+            background: var(--accent);
+            color: var(--bg);
             font-size: 14px;
-            line-height: 1.8;
+            font-weight: 850;
+            cursor: pointer;
+            transition: .2s;
         }
 
-        /* JOBS */
-
-        #jobs-list {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
+        .login-button:hover {
+            transform: translateY(-1px);
+            opacity: .92;
         }
 
-        .job-card {
-            padding: 22px;
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 17px;
-            transition: 0.2s;
+        .login-button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .job-card:hover {
-            transform: translateY(-4px);
-            border-color: #355979;
-        }
-
-        .job-card h3 {
-            margin-bottom: 6px;
-            font-size: 18px;
-        }
-
-        .job-company {
-            color: var(--accent);
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .job-meta {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+        /* LINKS */
+        .forgot {
+            display: block;
             margin: 16px 0;
+            text-align: center;
+            color: #8dbdf3;
+            font-size: 12px;
         }
 
-        .job-meta span {
-            padding: 5px 8px;
-            border: 1px solid #244866;
-            border-radius: 999px;
-            background: #122a43;
-            color: #9db0c8;
+        .forgot:hover {
+            color: var(--accent);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 23px 0;
+            color: #71869e;
             font-size: 10px;
         }
 
-        .job-description {
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .signup {
+            text-align: center;
             color: var(--muted);
             font-size: 12px;
-            line-height: 1.7;
-            display: -webkit-box;
-            -webkit-line-clamp: 4;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
         }
 
-        .job-card-actions {
-            margin-top: 18px;
-        }
-
-        .job-view-button {
-            width: 100%;
-            padding: 11px;
-            border: 0;
-            border-radius: 9px;
-            background: var(--accent);
-            color: var(--bg);
+        .signup a {
+            color: var(--accent);
             font-weight: 800;
         }
 
-        .no-jobs {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 50px 20px;
-            border: 1px dashed var(--line);
-            border-radius: 17px;
-            background: rgba(13, 27, 46, 0.6);
-        }
-
-        .no-jobs h3 {
-            margin-bottom: 8px;
-        }
-
-        .no-jobs p {
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        /* FEATURES */
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
-        }
-
-        .feature-card {
-            padding: 26px;
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 17px;
-        }
-
-        .feature-icon {
-            width: 48px;
-            height: 48px;
-            display: grid;
-            place-items: center;
-            margin-bottom: 18px;
-            border-radius: 13px;
-            background: #122a43;
-            border: 1px solid #294966;
-            font-size: 22px;
-        }
-
-        .feature-card h3 {
-            margin-bottom: 8px;
-            font-size: 18px;
-        }
-
-        .feature-card p {
-            color: var(--muted);
-            font-size: 12px;
-            line-height: 1.7;
-        }
-
-        /* STATS */
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-        }
-
-        .stat {
-            padding: 25px;
-            text-align: center;
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-        }
-
-        .stat strong {
+        .back-home {
             display: block;
-            margin-bottom: 5px;
-            font-size: 30px;
-        }
-
-        .stat span {
-            color: var(--muted);
+            margin-top: 20px;
+            text-align: center;
+            color: #8da1b8;
             font-size: 11px;
         }
 
-        /* ROADMAP */
-
-        .roadmap {
-            padding: 100px 0;
-            background:
-                linear-gradient(
-                    180deg,
-                    rgba(13, 27, 46, 0.45),
-                    rgba(7, 17, 31, 0.75)
-                );
-            border-top: 1px solid rgba(29, 53, 83, 0.55);
-            border-bottom: 1px solid rgba(29, 53, 83, 0.55);
-        }
-
-        .roadmap-timeline {
-            position: relative;
-            max-width: 900px;
-            margin: auto;
-        }
-
-        .roadmap-timeline::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            left: 50%;
-            width: 2px;
-            transform: translateX(-50%);
-            background:
-                linear-gradient(
-                    180deg,
-                    var(--accent),
-                    var(--blue),
-                    #1d3553
-                );
-            opacity: 0.55;
-        }
-
-        .roadmap-step {
-            position: relative;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 70px;
-            min-height: 190px;
-        }
-
-        .roadmap-step:nth-child(odd) {
-            text-align: right;
-        }
-
-        .roadmap-step:nth-child(even) {
-            text-align: left;
-        }
-
-        .roadmap-number {
-            position: absolute;
-            top: 22px;
-            left: 50%;
-            z-index: 3;
-            width: 48px;
-            height: 48px;
-            display: grid;
-            place-items: center;
-            transform: translateX(-50%);
-            border: 2px solid #294563;
-            border-radius: 50%;
-            background: #0d1b2e;
-            color: #9db0c8;
-            font-size: 11px;
-            font-weight: 900;
-        }
-
-        .roadmap-step.active .roadmap-number {
-            border-color: var(--accent);
-            background:
-                linear-gradient(
-                    135deg,
-                    var(--accent),
-                    var(--blue)
-                );
-            color: #06101d;
-        }
-
-        .roadmap-content {
-            padding: 22px;
-            border: 1px solid var(--line);
-            border-radius: 17px;
-            background: rgba(13, 27, 46, 0.88);
-        }
-
-        .roadmap-step:nth-child(odd) .roadmap-content {
-            grid-column: 1;
-        }
-
-        .roadmap-step:nth-child(even) .roadmap-content {
-            grid-column: 2;
-        }
-
-        .roadmap-status {
-            display: inline-block;
-            margin-bottom: 8px;
-            padding: 4px 8px;
-            border: 1px solid rgba(96, 165, 250, 0.18);
-            border-radius: 999px;
-            color: #8dbdf3;
-            font-size: 8px;
-            font-weight: 850;
-        }
-
-        .roadmap-step.active .roadmap-status {
-            color: var(--accent);
-        }
-
-        .roadmap-content h3 {
-            margin-bottom: 8px;
-            font-size: 18px;
-        }
-
-        .roadmap-content p {
-            color: var(--muted);
-            font-size: 11px;
-            line-height: 1.7;
+        .back-home:hover {
+            color: white;
         }
 
         /* SOCIAL */
-
         .social-section {
-            padding: 70px 0;
-            border-top: 1px solid var(--line);
+            margin-top: 22px;
+            text-align: center;
         }
 
-        .social-grid {
+        .social-title {
+            margin-bottom: 10px;
+            color: #71869e;
+            font-size: 10px;
+            letter-spacing: .5px;
+        }
+
+        .social-links {
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .social-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
             gap: 8px;
-            min-width: 150px;
-            padding: 12px 18px;
-            background: #0d1b2e;
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            color: #dce8f5;
-            font-size: 13px;
-            font-weight: 750;
-            transition: 0.2s;
         }
 
-        .social-link:hover {
-            transform: translateY(-3px);
+        .social-links a {
+            padding: 7px 10px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            background: rgba(13, 27, 46, .7);
+            color: #9db0c8;
+            font-size: 10px;
+            transition: .2s;
+        }
+
+        .social-links a:hover {
             border-color: var(--accent);
             color: var(--accent);
         }
 
-        /* CTA */
-
-        .cta {
-            padding: 100px 0;
-            text-align: center;
-        }
-
-        .cta-box {
-            padding: 55px 25px;
-            border: 1px solid #294563;
-            border-radius: 22px;
-            background:
-                linear-gradient(
-                    135deg,
-                    #0e2035,
-                    #0b192b
-                );
-        }
-
-        .cta-box h2 {
-            margin-bottom: 13px;
-            font-size: clamp(28px, 5vw, 44px);
-        }
-
-        .cta-box p {
-            max-width: 650px;
-            margin: 0 auto 25px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        /* FOOTER */
-
-        footer {
-            border-top: 1px solid var(--line);
-            padding: 35px 0;
-        }
-
-        .footer-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .footer-text {
-            color: #71869e;
-            font-size: 11px;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: #9db0c8;
-            font-size: 11px;
-        }
-
-        /* MOBILE */
-
-        @media (max-width: 900px) {
-
-            nav {
-                display: none;
+        @media (max-width: 500px) {
+            body {
+                padding: 15px;
             }
-
-            .features-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .login-card {
+                padding: 25px 20px;
             }
-
-            .search-box {
-                grid-template-columns: 1fr 1fr;
+            .brand-logo {
+                width: 76px;
+                height: 76px;
             }
-
-            .search-box .btn {
-                grid-column: 1 / -1;
-            }
-
-            #jobs-list {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
+            .brand-name {
+                font-size: 22px;
             }
         }
-
-        @media (max-width: 760px) {
-
-            .hero {
-                padding: 75px 0 70px;
-            }
-
-            .search-box {
-                grid-template-columns: 1fr;
-                margin-top: -10px;
-            }
-
-            .search-box .btn {
-                grid-column: auto;
-            }
-
-            .features-grid,
-            #jobs-list {
-                grid-template-columns: 1fr;
-            }
-
-            .roadmap {
-                padding: 70px 0;
-            }
-
-            .roadmap-timeline {
-                padding-left: 30px;
-            }
-
-            .roadmap-timeline::before {
-                left: 10px;
-            }
-
-            .roadmap-step {
-                display: block;
-                min-height: auto;
-                margin-bottom: 20px;
-                padding-left: 25px;
-            }
-
-            .roadmap-step:nth-child(odd),
-            .roadmap-step:nth-child(even) {
-                text-align: left;
-            }
-
-            .roadmap-number {
-                left: 10px;
-                width: 42px;
-                height: 42px;
-            }
-
-            .roadmap-step:nth-child(odd) .roadmap-content,
-            .roadmap-step:nth-child(even) .roadmap-content {
-                display: block;
-                width: 100%;
-            }
-
-            .footer-inner {
-                flex-direction: column;
-                text-align: center;
-            }
-        }
-
-        @media (max-width: 520px) {
-
-            .stats {
-                grid-template-columns: 1fr;
-            }
-
-            .hero h1 {
-                letter-spacing: -1px;
-            }
-
-            .hero-buttons {
-                flex-direction: column;
-            }
-
-            .hero-buttons .btn {
-                width: 100%;
-            }
-
-            .nav-buttons .btn-secondary {
-                display: none;
-            }
-
-            .social-link {
-                width: 100%;
-            }
-        }
-
     </style>
-
 </head>
 
 <body>
 
-<header>
+<div class="login-wrapper">
 
-    <div class="container header-inner">
-
-        <a
-            href="index.html"
-            class="brand"
-        >
-
-            <img
-                src="IMG_20260809_214500_497.jpg"
-                alt="Web3Jobs Logo"
-                class="brand-logo-image"
-            >
-
-            <span>Web3Jobs</span>
-
-        </a>
-
-        <nav>
-
-            <a href="#home">Home</a>
-
-            <a href="#jobs">Jobs</a>
-
-            <a href="#features">Features</a>
-
-            <a href="#roadmap">Roadmap</a>
-
-        </nav>
-
-        <div class="nav-buttons">
-
-            <a
-                href="login.html"
-                class="btn btn-secondary"
-            >
-                Login
-            </a>
-
-            <a
-                href="signup.html"
-                class="btn btn-primary"
-            >
-                Get Started
-            </a>
-
-        </div>
-
+    <!-- BRAND -->
+    <div class="brand">
+        <img class="brand-logo" src="IMG_20260809_214500_497.jpg" alt="Web3Jobs Logo">
+        <div class="brand-name">Web3<span>Jobs</span></div>
     </div>
 
-</header>
+    <!-- LOGIN CARD -->
+    <div class="login-card">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Login to your Web3Jobs account</p>
 
-<main id="home">
+        <div id="auth-message" role="alert" aria-live="polite"></div>
 
-    <section class="hero">
-
-        <div class="container">
-
-            <div class="hero-badge">
-                ✦ The Future of Web3 Careers
+        <!-- LOGIN FORM -->
+        <form id="loginForm" novalidate>
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input id="email" name="email" type="email" autocomplete="email" placeholder="Enter your email" required>
             </div>
 
-            <h1>
-                Find Your Future
-                <br>
-                <span>in Web3</span>
-            </h1>
-
-            <p>
-                Discover Web3, blockchain and crypto
-                career opportunities. Connect with innovative
-                companies and build the future of the
-                decentralized world.
-            </p>
-
-            <div class="hero-buttons">
-
-                <a
-                    href="#jobs"
-                    class="btn btn-primary"
-                >
-                    🔎 Explore Jobs
-                </a>
-
-                <a
-                    href="signup.html"
-                    class="btn btn-secondary"
-                >
-                    Create Account
-                </a>
-
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+                    <button type="button" id="togglePassword" class="toggle-password" aria-label="Show password">👁</button>
+                </div>
             </div>
 
+            <button type="submit" id="loginButton" class="login-button">Login</button>
+        </form>
+
+        <a href="forgot-password.html" class="forgot">Forgot your password?</a>
+
+        <div class="divider">OR</div>
+
+        <div class="signup">
+            Don't have an account? <a href="signup.html">Create Account</a>
         </div>
-
-    </section>
-
-    <div class="container">
-
-        <div class="search-box">
-
-            <input
-                id="jobSearch"
-                data-job-search
-                type="search"
-                placeholder="Job title, skill or keyword"
-                autocomplete="off"
-            >
-
-            <input
-                id="locationSearch"
-                type="search"
-                placeholder="Location / Remote"
-                autocomplete="off"
-            >
-
-            <select id="jobType">
-
-                <option value="">Any Job Type</option>
-
-                <option value="Full-time">
-                    Full-time
-                </option>
-
-                <option value="Part-time">
-                    Part-time
-                </option>
-
-                <option value="Contract">
-                    Contract
-                </option>
-
-                <option value="Freelance">
-                    Freelance
-                </option>
-
-                <option value="Internship">
-                    Internship
-                </option>
-
-            </select>
-
-            <button
-                type="button"
-                id="searchJobsButton"
-                class="btn btn-primary"
-            >
-                Search
-            </button>
-
-        </div>
-
     </div>
 
-    <section
-        class="jobs-section"
-        id="jobs"
-    >
-
-        <div class="container">
-
-            <div class="section-heading">
-
-                <span>
-                    LATEST OPPORTUNITIES
-                </span>
-
-                <h2>
-                    Explore Web3 Jobs
-                </h2>
-
-                <p>
-                    Discover the latest opportunities
-                    from the Web3 ecosystem.
-                </p>
-
-            </div>
-
-            <div
-                id="jobs-list"
-                data-jobs-container
-            >
-
-                <div class="no-jobs">
-
-                    <h3>
-                        Loading jobs...
-                    </h3>
-
-                    <p>
-                        Connecting to Web3Jobs.
-                    </p>
-
-                </div>
-
-            </div>
-
+    <!-- SOCIAL MEDIA -->
+    <div class="social-section">
+        <div class="social-title">FOLLOW WEB3JOBS</div>
+        <div class="social-links">
+            <a href="https://t.me/web3jop" target="_blank" rel="noopener noreferrer">Telegram</a>
+            <a href="https://whatsapp.com/channel/0029Vb8kCXR5q08ftEh9Dc1u" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+            <a href="https://x.com/crypto1680620" target="_blank" rel="noopener noreferrer">X</a>
+            <a href="https://www.linkedin.com/me?trk=p_mwlite_feed-secondary_nav" target="_blank" rel="noopener noreferrer">LinkedIn</a>
         </div>
-
-    </section>
-
-    <section class="section">
-
-        <div class="container">
-
-            <div class="stats">
-
-                <div class="stat">
-                    <strong>1K+</strong>
-                    <span>Web3 Opportunities</span>
-                </div>
-
-                <div class="stat">
-                    <strong>500+</strong>
-                    <span>Companies</span>
-                </div>
-
-                <div class="stat">
-                    <strong>50+</strong>
-                    <span>Countries</span>
-                </div>
-
-                <div class="stat">
-                    <strong>24/7</strong>
-                    <span>Global Opportunities</span>
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    <section
-        class="section"
-        id="features"
-    >
-
-        <div class="container">
-
-            <div class="section-heading">
-
-                <span>WHY WEB3JOBS</span>
-
-                <h2>
-                    Everything You Need
-                    to Build Your Web3 Career
-                </h2>
-
-                <p>
-                    A modern platform designed to connect
-                    Web3 talent with companies building
-                    the decentralized future.
-                </p>
-
-            </div>
-
-            <div class="features-grid">
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">🔎</div>
-
-                    <h3>
-                        Discover Opportunities
-                    </h3>
-
-                    <p>
-                        Search and discover Web3,
-                        blockchain and crypto jobs
-                        from companies around the world.
-                    </p>
-
-                </div>
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">👤</div>
-
-                    <h3>
-                        Professional Profiles
-                    </h3>
-
-                    <p>
-                        Build a professional profile
-                        showcasing your skills and experience.
-                    </p>
-
-                </div>
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">🏢</div>
-
-                    <h3>
-                        Connect With Companies
-                    </h3>
-
-                    <p>
-                        Discover innovative Web3 companies
-                        and connect with growing teams.
-                    </p>
-
-                </div>
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">🔖</div>
-
-                    <h3>
-                        Save Opportunities
-                    </h3>
-
-                    <p>
-                        Save interesting opportunities
-                        and return to them whenever you are ready.
-                    </p>
-
-                </div>
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">🎯</div>
-
-                    <h3>
-                        Smart Recruitment
-                    </h3>
-
-                    <p>
-                        Give companies tools to discover
-                        qualified Web3 talent.
-                    </p>
-
-                </div>
-
-                <div class="feature-card">
-
-                    <div class="feature-icon">🌎</div>
-
-                    <h3>
-                        Global Web3 Community
-                    </h3>
-
-                    <p>
-                        Connect talent and companies across
-                        countries and ecosystems.
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    <section
-        class="roadmap"
-        id="roadmap"
-    >
-
-        <div class="container">
-
-            <div class="section-heading">
-
-                <span>OUR ROADMAP</span>
-
-                <h2>
-                    Building the Future
-                    of Web3 Careers
-                </h2>
-
-                <p>
-                    Our roadmap outlines the evolution
-                    of Web3Jobs into a global employment ecosystem.
-                </p>
-
-            </div>
-
-            <div class="roadmap-timeline">
-
-                <div class="roadmap-step active">
-
-                    <div class="roadmap-number">01</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            CURRENT
-                        </span>
-
-                        <h3>Foundation</h3>
-
-                        <p>
-                            Launch the core Web3Jobs platform
-                            with job discovery and authentication.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="roadmap-step">
-
-                    <div class="roadmap-number">02</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            NEXT
-                        </span>
-
-                        <h3>Profiles</h3>
-
-                        <p>
-                            Build powerful profiles for
-                            individuals and companies.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="roadmap-step">
-
-                    <div class="roadmap-number">03</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            PLANNED
-                        </span>
-
-                        <h3>Smart Dashboards</h3>
-
-                        <p>
-                            Introduce dashboards that adapt
-                            to each account type.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="roadmap-step">
-
-                    <div class="roadmap-number">04</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            PLANNED
-                        </span>
-
-                        <h3>Recruitment System</h3>
-
-                        <p>
-                            Connect companies with qualified
-                            Web3 talent.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="roadmap-step">
-
-                    <div class="roadmap-number">05</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            PLANNED
-                        </span>
-
-                        <h3>Web3 Features</h3>
-
-                        <p>
-                            Add blockchain skills, ecosystems
-                            and specialized talent discovery.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="roadmap-step">
-
-                    <div class="roadmap-number">06</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            PLANNED
-                        </span>
-
-                        <h3>Trust & Verification</h3>
-
-                        <p>
-                            Improve company verification,
-                            security and platform trust.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="roadmap-step">
-
-                    <div class="roadmap-number">07</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            PLANNED
-                        </span>
-
-                        <h3>Global Expansion</h3>
-
-                        <p>
-                            Expand with multilingual support
-                            and international opportunities.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="roadmap-step">
-
-                    <div class="roadmap-number">08</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            FUTURE
-                        </span>
-
-                        <h3>Monetization</h3>
-
-                        <p>
-                            Introduce sustainable premium
-                            employer and job listing models.
-                        </p>
-
-                    </div>
-
-                </div>
-
-                <div class="roadmap-step">
-
-                    <div class="roadmap-number">09</div>
-
-                    <div class="roadmap-content">
-
-                        <span class="roadmap-status">
-                            VISION
-                        </span>
-
-                        <h3>Web3Jobs Ecosystem</h3>
-
-                        <p>
-                            Transform Web3Jobs into a global
-                            employment ecosystem.
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    <section class="social-section">
-
-        <div class="container">
-
-            <div class="section-heading">
-
-                <span>CONNECT WITH WEB3JOBS</span>
-
-                <h2>
-                    Join Our Community
-                </h2>
-
-                <p>
-                    Follow Web3Jobs and stay connected
-                    with the latest Web3 opportunities.
-                </p>
-
-            </div>
-
-            <div class="social-grid">
-
-                <a
-                    class="social-link"
-                    href="https://t.me/web3jop"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    ✈️ Telegram
-                </a>
-
-                <a
-                    class="social-link"
-                    href="https://whatsapp.com/channel/0029Vb8kCXR5q08ftEh9Dc1u"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    💬 WhatsApp
-                </a>
-
-                <a
-                    class="social-link"
-                    href="https://x.com/crypto1680620"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    𝕏 X / Twitter
-                </a>
-
-                <a
-                    class="social-link"
-                    href="https://www.linkedin.com/me?trk=p_mwlite_feed-secondary_nav"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    💼 LinkedIn
-                </a>
-
-            </div>
-
-        </div>
-
-    </section>
-
-    <section class="cta">
-
-        <div class="container">
-
-            <div class="cta-box">
-
-                <h2>
-                    Build Your Future in Web3
-                </h2>
-
-                <p>
-                    Whether you are looking for your next
-                    opportunity or building the next Web3
-                    company, Web3Jobs connects you with the
-                    right people.
-                </p>
-
-                <div class="hero-buttons">
-
-                    <a
-                        href="signup.html"
-                        class="btn btn-primary"
-                    >
-                        Get Started
-                    </a>
-
-                    <a
-                        href="#jobs"
-                        class="btn btn-secondary"
-                    >
-                        Explore Jobs
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </section>
-
-</main>
-
-<footer>
-
-    <div class="container footer-inner">
-
-        <div class="footer-text">
-            © 2026 Web3Jobs. All rights reserved.
-        </div>
-
-        <div class="footer-links">
-
-            <a href="#home">Home</a>
-
-            <a href="#jobs">Jobs</a>
-
-            <a href="#features">Features</a>
-
-            <a href="#roadmap">Roadmap</a>
-
-            <a href="login.html">Login</a>
-
-        </div>
-
     </div>
 
-</footer>
+    <!-- BACK HOME -->
+    <a href="index.html" class="back-home">← Back to Web3Jobs</a>
 
-<!-- SUPABASE -->
+</div>
 
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
-
-<!-- WEB3JOBS JAVASCRIPT -->
-
-<script src="js/app.js"></script>
+<!-- SUPABASE LIBRARIES -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
 <script src="js/auth.js"></script>
-<script src="js/jobs.js"></script>
 
-<!-- INDEX SEARCH -->
-
+<!-- LOGIN CONTROLLER -->
 <script>
-
 "use strict";
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
+/* إضافة دالة عرض الرسائل المفقودة */
+function showAuthMessage(arMsg, enMsg, type = "error") {
+    const msgBox = document.getElementById("auth-message");
+    if (!msgBox) return;
 
-        const searchButton =
-            document.getElementById(
-                "searchJobsButton"
-            );
+    msgBox.className = `auth-message-${type}`;
+    msgBox.innerHTML = `<div>${arMsg}</div><div style="opacity: 0.8; font-size: 11px;">${enMsg}</div>`;
+    msgBox.style.display = "block";
+}
 
-        const jobSearch =
-            document.getElementById(
-                "jobSearch"
-            );
+document.addEventListener("DOMContentLoaded", function () {
 
-        const locationSearch =
-            document.getElementById(
-                "locationSearch"
-            );
+    const form = document.getElementById("loginForm");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loginButton = document.getElementById("loginButton");
+    const togglePassword = document.getElementById("togglePassword");
 
-        const jobType =
-            document.getElementById(
-                "jobType"
-            );
-
-        function performSearch() {
-
-            const keyword =
-                String(
-                    jobSearch?.value || ""
-                )
-                .trim()
-                .toLowerCase();
-
-            const location =
-                String(
-                    locationSearch?.value || ""
-                )
-                .trim()
-                .toLowerCase();
-
-            const type =
-                String(
-                    jobType?.value || ""
-                )
-                .trim()
-                .toLowerCase();
-
-            let results = [];
-
-            if (
-                window.JobsSystem &&
-                Array.isArray(
-                    window.JobsSystem.jobs
-                )
-            ) {
-                results =
-                    window.JobsSystem.jobs;
-            }
-
-            results =
-                results.filter(
-                    function (job) {
-
-                        const text = [
-                            job.title,
-                            job.company,
-                            job.description,
-                            job.skills
-                        ]
-                            .filter(Boolean)
-                            .join(" ")
-                            .toLowerCase();
-
-                        const jobLocation =
-                            String(
-                                job.location || ""
-                            )
-                            .toLowerCase();
-
-                        const jobTypeValue =
-                            String(
-                                job.type || ""
-                            )
-                            .toLowerCase();
-
-                        const keywordMatch =
-                            !keyword ||
-                            text.includes(keyword);
-
-                        const locationMatch =
-                            !location ||
-                            jobLocation.includes(
-                                location
-                            );
-
-                        const typeMatch =
-                            !type ||
-                            jobTypeValue.includes(
-                                type
-                            );
-
-                        return (
-                            keywordMatch &&
-                            locationMatch &&
-                            typeMatch
-                        );
-                    }
-                );
-
-            if (
-                window.JobsSystem
-            ) {
-                window.JobsSystem.filteredJobs =
-                    results;
-            }
-
-            if (
-                window.Web3JobsJobs &&
-                typeof
-                window.Web3JobsJobs.renderAllJobs ===
-                "function"
-            ) {
-
-                window.Web3JobsJobs.renderAllJobs(
-                    results
-                );
-
-            }
-
-            const jobsSection =
-                document.getElementById("jobs");
-
-            if (jobsSection) {
-
-                jobsSection.scrollIntoView({
-                    behavior: "smooth"
-                });
-
-            }
-
-        }
-
-        if (searchButton) {
-
-            searchButton.addEventListener(
-                "click",
-                performSearch
-            );
-
-        }
-
-        [
-            jobSearch,
-            locationSearch
-        ].forEach(
-            function (input) {
-
-                if (!input) {
-                    return;
-                }
-
-                input.addEventListener(
-                    "keydown",
-                    function (event) {
-
-                        if (
-                            event.key === "Enter"
-                        ) {
-
-                            event.preventDefault();
-
-                            performSearch();
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-        if (jobType) {
-
-            jobType.addEventListener(
-                "change",
-                performSearch
-            );
-
-        }
-
+    if (!form || !emailInput || !passwordInput || !loginButton) {
+        console.error("Web3Jobs: Form elements missing.");
+        return;
     }
-);
 
+    /* TOGGLE PASSWORD VISIBILITY */
+    if (togglePassword) {
+        togglePassword.addEventListener("click", function () {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                togglePassword.textContent = "🙈";
+                togglePassword.setAttribute("aria-label", "Hide password");
+            } else {
+                passwordInput.type = "password";
+                togglePassword.textContent = "👁";
+                togglePassword.setAttribute("aria-label", "Show password");
+            }
+        });
+    }
+
+    /* LOGIN HANDLER */
+    form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+
+        const email = emailInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
+
+        if (!email) {
+            showAuthMessage("يرجى إدخال البريد الإلكتروني.", "Please enter your email address.", "error");
+            emailInput.focus();
+            return;
+        }
+
+        if (!password) {
+            showAuthMessage("يرجى إدخال كلمة المرور.", "Please enter your password.", "error");
+            passwordInput.focus();
+            return;
+        }
+
+        if (!window.Web3JobsAuth || typeof window.Web3JobsAuth.login !== "function") {
+            showAuthMessage("تعذر تحميل نظام تسجيل الدخول.", "The authentication system could not be loaded.", "error");
+            console.error("Web3Jobs: Web3JobsAuth.login() unavailable.");
+            return;
+        }
+
+        loginButton.disabled = true;
+        loginButton.textContent = "Signing in...";
+
+        try {
+            const result = await window.Web3JobsAuth.login(email, password);
+
+            if (!result || result.success !== true) {
+                loginButton.disabled = false;
+                loginButton.textContent = "Login";
+                return;
+            }
+
+            const accountType = String(
+                result.accountType ||
+                result.account_type ||
+                result.profile?.account_type ||
+                ""
+            ).trim().toLowerCase();
+
+            if (accountType === "company") {
+                const companyUrl = result.dashboardUrl || "company-dashboard.html";
+                showAuthMessage("تم تسجيل الدخول بنجاح. جاري فتح لوحة الشركة...", "Login successful. Opening company dashboard...", "success");
+                setTimeout(function () {
+                    window.location.replace(companyUrl);
+                }, 300);
+                return;
+            }
+
+            if (accountType === "individual") {
+                const individualUrl = result.dashboardUrl || "dashboard.html";
+                showAuthMessage("تم تسجيل الدخول بنجاح. جاري فتح لوحة الأفراد...", "Login successful. Opening individual dashboard...", "success");
+                setTimeout(function () {
+                    window.location.replace(individualUrl);
+                }, 300);
+                return;
+            }
+
+            showAuthMessage("تم تسجيل الدخول ولكن تعذر تحديد نوع الحساب.", "Login succeeded but the account type could not be determined.", "error");
+            loginButton.disabled = false;
+            loginButton.textContent = "Login";
+
+        } catch (error) {
+            console.error("Web3Jobs login page exception:", error);
+            showAuthMessage("حدث خطأ أثناء تسجيل الدخول.", "An error occurred while signing in.", "error");
+            loginButton.disabled = false;
+            loginButton.textContent = "Login";
+        }
+    });
+});
 </script>
 
 </body>
-
 </html>
