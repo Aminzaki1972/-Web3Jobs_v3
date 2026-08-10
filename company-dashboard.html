@@ -1,200 +1,111 @@
-<!-- =========================================================
-     SUPABASE LIBRARY
-========================================================= -->
+<!DOCTYPE html>
+<html lang="en">
 
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web3Jobs - Company Dashboard">
+    <title>Company Dashboard - Web3Jobs</title>
 
+    <!-- SUPABASE LIBRARIES -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/company-dashboard.js"></script>
 
-<!-- =========================================================
-     CENTRAL SUPABASE
-========================================================= -->
-
-<script
-    src="js/supabase.js"
-></script>
-
-
-<!-- =========================================================
-     AUTHENTICATION SYSTEM
-========================================================= -->
-
-<script
-    src="js/auth.js"
-></script>
-
-
-<!-- =========================================================
-     COMPANY DASHBOARD
-========================================================= -->
-
-<script
-    src="js/company-dashboard.js"
-></script>
-
-
-<script>
-
-"use strict";
-
-
-/* =========================================================
-   COMPANY DASHBOARD AUTH CHECK
-   ========================================================= */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    async function () {
-
-        console.log(
-            "Web3Jobs: Starting company dashboard authentication..."
-        );
-
-
-        try {
-
-            if (
-                !window.Web3JobsAuth ||
-                typeof window.Web3JobsAuth.protectCompanyDashboard !==
-                "function"
-            ) {
-
-                console.error(
-                    "Web3Jobs: Authentication system is not available."
-                );
-
-                window.location.replace(
-                    "login.html"
-                );
-
-                return;
-            }
-
-
-            const result =
-                await window.Web3JobsAuth
-                    .protectCompanyDashboard();
-
-
-            console.log(
-                "Web3Jobs: Company dashboard auth result:",
-                result
-            );
-
-
-            if (
-                !result ||
-                result.authenticated !== true
-            ) {
-
-                console.error(
-                    "Web3Jobs: Company authentication failed."
-                );
-
-                return;
-            }
-
-
-            if (
-                result.accountType !==
-                "company"
-            ) {
-
-                console.error(
-                    "Web3Jobs: Account is not a company.",
-                    result.accountType
-                );
-
-
-                window.location.replace(
-                    window.Web3JobsAuth
-                        .getDashboardUrl(
-                            result.accountType
-                        )
-                );
-
-
-                return;
-            }
-
-
-            console.log(
-                "Web3Jobs: Company dashboard authentication successful."
-            );
-
-
-            console.log(
-                "Web3Jobs: Company user:",
-                result.user
-            );
-
-
-            console.log(
-                "Web3Jobs: Company account type:",
-                result.accountType
-            );
-
-
-            /* =================================================
-               DISPLAY COMPANY DATA
-               ================================================= */
-
-            const emailElement =
-                document.getElementById(
-                    "company-email"
-                );
-
-
-            if (
-                emailElement &&
-                result.user
-            ) {
-
-                emailElement.textContent =
-                    result.user.email || "";
-            }
-
-
-            const nameElement =
-                document.getElementById(
-                    "company-name"
-                );
-
-
-            if (
-                nameElement &&
-                result.user
-            ) {
-
-                const metadata =
-                    result.user.user_metadata || {};
-
-
-                const companyName =
-                    metadata.full_name ||
-                    metadata.name ||
-                    "Company";
-
-
-                nameElement.textContent =
-                    companyName;
-            }
-
-        } catch (error) {
-
-            console.error(
-                "Web3Jobs: Company dashboard authentication error:",
-                error
-            );
-
-
-            window.location.replace(
-                "login.html"
-            );
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #06101d;
+            color: #f5f8ff;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
         }
 
-    }
-);
+        #loading-spinner {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #6ee7b7;
+        }
 
-</script>
+        #dashboard-content {
+            display: none;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOADING STATE -->
+    <div id="loading-spinner">
+        <h2>Authenticating account, please wait...</h2>
+    </div>
+
+    <!-- DASHBOARD CONTAINER -->
+    <div id="dashboard-content">
+        <h1>Company Dashboard</h1>
+        <p>Welcome back, <span id="company-name">Company</span>!</p>
+        <p>Email: <span id="company-email"></span></p>
+    </div>
+
+    <!-- AUTHENTICATION LOGIC -->
+    <script>
+        "use strict";
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            const loadingSpinner = document.getElementById("loading-spinner");
+            const dashboardContent = document.getElementById("dashboard-content");
+
+            try {
+                // 1. Verify dependencies
+                if (!window.Web3JobsAuth || typeof window.Web3JobsAuth.protectCompanyDashboard !== "function") {
+                    throw new Error("Authentication system is not loaded.");
+                }
+
+                // 2. Protect Route
+                const result = await window.Web3JobsAuth.protectCompanyDashboard();
+
+                if (!result || !result.authenticated) {
+                    console.warn("User not authenticated. Redirecting to login...");
+                    window.location.href = "login.html";
+                    return;
+                }
+
+                if (result.accountType !== "company") {
+                    console.warn("Account is not a company. Redirecting to individual dashboard...");
+                    window.location.href = "dashboard.html";
+                    return;
+                }
+
+                // 3. Render Profile Info safely
+                const emailElement = document.getElementById("company-email");
+                if (emailElement && result.user) {
+                    emailElement.textContent = result.user.email || "";
+                }
+
+                const nameElement = document.getElementById("company-name");
+                if (nameElement && result.user) {
+                    const metadata = result.user.user_metadata || {};
+                    nameElement.textContent = metadata.full_name || metadata.company_name || metadata.name || "Company";
+                }
+
+                // 4. Hide loading indicator and show main dashboard
+                if (loadingSpinner) loadingSpinner.style.display = "none";
+                if (dashboardContent) dashboardContent.style.display = "block";
+
+            } catch (error) {
+                console.error("Company Dashboard Initialization Error:", error);
+                
+                // Redirect gracefully on critical failure
+                setTimeout(function () {
+                    window.location.href = "login.html";
+                }, 1000);
+            }
+        });
+    </script>
+
+</body>
+
+</html>
