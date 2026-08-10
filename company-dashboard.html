@@ -714,6 +714,765 @@
 
 
         /* =================================================
+           BILLING & PAYMENTS
+           ================================================= */
+
+        .billing-section {
+
+            border-color: #244866;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #0d1e31,
+                    #0a1828
+                );
+
+        }
+
+
+        .billing-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            margin-bottom: 22px;
+
+        }
+
+
+        .billing-badge {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            padding: 7px 10px;
+
+            border-radius: 999px;
+
+            border: 1px solid
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .28
+                );
+
+            background:
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .06
+                );
+
+            color: var(--green);
+
+            font-size: 9px;
+
+            font-weight: 850;
+
+        }
+
+
+        .billing-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr
+                1.2fr;
+
+            gap: 16px;
+
+        }
+
+
+        .billing-card {
+
+            padding: 20px;
+
+            border-radius: 15px;
+
+            border: 1px solid var(--border);
+
+            background: #091727;
+
+        }
+
+
+        .billing-card h3 {
+
+            margin-bottom: 7px;
+
+            font-size: 16px;
+
+        }
+
+
+        .billing-card-description {
+
+            margin-bottom: 18px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+            line-height: 1.6;
+
+        }
+
+
+        .current-plan {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+            padding: 15px;
+
+            margin-bottom: 14px;
+
+            border-radius: 12px;
+
+            border: 1px solid var(--border2);
+
+            background: #0d2035;
+
+        }
+
+
+        .plan-name {
+
+            font-size: 15px;
+
+            font-weight: 850;
+
+        }
+
+
+        .plan-status {
+
+            display: inline-block;
+
+            margin-top: 5px;
+
+            color: var(--green);
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+        }
+
+
+        .plan-price {
+
+            text-align: right;
+
+        }
+
+
+        .plan-price strong {
+
+            display: block;
+
+            font-size: 24px;
+
+            font-weight: 900;
+
+        }
+
+
+        .plan-price span {
+
+            color: var(--muted);
+
+            font-size: 9px;
+
+        }
+
+
+        .crypto-box {
+
+            padding: 18px;
+
+            margin-bottom: 14px;
+
+            border-radius: 13px;
+
+            border: 1px solid
+                rgba(
+                    96,
+                    165,
+                    250,
+                    .25
+                );
+
+            background:
+                rgba(
+                    96,
+                    165,
+                    250,
+                    .045
+                );
+
+        }
+
+
+        .crypto-title {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            margin-bottom: 7px;
+
+            font-size: 13px;
+
+            font-weight: 850;
+
+        }
+
+
+        .crypto-icon {
+
+            width: 31px;
+
+            height: 31px;
+
+            display: grid;
+
+            place-items: center;
+
+            border-radius: 9px;
+
+            background: #132b45;
+
+            border: 1px solid var(--border2);
+
+        }
+
+
+        .crypto-info {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    2,
+                    1fr
+                );
+
+            gap: 9px;
+
+            margin-top: 13px;
+
+        }
+
+
+        .crypto-info-item {
+
+            padding: 10px;
+
+            border-radius: 9px;
+
+            background: #071423;
+
+            border: 1px solid var(--border);
+
+        }
+
+
+        .crypto-info-item span {
+
+            display: block;
+
+            margin-bottom: 4px;
+
+            color: var(--muted);
+
+            font-size: 8px;
+
+        }
+
+
+        .crypto-info-item strong {
+
+            font-size: 10px;
+
+        }
+
+
+        .wallet-label {
+
+            margin-bottom: 7px;
+
+            color: var(--muted);
+
+            font-size: 9px;
+
+        }
+
+
+        .wallet-row {
+
+            display: flex;
+
+            align-items: stretch;
+
+            gap: 7px;
+
+        }
+
+
+        .wallet-address {
+
+            min-width: 0;
+
+            flex: 1;
+
+            padding: 11px;
+
+            border-radius: 9px;
+
+            border: 1px solid var(--border2);
+
+            background: #071423;
+
+            color: #dbeafe;
+
+            font-family:
+                ui-monospace,
+                SFMono-Regular,
+                Menlo,
+                Consolas,
+                monospace;
+
+            font-size: 9px;
+
+            word-break: break-all;
+
+        }
+
+
+        .copy-wallet-button {
+
+            flex: 0 0 auto;
+
+            padding: 8px 12px;
+
+            border-radius: 9px;
+
+            border: 1px solid var(--border2);
+
+            background: #10243b;
+
+            color: var(--text);
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+        }
+
+
+        .copy-wallet-button:hover {
+
+            border-color: var(--blue);
+
+        }
+
+
+        .payment-warning {
+
+            padding: 11px 12px;
+
+            margin-top: 12px;
+
+            border-radius: 9px;
+
+            border: 1px solid
+                rgba(
+                    251,
+                    191,
+                    36,
+                    .22
+                );
+
+            background:
+                rgba(
+                    251,
+                    191,
+                    36,
+                    .045
+                );
+
+            color: #fcd87a;
+
+            font-size: 9px;
+
+            line-height: 1.6;
+
+        }
+
+
+        .payment-form {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 13px;
+
+        }
+
+
+        .payment-form label {
+
+            color: #d9e5f2;
+
+            font-size: 10px;
+
+            font-weight: 750;
+
+        }
+
+
+        .payment-form select,
+        .payment-form input {
+
+            width: 100%;
+
+            margin-top: 6px;
+
+            outline: none;
+
+            padding: 12px;
+
+            border-radius: 9px;
+
+            border: 1px solid var(--border2);
+
+            background: #071423;
+
+            color: var(--text);
+
+            font-size: 11px;
+
+        }
+
+
+        .payment-form select:focus,
+        .payment-form input:focus {
+
+            border-color: var(--blue);
+
+        }
+
+
+        .payment-amount {
+
+            display: grid;
+
+            grid-template-columns:
+                1fr
+                1fr;
+
+            gap: 10px;
+
+        }
+
+
+        .amount-box {
+
+            padding: 14px;
+
+            border-radius: 10px;
+
+            border: 1px solid var(--border);
+
+            background: #071423;
+
+        }
+
+
+        .amount-box span {
+
+            display: block;
+
+            margin-bottom: 5px;
+
+            color: var(--muted);
+
+            font-size: 8px;
+
+        }
+
+
+        .amount-box strong {
+
+            font-size: 18px;
+
+        }
+
+
+        .submit-payment-button {
+
+            width: 100%;
+
+            min-height: 44px;
+
+            border: 0;
+
+            border-radius: 9px;
+
+            background: var(--green);
+
+            color: #06101d;
+
+            font-size: 11px;
+
+            font-weight: 900;
+
+        }
+
+
+        .submit-payment-button:hover {
+
+            filter: brightness(1.06);
+
+        }
+
+
+        .payment-history {
+
+            margin-top: 16px;
+
+        }
+
+
+        .payment-history-title {
+
+            margin-bottom: 10px;
+
+            color: #d9e5f2;
+
+            font-size: 11px;
+
+            font-weight: 850;
+
+        }
+
+
+        .payment-history-table {
+
+            overflow-x: auto;
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+        }
+
+
+        .payment-history-row {
+
+            min-width: 540px;
+
+            display: grid;
+
+            grid-template-columns:
+                1.2fr
+                .8fr
+                .8fr
+                .8fr;
+
+            gap: 10px;
+
+            padding: 12px;
+
+            border-bottom: 1px solid var(--border);
+
+            font-size: 9px;
+
+        }
+
+
+        .payment-history-row:last-child {
+
+            border-bottom: 0;
+
+        }
+
+
+        .payment-history-row.header {
+
+            background: #10233a;
+
+            color: var(--muted);
+
+            font-weight: 800;
+
+        }
+
+
+        .payment-status {
+
+            display: inline-flex;
+
+            width: fit-content;
+
+            padding: 4px 7px;
+
+            border-radius: 999px;
+
+            font-size: 8px;
+
+            font-weight: 800;
+
+        }
+
+
+        .payment-status.pending {
+
+            background:
+                rgba(
+                    251,
+                    191,
+                    36,
+                    .08
+                );
+
+            border: 1px solid
+                rgba(
+                    251,
+                    191,
+                    36,
+                    .22
+                );
+
+            color: #fcd34d;
+
+        }
+
+
+        .payment-status.paid {
+
+            background:
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .08
+                );
+
+            border: 1px solid
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .22
+                );
+
+            color: var(--green);
+
+        }
+
+
+        .payment-empty {
+
+            padding: 20px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+        }
+
+
+        #payment-message {
+
+            display: none;
+
+            padding: 10px 12px;
+
+            border-radius: 9px;
+
+            font-size: 9px;
+
+            line-height: 1.5;
+
+        }
+
+
+        #payment-message.success {
+
+            display: block;
+
+            border: 1px solid
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .25
+                );
+
+            background:
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .06
+                );
+
+            color: var(--green);
+
+        }
+
+
+        #payment-message.error {
+
+            display: block;
+
+            border: 1px solid
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .25
+                );
+
+            background:
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .06
+                );
+
+            color: #fca5a5;
+
+        }
+
+
+        /* =================================================
            FORM
            ================================================= */
 
@@ -1156,6 +1915,13 @@
 
             }
 
+
+            .billing-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
         }
 
 
@@ -1244,6 +2010,38 @@
             }
 
 
+            .billing-header {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+            }
+
+
+            .current-plan {
+
+                align-items: flex-start;
+
+                flex-direction: column;
+
+            }
+
+
+            .plan-price {
+
+                text-align: left;
+
+            }
+
+
+            .payment-amount {
+
+                grid-template-columns: 1fr;
+
+            }
+
+
             .footer-inner {
 
                 flex-direction: column;
@@ -1292,6 +2090,20 @@
             .header-button {
 
                 padding: 7px 8px;
+
+            }
+
+
+            .wallet-row {
+
+                flex-direction: column;
+
+            }
+
+
+            .copy-wallet-button {
+
+                width: 100%;
 
             }
 
@@ -1526,6 +2338,403 @@
 
                     </article>
 
+
+                </section>
+
+
+                <!-- =========================================
+                     BILLING & PAYMENTS
+                     ========================================= -->
+
+                <section
+                    id="billing-payments"
+                    class="dashboard-section billing-section"
+                >
+
+                    <div class="billing-header">
+
+                        <div>
+
+                            <h2 class="section-title">
+                                Billing & Payments
+                            </h2>
+
+                            <p class="section-description">
+                                Manage your subscription and pay securely with USDT on BNB Smart Chain.
+                            </p>
+
+                        </div>
+
+
+                        <div class="billing-badge">
+                            ● Crypto Payments Available
+                        </div>
+
+                    </div>
+
+
+                    <div class="billing-grid">
+
+
+                        <!-- =================================
+                             CURRENT PLAN
+                             ================================= -->
+
+                        <div class="billing-card">
+
+                            <h3>
+                                Current Plan
+                            </h3>
+
+                            <p class="billing-card-description">
+                                Your Web3Jobs subscription and billing information.
+                            </p>
+
+
+                            <div class="current-plan">
+
+                                <div>
+
+                                    <div
+                                        id="current-plan-name"
+                                        class="plan-name"
+                                    >
+                                        Free Plan
+                                    </div>
+
+                                    <span
+                                        id="current-plan-status"
+                                        class="plan-status"
+                                    >
+                                        Active
+                                    </span>
+
+                                </div>
+
+
+                                <div class="plan-price">
+
+                                    <strong
+                                        id="current-plan-price"
+                                    >
+                                        $0
+                                    </strong>
+
+                                    <span>
+                                        USD
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="crypto-box">
+
+                                <div class="crypto-title">
+
+                                    <div class="crypto-icon">
+                                        ₮
+                                    </div>
+
+                                    <span>
+                                        Pay with Crypto
+                                    </span>
+
+                                </div>
+
+
+                                <p class="billing-card-description">
+                                    Pay your Web3Jobs subscription using USDT on BNB Smart Chain (BEP-20).
+                                </p>
+
+
+                                <div class="crypto-info">
+
+
+                                    <div class="crypto-info-item">
+
+                                        <span>
+                                            PAYMENT TOKEN
+                                        </span>
+
+                                        <strong>
+                                            USDT
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="crypto-info-item">
+
+                                        <span>
+                                            NETWORK
+                                        </span>
+
+                                        <strong>
+                                            BNB Smart Chain
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="crypto-info-item">
+
+                                        <span>
+                                            STANDARD
+                                        </span>
+
+                                        <strong>
+                                            BEP-20
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="crypto-info-item">
+
+                                        <span>
+                                            PRICING
+                                        </span>
+
+                                        <strong>
+                                            USD
+                                        </strong>
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <div
+                                    style="
+                                        margin-top:15px;
+                                    "
+                                >
+
+                                    <div class="wallet-label">
+                                        Web3Jobs Payment Wallet
+                                    </div>
+
+
+                                    <div class="wallet-row">
+
+                                        <div
+                                            id="payment-wallet-address"
+                                            class="wallet-address"
+                                        >
+                                            0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36
+                                        </div>
+
+
+                                        <button
+                                            type="button"
+                                            id="copy-wallet-button"
+                                            class="copy-wallet-button"
+                                        >
+                                            Copy
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="payment-warning">
+
+                                    ⚠️ Send <strong>USDT only</strong> using
+                                    <strong>BNB Smart Chain (BEP-20)</strong>
+                                    to the wallet address above.
+                                    Do not send funds using another network.
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- =================================
+                             MAKE PAYMENT
+                             ================================= -->
+
+                        <div class="billing-card">
+
+                            <h3>
+                                Make a Payment
+                            </h3>
+
+                            <p class="billing-card-description">
+                                Select your subscription plan, send the required USDT amount, then submit your transaction hash for verification.
+                            </p>
+
+
+                            <form
+                                id="crypto-payment-form"
+                                class="payment-form"
+                            >
+
+
+                                <div>
+
+                                    <label for="payment-plan">
+                                        Subscription Plan
+                                    </label>
+
+
+                                    <select
+                                        id="payment-plan"
+                                        name="payment_plan"
+                                    >
+
+                                        <option
+                                            value="starter"
+                                            data-price="19"
+                                        >
+                                            Starter — $19 USD
+                                        </option>
+
+                                        <option
+                                            value="professional"
+                                            data-price="49"
+                                        >
+                                            Professional — $49 USD
+                                        </option>
+
+                                        <option
+                                            value="business"
+                                            data-price="99"
+                                        >
+                                            Business — $99 USD
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="payment-amount">
+
+
+                                    <div class="amount-box">
+
+                                        <span>
+                                            PLAN PRICE
+                                        </span>
+
+                                        <strong
+                                            id="payment-usd-amount"
+                                        >
+                                            $19
+                                        </strong>
+
+                                    </div>
+
+
+                                    <div class="amount-box">
+
+                                        <span>
+                                            USDT TO SEND
+                                        </span>
+
+                                        <strong
+                                            id="payment-usdt-amount"
+                                        >
+                                            19 USDT
+                                        </strong>
+
+                                    </div>
+
+                                </div>
+
+
+                                <div>
+
+                                    <label for="transaction-hash">
+                                        Transaction Hash
+                                    </label>
+
+
+                                    <input
+                                        id="transaction-hash"
+                                        name="transaction_hash"
+                                        type="text"
+                                        placeholder="0x..."
+                                        autocomplete="off"
+                                        spellcheck="false"
+                                    >
+
+                                </div>
+
+
+                                <div
+                                    id="payment-message"
+                                    role="alert"
+                                ></div>
+
+
+                                <button
+                                    type="submit"
+                                    class="submit-payment-button"
+                                >
+                                    Submit Payment for Verification
+                                </button>
+
+
+                            </form>
+
+
+                            <div class="payment-history">
+
+                                <div class="payment-history-title">
+                                    Payment History
+                                </div>
+
+
+                                <div class="payment-history-table">
+
+
+                                    <div class="payment-history-row header">
+
+                                        <div>
+                                            Date
+                                        </div>
+
+                                        <div>
+                                            Plan
+                                        </div>
+
+                                        <div>
+                                            Amount
+                                        </div>
+
+                                        <div>
+                                            Status
+                                        </div>
+
+                                    </div>
+
+
+                                    <div
+                                        id="payment-history-list"
+                                    >
+
+                                        <div class="payment-empty">
+                                            No payments recorded yet.
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
 
                 </section>
 
@@ -2049,9 +3258,289 @@
             }
         );
 
+
+        /* =====================================================
+           BILLING UI
+           ===================================================== */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            function () {
+
+
+                const paymentPlan =
+                    document.getElementById(
+                        "payment-plan"
+                    );
+
+
+                const usdAmount =
+                    document.getElementById(
+                        "payment-usd-amount"
+                    );
+
+
+                const usdtAmount =
+                    document.getElementById(
+                        "payment-usdt-amount"
+                    );
+
+
+                const copyWalletButton =
+                    document.getElementById(
+                        "copy-wallet-button"
+                    );
+
+
+                const walletAddress =
+                    document.getElementById(
+                        "payment-wallet-address"
+                    );
+
+
+                const paymentForm =
+                    document.getElementById(
+                        "crypto-payment-form"
+                    );
+
+
+                const paymentMessage =
+                    document.getElementById(
+                        "payment-message"
+                    );
+
+
+                /* -----------------------------------------
+                   UPDATE PAYMENT AMOUNT
+                   ----------------------------------------- */
+
+                function updatePaymentAmount() {
+
+                    if (!paymentPlan) {
+
+                        return;
+
+                    }
+
+
+                    const selectedOption =
+                        paymentPlan.options[
+                            paymentPlan.selectedIndex
+                        ];
+
+
+                    const price =
+                        Number(
+                            selectedOption
+                                .getAttribute(
+                                    "data-price"
+                                )
+                        );
+
+
+                    if (
+                        !Number.isFinite(price)
+                    ) {
+
+                        return;
+
+                    }
+
+
+                    if (usdAmount) {
+
+                        usdAmount.textContent =
+                            "$" +
+                            price;
+
+                    }
+
+
+                    if (usdtAmount) {
+
+                        usdtAmount.textContent =
+                            price +
+                            " USDT";
+
+                    }
+
+                }
+
+
+                if (paymentPlan) {
+
+                    paymentPlan.addEventListener(
+                        "change",
+                        updatePaymentAmount
+                    );
+
+
+                    updatePaymentAmount();
+
+                }
+
+
+                /* -----------------------------------------
+                   COPY WALLET
+                   ----------------------------------------- */
+
+                if (
+                    copyWalletButton &&
+                    walletAddress
+                ) {
+
+                    copyWalletButton.addEventListener(
+                        "click",
+                        async function () {
+
+                            const address =
+                                walletAddress
+                                    .textContent
+                                    .trim();
+
+                            try {
+
+                                await navigator
+                                    .clipboard
+                                    .writeText(
+                                        address
+                                    );
+
+                                copyWalletButton
+                                    .textContent =
+                                    "Copied!";
+
+                                setTimeout(
+                                    function () {
+
+                                        copyWalletButton
+                                            .textContent =
+                                            "Copy";
+
+                                    },
+                                    1800
+                                );
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Wallet copy error:",
+                                    error
+                                );
+
+                                alert(
+                                    "Please copy the wallet address manually."
+                                );
+
+                            }
+
+                        }
+                    );
+
+                }
+
+
+                /* -----------------------------------------
+                   PAYMENT FORM
+                   ----------------------------------------- */
+
+                if (paymentForm) {
+
+                    paymentForm.addEventListener(
+                        "submit",
+                        function (event) {
+
+                            event.preventDefault();
+
+
+                            const transactionInput =
+                                document.getElementById(
+                                    "transaction-hash"
+                                );
+
+
+                            const transactionHash =
+                                transactionInput
+                                    ? transactionInput
+                                        .value
+                                        .trim()
+                                    : "";
+
+
+                            if (!transactionHash) {
+
+                                showPaymentMessage(
+                                    "Please enter your transaction hash.",
+                                    "error"
+                                );
+
+                                return;
+
+                            }
+
+
+                            if (
+                                !/^0x[a-fA-F0-9]{64}$/
+                                    .test(
+                                        transactionHash
+                                    )
+                            ) {
+
+                                showPaymentMessage(
+                                    "Please enter a valid blockchain transaction hash.",
+                                    "error"
+                                );
+
+                                return;
+
+                            }
+
+
+                            showPaymentMessage(
+                                "Transaction received. Verification will be performed before your subscription is activated.",
+                                "success"
+                            );
+
+                        }
+                    );
+
+                }
+
+
+                function showPaymentMessage(
+                    message,
+                    type
+                ) {
+
+                    if (!paymentMessage) {
+
+                        return;
+
+                    }
+
+
+                    paymentMessage
+                        .className =
+                        "";
+
+
+                    paymentMessage
+                        .classList
+                        .add(type);
+
+
+                    paymentMessage
+                        .textContent =
+                        message;
+
+                }
+
+            }
+        );
+
     </script>
 
 
 </body>
 
-</html>
+    </html>
