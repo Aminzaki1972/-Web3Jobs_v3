@@ -75,6 +75,10 @@ function initializeJobsSupabase() {
                 JOBS_SUPABASE_KEY
             );
 
+        console.log(
+            "Web3Jobs: Supabase initialized."
+        );
+
         return true;
 
     } catch (error) {
@@ -191,8 +195,11 @@ async function jobsGetCurrentUser() {
 
         if (error) {
 
-            JobsSystem.currentUser =
-                null;
+            JobsSystem.currentUser = null;
+
+            console.log(
+                "Web3Jobs: No authenticated user."
+            );
 
             return null;
         }
@@ -212,8 +219,7 @@ async function jobsGetCurrentUser() {
             error
         );
 
-        JobsSystem.currentUser =
-            null;
+        JobsSystem.currentUser = null;
 
         return null;
     }
@@ -225,6 +231,15 @@ async function jobsGetCurrentUser() {
    ========================================================= */
 
 async function loadAllJobs() {
+
+    console.log(
+        "NEW jobs.js is running"
+    );
+
+    console.log(
+        "Supabase URL:",
+        JOBS_SUPABASE_URL
+    );
 
     if (!jobsSupabase) {
 
@@ -239,6 +254,10 @@ async function loadAllJobs() {
     }
 
     try {
+
+        console.log(
+            "Web3Jobs: Requesting jobs from Supabase..."
+        );
 
         const {
             data,
@@ -261,6 +280,11 @@ async function loadAllJobs() {
             console.error(
                 "Web3Jobs: Failed to load jobs:",
                 error
+            );
+
+            console.error(
+                "Web3Jobs: Error code:",
+                error.code
             );
 
             console.error(
@@ -289,6 +313,18 @@ async function loadAllJobs() {
 
             return [];
         }
+
+        console.log(
+            "Web3Jobs: Jobs loaded successfully:",
+            data
+        );
+
+        console.log(
+            "Web3Jobs: Number of jobs:",
+            Array.isArray(data)
+                ? data.length
+                : 0
+        );
 
         JobsSystem.jobs =
             Array.isArray(data)
@@ -375,6 +411,14 @@ function createJobCard(job) {
             )
         );
 
+    const skills =
+        jobsEscapeHTML(
+            jobsValue(
+                job.skills,
+                ""
+            )
+        );
+
     const salary =
         jobsEscapeHTML(
             jobsValue(
@@ -441,6 +485,16 @@ function createJobCard(job) {
                 }
 
             </div>
+
+            ${
+                skills
+                    ? `
+                        <div class="job-skills">
+                            ${skills}
+                        </div>
+                    `
+                    : ""
+            }
 
             <p class="job-description">
                 ${description}
@@ -583,7 +637,6 @@ function applyJobsFilters() {
             .trim()
             .toLowerCase();
 
-
     if (keyword) {
 
         result =
@@ -621,7 +674,6 @@ function applyJobsFilters() {
             );
     }
 
-
     if (type) {
 
         result =
@@ -635,7 +687,6 @@ function applyJobsFilters() {
             );
     }
 
-
     if (location) {
 
         result =
@@ -648,7 +699,6 @@ function applyJobsFilters() {
                         .includes(location)
             );
     }
-
 
     JobsSystem.filteredJobs =
         result;
@@ -712,14 +762,11 @@ function filterJobsByLocation(
 
 function clearJobFilters() {
 
-    JobsSystem.searchQuery =
-        "";
+    JobsSystem.searchQuery = "";
 
-    JobsSystem.typeFilter =
-        "";
+    JobsSystem.typeFilter = "";
 
-    JobsSystem.locationFilter =
-        "";
+    JobsSystem.locationFilter = "";
 
     return applyJobsFilters();
 }
@@ -729,7 +776,9 @@ function clearJobFilters() {
    GET JOB BY ID
    ========================================================= */
 
-function getJobById(jobId) {
+function getJobById(
+    jobId
+) {
 
     if (
         jobId === null ||
@@ -815,6 +864,11 @@ async function loadJobById(
             error
         );
 
+        showJobsError(
+            error.message ||
+            "Unable to load job."
+        );
+
         return null;
     }
 }
@@ -894,11 +948,9 @@ function createJobsModal() {
         }
     );
 
-
     document.body.appendChild(
         modal
     );
-
 
     const closeButton =
         modal.querySelector(
@@ -910,7 +962,6 @@ function createJobsModal() {
             ".jobs-modal-overlay"
         );
 
-
     if (closeButton) {
 
         closeButton.addEventListener(
@@ -919,7 +970,6 @@ function createJobsModal() {
         );
     }
 
-
     if (overlay) {
 
         overlay.addEventListener(
@@ -927,7 +977,6 @@ function createJobsModal() {
             closeJobDetails
         );
     }
-
 
     return modal;
 }
@@ -950,25 +999,20 @@ function showJobDetails(
         return;
     }
 
-
     JobsSystem.currentJob =
         job;
 
-
     const modal =
         createJobsModal();
-
 
     const body =
         modal.querySelector(
             ".jobs-modal-body"
         );
 
-
     if (!body) {
         return;
     }
-
 
     const title =
         jobsEscapeHTML(
@@ -1036,7 +1080,6 @@ function showJobDetails(
         jobsFormatDate(
             job.created_at
         );
-
 
     body.innerHTML = `
 
@@ -1120,38 +1163,22 @@ function showJobDetails(
 
         <div class="job-application-area">
 
-            ${
-                applicationURL
-                    ? `
-                        <button
-                            type="button"
-                            id="job-apply-button"
-                            class="job-apply-button"
-                        >
-                            Apply Now
-                        </button>
-                    `
-                    : `
-                        <button
-                            type="button"
-                            id="job-apply-button"
-                            class="job-apply-button"
-                        >
-                            Apply Now
-                        </button>
-                    `
-            }
+            <button
+                type="button"
+                id="job-apply-button"
+                class="job-apply-button"
+            >
+                Apply Now
+            </button>
 
         </div>
 
     `;
 
-
     const applyButton =
         body.querySelector(
             "#job-apply-button"
         );
-
 
     if (applyButton) {
 
@@ -1196,10 +1223,8 @@ function showJobDetails(
         );
     }
 
-
     modal.style.display =
         "flex";
-
 
     document.body.style.overflow =
         "hidden";
@@ -1217,13 +1242,11 @@ function closeJobDetails() {
             "jobs-detail-modal"
         );
 
-
     if (modal) {
 
         modal.style.display =
             "none";
     }
-
 
     document.body.style.overflow =
         "";
@@ -1251,7 +1274,6 @@ async function applyForJob(
         return false;
     }
 
-
     if (!jobsSupabase) {
 
         if (!initializeJobsSupabase()) {
@@ -1264,11 +1286,9 @@ async function applyForJob(
         }
     }
 
-
     const user =
         JobsSystem.currentUser ||
         await jobsGetCurrentUser();
-
 
     if (!user) {
 
@@ -1276,7 +1296,6 @@ async function applyForJob(
             "Please sign in before applying.",
             "warning"
         );
-
 
         setTimeout(
             () => {
@@ -1288,10 +1307,8 @@ async function applyForJob(
             900
         );
 
-
         return false;
     }
-
 
     try {
 
@@ -1312,7 +1329,6 @@ async function applyForJob(
                 )
                 .limit(1);
 
-
         if (checkError) {
 
             console.error(
@@ -1329,7 +1345,6 @@ async function applyForJob(
             return false;
         }
 
-
         if (
             Array.isArray(
                 existingApplications
@@ -1344,7 +1359,6 @@ async function applyForJob(
 
             return false;
         }
-
 
         const {
             data,
@@ -1363,7 +1377,6 @@ async function applyForJob(
                 })
                 .select()
                 .maybeSingle();
-
 
         if (error) {
 
@@ -1386,7 +1399,6 @@ async function applyForJob(
                 return false;
             }
 
-
             showJobsMessage(
                 error.message ||
                 "Unable to submit application.",
@@ -1396,7 +1408,6 @@ async function applyForJob(
             return false;
         }
 
-
         if (!data) {
 
             console.log(
@@ -1404,15 +1415,12 @@ async function applyForJob(
             );
         }
 
-
         showJobsMessage(
             "Application submitted successfully.",
             "success"
         );
 
-
         closeJobDetails();
-
 
         return true;
 
@@ -1449,11 +1457,9 @@ async function createJob(
         }
     }
 
-
     const user =
         JobsSystem.currentUser ||
         await jobsGetCurrentUser();
-
 
     if (!user) {
 
@@ -1465,12 +1471,10 @@ async function createJob(
         return null;
     }
 
-
     const title =
         jobsValue(
             jobData.title
         );
-
 
     if (!title) {
 
@@ -1481,7 +1485,6 @@ async function createJob(
 
         return null;
     }
-
 
     try {
 
@@ -1538,6 +1541,10 @@ async function createJob(
 
         };
 
+        console.log(
+            "Web3Jobs: Creating job:",
+            insertData
+        );
 
         const {
             data,
@@ -1550,7 +1557,6 @@ async function createJob(
                 )
                 .select()
                 .single();
-
 
         if (error) {
 
@@ -1568,7 +1574,6 @@ async function createJob(
             return null;
         }
 
-
         if (data) {
 
             JobsSystem.jobs.unshift(
@@ -1576,15 +1581,12 @@ async function createJob(
             );
         }
 
-
         applyJobsFilters();
-
 
         showJobsMessage(
             "Job published successfully.",
             "success"
         );
-
 
         return data || null;
 
@@ -1622,7 +1624,6 @@ async function deleteJob(
         return false;
     }
 
-
     if (!jobsSupabase) {
 
         if (!initializeJobsSupabase()) {
@@ -1630,11 +1631,9 @@ async function deleteJob(
         }
     }
 
-
     const user =
         JobsSystem.currentUser ||
         await jobsGetCurrentUser();
-
 
     if (!user) {
 
@@ -1646,17 +1645,14 @@ async function deleteJob(
         return false;
     }
 
-
     const confirmed =
         window.confirm(
             "Are you sure you want to delete this job?"
         );
 
-
     if (!confirmed) {
         return false;
     }
-
 
     try {
 
@@ -1675,7 +1671,6 @@ async function deleteJob(
                     user.id
                 );
 
-
         if (error) {
 
             console.error(
@@ -1692,7 +1687,6 @@ async function deleteJob(
             return false;
         }
 
-
         JobsSystem.jobs =
             JobsSystem.jobs.filter(
                 job =>
@@ -1700,15 +1694,12 @@ async function deleteJob(
                     String(jobId)
             );
 
-
         applyJobsFilters();
-
 
         showJobsMessage(
             "Job deleted successfully.",
             "success"
         );
-
 
         return true;
 
@@ -1741,7 +1732,6 @@ function initializeJobsSearch() {
             "#job-search-form, .job-search-form, [data-job-search-form]"
         );
 
-
     forms.forEach(
         form => {
 
@@ -1752,10 +1742,8 @@ function initializeJobsSearch() {
                 return;
             }
 
-
             form.dataset.jobsSearchInitialized =
                 "true";
-
 
             form.addEventListener(
                 "submit",
@@ -1763,17 +1751,14 @@ function initializeJobsSearch() {
 
                     event.preventDefault();
 
-
                     const input =
                         form.querySelector(
                             "input"
                         );
 
-
                     if (!input) {
                         return;
                     }
-
 
                     searchJobs(
                         input.value
@@ -1783,12 +1768,10 @@ function initializeJobsSearch() {
         }
     );
 
-
     const inputs =
         document.querySelectorAll(
             "#job-search, #search-jobs, [data-job-search]"
         );
-
 
     inputs.forEach(
         input => {
@@ -1800,10 +1783,8 @@ function initializeJobsSearch() {
                 return;
             }
 
-
             input.dataset.jobsSearchInitialized =
                 "true";
-
 
             input.addEventListener(
                 "input",
@@ -1833,10 +1814,8 @@ function initializeJobEvents() {
         return;
     }
 
-
     document.body.dataset.jobsEventsInitialized =
         "true";
-
 
     document.addEventListener(
         "click",
@@ -1847,16 +1826,13 @@ function initializeJobEvents() {
                     ".job-view-button, [data-view-job]"
                 );
 
-
             if (!button) {
                 return;
             }
 
-
             const jobId =
                 button.dataset.jobId ||
                 button.dataset.viewJob;
-
 
             if (
                 jobId === null ||
@@ -1866,12 +1842,10 @@ function initializeJobEvents() {
                 return;
             }
 
-
-            let job =
+            const job =
                 getJobById(
                     jobId
                 );
-
 
             if (!job) {
 
@@ -1899,7 +1873,6 @@ function initializeJobEvents() {
                 return;
             }
 
-
             showJobDetails(
                 job
             );
@@ -1921,10 +1894,8 @@ function initializeJobsKeyboard() {
         return;
     }
 
-
     document.body.dataset.jobsKeyboardInitialized =
         "true";
-
 
     document.addEventListener(
         "keydown",
@@ -1956,7 +1927,6 @@ function showJobsMessage(
             "jobs-message"
         );
 
-
     if (!box) {
 
         box =
@@ -1966,7 +1936,6 @@ function showJobsMessage(
 
         box.id =
             "jobs-message";
-
 
         Object.assign(
             box.style,
@@ -1999,16 +1968,13 @@ function showJobsMessage(
             }
         );
 
-
         document.body.appendChild(
             box
         );
     }
 
-
     box.textContent =
         String(message || "");
-
 
     switch (type) {
 
@@ -2022,7 +1988,6 @@ function showJobsMessage(
 
             break;
 
-
         case "error":
 
             box.style.background =
@@ -2033,7 +1998,6 @@ function showJobsMessage(
 
             break;
 
-
         case "warning":
 
             box.style.background =
@@ -2043,7 +2007,6 @@ function showJobsMessage(
                 "#111111";
 
             break;
-
 
         default:
 
@@ -2056,15 +2019,12 @@ function showJobsMessage(
             break;
     }
 
-
     box.style.display =
         "block";
-
 
     clearTimeout(
         box._timer
     );
-
 
     box._timer =
         setTimeout(
@@ -2106,14 +2066,15 @@ async function initializeJobs() {
         return;
     }
 
-
     JobsSystem.initialized =
         true;
 
+    console.log(
+        "Web3Jobs: Starting Jobs System..."
+    );
 
     const initialized =
         initializeJobsSupabase();
-
 
     if (!initialized) {
 
@@ -2124,9 +2085,7 @@ async function initializeJobs() {
         return;
     }
 
-
     await jobsGetCurrentUser();
-
 
     initializeJobsSearch();
 
@@ -2134,18 +2093,21 @@ async function initializeJobs() {
 
     initializeJobsKeyboard();
 
-
     const jobsContainer =
         findJobsContainer();
-
 
     if (jobsContainer) {
 
         await loadAllJobs();
 
         renderAllJobs();
-    }
 
+    } else {
+
+        console.warn(
+            "Web3Jobs: Jobs container was not found."
+        );
+    }
 
     console.log(
         "Web3Jobs Jobs System initialized."
@@ -2159,7 +2121,6 @@ async function initializeJobs() {
 
 window.JobsSystem =
     JobsSystem;
-
 
 window.Web3JobsJobs = {
 
@@ -2215,4 +2176,4 @@ if (
 
     initializeJobs();
 
-}
+           }
