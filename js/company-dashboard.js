@@ -1,27 +1,41 @@
 /* =========================================================
    Web3Jobs v3
    File: js/company-dashboard.js
-   Company Dashboard
-   FINAL COMPANY VERSION
+
+   COMPANY DASHBOARD
+   ---------------------------------------------------------
+   Compatible with current Supabase jobs table:
+
+   jobs:
+   - id
+   - title
+   - company
+   - location
+   - type
+   - description
+   - skills
+   - salary
+   - application_url
+   - company_id
+   - created_at
+   - updated_at
+
+   IMPORTANT:
+   company_id is used instead of created_by.
    ========================================================= */
 
 "use strict";
+
 
 /* =========================================================
    SUPABASE
    ========================================================= */
 
-const COMPANY_SUPABASE_URL =
-    "https://jqhemwskrnlycximjpag.supabase.co";
-
-const COMPANY_SUPABASE_KEY =
-    "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
-
 let companySupabase = null;
 
 
 /* =========================================================
-   STATE
+   DASHBOARD STATE
    ========================================================= */
 
 const CompanyDashboard = {
@@ -43,62 +57,123 @@ const CompanyDashboard = {
 
 function initializeCompanySupabase() {
 
-    if (companySupabase) {
-
-        return companySupabase;
-    }
+    /*
+     * Use the central Supabase client first.
+     */
 
     if (
-        !window.supabase ||
-        typeof window.supabase.createClient !== "function"
+        window.supabaseClient &&
+        typeof window.supabaseClient.auth !== "undefined"
     ) {
 
-        console.error(
-            "Web3Jobs: Supabase library not loaded."
-        );
-
-        return null;
-    }
-
-    try {
-
         companySupabase =
-            window.supabase.createClient(
-                COMPANY_SUPABASE_URL,
-                COMPANY_SUPABASE_KEY
-            );
+            window.supabaseClient;
 
         console.log(
-            "Web3Jobs Company: Supabase connected."
+            "Web3Jobs Company: Using central Supabase client."
         );
 
-        return companySupabase;
-
-    } catch (error) {
-
-        console.error(
-            "Web3Jobs Company: Supabase initialization error:",
-            error
-        );
-
-        return null;
+        return true;
     }
+
+
+    /*
+     * Fallback to Web3JobsSupabase.
+     */
+
+    if (
+        window.Web3JobsSupabase &&
+        typeof window.Web3JobsSupabase.getClient === "function"
+    ) {
+
+        try {
+
+            companySupabase =
+                window.Web3JobsSupabase.getClient();
+
+            if (companySupabase) {
+
+                console.log(
+                    "Web3Jobs Company: Connected through Web3JobsSupabase."
+                );
+
+                return true;
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Web3Jobs Company: Supabase client error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /*
+     * Last fallback:
+     * create client from central configuration.
+     */
+
+    if (
+        window.supabase &&
+        typeof window.supabase.createClient === "function" &&
+        window.Web3JobsSupabase
+    ) {
+
+        try {
+
+            companySupabase =
+                window.supabase.createClient(
+                    window.Web3JobsSupabase.url,
+                    window.Web3JobsSupabase.publishableKey
+                );
+
+            console.log(
+                "Web3Jobs Company: Fallback Supabase client created."
+            );
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "Web3Jobs Company: Fallback initialization error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    console.error(
+        "Web3Jobs Company: Supabase client is not available."
+    );
+
+    return false;
 }
 
 
 /* =========================================================
-   GET USER
+   GET CURRENT USER
    ========================================================= */
 
 async function getCompanyUser() {
 
-    const client =
-        initializeCompanySupabase();
+    if (!companySupabase) {
 
-    if (!client) {
+        if (
+            !initializeCompanySupabase()
+        ) {
 
-        return null;
+            return null;
+        }
+
     }
+
 
     try {
 
@@ -106,7 +181,8 @@ async function getCompanyUser() {
             data,
             error
         } =
-            await client.auth.getUser();
+            await companySupabase.auth.getUser();
+
 
         if (error) {
 
@@ -118,15 +194,18 @@ async function getCompanyUser() {
             return null;
         }
 
+
         CompanyDashboard.user =
             data?.user || null;
 
+
         return CompanyDashboard.user;
+
 
     } catch (error) {
 
         console.error(
-            "Web3Jobs Company: unexpected getUser error:",
+            "Web3Jobs Company: getCompanyUser error:",
             error
         );
 
@@ -136,59 +215,65 @@ async function getCompanyUser() {
 
 
 /* =========================================================
-   LOAD PROFILE
+   LOAD COMPANY PROFILE
    ========================================================= */
 
 async function loadCompanyProfile() {
-
-    const client =
-        initializeCompanySupabase();
 
     const user =
         CompanyDashboard.user ||
         await getCompanyUser();
 
-    if (!client || !user) {
+
+    if (!user) {
 
         return null;
     }
 
+
     try {
+
+        /*
+         * Only request columns that are known
+         * to exist in the profiles table.
+         */
 
         const {
             data,
             error
         } =
-            await client
+            await companySupabase
                 .from("profiles")
                 .select("*")
-                .eq("id", user.id)
+                .eq(
+                    "id",
+                    user.id
+                )
                 .maybeSingle();
+
 
         if (error) {
 
             console.error(
-                "Web3Jobs Company: profile error:",
+                "Web3Jobs Company: Profile loading error:",
                 error
             );
 
             return null;
         }
 
+
         CompanyDashboard.profile =
             data || null;
 
-        console.log(
-            "Web3Jobs Company: profile:",
-            data
-        );
 
         return CompanyDashboard.profile;
+
 
     } catch (error) {
 
         console.error(
-            "Web3Jobs Company: profile exception:",
+            "Web3Jobs Company: loadCompanyProfile error:",
             error
         );
 
@@ -198,7 +283,7 @@ async function loadCompanyProfile() {
 
 
 /* =========================================================
-   VERIFY COMPANY
+   VERIFY COMPANY ACCOUNT
    ========================================================= */
 
 async function verifyCompanyAccount() {
@@ -207,26 +292,29 @@ async function verifyCompanyAccount() {
         CompanyDashboard.user ||
         await getCompanyUser();
 
+
     if (!user) {
 
-        console.error(
-            "Web3Jobs Company: No authenticated user."
-        );
+        redirectToLogin();
 
         return false;
     }
+
 
     const profile =
         CompanyDashboard.profile ||
         await loadCompanyProfile();
 
+
     const profileType =
         profile?.account_type;
+
 
     const metadataType =
         user.user_metadata?.account_type ||
         user.user_metadata?.accountType ||
         user.user_metadata?.role;
+
 
     const accountType =
         String(
@@ -237,63 +325,108 @@ async function verifyCompanyAccount() {
         .trim()
         .toLowerCase();
 
+
     console.log(
-        "Web3Jobs Company: account_type =",
+        "Web3Jobs Company: Account type:",
         accountType
     );
 
-    if (accountType === "company") {
 
-        return true;
+    if (
+        accountType !== "company"
+    ) {
+
+        console.error(
+            "Web3Jobs Company: This is not a company account.",
+            {
+                userId:
+                    user.id,
+
+                email:
+                    user.email,
+
+                profile:
+                    profile,
+
+                metadata:
+                    user.user_metadata
+            }
+        );
+
+
+        showCompanyMessage(
+            "هذا ليس حساب شركة.",
+            "This is not a company account.",
+            "error"
+        );
+
+
+        return false;
     }
 
-    console.error(
-        "Web3Jobs Company: This is not a company account.",
-        {
-            profile,
-            metadata: user.user_metadata,
-            email: user.email
-        }
-    );
 
-    showCompanyMessage(
-        "هذا الحساب ليس حساب شركة.",
-        "This is not a company account.",
-        "error"
-    );
-
-    return false;
+    return true;
 }
 
 
 /* =========================================================
-   LOAD JOBS
+   REDIRECT TO LOGIN
+   ========================================================= */
+
+function redirectToLogin() {
+
+    window.location.href =
+        "login.html";
+}
+
+
+/* =========================================================
+   LOAD COMPANY JOBS
    ========================================================= */
 
 async function loadCompanyJobs() {
-
-    const client =
-        initializeCompanySupabase();
 
     const user =
         CompanyDashboard.user ||
         await getCompanyUser();
 
-    if (!client || !user) {
+
+    if (!user) {
+
+        redirectToLogin();
 
         return [];
     }
 
+
     try {
+
+        console.log(
+            "Web3Jobs Company: Loading jobs for company:",
+            user.id
+        );
+
+
+        /*
+         * IMPORTANT:
+         *
+         * jobs.company_id = profiles.id
+         * jobs.company_id is UUID.
+         *
+         * We DO NOT use created_by.
+         */
 
         const {
             data,
             error
         } =
-            await client
+            await companySupabase
                 .from("jobs")
                 .select("*")
-                .eq("created_by", user.id)
+                .eq(
+                    "company_id",
+                    user.id
+                )
                 .order(
                     "created_at",
                     {
@@ -301,37 +434,68 @@ async function loadCompanyJobs() {
                     }
                 );
 
+
         if (error) {
 
             console.error(
-                "Web3Jobs Company: jobs error:",
+                "Web3Jobs Company: Unable to load jobs:",
                 error
             );
 
+
             showCompanyMessage(
                 "تعذر تحميل الوظائف.",
-                "Unable to load jobs.",
+                "Unable to load your jobs.",
                 "error"
             );
+
+
+            CompanyDashboard.jobs =
+                [];
+
+
+            renderCompanyJobs();
+
+            updateCompanyStats();
 
             return [];
         }
 
+
         CompanyDashboard.jobs =
-            data || [];
+            Array.isArray(data)
+                ? data
+                : [];
+
+
+        console.log(
+            "Web3Jobs Company: Jobs loaded:",
+            CompanyDashboard.jobs
+        );
+
 
         renderCompanyJobs();
 
         updateCompanyStats();
 
+
         return CompanyDashboard.jobs;
+
 
     } catch (error) {
 
         console.error(
-            "Web3Jobs Company: load jobs exception:",
+            "Web3Jobs Company: loadCompanyJobs exception:",
             error
         );
+
+
+        showCompanyMessage(
+            "حدث خطأ أثناء تحميل الوظائف.",
+            "An error occurred while loading jobs.",
+            "error"
+        );
+
 
         return [];
     }
@@ -339,112 +503,50 @@ async function loadCompanyJobs() {
 
 
 /* =========================================================
-   RENDER INFORMATION
-   ========================================================= */
-
-function renderCompanyInformation() {
-
-    const user =
-        CompanyDashboard.user;
-
-    const profile =
-        CompanyDashboard.profile;
-
-    if (!user) {
-
-        return;
-    }
-
-    const companyName =
-        profile?.company_name ||
-        profile?.full_name ||
-        profile?.name ||
-        user.user_metadata?.company_name ||
-        user.user_metadata?.full_name ||
-        user.email ||
-        "Company";
-
-    const email =
-        profile?.email ||
-        user.email ||
-        "";
-
-    const nameElements =
-        document.querySelectorAll(
-            "[data-company-name], #company-name"
-        );
-
-    nameElements.forEach(
-        element => {
-
-            element.textContent =
-                companyName;
-
-        }
-    );
-
-    const emailElements =
-        document.querySelectorAll(
-            "[data-company-email], #company-email"
-        );
-
-    emailElements.forEach(
-        element => {
-
-            element.textContent =
-                email;
-
-        }
-    );
-
-    const companyInput =
-        document.querySelector(
-            "#job-company"
-        );
-
-    if (
-        companyInput &&
-        !companyInput.value
-    ) {
-
-        companyInput.value =
-            companyName;
-    }
-}
-
-
-/* =========================================================
-   RENDER JOBS
+   RENDER COMPANY JOBS
    ========================================================= */
 
 function renderCompanyJobs() {
 
     const container =
         document.querySelector(
-            "#company-jobs-list"
+            "#company-jobs-list, " +
+            "#my-jobs, " +
+            ".company-jobs-list, " +
+            "[data-company-jobs]"
         );
+
 
     if (!container) {
 
-        console.error(
-            "Web3Jobs Company: #company-jobs-list not found."
+        console.warn(
+            "Web3Jobs Company: Jobs container not found."
         );
 
         return;
     }
 
-    if (!CompanyDashboard.jobs.length) {
+
+    const jobs =
+        CompanyDashboard.jobs || [];
+
+
+    /*
+     * No jobs.
+     */
+
+    if (!jobs.length) {
 
         container.innerHTML = `
 
             <div class="no-company-jobs">
 
                 <h3>
-                    No jobs published yet
+                    لا توجد وظائف منشورة بعد
                 </h3>
 
                 <p>
-                    Create your first job opportunity.
+                    لم تقم الشركة بنشر أي وظيفة حتى الآن.
                 </p>
 
                 <button
@@ -452,74 +554,180 @@ function renderCompanyJobs() {
                     class="company-create-job-button"
                     data-action="create-job"
                 >
-                    Create Job
+                    إنشاء وظيفة
                 </button>
 
             </div>
 
         `;
 
+
         return;
     }
 
+
+    /*
+     * Render jobs.
+     */
+
     container.innerHTML =
-        CompanyDashboard.jobs
+        jobs
             .map(
                 job => {
+
+                    const title =
+                        escapeCompanyHTML(
+                            job.title ||
+                            "Untitled Job"
+                        );
+
+
+                    const company =
+                        escapeCompanyHTML(
+                            job.company ||
+                            "Company"
+                        );
+
+
+                    const location =
+                        escapeCompanyHTML(
+                            job.location ||
+                            "Remote"
+                        );
+
+
+                    const type =
+                        escapeCompanyHTML(
+                            job.type ||
+                            "Full Time"
+                        );
+
+
+                    const description =
+                        escapeCompanyHTML(
+                            job.description ||
+                            ""
+                        );
+
+
+                    const skills =
+                        escapeCompanyHTML(
+                            job.skills ||
+                            ""
+                        );
+
+
+                    const salary =
+                        escapeCompanyHTML(
+                            job.salary ||
+                            ""
+                        );
+
+
+                    const applicationUrl =
+                        escapeCompanyHTML(
+                            job.application_url ||
+                            ""
+                        );
+
 
                     return `
 
                         <article
                             class="company-job-card"
-                            data-job-id="${escapeHTML(job.id)}"
+                            data-job-id="${job.id}"
                         >
 
                             <div class="company-job-content">
 
                                 <h3>
-                                    ${escapeHTML(
-                                        job.title ||
-                                        "Untitled Job"
-                                    )}
+                                    ${title}
                                 </h3>
+
 
                                 <div class="company-job-meta">
 
                                     <span>
-                                        📍
-                                        ${escapeHTML(
-                                            job.location ||
-                                            "Remote"
-                                        )}
+                                        🏢 ${company}
                                     </span>
 
                                     <span>
-                                        💼
-                                        ${escapeHTML(
-                                            job.type ||
-                                            "Full Time"
-                                        )}
+                                        📍 ${location}
+                                    </span>
+
+                                    <span>
+                                        💼 ${type}
                                     </span>
 
                                 </div>
 
-                                <p>
-                                    ${escapeHTML(
-                                        job.description ||
-                                        ""
-                                    )}
-                                </p>
+
+                                ${
+                                    description
+                                        ? `
+                                            <p>
+                                                ${description}
+                                            </p>
+                                          `
+                                        : ""
+                                }
+
+
+                                ${
+                                    skills
+                                        ? `
+                                            <p>
+                                                <strong>
+                                                    Skills:
+                                                </strong>
+                                                ${skills}
+                                            </p>
+                                          `
+                                        : ""
+                                }
+
+
+                                ${
+                                    salary
+                                        ? `
+                                            <p>
+                                                <strong>
+                                                    Salary:
+                                                </strong>
+                                                ${salary}
+                                            </p>
+                                          `
+                                        : ""
+                                }
+
+
+                                ${
+                                    applicationUrl
+                                        ? `
+                                            <p>
+                                                <a
+                                                    href="${applicationUrl}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+                                                    Application Link
+                                                </a>
+                                            </p>
+                                          `
+                                        : ""
+                                }
 
                             </div>
+
 
                             <div class="company-job-actions">
 
                                 <button
                                     type="button"
                                     data-action="delete-job"
-                                    data-job-id="${escapeHTML(job.id)}"
+                                    data-job-id="${job.id}"
                                 >
-                                    Delete
+                                    حذف الوظيفة
                                 </button>
 
                             </div>
@@ -534,88 +742,132 @@ function renderCompanyJobs() {
 
 
 /* =========================================================
-   CREATE JOB
+   CREATE COMPANY JOB
    ========================================================= */
 
-async function createCompanyJob(jobData) {
-
-    const client =
-        initializeCompanySupabase();
+async function createCompanyJob(
+    jobData = {}
+) {
 
     const user =
         CompanyDashboard.user ||
         await getCompanyUser();
 
-    if (!client || !user) {
 
-        showCompanyMessage(
-            "انتهت جلسة تسجيل الدخول.",
-            "Your login session has expired.",
-            "error"
-        );
+    if (!user) {
+
+        redirectToLogin();
 
         return null;
     }
 
+
     const title =
         String(
-            jobData?.title || ""
-        ).trim();
+            jobData.title || ""
+        )
+        .trim();
+
 
     if (!title) {
 
         showCompanyMessage(
-            "اكتب اسم الوظيفة.",
-            "Please enter the job title.",
+            "عنوان الوظيفة مطلوب.",
+            "Job title is required.",
             "warning"
         );
 
         return null;
     }
 
+
+    /*
+     * Determine company name.
+     */
+
+    const companyName =
+        jobData.company ||
+        CompanyDashboard.profile?.company_name ||
+        CompanyDashboard.profile?.name ||
+        CompanyDashboard.profile?.full_name ||
+        user.user_metadata?.company_name ||
+        user.user_metadata?.full_name ||
+        "Web3 Company";
+
+
     try {
+
+        /*
+         * IMPORTANT:
+         *
+         * company_id is the correct column.
+         *
+         * Do NOT use created_by.
+         */
+
+        const insertData = {
+
+            title:
+                title,
+
+            company:
+                companyName,
+
+            location:
+                jobData.location ||
+                "Remote",
+
+            type:
+                jobData.type ||
+                "Full Time",
+
+            description:
+                jobData.description ||
+                "",
+
+            skills:
+                jobData.skills ||
+                "",
+
+            salary:
+                jobData.salary ||
+                "",
+
+            application_url:
+                jobData.application_url ||
+                "",
+
+            company_id:
+                user.id
+        };
+
+
+        console.log(
+            "Web3Jobs Company: Creating job:",
+            insertData
+        );
+
 
         const {
             data,
             error
         } =
-            await client
+            await companySupabase
                 .from("jobs")
-                .insert({
-
-                    title,
-
-                    company:
-                        jobData.company ||
-                        CompanyDashboard.profile?.name ||
-                        CompanyDashboard.profile?.full_name ||
-                        "Web3 Company",
-
-                    location:
-                        jobData.location ||
-                        "Remote",
-
-                    type:
-                        jobData.type ||
-                        "Full Time",
-
-                    description:
-                        jobData.description ||
-                        "",
-
-                    created_by:
-                        user.id
-
-                })
+                .insert(
+                    insertData
+                )
                 .select()
                 .single();
+
 
         if (error) {
 
             console.error(
-                "Web3Jobs Company: create job error:",
+                "Web3Jobs Company: Create job error:",
                 error
             );
+
 
             showCompanyMessage(
                 "تعذر نشر الوظيفة.",
@@ -623,16 +875,24 @@ async function createCompanyJob(jobData) {
                 "error"
             );
 
+
             return null;
         }
+
+
+        /*
+         * Add to local state.
+         */
 
         CompanyDashboard.jobs.unshift(
             data
         );
 
+
         renderCompanyJobs();
 
         updateCompanyStats();
+
 
         showCompanyMessage(
             "تم نشر الوظيفة بنجاح.",
@@ -640,14 +900,24 @@ async function createCompanyJob(jobData) {
             "success"
         );
 
+
         return data;
+
 
     } catch (error) {
 
         console.error(
-            "Web3Jobs Company: create job exception:",
+            "Web3Jobs Company: createCompanyJob exception:",
             error
         );
+
+
+        showCompanyMessage(
+            "حدث خطأ غير متوقع.",
+            "An unexpected error occurred.",
+            "error"
+        );
+
 
         return null;
     }
@@ -655,49 +925,73 @@ async function createCompanyJob(jobData) {
 
 
 /* =========================================================
-   DELETE JOB
+   DELETE COMPANY JOB
    ========================================================= */
 
-async function deleteCompanyJob(jobId) {
-
-    const client =
-        initializeCompanySupabase();
+async function deleteCompanyJob(
+    jobId
+) {
 
     const user =
         CompanyDashboard.user ||
         await getCompanyUser();
 
-    if (!client || !user || !jobId) {
+
+    if (!user) {
+
+        redirectToLogin();
 
         return false;
     }
 
-    if (
-        !window.confirm(
-            "Are you sure you want to delete this job?"
-        )
-    ) {
+
+    if (!jobId) {
 
         return false;
     }
+
+
+    const confirmed =
+        window.confirm(
+            "هل تريد حذف هذه الوظيفة؟"
+        );
+
+
+    if (!confirmed) {
+
+        return false;
+    }
+
 
     try {
+
+        /*
+         * Delete using company_id.
+         */
 
         const {
             error
         } =
-            await client
+            await companySupabase
                 .from("jobs")
                 .delete()
-                .eq("id", jobId)
-                .eq("created_by", user.id);
+                .eq(
+                    "id",
+                    jobId
+                )
+                .eq(
+                    "company_id",
+                    user.id
+                );
+
 
         if (error) {
 
             console.error(
-                "Web3Jobs Company: delete error:",
+                "Web3Jobs Company: Delete job error:",
                 error
             );
+
 
             showCompanyMessage(
                 "تعذر حذف الوظيفة.",
@@ -705,8 +999,10 @@ async function deleteCompanyJob(jobId) {
                 "error"
             );
 
+
             return false;
         }
+
 
         CompanyDashboard.jobs =
             CompanyDashboard.jobs.filter(
@@ -715,18 +1011,29 @@ async function deleteCompanyJob(jobId) {
                     String(jobId)
             );
 
+
         renderCompanyJobs();
 
         updateCompanyStats();
 
+
+        showCompanyMessage(
+            "تم حذف الوظيفة بنجاح.",
+            "Job deleted successfully.",
+            "success"
+        );
+
+
         return true;
+
 
     } catch (error) {
 
         console.error(
-            "Web3Jobs Company: delete exception:",
+            "Web3Jobs Company: deleteCompanyJob exception:",
             error
         );
+
 
         return false;
     }
@@ -734,104 +1041,46 @@ async function deleteCompanyJob(jobId) {
 
 
 /* =========================================================
-   STATS
+   COMPANY STATISTICS
    ========================================================= */
 
 function updateCompanyStats() {
 
-    const total =
+    const totalJobs =
         CompanyDashboard.jobs.length;
 
-    const totalElement =
-        document.querySelector(
-            "#total-jobs"
+
+    const totalJobsElements =
+        document.querySelectorAll(
+            "#total-jobs, " +
+            "#company-total-jobs, " +
+            "[data-total-jobs]"
         );
 
-    const activeElement =
-        document.querySelector(
-            "#active-jobs"
+
+    totalJobsElements.forEach(
+        element => {
+
+            element.textContent =
+                totalJobs;
+
+        }
+    );
+
+
+    const activeJobsElements =
+        document.querySelectorAll(
+            "#active-jobs, " +
+            "#company-active-jobs, " +
+            "[data-active-jobs]"
         );
 
-    if (totalElement) {
 
-        totalElement.textContent =
-            total;
-    }
+    activeJobsElements.forEach(
+        element => {
 
-    if (activeElement) {
-
-        activeElement.textContent =
-            total;
-    }
-}
-
-
-/* =========================================================
-   FORM
-   ========================================================= */
-
-function initializeCompanyJobForm() {
-
-    const form =
-        document.querySelector(
-            "#create-job-form"
-        );
-
-    if (!form) {
-
-        console.error(
-            "Web3Jobs Company: create job form not found."
-        );
-
-        return;
-    }
-
-    if (
-        form.dataset.initialized ===
-        "true"
-    ) {
-
-        return;
-    }
-
-    form.dataset.initialized =
-        "true";
-
-    form.addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-            const formData =
-                new FormData(form);
-
-            const result =
-                await createCompanyJob({
-
-                    title:
-                        formData.get("title"),
-
-                    company:
-                        formData.get("company"),
-
-                    location:
-                        formData.get("location"),
-
-                    type:
-                        formData.get("type"),
-
-                    description:
-                        formData.get("description")
-
-                });
-
-            if (result) {
-
-                form.reset();
-
-                renderCompanyInformation();
-            }
+            element.textContent =
+                totalJobs;
 
         }
     );
@@ -839,10 +1088,218 @@ function initializeCompanyJobForm() {
 
 
 /* =========================================================
-   EVENTS
+   RENDER COMPANY INFORMATION
+   ========================================================= */
+
+function renderCompanyInformation() {
+
+    const profile =
+        CompanyDashboard.profile;
+
+
+    const user =
+        CompanyDashboard.user;
+
+
+    if (!profile && !user) {
+
+        return;
+    }
+
+
+    const companyName =
+        profile?.company_name ||
+        profile?.name ||
+        profile?.full_name ||
+        user?.user_metadata?.company_name ||
+        user?.user_metadata?.full_name ||
+        user?.email ||
+        "Company";
+
+
+    const email =
+        profile?.email ||
+        user?.email ||
+        "";
+
+
+    const nameElements =
+        document.querySelectorAll(
+            "[data-company-name], " +
+            "#company-name, " +
+            ".company-name"
+        );
+
+
+    nameElements.forEach(
+        element => {
+
+            element.textContent =
+                companyName;
+
+        }
+    );
+
+
+    const emailElements =
+        document.querySelectorAll(
+            "[data-company-email], " +
+            "#company-email, " +
+            ".company-email"
+        );
+
+
+    emailElements.forEach(
+        element => {
+
+            element.textContent =
+                email;
+
+        }
+    );
+}
+
+
+/* =========================================================
+   CREATE JOB FORM
+   ========================================================= */
+
+function initializeCompanyJobForm() {
+
+    const forms =
+        document.querySelectorAll(
+            "#create-job-form, " +
+            ".create-job-form, " +
+            "[data-create-job-form]"
+        );
+
+
+    forms.forEach(
+        form => {
+
+            if (
+                form.dataset.companyInitialized ===
+                "true"
+            ) {
+
+                return;
+            }
+
+
+            form.dataset.companyInitialized =
+                "true";
+
+
+            form.addEventListener(
+                "submit",
+                async event => {
+
+                    event.preventDefault();
+
+
+                    const formData =
+                        new FormData(form);
+
+
+                    const getValue =
+                        name => {
+
+                            const value =
+                                formData.get(name);
+
+
+                            if (
+                                value !== null &&
+                                value !== undefined
+                            ) {
+
+                                return String(value).trim();
+
+                            }
+
+
+                            return (
+                                form.querySelector(
+                                    `[name="${name}"]`
+                                )?.value ||
+                                ""
+                            )
+                            .trim();
+
+                        };
+
+
+                    const jobData = {
+
+                        title:
+                            getValue("title"),
+
+                        company:
+                            getValue("company"),
+
+                        location:
+                            getValue("location") ||
+                            "Remote",
+
+                        type:
+                            getValue("type") ||
+                            "Full Time",
+
+                        description:
+                            getValue("description"),
+
+                        skills:
+                            getValue("skills"),
+
+                        salary:
+                            getValue("salary"),
+
+                        application_url:
+                            getValue(
+                                "application_url"
+                            )
+
+                    };
+
+
+                    const result =
+                        await createCompanyJob(
+                            jobData
+                        );
+
+
+                    if (result) {
+
+                        form.reset();
+
+                    }
+
+                }
+            );
+
+        }
+    );
+}
+
+
+/* =========================================================
+   DASHBOARD EVENTS
    ========================================================= */
 
 function initializeCompanyEvents() {
+
+    if (
+        document.body.dataset.companyEventsInitialized ===
+        "true"
+    ) {
+
+        return;
+    }
+
+
+    document.body.dataset.companyEventsInitialized =
+        "true";
+
 
     document.addEventListener(
         "click",
@@ -853,46 +1310,65 @@ function initializeCompanyEvents() {
                     '[data-action="delete-job"]'
                 );
 
+
             if (deleteButton) {
 
                 await deleteCompanyJob(
                     deleteButton.dataset.jobId
                 );
 
+
                 return;
             }
+
 
             const createButton =
                 event.target.closest(
                     '[data-action="create-job"]'
                 );
 
+
             if (createButton) {
 
                 const form =
                     document.querySelector(
-                        "#create-job-form"
+                        "#create-job-form, " +
+                        ".create-job-form, " +
+                        "[data-create-job-form]"
                     );
+
 
                 if (form) {
 
                     form.scrollIntoView({
-                        behavior: "smooth"
+
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "start"
+
                     });
 
                 }
 
+
                 return;
             }
 
+
             const logoutButton =
                 event.target.closest(
-                    '[data-action="logout"]'
+                    '[data-action="logout"], ' +
+                    "#company-logout, " +
+                    ".company-logout"
                 );
+
 
             if (logoutButton) {
 
                 await companyLogout();
+
             }
 
         }
@@ -906,18 +1382,51 @@ function initializeCompanyEvents() {
 
 async function companyLogout() {
 
-    const client =
-        initializeCompanySupabase();
-
-    if (!client) {
+    if (!companySupabase) {
 
         return;
     }
 
-    await client.auth.signOut();
 
-    window.location.href =
-        "login.html";
+    try {
+
+        const {
+            error
+        } =
+            await companySupabase.auth.signOut();
+
+
+        if (error) {
+
+            console.error(
+                "Web3Jobs Company: Logout error:",
+                error
+            );
+
+
+            showCompanyMessage(
+                "تعذر تسجيل الخروج.",
+                "Unable to sign out.",
+                "error"
+            );
+
+
+            return;
+        }
+
+
+        window.location.href =
+            "login.html";
+
+
+    } catch (error) {
+
+        console.error(
+            "Web3Jobs Company: companyLogout error:",
+            error
+        );
+
+    }
 }
 
 
@@ -925,16 +1434,45 @@ async function companyLogout() {
    HTML ESCAPE
    ========================================================= */
 
-function escapeHTML(value) {
+function escapeCompanyHTML(
+    value
+) {
 
-    return String(
-        value ?? ""
-    )
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    if (
+        value === null ||
+        value === undefined
+    ) {
+
+        return "";
+    }
+
+
+    return String(value)
+
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+
+        .replace(
+            /</g,
+            "&lt;"
+        )
+
+        .replace(
+            />/g,
+            "&gt;"
+        )
+
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+
+        .replace(
+            /'/g,
+            "&#039;"
+        );
 }
 
 
@@ -944,7 +1482,7 @@ function escapeHTML(value) {
 
 function showCompanyMessage(
     messageAr,
-    messageEn,
+    messageEn = "",
     type = "info"
 ) {
 
@@ -953,6 +1491,7 @@ function showCompanyMessage(
             "company-message"
         );
 
+
     if (!box) {
 
         box =
@@ -960,60 +1499,78 @@ function showCompanyMessage(
                 "div"
             );
 
+
         box.id =
             "company-message";
+
 
         Object.assign(
             box.style,
             {
 
-                position: "fixed",
+                position:
+                    "fixed",
 
-                top: "20px",
+                top:
+                    "20px",
 
-                right: "20px",
+                right:
+                    "20px",
 
-                zIndex: "999999",
+                zIndex:
+                    "100000",
 
-                maxWidth: "380px",
+                maxWidth:
+                    "380px",
 
-                padding: "15px 18px",
+                padding:
+                    "14px 18px",
 
-                borderRadius: "10px",
-
-                fontSize: "14px",
-
-                lineHeight: "1.6",
+                borderRadius:
+                    "10px",
 
                 boxShadow:
-                    "0 8px 25px rgba(0,0,0,.2)"
+                    "0 8px 25px rgba(0,0,0,.2)",
+
+                fontSize:
+                    "14px",
+
+                lineHeight:
+                    "1.6"
 
             }
         );
 
+
         document.body.appendChild(
             box
         );
+
     }
 
-    box.innerHTML =
-        `
-            <strong>
-                ${escapeHTML(messageAr)}
-            </strong>
-            <br>
-            ${escapeHTML(messageEn)}
-        `;
 
-    if (type === "error") {
+    box.innerHTML = `
 
-        box.style.background =
-            "#dc3545";
+        <div>
+            ${escapeCompanyHTML(messageAr)}
+        </div>
 
-        box.style.color =
-            "#fff";
+        ${
+            messageEn
+                ? `
+                    <div>
+                        ${escapeCompanyHTML(messageEn)}
+                    </div>
+                  `
+                : ""
+        }
 
-    } else if (type === "success") {
+    `;
+
+
+    if (
+        type === "success"
+    ) {
 
         box.style.background =
             "#198754";
@@ -1021,7 +1578,19 @@ function showCompanyMessage(
         box.style.color =
             "#fff";
 
-    } else if (type === "warning") {
+    } else if (
+        type === "error"
+    ) {
+
+        box.style.background =
+            "#dc3545";
+
+        box.style.color =
+            "#fff";
+
+    } else if (
+        type === "warning"
+    ) {
 
         box.style.background =
             "#ffc107";
@@ -1036,14 +1605,18 @@ function showCompanyMessage(
 
         box.style.color =
             "#fff";
+
     }
+
 
     box.style.display =
         "block";
 
+
     clearTimeout(
         box._timer
     );
+
 
     box._timer =
         setTimeout(
@@ -1059,7 +1632,7 @@ function showCompanyMessage(
 
 
 /* =========================================================
-   INITIALIZE
+   INITIALIZE COMPANY DASHBOARD
    ========================================================= */
 
 async function initializeCompanyDashboard() {
@@ -1071,8 +1644,10 @@ async function initializeCompanyDashboard() {
         return;
     }
 
+
     CompanyDashboard.initialized =
         true;
+
 
     console.log(
         "========================================"
@@ -1083,65 +1658,63 @@ async function initializeCompanyDashboard() {
     );
 
     console.log(
-        "Supabase:",
-        COMPANY_SUPABASE_URL
-    );
-
-    console.log(
         "========================================"
     );
 
 
-    const client =
+    /*
+     * Initialize Supabase.
+     */
+
+    const initialized =
         initializeCompanySupabase();
 
-    if (!client) {
+
+    if (!initialized) {
 
         showCompanyMessage(
-            "تعذر تشغيل Supabase.",
-            "Supabase could not be initialized.",
+            "تعذر الاتصال بـ Supabase.",
+            "Supabase is not available.",
             "error"
         );
+
 
         return;
     }
 
 
+    /*
+     * Get authenticated user.
+     */
+
     const user =
         await getCompanyUser();
 
+
     if (!user) {
 
-        showCompanyMessage(
-            "لا توجد جلسة تسجيل دخول.",
-            "No active login session.",
-            "error"
-        );
-
-        setTimeout(
-            () => {
-
-                window.location.href =
-                    "login.html";
-
-            },
-            1800
-        );
+        redirectToLogin();
 
         return;
     }
 
 
     console.log(
-        "Web3Jobs Company User:",
-        user.email,
-        user.id
+        "Web3Jobs Company: Logged user:",
+        user.email
     );
 
 
-    const profile =
-        await loadCompanyProfile();
+    /*
+     * Load profile.
+     */
 
+    await loadCompanyProfile();
+
+
+    /*
+     * Verify company.
+     */
 
     const isCompany =
         await verifyCompanyAccount();
@@ -1150,17 +1723,33 @@ async function initializeCompanyDashboard() {
     if (!isCompany) {
 
         /*
-         * لا نقوم بإعادة التوجيه هنا.
-         * حتى لا ندخل في حلقة Redirect.
+         * Do NOT redirect immediately.
+         *
+         * This allows us to see the actual
+         * problem instead of getting a blank page.
          */
 
         return;
     }
 
 
+    /*
+     * Render company information.
+     */
+
     renderCompanyInformation();
 
+
+    /*
+     * Load jobs.
+     */
+
     await loadCompanyJobs();
+
+
+    /*
+     * Initialize forms/events.
+     */
 
     initializeCompanyJobForm();
 
@@ -1168,17 +1757,26 @@ async function initializeCompanyDashboard() {
 
 
     console.log(
-        "Web3Jobs Company Dashboard READY."
+        "========================================"
+    );
+
+    console.log(
+        "Web3Jobs Company Dashboard initialized."
+    );
+
+    console.log(
+        "========================================"
     );
 }
 
 
 /* =========================================================
-   GLOBAL
+   GLOBAL API
    ========================================================= */
 
 window.CompanyDashboard =
     CompanyDashboard;
+
 
 window.Web3JobsCompany = {
 
@@ -1224,9 +1822,10 @@ if (
 } else {
 
     initializeCompanyDashboard();
+
 }
 
 
 /* =========================================================
-   END
+   END OF FILE
    ========================================================= */
