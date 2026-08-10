@@ -46,6 +46,7 @@
 
             --bg: #06101d;
             --bg2: #09182a;
+
             --card: #0d1b2e;
             --card2: #10233a;
 
@@ -64,20 +65,14 @@
 
 
         * {
-
             box-sizing: border-box;
-
             margin: 0;
-
             padding: 0;
-
         }
 
 
         html {
-
             scroll-behavior: smooth;
-
         }
 
 
@@ -112,31 +107,24 @@
         input,
         select,
         textarea {
-
             font: inherit;
-
         }
 
 
         button {
-
             cursor: pointer;
-
         }
 
 
         a {
-
             text-decoration: none;
-
             color: inherit;
-
         }
 
 
-        /* =================================================
+        /* =====================================================
            LOADING
-           ================================================= */
+           ===================================================== */
 
         #loading-spinner {
 
@@ -241,17 +229,15 @@
         @keyframes spin {
 
             to {
-
                 transform: rotate(360deg);
-
             }
 
         }
 
 
-        /* =================================================
+        /* =====================================================
            DASHBOARD
-           ================================================= */
+           ===================================================== */
 
         #dashboard-content {
 
@@ -271,9 +257,9 @@
         }
 
 
-        /* =================================================
+        /* =====================================================
            HEADER
-           ================================================= */
+           ===================================================== */
 
         .dashboard-header {
 
@@ -412,9 +398,7 @@
 
 
         .header-button:hover {
-
             border-color: var(--blue);
-
         }
 
 
@@ -442,15 +426,13 @@
 
 
         .logout-button:hover {
-
             border-color: var(--red);
-
         }
 
 
-        /* =================================================
+        /* =====================================================
            MAIN
-           ================================================= */
+           ===================================================== */
 
         .dashboard-main {
 
@@ -459,9 +441,9 @@
         }
 
 
-        /* =================================================
+        /* =====================================================
            WELCOME
-           ================================================= */
+           ===================================================== */
 
         .welcome-card {
 
@@ -571,9 +553,9 @@
         }
 
 
-        /* =================================================
+        /* =====================================================
            STATS
-           ================================================= */
+           ===================================================== */
 
         .stats-grid {
 
@@ -659,9 +641,9 @@
         }
 
 
-        /* =================================================
+        /* =====================================================
            SECTION
-           ================================================= */
+           ===================================================== */
 
         .dashboard-section {
 
@@ -713,9 +695,9 @@
         }
 
 
-        /* =================================================
-           BILLING & PAYMENTS
-           ================================================= */
+        /* =====================================================
+           BILLING
+           ===================================================== */
 
         .billing-section {
 
@@ -879,9 +861,7 @@
 
 
         .plan-price {
-
             text-align: right;
-
         }
 
 
@@ -1012,9 +992,7 @@
 
 
         .crypto-info-item strong {
-
             font-size: 10px;
-
         }
 
 
@@ -1092,9 +1070,7 @@
 
 
         .copy-wallet-button:hover {
-
             border-color: var(--blue);
-
         }
 
 
@@ -1225,9 +1201,7 @@
 
 
         .amount-box strong {
-
             font-size: 18px;
-
         }
 
 
@@ -1253,8 +1227,15 @@
 
 
         .submit-payment-button:hover {
-
             filter: brightness(1.06);
+        }
+
+
+        .submit-payment-button:disabled {
+
+            opacity: .55;
+
+            cursor: not-allowed;
 
         }
 
@@ -1314,9 +1295,7 @@
 
 
         .payment-history-row:last-child {
-
             border-bottom: 0;
-
         }
 
 
@@ -1390,6 +1369,29 @@
                 );
 
             color: var(--green);
+
+        }
+
+
+        .payment-status.rejected {
+
+            background:
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .08
+                );
+
+            border: 1px solid
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .22
+                );
+
+            color: #fca5a5;
 
         }
 
@@ -1472,9 +1474,34 @@
         }
 
 
-        /* =================================================
+        #payment-message.info {
+
+            display: block;
+
+            border: 1px solid
+                rgba(
+                    96,
+                    165,
+                    250,
+                    .25
+                );
+
+            background:
+                rgba(
+                    96,
+                    165,
+                    250,
+                    .06
+                );
+
+            color: #bfdbfe;
+
+        }
+
+
+        /* =====================================================
            FORM
-           ================================================= */
+           ===================================================== */
 
         #create-job-form {
 
@@ -1503,9 +1530,7 @@
 
 
         .form-group.full {
-
             grid-column: 1 / -1;
-
         }
 
 
@@ -1613,15 +1638,13 @@
 
 
         .primary-button:hover {
-
             filter: brightness(1.06);
-
         }
 
 
-        /* =================================================
+        /* =====================================================
            JOBS
-           ================================================= */
+           ===================================================== */
 
         #company-jobs-list {
 
@@ -1773,15 +1796,13 @@
 
 
         .company-job-actions button:hover {
-
             border-color: var(--red);
-
         }
 
 
-        /* =================================================
+        /* =====================================================
            EMPTY STATE
-           ================================================= */
+           ===================================================== */
 
         .no-company-jobs {
 
@@ -1841,9 +1862,9 @@
         }
 
 
-        /* =================================================
+        /* =====================================================
            FOOTER
-           ================================================= */
+           ===================================================== */
 
         .dashboard-footer {
 
@@ -1897,29 +1918,22 @@
 
 
         .footer-links a:hover {
-
             color: var(--green);
-
         }
 
 
-        /* =================================================
+        /* =====================================================
            MOBILE
-           ================================================= */
+           ===================================================== */
 
         @media (max-width: 850px) {
 
             #company-jobs-list {
-
                 grid-template-columns: 1fr;
-
             }
 
-
             .billing-grid {
-
                 grid-template-columns: 1fr;
-
             }
 
         }
@@ -1928,126 +1942,73 @@
         @media (max-width: 700px) {
 
             .dashboard-main {
-
                 padding: 25px 0 55px;
-
             }
-
 
             .header-inner {
-
                 min-height: 64px;
-
             }
-
 
             .brand-subtitle {
-
                 display: none;
-
             }
-
 
             .header-button {
-
                 min-height: 37px;
-
                 padding: 8px 10px;
-
                 font-size: 10px;
-
             }
-
 
             .stats-grid {
-
                 grid-template-columns: 1fr;
-
             }
-
 
             #create-job-form {
-
                 grid-template-columns: 1fr;
-
             }
-
 
             .form-group.full {
-
                 grid-column: auto;
-
             }
-
 
             .form-actions {
-
                 grid-column: auto;
-
             }
-
 
             .dashboard-section {
-
                 padding: 18px;
-
             }
-
 
             .welcome-card {
-
                 padding: 24px 20px;
-
             }
-
 
             .section-header {
-
                 align-items: flex-start;
-
                 flex-direction: column;
-
             }
-
 
             .billing-header {
-
                 align-items: flex-start;
-
                 flex-direction: column;
-
             }
-
 
             .current-plan {
-
                 align-items: flex-start;
-
                 flex-direction: column;
-
             }
-
 
             .plan-price {
-
                 text-align: left;
-
             }
-
 
             .payment-amount {
-
                 grid-template-columns: 1fr;
-
             }
 
-
             .footer-inner {
-
                 flex-direction: column;
-
                 text-align: center;
-
             }
 
         }
@@ -2056,55 +2017,33 @@
         @media (max-width: 430px) {
 
             .container {
-
                 width: 94%;
-
             }
-
 
             .brand-title {
-
                 font-size: 14px;
-
             }
-
 
             .brand-icon {
-
                 width: 39px;
-
                 height: 39px;
-
                 flex-basis: 39px;
-
             }
-
 
             .header-actions {
-
                 gap: 5px;
-
             }
-
 
             .header-button {
-
                 padding: 7px 8px;
-
             }
-
 
             .wallet-row {
-
                 flex-direction: column;
-
             }
 
-
             .copy-wallet-button {
-
                 width: 100%;
-
             }
 
         }
@@ -2186,7 +2125,6 @@
 
                 <div class="header-actions">
 
-
                     <a
                         href="jobs.html"
                         class="header-button"
@@ -2203,7 +2141,6 @@
                     >
                         Logout
                     </button>
-
 
                 </div>
 
@@ -2338,7 +2275,6 @@
 
                     </article>
 
-
                 </section>
 
 
@@ -2350,6 +2286,7 @@
                     id="billing-payments"
                     class="dashboard-section billing-section"
                 >
+
 
                     <div class="billing-header">
 
@@ -2386,6 +2323,7 @@
                                 Current Plan
                             </h3>
 
+
                             <p class="billing-card-description">
                                 Your Web3Jobs subscription and billing information.
                             </p>
@@ -2401,6 +2339,7 @@
                                     >
                                         Free Plan
                                     </div>
+
 
                                     <span
                                         id="current-plan-status"
@@ -2431,6 +2370,7 @@
 
                             <div class="crypto-box">
 
+
                                 <div class="crypto-title">
 
                                     <div class="crypto-icon">
@@ -2445,7 +2385,9 @@
 
 
                                 <p class="billing-card-description">
+
                                     Pay your Web3Jobs subscription using USDT on BNB Smart Chain (BEP-20).
+
                                 </p>
 
 
@@ -2503,7 +2445,6 @@
 
                                     </div>
 
-
                                 </div>
 
 
@@ -2520,6 +2461,7 @@
 
                                     <div class="wallet-row">
 
+
                                         <div
                                             id="payment-wallet-address"
                                             class="wallet-address"
@@ -2535,6 +2477,7 @@
                                         >
                                             Copy
                                         </button>
+
 
                                     </div>
 
@@ -2565,8 +2508,11 @@
                                 Make a Payment
                             </h3>
 
+
                             <p class="billing-card-description">
+
                                 Select your subscription plan, send the required USDT amount, then submit your transaction hash for verification.
+
                             </p>
 
 
@@ -2595,12 +2541,14 @@
                                             Starter — $19 USD
                                         </option>
 
+
                                         <option
                                             value="professional"
                                             data-price="49"
                                         >
                                             Professional — $49 USD
                                         </option>
+
 
                                         <option
                                             value="business"
@@ -2646,6 +2594,7 @@
 
                                     </div>
 
+
                                 </div>
 
 
@@ -2663,6 +2612,8 @@
                                         placeholder="0x..."
                                         autocomplete="off"
                                         spellcheck="false"
+                                        maxlength="66"
+                                        required
                                     >
 
                                 </div>
@@ -2676,6 +2627,7 @@
 
                                 <button
                                     type="submit"
+                                    id="submit-payment-button"
                                     class="submit-payment-button"
                                 >
                                     Submit Payment for Verification
@@ -2721,7 +2673,7 @@
                                     >
 
                                         <div class="payment-empty">
-                                            No payments recorded yet.
+                                            Loading payment history...
                                         </div>
 
                                     </div>
@@ -2732,7 +2684,6 @@
                             </div>
 
                         </div>
-
 
                     </div>
 
@@ -2939,7 +2890,6 @@
 
                         </div>
 
-
                     </form>
 
                 </section>
@@ -2998,7 +2948,6 @@
 
                     </div>
 
-
                 </section>
 
 
@@ -3055,10 +3004,84 @@
         "use strict";
 
 
+        /* =====================================================
+           PAYMENT CONFIGURATION
+           ===================================================== */
+
+        const WEB3JOBS_PAYMENT_CONFIG = {
+
+            wallet:
+                "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
+
+            network:
+                "BNB Smart Chain",
+
+            blockchainNetwork:
+                "BNB Smart Chain",
+
+            token:
+                "USDT",
+
+            paymentProvider:
+                "crypto",
+
+            paymentMethod:
+                "USDT",
+
+            currency:
+                "USD",
+
+            plans: {
+
+                starter: {
+
+                    name:
+                        "Starter",
+
+                    price:
+                        19
+
+                },
+
+                professional: {
+
+                    name:
+                        "Professional",
+
+                    price:
+                        49
+
+                },
+
+                business: {
+
+                    name:
+                        "Business",
+
+                    price:
+                        99
+
+                }
+
+            }
+
+        };
+
+
+        /* =====================================================
+           GLOBAL USER
+           ===================================================== */
+
+        let WEB3JOBS_CURRENT_USER = null;
+
+
+        /* =====================================================
+           DOM READY - AUTH
+           ===================================================== */
+
         document.addEventListener(
             "DOMContentLoaded",
             async function () {
-
 
                 const loadingSpinner =
                     document.getElementById(
@@ -3074,17 +3097,13 @@
 
                 try {
 
-
-                    /* -----------------------------------------
-                       CHECK AUTH SYSTEM
-                       ----------------------------------------- */
-
                     if (
                         !window.Web3JobsAuth ||
                         typeof
                         window.Web3JobsAuth
                             .protectCompanyDashboard
-                        !== "function"
+                        !==
+                        "function"
                     ) {
 
                         throw new Error(
@@ -3094,19 +3113,11 @@
                     }
 
 
-                    /* -----------------------------------------
-                       PROTECT COMPANY DASHBOARD
-                       ----------------------------------------- */
-
                     const result =
                         await
                         window.Web3JobsAuth
                             .protectCompanyDashboard();
 
-
-                    /* -----------------------------------------
-                       NOT LOGGED IN
-                       ----------------------------------------- */
 
                     if (
                         !result ||
@@ -3121,16 +3132,12 @@
                     }
 
 
-                    /* -----------------------------------------
-                       WRONG ACCOUNT TYPE
-                       ----------------------------------------- */
-
                     if (
                         String(
                             result.accountType || ""
                         )
-                        .trim()
-                        .toLowerCase()
+                            .trim()
+                            .toLowerCase()
                         !==
                         "company"
                     ) {
@@ -3143,9 +3150,9 @@
                     }
 
 
-                    /* -----------------------------------------
-                       COMPANY NAME
-                       ----------------------------------------- */
+                    WEB3JOBS_CURRENT_USER =
+                        result.user || null;
+
 
                     const nameElement =
                         document.getElementById(
@@ -3172,10 +3179,6 @@
                     }
 
 
-                    /* -----------------------------------------
-                       COMPANY EMAIL
-                       ----------------------------------------- */
-
                     const emailElement =
                         document.getElementById(
                             "company-email"
@@ -3193,10 +3196,6 @@
                     }
 
 
-                    /* -----------------------------------------
-                       SHOW DASHBOARD
-                       ----------------------------------------- */
-
                     if (loadingSpinner) {
 
                         loadingSpinner.style.display =
@@ -3213,8 +3212,14 @@
                     }
 
 
-                } catch (error) {
+                    /* Load payments after authentication */
 
+                    await loadPaymentHistory();
+
+                    await loadCurrentSubscription();
+
+
+                } catch (error) {
 
                     console.error(
                         "Company Dashboard Initialization Error:",
@@ -3225,7 +3230,9 @@
                     if (loadingSpinner) {
 
                         loadingSpinner.innerHTML = `
+
                             <div class="loading-box">
+
                                 <div class="loading-icon">
                                     !
                                 </div>
@@ -3237,7 +3244,9 @@
                                 <p>
                                     Redirecting to login...
                                 </p>
+
                             </div>
+
                         `;
 
                     }
@@ -3260,6 +3269,1025 @@
 
 
         /* =====================================================
+           PAYMENT HELPERS
+           ===================================================== */
+
+
+        function getSupabaseClient() {
+
+            if (
+                window.supabaseClient &&
+                typeof
+                window.supabaseClient
+                    .from === "function"
+            ) {
+
+                return window.supabaseClient;
+
+            }
+
+
+            if (
+                window.supabase &&
+                typeof
+                window.supabase.from === "function"
+            ) {
+
+                return window.supabase;
+
+            }
+
+
+            if (
+                window.Web3JobsSupabase &&
+                typeof
+                window.Web3JobsSupabase
+                    .from === "function"
+            ) {
+
+                return window.Web3JobsSupabase;
+
+            }
+
+
+            return null;
+
+        }
+
+
+        function getCurrentUserId() {
+
+            if (
+                WEB3JOBS_CURRENT_USER &&
+                WEB3JOBS_CURRENT_USER.id
+            ) {
+
+                return WEB3JOBS_CURRENT_USER.id;
+
+            }
+
+
+            return null;
+
+        }
+
+
+        function getSelectedPlan() {
+
+            const paymentPlan =
+                document.getElementById(
+                    "payment-plan"
+                );
+
+
+            if (!paymentPlan) {
+
+                return null;
+
+            }
+
+
+            const value =
+                paymentPlan.value;
+
+
+            return (
+                WEB3JOBS_PAYMENT_CONFIG
+                    .plans[value]
+                ||
+                null
+            );
+
+        }
+
+
+        function updatePaymentAmount() {
+
+            const paymentPlan =
+                document.getElementById(
+                    "payment-plan"
+                );
+
+
+            const usdAmount =
+                document.getElementById(
+                    "payment-usd-amount"
+                );
+
+
+            const usdtAmount =
+                document.getElementById(
+                    "payment-usdt-amount"
+                );
+
+
+            if (!paymentPlan) {
+                return;
+            }
+
+
+            const selectedPlan =
+                WEB3JOBS_PAYMENT_CONFIG
+                    .plans[
+                        paymentPlan.value
+                    ];
+
+
+            if (!selectedPlan) {
+                return;
+            }
+
+
+            if (usdAmount) {
+
+                usdAmount.textContent =
+                    "$" +
+                    selectedPlan.price;
+
+            }
+
+
+            if (usdtAmount) {
+
+                usdtAmount.textContent =
+                    selectedPlan.price +
+                    " USDT";
+
+            }
+
+        }
+
+
+        function showPaymentMessage(
+            message,
+            type
+        ) {
+
+            const paymentMessage =
+                document.getElementById(
+                    "payment-message"
+                );
+
+
+            if (!paymentMessage) {
+                return;
+            }
+
+
+            paymentMessage.className = "";
+
+
+            paymentMessage.classList.add(
+                type
+            );
+
+
+            paymentMessage.textContent =
+                message;
+
+        }
+
+
+        function normalizeTransactionHash(
+            value
+        ) {
+
+            return String(
+                value || ""
+            )
+                .trim()
+                .replace(/\s+/g, "");
+
+        }
+
+
+        function isValidTransactionHash(
+            hash
+        ) {
+
+            return /^0x[a-fA-F0-9]{64}$/
+                .test(hash);
+
+        }
+
+
+        function getPlanLabel(
+            planCode
+        ) {
+
+            const plan =
+                WEB3JOBS_PAYMENT_CONFIG
+                    .plans[
+                        String(
+                            planCode || ""
+                        ).toLowerCase()
+                    ];
+
+
+            if (plan) {
+                return plan.name;
+            }
+
+
+            return (
+                planCode ||
+                "Subscription"
+            );
+
+        }
+
+
+        function formatPaymentDate(
+            dateValue
+        ) {
+
+            if (!dateValue) {
+                return "-";
+            }
+
+
+            const date =
+                new Date(dateValue);
+
+
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
+                return "-";
+
+            }
+
+
+            return date.toLocaleDateString(
+                "en-US",
+                {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric"
+                }
+            );
+
+        }
+
+
+        function escapeHtml(
+            value
+        ) {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+
+            div.textContent =
+                String(
+                    value ?? ""
+                );
+
+
+            return div.innerHTML;
+
+        }
+
+
+        /* =====================================================
+           CURRENT PLAN
+           ===================================================== */
+
+        async function loadCurrentSubscription() {
+
+            const supabase =
+                getSupabaseClient();
+
+
+            const userId =
+                getCurrentUserId();
+
+
+            if (
+                !supabase ||
+                !userId
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+                /*
+                 * The dashboard can work even if the subscription
+                 * table is not available.
+                 *
+                 * We first try a common "subscriptions" table.
+                 */
+
+                const result =
+                    await supabase
+                        .from(
+                            "subscriptions"
+                        )
+                        .select("*")
+                        .eq(
+                            "user_id",
+                            userId
+                        )
+                        .order(
+                            "created_at",
+                            {
+                                ascending:
+                                    false
+                            }
+                        )
+                        .limit(1)
+                        .maybeSingle();
+
+
+                if (
+                    result.error ||
+                    !result.data
+                ) {
+
+                    return;
+
+                }
+
+
+                const subscription =
+                    result.data;
+
+
+                const planCode =
+                    subscription.plan_code ||
+                    subscription.plan ||
+                    subscription.plan_type;
+
+
+                const plan =
+                    WEB3JOBS_PAYMENT_CONFIG
+                        .plans[
+                            String(
+                                planCode || ""
+                            ).toLowerCase()
+                        ];
+
+
+                const nameElement =
+                    document.getElementById(
+                        "current-plan-name"
+                    );
+
+
+                const priceElement =
+                    document.getElementById(
+                        "current-plan-price"
+                    );
+
+
+                const statusElement =
+                    document.getElementById(
+                        "current-plan-status"
+                    );
+
+
+                if (nameElement) {
+
+                    nameElement.textContent =
+                        plan
+                            ? plan.name
+                            : (
+                                subscription.plan_name ||
+                                "Free Plan"
+                            );
+
+                }
+
+
+                if (priceElement) {
+
+                    priceElement.textContent =
+                        plan
+                            ? "$" +
+                              plan.price
+                            : (
+                                subscription.price
+                                    ? "$" +
+                                      subscription.price
+                                    : "$0"
+                            );
+
+                }
+
+
+                if (statusElement) {
+
+                    statusElement.textContent =
+                        subscription.status ||
+                        "Active";
+
+                }
+
+
+            } catch (error) {
+
+                console.warn(
+                    "Subscription table not available:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        /* =====================================================
+           LOAD PAYMENT HISTORY
+           ===================================================== */
+
+        async function loadPaymentHistory() {
+
+            const list =
+                document.getElementById(
+                    "payment-history-list"
+                );
+
+
+            if (!list) {
+                return;
+            }
+
+
+            const supabase =
+                getSupabaseClient();
+
+
+            const userId =
+                getCurrentUserId();
+
+
+            if (
+                !supabase ||
+                !userId
+            ) {
+
+                list.innerHTML = `
+
+                    <div class="payment-empty">
+                        Payment history is unavailable.
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            try {
+
+                const result =
+                    await supabase
+                        .from("payments")
+                        .select(
+                            "*"
+                        )
+                        .eq(
+                            "user_id",
+                            userId
+                        )
+                        .order(
+                            "created_at",
+                            {
+                                ascending:
+                                    false
+                            }
+                        )
+                        .limit(20);
+
+
+                if (result.error) {
+
+                    console.warn(
+                        "Payment history error:",
+                        result.error
+                    );
+
+
+                    list.innerHTML = `
+
+                        <div class="payment-empty">
+                            No payments recorded yet.
+                        </div>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                const payments =
+                    result.data || [];
+
+
+                if (!payments.length) {
+
+                    list.innerHTML = `
+
+                        <div class="payment-empty">
+                            No payments recorded yet.
+                        </div>
+
+                    `;
+
+                    return;
+
+                }
+
+
+                list.innerHTML =
+                    payments
+                        .map(
+                            function (payment) {
+
+                                const planCode =
+                                    payment.plan_code ||
+                                    payment.plan ||
+                                    payment.payment_type ||
+                                    "Subscription";
+
+
+                                const amount =
+                                    payment.amount ??
+                                    "-";
+
+
+                                const currency =
+                                    payment.currency ||
+                                    "USD";
+
+
+                                const status =
+                                    String(
+                                        payment.status ||
+                                        "pending"
+                                    )
+                                        .toLowerCase();
+
+
+                                const safeStatus =
+                                    [
+                                        "pending",
+                                        "paid",
+                                        "rejected"
+                                    ]
+                                        .includes(
+                                            status
+                                        )
+                                    ? status
+                                    : "pending";
+
+
+                                return `
+
+                                    <div class="payment-history-row">
+
+                                        <div>
+                                            ${escapeHtml(
+                                                formatPaymentDate(
+                                                    payment.created_at
+                                                )
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            ${escapeHtml(
+                                                getPlanLabel(
+                                                    planCode
+                                                )
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            ${escapeHtml(
+                                                String(
+                                                    amount
+                                                )
+                                            )}
+                                            ${escapeHtml(
+                                                currency
+                                            )}
+                                        </div>
+
+                                        <div>
+
+                                            <span
+                                                class="payment-status ${safeStatus}"
+                                            >
+                                                ${escapeHtml(
+                                                    safeStatus
+                                                        .toUpperCase()
+                                                )}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
+                                `;
+
+                            }
+                        )
+                        .join("");
+
+
+            } catch (error) {
+
+                console.error(
+                    "Load payment history error:",
+                    error
+                );
+
+
+                list.innerHTML = `
+
+                    <div class="payment-empty">
+                        No payments recorded yet.
+                    </div>
+
+                `;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           CHECK DUPLICATE TRANSACTION HASH
+           ===================================================== */
+
+        async function transactionAlreadySubmitted(
+            transactionHash
+        ) {
+
+            const supabase =
+                getSupabaseClient();
+
+
+            if (!supabase) {
+                return false;
+            }
+
+
+            try {
+
+                const result =
+                    await supabase
+                        .from("payments")
+                        .select("id")
+                        .eq(
+                            "transaction_hash",
+                            transactionHash
+                        )
+                        .limit(1);
+
+
+                if (
+                    result.error
+                ) {
+
+                    console.warn(
+                        "Duplicate transaction check error:",
+                        result.error
+                    );
+
+                    return false;
+
+                }
+
+
+                return (
+                    Array.isArray(
+                        result.data
+                    ) &&
+                    result.data.length > 0
+                );
+
+            } catch (error) {
+
+                console.warn(
+                    "Duplicate transaction check failed:",
+                    error
+                );
+
+                return false;
+
+            }
+
+        }
+
+
+        /* =====================================================
+           SUBMIT PAYMENT
+           ===================================================== */
+
+        async function submitCryptoPayment(
+            event
+        ) {
+
+            event.preventDefault();
+
+
+            const paymentPlan =
+                document.getElementById(
+                    "payment-plan"
+                );
+
+
+            const transactionInput =
+                document.getElementById(
+                    "transaction-hash"
+                );
+
+
+            const submitButton =
+                document.getElementById(
+                    "submit-payment-button"
+                );
+
+
+            if (
+                !paymentPlan ||
+                !transactionInput
+            ) {
+
+                return;
+
+            }
+
+
+            const selectedPlan =
+                WEB3JOBS_PAYMENT_CONFIG
+                    .plans[
+                        paymentPlan.value
+                    ];
+
+
+            if (!selectedPlan) {
+
+                showPaymentMessage(
+                    "Please select a valid subscription plan.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            const transactionHash =
+                normalizeTransactionHash(
+                    transactionInput.value
+                );
+
+
+            if (!transactionHash) {
+
+                showPaymentMessage(
+                    "Please enter your transaction hash.",
+                    "error"
+                );
+
+                transactionInput.focus();
+
+                return;
+
+            }
+
+
+            if (
+                !isValidTransactionHash(
+                    transactionHash
+                )
+            ) {
+
+                showPaymentMessage(
+                    "Please enter a valid BNB Smart Chain transaction hash.",
+                    "error"
+                );
+
+                transactionInput.focus();
+
+                return;
+
+            }
+
+
+            const userId =
+                getCurrentUserId();
+
+
+            if (!userId) {
+
+                showPaymentMessage(
+                    "Your account session has expired. Please log in again.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            const supabase =
+                getSupabaseClient();
+
+
+            if (!supabase) {
+
+                showPaymentMessage(
+                    "Supabase is not initialized. Please check js/supabase.js.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+            try {
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        true;
+
+                    submitButton.textContent =
+                        "Submitting...";
+
+                }
+
+
+                showPaymentMessage(
+                    "Checking your transaction...",
+                    "info"
+                );
+
+
+                const duplicate =
+                    await transactionAlreadySubmitted(
+                        transactionHash
+                    );
+
+
+                if (duplicate) {
+
+                    showPaymentMessage(
+                        "This transaction hash has already been submitted.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                /*
+                 * IMPORTANT:
+                 *
+                 * The payment is recorded as PENDING.
+                 *
+                 * It is NOT marked as PAID here.
+                 *
+                 * An administrator/backend verification process
+                 * must verify:
+                 *
+                 * - BNB Smart Chain
+                 * - USDT token contract
+                 * - destination wallet
+                 * - sender
+                 * - amount
+                 * - transaction success
+                 *
+                 * before changing status to PAID.
+                 */
+
+
+                const paymentData = {
+
+                    user_id:
+                        userId,
+
+                    payment_provider:
+                        WEB3JOBS_PAYMENT_CONFIG
+                            .paymentProvider,
+
+                    payment_method:
+                        WEB3JOBS_PAYMENT_CONFIG
+                            .paymentMethod,
+
+                    payment_type:
+                        paymentPlan.value,
+
+                    amount:
+                        selectedPlan.price,
+
+                    currency:
+                        WEB3JOBS_PAYMENT_CONFIG
+                            .currency,
+
+                    status:
+                        "pending",
+
+                    provider_payment_id:
+                        transactionHash,
+
+                    transaction_hash:
+                        transactionHash,
+
+                    blockchain_network:
+                        WEB3JOBS_PAYMENT_CONFIG
+                            .blockchainNetwork
+
+                };
+
+
+                const result =
+                    await supabase
+                        .from("payments")
+                        .insert(
+                            paymentData
+                        )
+                        .select();
+
+
+                if (result.error) {
+
+                    console.error(
+                        "Payment insert error:",
+                        result.error
+                    );
+
+
+                    throw new Error(
+                        result.error.message ||
+                        "Unable to save payment."
+                    );
+
+                }
+
+
+                showPaymentMessage(
+                    "Payment submitted successfully. Your transaction is now pending verification.",
+                    "success"
+                );
+
+
+                transactionInput.value =
+                    "";
+
+
+                await loadPaymentHistory();
+
+
+            } catch (error) {
+
+                console.error(
+                    "Crypto payment submission error:",
+                    error
+                );
+
+
+                showPaymentMessage(
+                    error.message ||
+                    "Unable to submit payment. Please try again.",
+                    "error"
+                );
+
+
+            } finally {
+
+                if (submitButton) {
+
+                    submitButton.disabled =
+                        false;
+
+                    submitButton.textContent =
+                        "Submit Payment for Verification";
+
+                }
+
+            }
+
+        }
+
+
+        /* =====================================================
            BILLING UI
            ===================================================== */
 
@@ -3271,18 +4299,6 @@
                 const paymentPlan =
                     document.getElementById(
                         "payment-plan"
-                    );
-
-
-                const usdAmount =
-                    document.getElementById(
-                        "payment-usd-amount"
-                    );
-
-
-                const usdtAmount =
-                    document.getElementById(
-                        "payment-usdt-amount"
                     );
 
 
@@ -3304,68 +4320,9 @@
                     );
 
 
-                const paymentMessage =
-                    document.getElementById(
-                        "payment-message"
-                    );
-
-
-                /* -----------------------------------------
-                   UPDATE PAYMENT AMOUNT
-                   ----------------------------------------- */
-
-                function updatePaymentAmount() {
-
-                    if (!paymentPlan) {
-
-                        return;
-
-                    }
-
-
-                    const selectedOption =
-                        paymentPlan.options[
-                            paymentPlan.selectedIndex
-                        ];
-
-
-                    const price =
-                        Number(
-                            selectedOption
-                                .getAttribute(
-                                    "data-price"
-                                )
-                        );
-
-
-                    if (
-                        !Number.isFinite(price)
-                    ) {
-
-                        return;
-
-                    }
-
-
-                    if (usdAmount) {
-
-                        usdAmount.textContent =
-                            "$" +
-                            price;
-
-                    }
-
-
-                    if (usdtAmount) {
-
-                        usdtAmount.textContent =
-                            price +
-                            " USDT";
-
-                    }
-
-                }
-
+                /* ---------------------------------------------
+                   PAYMENT PLAN
+                   --------------------------------------------- */
 
                 if (paymentPlan) {
 
@@ -3380,9 +4337,9 @@
                 }
 
 
-                /* -----------------------------------------
+                /* ---------------------------------------------
                    COPY WALLET
-                   ----------------------------------------- */
+                   --------------------------------------------- */
 
                 if (
                     copyWalletButton &&
@@ -3393,22 +4350,67 @@
                         "click",
                         async function () {
 
+
                             const address =
                                 walletAddress
                                     .textContent
                                     .trim();
 
+
                             try {
 
-                                await navigator
-                                    .clipboard
-                                    .writeText(
-                                        address
+                                if (
+                                    navigator.clipboard &&
+                                    typeof
+                                    navigator
+                                        .clipboard
+                                        .writeText ===
+                                    "function"
+                                ) {
+
+                                    await navigator
+                                        .clipboard
+                                        .writeText(
+                                            address
+                                        );
+
+                                } else {
+
+                                    const textarea =
+                                        document
+                                            .createElement(
+                                                "textarea"
+                                            );
+
+
+                                    textarea.value =
+                                        address;
+
+
+                                    document.body
+                                        .appendChild(
+                                            textarea
+                                        );
+
+
+                                    textarea
+                                        .select();
+
+
+                                    document.execCommand(
+                                        "copy"
                                     );
+
+
+                                    textarea.remove();
+
+                                }
+
 
                                 copyWalletButton
                                     .textContent =
                                     "Copied!";
+
 
                                 setTimeout(
                                     function () {
@@ -3421,12 +4423,14 @@
                                     1800
                                 );
 
+
                             } catch (error) {
 
                                 console.error(
                                     "Wallet copy error:",
                                     error
                                 );
+
 
                                 alert(
                                     "Please copy the wallet address manually."
@@ -3440,98 +4444,130 @@
                 }
 
 
-                /* -----------------------------------------
+                /* ---------------------------------------------
                    PAYMENT FORM
-                   ----------------------------------------- */
+                   --------------------------------------------- */
 
                 if (paymentForm) {
 
                     paymentForm.addEventListener(
                         "submit",
-                        function (event) {
+                        submitCryptoPayment
+                    );
 
-                            event.preventDefault();
+                }
 
-
-                            const transactionInput =
-                                document.getElementById(
-                                    "transaction-hash"
-                                );
+            }
+        );
 
 
-                            const transactionHash =
-                                transactionInput
-                                    ? transactionInput
-                                        .value
-                                        .trim()
-                                    : "";
+        /* =====================================================
+           LOGOUT SAFETY HANDLER
+           ===================================================== */
+
+        document.addEventListener(
+            "click",
+            async function (event) {
+
+                const button =
+                    event.target.closest(
+                        '[data-action="logout"]'
+                    );
 
 
-                            if (!transactionHash) {
-
-                                showPaymentMessage(
-                                    "Please enter your transaction hash.",
-                                    "error"
-                                );
-
-                                return;
-
-                            }
+                if (!button) {
+                    return;
+                }
 
 
-                            if (
-                                !/^0x[a-fA-F0-9]{64}$/
-                                    .test(
-                                        transactionHash
-                                    )
-                            ) {
-
-                                showPaymentMessage(
-                                    "Please enter a valid blockchain transaction hash.",
-                                    "error"
-                                );
-
-                                return;
-
-                            }
+                event.preventDefault();
 
 
-                            showPaymentMessage(
-                                "Transaction received. Verification will be performed before your subscription is activated.",
-                                "success"
-                            );
+                try {
 
-                        }
+                    if (
+                        window.Web3JobsAuth &&
+                        typeof
+                        window.Web3JobsAuth
+                            .logout ===
+                        "function"
+                    ) {
+
+                        await
+                        window.Web3JobsAuth
+                            .logout();
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
                     );
 
                 }
 
 
-                function showPaymentMessage(
-                    message,
-                    type
-                ) {
+                window.location.href =
+                    "login.html";
 
-                    if (!paymentMessage) {
-
-                        return;
-
-                    }
+            }
+        );
 
 
-                    paymentMessage
-                        .className =
-                        "";
+        /* =====================================================
+           CREATE JOB BUTTON
+           ===================================================== */
+
+        document.addEventListener(
+            "click",
+            function (event) {
+
+                const button =
+                    event.target.closest(
+                        '[data-action="create-job"]'
+                    );
 
 
-                    paymentMessage
-                        .classList
-                        .add(type);
+                if (!button) {
+                    return;
+                }
 
 
-                    paymentMessage
-                        .textContent =
-                        message;
+                const form =
+                    document.getElementById(
+                        "create-job-form"
+                    );
+
+
+                if (!form) {
+                    return;
+                }
+
+
+                form.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+
+
+                const titleInput =
+                    document.getElementById(
+                        "job-title"
+                    );
+
+
+                if (titleInput) {
+
+                    setTimeout(
+                        function () {
+
+                            titleInput.focus();
+
+                        },
+                        500
+                    );
 
                 }
 
@@ -3543,4 +4579,4 @@
 
 </body>
 
-    </html>
+</html>
