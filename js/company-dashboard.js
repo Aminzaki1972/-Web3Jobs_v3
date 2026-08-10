@@ -1,9 +1,17 @@
+/* =========================================================
+   Web3Jobs v3
+   File: js/company-dashboard.js
+
+   Company Dashboard
+   Supabase Project:
+   https://jqhemwskrnlycximjpag.supabase.co
+   ========================================================= */
+
 "use strict";
 
+
 /* =========================================================
-   Web3Jobs
-   Company Dashboard
-   Company Supabase Project
+   SUPABASE
    ========================================================= */
 
 const COMPANY_SUPABASE_URL =
@@ -14,35 +22,48 @@ const COMPANY_SUPABASE_KEY =
 
 let companySupabase = null;
 
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
 const CompanyDashboard = {
+
     user: null,
+
     profile: null,
+
     jobs: [],
+
     initialized: false
+
 };
 
 
 /* =========================================================
-   SUPABASE
+   INITIALIZE SUPABASE
    ========================================================= */
 
 function initializeCompanySupabase() {
 
     if (companySupabase) {
+
         return companySupabase;
     }
 
+
     if (
-        !window.supabase ||
+        typeof window.supabase === "undefined" ||
         typeof window.supabase.createClient !== "function"
     ) {
 
         console.error(
-            "Supabase library not loaded."
+            "Company Dashboard: Supabase library not loaded."
         );
 
         return null;
     }
+
 
     try {
 
@@ -59,17 +80,19 @@ function initializeCompanySupabase() {
                 }
             );
 
+
         console.log(
-            "Company Supabase initialized:",
-            COMPANY_SUPABASE_URL
+            "Company Dashboard: Supabase initialized."
         );
+
 
         return companySupabase;
 
+
     } catch (error) {
 
         console.error(
-            "Supabase initialization error:",
+            "Company Dashboard Supabase error:",
             error
         );
 
@@ -79,57 +102,7 @@ function initializeCompanySupabase() {
 
 
 /* =========================================================
-   GET SESSION
-   ========================================================= */
-
-async function getCompanySession() {
-
-    const client =
-        initializeCompanySupabase();
-
-    if (!client) {
-        return null;
-    }
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await client.auth.getSession();
-
-        if (error) {
-
-            console.error(
-                "Session error:",
-                error
-            );
-
-            return null;
-        }
-
-        console.log(
-            "Company session:",
-            data?.session
-        );
-
-        return data?.session || null;
-
-    } catch (error) {
-
-        console.error(
-            "Unexpected session error:",
-            error
-        );
-
-        return null;
-    }
-}
-
-
-/* =========================================================
-   GET USER
+   CURRENT USER
    ========================================================= */
 
 async function getCompanyUser() {
@@ -138,8 +111,10 @@ async function getCompanyUser() {
         initializeCompanySupabase();
 
     if (!client) {
+
         return null;
     }
+
 
     try {
 
@@ -149,30 +124,29 @@ async function getCompanyUser() {
         } =
             await client.auth.getUser();
 
+
         if (error) {
 
             console.error(
-                "getUser error:",
+                "Company Dashboard getUser error:",
                 error
             );
 
             return null;
         }
 
+
         CompanyDashboard.user =
             data?.user || null;
 
-        console.log(
-            "Company authenticated user:",
-            CompanyDashboard.user
-        );
 
         return CompanyDashboard.user;
+
 
     } catch (error) {
 
         console.error(
-            "Unexpected getUser error:",
+            "Company Dashboard user error:",
             error
         );
 
@@ -190,52 +164,39 @@ async function loadCompanyProfile() {
     const client =
         initializeCompanySupabase();
 
+
     const user =
         CompanyDashboard.user ||
         await getCompanyUser();
 
+
     if (!client || !user) {
+
         return null;
     }
 
+
     try {
 
-        /*
-         * We search by USER ID.
-         */
-
-        let result =
+        const {
+            data,
+            error
+        } =
             await client
                 .from("profiles")
                 .select("*")
-                .eq("id", user.id)
+                .eq(
+                    "id",
+                    user.id
+                )
                 .maybeSingle();
 
 
-        /*
-         * If no profile was found by ID,
-         * try the email as a second check.
-         */
-
-        if (
-            !result.data &&
-            !result.error
-        ) {
-
-            result =
-                await client
-                    .from("profiles")
-                    .select("*")
-                    .eq("email", user.email)
-                    .maybeSingle();
-        }
-
-
-        if (result.error) {
+        if (error) {
 
             console.error(
-                "Profile query error:",
-                result.error
+                "Company profile error:",
+                error
             );
 
             return null;
@@ -243,7 +204,7 @@ async function loadCompanyProfile() {
 
 
         CompanyDashboard.profile =
-            result.data || null;
+            data || null;
 
 
         console.log(
@@ -254,10 +215,11 @@ async function loadCompanyProfile() {
 
         return CompanyDashboard.profile;
 
+
     } catch (error) {
 
         console.error(
-            "Profile loading error:",
+            "Company profile exception:",
             error
         );
 
@@ -280,7 +242,8 @@ async function verifyCompanyAccount() {
     if (!user) {
 
         showCompanyMessage(
-            "لا توجد جلسة دخول لحساب الشركة.",
+            "لم يتم العثور على المستخدم.",
+            "User not found.",
             "error"
         );
 
@@ -293,14 +256,37 @@ async function verifyCompanyAccount() {
         await loadCompanyProfile();
 
 
-    if (!profile) {
+    const profileType =
+        profile?.account_type;
 
-        console.error(
-            "Company profile was not found."
-        );
+
+    const metadataType =
+        user.user_metadata?.account_type;
+
+
+    const accountType =
+        String(
+            profileType ||
+            metadataType ||
+            ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    console.log(
+        "Company Dashboard account_type:",
+        accountType
+    );
+
+
+    if (
+        accountType !== "company"
+    ) {
 
         showCompanyMessage(
-            "لم يتم العثور على ملف حساب الشركة.",
+            "هذا الحساب ليس حساب شركة.",
+            "This is not a company account.",
             "error"
         );
 
@@ -308,98 +294,75 @@ async function verifyCompanyAccount() {
     }
 
 
-    const accountType =
-        String(
-            profile.account_type || ""
-        )
-        .trim()
-        .toLowerCase();
-
-
-    console.log(
-        "Detected account type:",
-        accountType
-    );
-
-
-    if (accountType === "company") {
-
-        console.log(
-            "Company account verified successfully."
-        );
-
-        return true;
-    }
-
-
-    showCompanyMessage(
-        "هذا الحساب ليس حساب شركة.",
-        "error"
-    );
-
-
-    console.error(
-        "Wrong account type:",
-        accountType,
-        profile
-    );
-
-
-    return false;
+    return true;
 }
 
 
 /* =========================================================
-   RENDER COMPANY INFORMATION
+   RENDER COMPANY INFO
    ========================================================= */
 
 function renderCompanyInformation() {
 
-    const profile =
-        CompanyDashboard.profile;
-
     const user =
         CompanyDashboard.user;
 
+    const profile =
+        CompanyDashboard.profile;
 
-    const name =
+
+    if (!user) {
+
+        return;
+    }
+
+
+    const companyName =
+        profile?.company_name ||
         profile?.full_name ||
-        user?.user_metadata?.full_name ||
+        profile?.name ||
+        user.user_metadata?.company_name ||
+        user.user_metadata?.full_name ||
+        user.email ||
         "Company";
 
 
     const email =
         profile?.email ||
-        user?.email ||
+        user.email ||
         "";
 
 
-    document
-        .querySelectorAll(
-            "#company-name, [data-company-name], .company-name"
-        )
-        .forEach(
-            function (element) {
-
-                element.textContent =
-                    name;
-
-            }
+    const nameElements =
+        document.querySelectorAll(
+            "[data-company-name], #company-name"
         );
 
 
-    document
-        .querySelectorAll(
-            "#company-email, [data-company-email], .company-email"
-        )
-        .forEach(
-            function (element) {
+    nameElements.forEach(
+        element => {
 
-                element.textContent =
-                    email;
+            element.textContent =
+                companyName;
 
-            }
+        }
+    );
+
+
+    const emailElements =
+        document.querySelectorAll(
+            "[data-company-email], #company-email"
         );
+
+
+    emailElements.forEach(
+        element => {
+
+            element.textContent =
+                email;
+
+        }
+    );
 }
 
 
@@ -412,11 +375,14 @@ async function loadCompanyJobs() {
     const client =
         initializeCompanySupabase();
 
+
     const user =
-        CompanyDashboard.user;
+        CompanyDashboard.user ||
+        await getCompanyUser();
 
 
     if (!client || !user) {
+
         return [];
     }
 
@@ -445,15 +411,17 @@ async function loadCompanyJobs() {
         if (error) {
 
             console.error(
-                "Jobs loading error:",
+                "Company jobs error:",
                 error
             );
 
-            CompanyDashboard.jobs = [];
 
-            renderCompanyJobs();
+            showCompanyMessage(
+                "تعذر تحميل الوظائف.",
+                "Unable to load jobs.",
+                "error"
+            );
 
-            updateCompanyStats();
 
             return [];
         }
@@ -470,10 +438,11 @@ async function loadCompanyJobs() {
 
         return CompanyDashboard.jobs;
 
+
     } catch (error) {
 
         console.error(
-            "Unexpected jobs error:",
+            "Load jobs exception:",
             error
         );
 
@@ -495,12 +464,17 @@ function renderCompanyJobs() {
 
 
     if (!container) {
+
+        console.error(
+            "company-jobs-list was not found."
+        );
+
         return;
     }
 
 
     const jobs =
-        CompanyDashboard.jobs || [];
+        CompanyDashboard.jobs;
 
 
     if (!jobs.length) {
@@ -520,7 +494,7 @@ function renderCompanyJobs() {
                 <button
                     type="button"
                     class="company-create-job-button"
-                    data-action="create-job"
+                    id="create-first-job"
                 >
                     Create Job
                 </button>
@@ -529,17 +503,20 @@ function renderCompanyJobs() {
 
         `;
 
+
         return;
     }
 
 
     container.innerHTML =
         jobs.map(
-            function (job) {
+            job => {
 
                 return `
 
-                    <article class="company-job-card">
+                    <article
+                        class="company-job-card"
+                    >
 
                         <div class="company-job-content">
 
@@ -583,8 +560,7 @@ function renderCompanyJobs() {
 
                             <button
                                 type="button"
-                                data-action="delete-job"
-                                data-job-id="${escapeCompanyHTML(job.id)}"
+                                data-delete-job="${job.id}"
                             >
                                 Delete
                             </button>
@@ -604,21 +580,20 @@ function renderCompanyJobs() {
    CREATE JOB
    ========================================================= */
 
-async function createCompanyJob(jobData) {
+async function createCompanyJob(
+    jobData
+) {
 
     const client =
         initializeCompanySupabase();
 
+
     const user =
-        CompanyDashboard.user;
+        CompanyDashboard.user ||
+        await getCompanyUser();
 
 
     if (!client || !user) {
-
-        showCompanyMessage(
-            "انتهت جلسة تسجيل الدخول.",
-            "error"
-        );
 
         return null;
     }
@@ -627,14 +602,16 @@ async function createCompanyJob(jobData) {
     const title =
         String(
             jobData.title || ""
-        ).trim();
+        )
+        .trim();
 
 
     if (!title) {
 
         showCompanyMessage(
-            "يرجى إدخال اسم الوظيفة.",
-            "warning"
+            "يرجى كتابة اسم الوظيفة.",
+            "Please enter a job title.",
+            "error"
         );
 
         return null;
@@ -651,12 +628,12 @@ async function createCompanyJob(jobData) {
                 .from("jobs")
                 .insert({
 
-                    title: title,
+                    title,
 
                     company:
                         jobData.company ||
-                        CompanyDashboard.profile?.full_name ||
-                        "Company",
+                        CompanyDashboard.profile?.name ||
+                        "Web3 Company",
 
                     location:
                         jobData.location ||
@@ -685,11 +662,13 @@ async function createCompanyJob(jobData) {
                 error
             );
 
+
             showCompanyMessage(
-                "تعذر نشر الوظيفة: " +
-                error.message,
+                "تعذر نشر الوظيفة.",
+                "Unable to publish job.",
                 "error"
             );
+
 
             return null;
         }
@@ -707,16 +686,18 @@ async function createCompanyJob(jobData) {
 
         showCompanyMessage(
             "تم نشر الوظيفة بنجاح.",
+            "Job published successfully.",
             "success"
         );
 
 
         return data;
 
+
     } catch (error) {
 
         console.error(
-            "Unexpected create job error:",
+            "Create job exception:",
             error
         );
 
@@ -729,16 +710,21 @@ async function createCompanyJob(jobData) {
    DELETE JOB
    ========================================================= */
 
-async function deleteCompanyJob(jobId) {
+async function deleteCompanyJob(
+    jobId
+) {
 
     const client =
         initializeCompanySupabase();
 
+
     const user =
-        CompanyDashboard.user;
+        CompanyDashboard.user ||
+        await getCompanyUser();
 
 
     if (!client || !user) {
+
         return false;
     }
 
@@ -778,18 +764,21 @@ async function deleteCompanyJob(jobId) {
                 error
             );
 
+            showCompanyMessage(
+                "تعذر حذف الوظيفة.",
+                "Unable to delete job.",
+                "error"
+            );
+
             return false;
         }
 
 
         CompanyDashboard.jobs =
             CompanyDashboard.jobs.filter(
-                function (job) {
-
-                    return String(job.id) !==
-                        String(jobId);
-
-                }
+                job =>
+                    String(job.id) !==
+                    String(jobId)
             );
 
 
@@ -798,12 +787,20 @@ async function deleteCompanyJob(jobId) {
         updateCompanyStats();
 
 
+        showCompanyMessage(
+            "تم حذف الوظيفة.",
+            "Job deleted successfully.",
+            "success"
+        );
+
+
         return true;
+
 
     } catch (error) {
 
         console.error(
-            "Unexpected delete error:",
+            "Delete job exception:",
             error
         );
 
@@ -841,18 +838,21 @@ function updateCompanyStats() {
 
 
     if (totalElement) {
+
         totalElement.textContent =
             total;
     }
 
 
     if (activeElement) {
+
         activeElement.textContent =
             total;
     }
 
 
     if (applicationsElement) {
+
         applicationsElement.textContent =
             "0";
     }
@@ -872,6 +872,11 @@ function initializeCompanyJobForm() {
 
 
     if (!form) {
+
+        console.warn(
+            "Create job form not found."
+        );
+
         return;
     }
 
@@ -880,6 +885,7 @@ function initializeCompanyJobForm() {
         form.dataset.initialized ===
         "true"
     ) {
+
         return;
     }
 
@@ -890,7 +896,7 @@ function initializeCompanyJobForm() {
 
     form.addEventListener(
         "submit",
-        async function (event) {
+        async function(event) {
 
             event.preventDefault();
 
@@ -923,7 +929,6 @@ function initializeCompanyJobForm() {
             if (result) {
 
                 form.reset();
-
             }
 
         }
@@ -939,27 +944,32 @@ function initializeCompanyEvents() {
 
     document.addEventListener(
         "click",
-        async function (event) {
+        async function(event) {
+
+
+            /* DELETE */
 
             const deleteButton =
                 event.target.closest(
-                    '[data-action="delete-job"]'
+                    "[data-delete-job]"
                 );
 
 
             if (deleteButton) {
 
                 await deleteCompanyJob(
-                    deleteButton.dataset.jobId
+                    deleteButton.dataset.deleteJob
                 );
 
                 return;
             }
 
 
+            /* CREATE FIRST JOB */
+
             const createButton =
                 event.target.closest(
-                    '[data-action="create-job"]'
+                    "#create-first-job"
                 );
 
 
@@ -976,12 +986,13 @@ function initializeCompanyEvents() {
                     form.scrollIntoView({
                         behavior: "smooth"
                     });
-
                 }
 
                 return;
             }
 
+
+            /* LOGOUT */
 
             const logoutButton =
                 event.target.closest(
@@ -992,7 +1003,6 @@ function initializeCompanyEvents() {
             if (logoutButton) {
 
                 await companyLogout();
-
             }
 
         }
@@ -1011,53 +1021,60 @@ async function companyLogout() {
 
 
     if (!client) {
+
         return;
     }
 
 
-    await client.auth.signOut();
+    try {
+
+        await client.auth.signOut();
 
 
-    window.location.href =
-        "login.html";
+        window.location.replace(
+            "login.html"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Company logout error:",
+            error
+        );
+    }
 }
 
 
 /* =========================================================
-   ESCAPE HTML
+   HTML ESCAPE
    ========================================================= */
 
 function escapeCompanyHTML(value) {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
-        return "";
-    }
-
-
-    return String(value)
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-        .replace(
-            /</g,
-            "&lt;"
-        )
-        .replace(
-            />/g,
-            "&gt;"
-        )
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-        .replace(
-            /'/g,
-            "&#039;"
-        );
+    return String(
+        value ?? ""
+    )
+    .replace(
+        /&/g,
+        "&amp;"
+    )
+    .replace(
+        /</g,
+        "&lt;"
+    )
+    .replace(
+        />/g,
+        "&gt;"
+    )
+    .replace(
+        /"/g,
+        "&quot;"
+    )
+    .replace(
+        /'/g,
+        "&#039;"
+    );
 }
 
 
@@ -1066,7 +1083,8 @@ function escapeCompanyHTML(value) {
    ========================================================= */
 
 function showCompanyMessage(
-    message,
+    messageAr,
+    messageEn,
     type = "info"
 ) {
 
@@ -1098,16 +1116,25 @@ function showCompanyMessage(
 
                 right: "20px",
 
-                zIndex: "999999",
+                zIndex: "99999",
 
-                padding: "14px 18px",
+                padding: "15px 20px",
 
                 borderRadius: "10px",
 
-                fontSize: "14px",
+                color: "#fff",
+
+                background:
+                    type === "error"
+                        ? "#dc3545"
+                        : type === "success"
+                            ? "#198754"
+                            : "#212529",
 
                 boxShadow:
-                    "0 8px 25px rgba(0,0,0,.2)"
+                    "0 8px 25px rgba(0,0,0,.2)",
+
+                maxWidth: "380px"
 
             }
         );
@@ -1120,33 +1147,9 @@ function showCompanyMessage(
 
 
     box.textContent =
-        message;
-
-
-    if (type === "error") {
-
-        box.style.background =
-            "#dc3545";
-
-        box.style.color =
-            "#fff";
-
-    } else if (type === "success") {
-
-        box.style.background =
-            "#198754";
-
-        box.style.color =
-            "#fff";
-
-    } else {
-
-        box.style.background =
-            "#212529";
-
-        box.style.color =
-            "#fff";
-    }
+        messageAr +
+        " — " +
+        messageEn;
 
 
     box.style.display =
@@ -1160,13 +1163,13 @@ function showCompanyMessage(
 
     box._timer =
         setTimeout(
-            function () {
+            function() {
 
                 box.style.display =
                     "none";
 
             },
-            5000
+            4000
         );
 }
 
@@ -1180,6 +1183,7 @@ async function initializeCompanyDashboard() {
     if (
         CompanyDashboard.initialized
     ) {
+
         return;
     }
 
@@ -1189,7 +1193,7 @@ async function initializeCompanyDashboard() {
 
 
     console.log(
-        "Starting Company Dashboard..."
+        "Company Dashboard starting..."
     );
 
 
@@ -1200,33 +1204,9 @@ async function initializeCompanyDashboard() {
     if (!client) {
 
         showCompanyMessage(
-            "تعذر تشغيل Supabase.",
+            "تعذر الاتصال بـ Supabase.",
+            "Unable to connect to Supabase.",
             "error"
-        );
-
-        return;
-    }
-
-
-    const session =
-        await getCompanySession();
-
-
-    if (!session) {
-
-        showCompanyMessage(
-            "لا توجد جلسة دخول في مشروع الشركة.",
-            "error"
-        );
-
-        setTimeout(
-            function () {
-
-                window.location.href =
-                    "login.html";
-
-            },
-            1500
         );
 
         return;
@@ -1239,23 +1219,40 @@ async function initializeCompanyDashboard() {
 
     if (!user) {
 
-        showCompanyMessage(
-            "تعذر قراءة المستخدم.",
-            "error"
+        console.error(
+            "Company Dashboard: No authenticated user."
+        );
+
+        window.location.replace(
+            "login.html"
         );
 
         return;
     }
 
 
-    await loadCompanyProfile();
+    console.log(
+        "Company Dashboard user:",
+        user.email
+    );
 
 
-    const verified =
+    const profile =
+        await loadCompanyProfile();
+
+
+    console.log(
+        "Company Dashboard profile:",
+        profile
+    );
+
+
+    const isCompany =
         await verifyCompanyAccount();
 
 
-    if (!verified) {
+    if (!isCompany) {
+
         return;
     }
 
@@ -1268,12 +1265,11 @@ async function initializeCompanyDashboard() {
 
     initializeCompanyJobForm();
 
-
     initializeCompanyEvents();
 
 
     console.log(
-        "Company Dashboard READY."
+        "Company Dashboard initialized successfully."
     );
 }
 
@@ -1289,8 +1285,6 @@ window.CompanyDashboard =
 window.Web3JobsCompany = {
 
     initializeCompanyDashboard,
-
-    getCompanySession,
 
     getCompanyUser,
 
@@ -1332,4 +1326,9 @@ if (
 } else {
 
     initializeCompanyDashboard();
-           }
+}
+
+
+/* =========================================================
+   END
+   ========================================================= */
