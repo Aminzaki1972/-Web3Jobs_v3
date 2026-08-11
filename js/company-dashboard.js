@@ -93,18 +93,14 @@ const CompanyDashboardState = {
    ========================================================= */
 
 function $(selector) {
-
     return document.querySelector(selector);
-
 }
 
 
 function $$(selector) {
-
     return Array.from(
         document.querySelectorAll(selector)
     );
-
 }
 
 
@@ -116,15 +112,12 @@ function getElement(...selectors) {
             document.querySelector(selector);
 
         if (element) {
-
             return element;
-
         }
 
     }
 
     return null;
-
 }
 
 
@@ -138,18 +131,14 @@ function getSupabaseClient() {
         window.supabaseClient &&
         typeof window.supabaseClient.from === "function"
     ) {
-
         return window.supabaseClient;
-
     }
 
     if (
         window.supabase &&
         typeof window.supabase.from === "function"
     ) {
-
         return window.supabase;
-
     }
 
     if (
@@ -168,20 +157,30 @@ function getSupabaseClient() {
 
         if (url && key) {
 
-            window.supabaseClient =
-                window.supabase.createClient(
-                    url,
-                    key
+            try {
+
+                window.supabaseClient =
+                    window.supabase.createClient(
+                        url,
+                        key
+                    );
+
+                return window.supabaseClient;
+
+            } catch (error) {
+
+                console.error(
+                    "Supabase client creation error:",
+                    error
                 );
 
-            return window.supabaseClient;
+            }
 
         }
 
     }
 
     return null;
-
 }
 
 
@@ -191,10 +190,11 @@ function getSupabaseClient() {
 
 function escapeHtml(value) {
 
-    if (value === null || value === undefined) {
-
+    if (
+        value === null ||
+        value === undefined
+    ) {
         return "";
-
     }
 
     return String(value)
@@ -203,7 +203,6 @@ function escapeHtml(value) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-
 }
 
 
@@ -220,17 +219,12 @@ function showLoading() {
         $("#dashboard-content");
 
     if (loading) {
-
         loading.style.display = "flex";
-
     }
 
     if (content) {
-
         content.style.display = "none";
-
     }
-
 }
 
 
@@ -243,17 +237,12 @@ function hideLoading() {
         $("#dashboard-content");
 
     if (loading) {
-
         loading.style.display = "none";
-
     }
 
     if (content) {
-
         content.style.display = "block";
-
     }
-
 }
 
 
@@ -261,7 +250,10 @@ function hideLoading() {
    NOTIFICATIONS
    ========================================================= */
 
-function showMessage(message, type = "info") {
+function showMessage(
+    message,
+    type = "info"
+) {
 
     let box =
         document.getElementById(
@@ -313,7 +305,6 @@ function showMessage(message, type = "info") {
             "0 15px 40px rgba(0,0,0,.35)";
 
         document.body.appendChild(box);
-
     }
 
     box.textContent =
@@ -351,7 +342,6 @@ function showMessage(message, type = "info") {
 
         box.style.color =
             "#f5f8ff";
-
     }
 
     clearTimeout(
@@ -359,12 +349,16 @@ function showMessage(message, type = "info") {
     );
 
     box._timer =
-        setTimeout(() => {
+        setTimeout(
+            () => {
 
-            box.remove();
+                if (box.parentNode) {
+                    box.remove();
+                }
 
-        }, 5000);
-
+            },
+            5000
+        );
 }
 
 
@@ -382,20 +376,16 @@ async function getCurrentSession() {
         throw new Error(
             "Supabase client is not available."
         );
-
     }
 
     const result =
         await client.auth.getSession();
 
     if (result.error) {
-
         throw result.error;
-
     }
 
     return result.data.session;
-
 }
 
 
@@ -404,13 +394,15 @@ async function requireCompanySession() {
     const session =
         await getCurrentSession();
 
-    if (!session || !session.user) {
+    if (
+        !session ||
+        !session.user
+    ) {
 
         window.location.href =
             "login.html";
 
         return null;
-
     }
 
     CompanyDashboardState.session =
@@ -420,7 +412,6 @@ async function requireCompanySession() {
         session.user;
 
     return session;
-
 }
 
 
@@ -433,11 +424,11 @@ async function loadCompanyProfile() {
     const client =
         getSupabaseClient();
 
-    if (!client ||
-        !CompanyDashboardState.user) {
-
+    if (
+        !client ||
+        !CompanyDashboardState.user
+    ) {
         return null;
-
     }
 
     const userId =
@@ -446,43 +437,66 @@ async function loadCompanyProfile() {
     let profile =
         null;
 
-    const companyResult =
-        await client
-            .from("company_profiles")
-            .select("*")
-            .eq("id", userId)
-            .maybeSingle();
 
-    if (
-        !companyResult.error &&
-        companyResult.data
-    ) {
+    try {
 
-        profile =
-            companyResult.data;
-
-    }
-
-    if (!profile) {
-
-        const profileResult =
+        const companyResult =
             await client
-                .from("profiles")
+                .from("company_profiles")
                 .select("*")
                 .eq("id", userId)
                 .maybeSingle();
 
         if (
-            !profileResult.error &&
-            profileResult.data
+            !companyResult.error &&
+            companyResult.data
         ) {
 
             profile =
-                profileResult.data;
+                companyResult.data;
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Company profile lookup failed:",
+            error
+        );
+
+    }
+
+
+    if (!profile) {
+
+        try {
+
+            const profileResult =
+                await client
+                    .from("profiles")
+                    .select("*")
+                    .eq("id", userId)
+                    .maybeSingle();
+
+            if (
+                !profileResult.error &&
+                profileResult.data
+            ) {
+
+                profile =
+                    profileResult.data;
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Profile lookup failed:",
+                error
+            );
 
         }
 
     }
+
 
     CompanyDashboardState.companyProfile =
         profile || {};
@@ -490,7 +504,6 @@ async function loadCompanyProfile() {
     renderCompanyProfile();
 
     return profile;
-
 }
 
 
@@ -521,22 +534,26 @@ function renderCompanyProfile() {
         user.email ||
         "";
 
-    const companyNameElements = [
+
+    [
         "#company-name",
         "#company-title",
         "[data-company-name]"
-    ];
+    ].forEach(
+        selector => {
 
-    companyNameElements.forEach(selector => {
+            $$(selector).forEach(
+                element => {
 
-        $$(selector).forEach(element => {
+                    element.textContent =
+                        companyName;
 
-            element.textContent =
-                companyName;
+                }
+            );
 
-        });
+        }
+    );
 
-    });
 
     const emailElement =
         getElement(
@@ -548,8 +565,8 @@ function renderCompanyProfile() {
 
         emailElement.textContent =
             email;
-
     }
+
 
     const brandElement =
         getElement(
@@ -561,8 +578,8 @@ function renderCompanyProfile() {
 
         brandElement.textContent =
             companyName;
-
     }
+
 
     const welcomeElement =
         getElement(
@@ -573,9 +590,7 @@ function renderCompanyProfile() {
 
         welcomeElement.textContent =
             companyName;
-
     }
-
 }
 
 
@@ -589,9 +604,7 @@ async function loadJobStatistics() {
         getSupabaseClient();
 
     if (!client) {
-
         return;
-
     }
 
     const profile =
@@ -607,75 +620,90 @@ async function loadJobStatistics() {
             ?.company_name ||
         null;
 
-    let query =
-        client
-            .from("jobs")
-            .select(
-                "id,title,company,created_at",
-                {
-                    count: "exact"
-                }
+
+    try {
+
+        let query =
+            client
+                .from("jobs")
+                .select(
+                    "id,title,company,created_at",
+                    {
+                        count: "exact"
+                    }
+                );
+
+        if (companyName) {
+
+            query =
+                query.eq(
+                    "company",
+                    companyName
+                );
+        }
+
+        const result =
+            await query;
+
+        if (result.error) {
+
+            console.warn(
+                "Jobs statistics error:",
+                result.error
             );
 
-    if (companyName) {
+            return;
+        }
 
-        query =
-            query.eq(
-                "company",
-                companyName
+        const jobs =
+            result.data || [];
+
+        const totalJobs =
+            result.count !== null
+                ? result.count
+                : jobs.length;
+
+
+        const published =
+            getElement(
+                "#published-jobs",
+                "#publishedJobs",
+                "[data-stat='published-jobs']"
             );
 
-    }
+        if (published) {
+            published.textContent =
+                String(totalJobs);
+        }
 
-    const result =
-        await query;
 
-    if (result.error) {
+        const active =
+            getElement(
+                "#active-jobs",
+                "#activeJobs",
+                "[data-stat='active-jobs']"
+            );
 
-        return;
+        if (active) {
+            active.textContent =
+                String(totalJobs);
+        }
 
-    }
 
-    const jobs =
-        result.data || [];
-
-    const totalJobs =
-        result.count !== null
-            ? result.count
-            : jobs.length;
-
-    const published =
-        getElement(
-            "#published-jobs",
-            "#publishedJobs",
-            "[data-stat='published-jobs']"
+        await loadApplicationStatistics(
+            jobs.map(
+                job => job.id
+            )
         );
 
-    if (published) {
+    } catch (error) {
 
-        published.textContent =
-            String(totalJobs);
-
-    }
-
-    const active =
-        getElement(
-            "#active-jobs",
-            "#activeJobs",
-            "[data-stat='active-jobs']"
+        console.warn(
+            "Job statistics failed:",
+            error
         );
 
-    if (active) {
-
-        active.textContent =
-            String(totalJobs);
-
     }
-
-    await loadApplicationStatistics(
-        jobs.map(job => job.id)
-    );
-
 }
 
 
@@ -691,9 +719,7 @@ async function loadApplicationStatistics(
         getSupabaseClient();
 
     if (!client) {
-
         return;
-
     }
 
     if (!jobIds.length) {
@@ -701,63 +727,80 @@ async function loadApplicationStatistics(
         updateApplicationCount(0);
 
         return;
-
     }
 
-    const result =
-        await client
-            .from("applications")
-            .select(
-                "id",
-                {
-                    count: "exact",
-                    head: true
-                }
-            )
-            .in(
-                "job_id",
-                jobIds
+
+    try {
+
+        const result =
+            await client
+                .from("applications")
+                .select(
+                    "id",
+                    {
+                        count: "exact",
+                        head: true
+                    }
+                )
+                .in(
+                    "job_id",
+                    jobIds
+                );
+
+        if (result.error) {
+
+            console.warn(
+                "Application statistics error:",
+                result.error
             );
 
-    if (result.error) {
+            updateApplicationCount(0);
+
+            return;
+        }
+
+        updateApplicationCount(
+            result.count || 0
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Application statistics failed:",
+            error
+        );
 
         updateApplicationCount(0);
 
-        return;
-
     }
-
-    updateApplicationCount(
-        result.count || 0
-    );
-
 }
 
 
 function updateApplicationCount(count) {
 
-    const elements = [
+    [
         "#total-applications",
         "#totalApplications",
         "[data-stat='applications']"
-    ];
+    ].forEach(
+        selector => {
 
-    elements.forEach(selector => {
+            $$(selector).forEach(
+                element => {
 
-        $$(selector).forEach(element => {
+                    element.textContent =
+                        String(count);
 
-            element.textContent =
-                String(count);
+                }
+            );
 
-        });
-
-    });
-
+        }
+    );
 }
 
 
 /* =========================================================
-   LOAD PLANS
+   LOAD SUBSCRIPTION PLANS
    ========================================================= */
 
 async function loadSubscriptionPlans() {
@@ -770,45 +813,63 @@ async function loadSubscriptionPlans() {
         renderDefaultPlans();
 
         return;
-
     }
 
-    const result =
-        await client
-            .from("plans")
-            .select(
-                "id,plan_code,plan_name,description,price,currency,duration_days,plan_type,is_active"
-            )
-            .eq(
-                "is_active",
-                true
-            )
-            .order(
-                "price",
-                {
-                    ascending: true
-                }
+
+    try {
+
+        const result =
+            await client
+                .from("plans")
+                .select(
+                    "id,plan_code,plan_name,description,price,currency,duration_days,plan_type,is_active"
+                )
+                .eq(
+                    "is_active",
+                    true
+                )
+                .order(
+                    "price",
+                    {
+                        ascending: true
+                    }
+                );
+
+
+        if (
+            result.error ||
+            !result.data ||
+            !result.data.length
+        ) {
+
+            console.warn(
+                "Plans table unavailable. Using default plans.",
+                result.error || ""
             );
 
-    if (
-        result.error ||
-        !result.data ||
-        !result.data.length
-    ) {
+            renderDefaultPlans();
+
+            return;
+        }
+
+
+        CompanyDashboardState.plans =
+            result.data;
+
+        renderPlans(
+            result.data
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Subscription plans failed:",
+            error
+        );
 
         renderDefaultPlans();
 
-        return;
-
     }
-
-    CompanyDashboardState.plans =
-        result.data;
-
-    renderPlans(
-        result.data
-    );
-
 }
 
 
@@ -864,7 +925,6 @@ function renderDefaultPlans() {
     renderPlans(
         CompanyDashboardState.plans
     );
-
 }
 
 
@@ -873,6 +933,10 @@ function renderDefaultPlans() {
    ========================================================= */
 
 function renderPlans(plans) {
+
+    if (!Array.isArray(plans)) {
+        return;
+    }
 
     const containers = [
         "#subscriptions",
@@ -890,26 +954,25 @@ function renderPlans(plans) {
             document.querySelector(selector);
 
         if (container) {
-
             break;
-
         }
-
     }
 
     if (!container) {
-
         return;
-
     }
 
+
     container.innerHTML =
-        plans.map(
-            plan => createPlanHtml(plan)
-        ).join("");
+        plans
+            .map(
+                plan =>
+                    createPlanHtml(plan)
+            )
+            .join("");
+
 
     bindPlanButtons();
-
 }
 
 
@@ -926,7 +989,8 @@ function createPlanHtml(plan) {
 
     const code =
         escapeHtml(
-            plan.plan_code || plan.id
+            plan.plan_code ||
+            plan.id
         );
 
     const name =
@@ -959,6 +1023,7 @@ function createPlanHtml(plan) {
             30
         );
 
+
     return `
         <div
             class="subscription-plan-card"
@@ -973,12 +1038,15 @@ function createPlanHtml(plan) {
                 </h3>
 
                 <div class="plan-price">
+
                     <strong>
                         $${price}
                     </strong>
+
                     <span>
                         / ${duration} days
                     </span>
+
                 </div>
 
                 <p>
@@ -1000,7 +1068,6 @@ function createPlanHtml(plan) {
 
         </div>
     `;
-
 }
 
 
@@ -1017,62 +1084,66 @@ function bindPlanButtons() {
             "[data-pay-bnb]"
         );
 
-    buttons.forEach(button => {
 
-        if (
+    buttons.forEach(
+        button => {
+
+            if (
+                button.dataset
+                    .dashboardBound === "true"
+            ) {
+                return;
+            }
+
+
             button.dataset
-                .dashboardBound === "true"
-        ) {
+                .dashboardBound =
+                "true";
 
-            return;
 
-        }
+            button.addEventListener(
+                "click",
+                function(event) {
 
-        button.dataset
-            .dashboardBound =
-            "true";
+                    event.preventDefault();
 
-        button.addEventListener(
-            "click",
-            function(event) {
+                    const planId =
+                        this.dataset.plan ||
+                        this.dataset.planId ||
+                        this.dataset.id;
 
-                event.preventDefault();
+                    const planCode =
+                        this.dataset.planCode ||
+                        this.dataset.code;
 
-                const planId =
-                    this.dataset.plan ||
-                    this.dataset.planId ||
-                    this.dataset.id;
 
-                const planCode =
-                    this.dataset.planCode ||
-                    this.dataset.code;
+                    const plan =
+                        findPlan(
+                            planId,
+                            planCode
+                        );
 
-                const plan =
-                    findPlan(
-                        planId,
-                        planCode
+
+                    if (!plan) {
+
+                        showMessage(
+                            "Please select a valid subscription plan.",
+                            "error"
+                        );
+
+                        return;
+                    }
+
+
+                    selectPlan(
+                        plan
                     );
-
-                if (!plan) {
-
-                    showMessage(
-                        "Please select a valid subscription plan.",
-                        "error"
-                    );
-
-                    return;
 
                 }
+            );
 
-                selectPlan(
-                    plan
-                );
-
-            }
-        );
-
-    });
-
+        }
+    );
 }
 
 
@@ -1096,6 +1167,7 @@ function findPlan(
                 String(planId)
         );
 
+
     if (!plan && planCode) {
 
         plan =
@@ -1108,8 +1180,8 @@ function findPlan(
                         planCode
                     ).toLowerCase()
             );
-
     }
+
 
     if (!plan && planId) {
 
@@ -1124,11 +1196,10 @@ function findPlan(
                     item.code ===
                     String(planId)
             );
-
     }
 
-    return plan || null;
 
+    return plan || null;
 }
 
 
@@ -1146,19 +1217,22 @@ function selectPlan(plan) {
         );
 
         return;
-
     }
+
 
     CompanyDashboardState.selectedPlan =
         plan;
+
 
     markSelectedPlan(
         plan
     );
 
+
     updatePaymentPanel(
         plan
     );
+
 
     const paymentPanel =
         getElement(
@@ -1166,6 +1240,7 @@ function selectPlan(plan) {
             "#subscription-payment",
             "#payment-section"
         );
+
 
     if (paymentPanel) {
 
@@ -1176,8 +1251,8 @@ function selectPlan(plan) {
             behavior: "smooth",
             block: "start"
         });
-
     }
+
 
     const selectedName =
         plan.plan_name ||
@@ -1185,13 +1260,14 @@ function selectPlan(plan) {
         plan.plan_code ||
         "Selected plan";
 
+
     showMessage(
         `${selectedName} selected.`,
         "success"
     );
 
-    updateSubscribeButton();
 
+    updateSubscribeButton();
 }
 
 
@@ -1201,22 +1277,38 @@ function selectPlan(plan) {
 
 function markSelectedPlan(plan) {
 
-    $$(".subscription-plan-card").forEach(
-        card => {
+    $$(".subscription-plan-card")
+        .forEach(
+            card => {
 
-            card.classList.remove(
-                "selected",
-                "active",
-                "is-selected"
+                card.classList.remove(
+                    "selected",
+                    "active",
+                    "is-selected"
+                );
+
+            }
+        );
+
+
+    let card = null;
+
+    try {
+
+        card =
+            document.querySelector(
+                `[data-plan-card="${CSS.escape(String(plan.id))}"]`
             );
 
-        }
-    );
+    } catch (error) {
 
-    const card =
-        document.querySelector(
-            `[data-plan-card="${CSS.escape(String(plan.id))}"]`
-        );
+        card =
+            document.querySelector(
+                `[data-plan-card="${String(plan.id).replace(/"/g, '\\"')}"]`
+            );
+
+    }
+
 
     if (card) {
 
@@ -1225,36 +1317,37 @@ function markSelectedPlan(plan) {
             "active",
             "is-selected"
         );
-
     }
 
-    $$(".plan-button").forEach(
-        button => {
 
-            button.classList.remove(
-                "selected",
-                "active"
-            );
+    $$(".plan-button")
+        .forEach(
+            button => {
 
-            const buttonPlan =
-                button.dataset.plan ||
-                button.dataset.planId;
-
-            if (
-                String(buttonPlan) ===
-                String(plan.id)
-            ) {
-
-                button.classList.add(
+                button.classList.remove(
                     "selected",
                     "active"
                 );
 
+
+                const buttonPlan =
+                    button.dataset.plan ||
+                    button.dataset.planId;
+
+
+                if (
+                    String(buttonPlan) ===
+                    String(plan.id)
+                ) {
+
+                    button.classList.add(
+                        "selected",
+                        "active"
+                    );
+                }
+
             }
-
-        }
-    );
-
+        );
 }
 
 
@@ -1270,50 +1363,59 @@ function updatePaymentPanel(plan) {
         plan.plan_code ||
         "Subscription";
 
+
     const price =
         Number(
             plan.price || 0
         ).toFixed(2);
 
-    const nameElements = [
+
+    [
         "#selected-plan-name",
         "#payment-plan-name",
         "[data-selected-plan]"
-    ];
+    ].forEach(
+        selector => {
 
-    nameElements.forEach(selector => {
+            $$(selector).forEach(
+                element => {
 
-        $$(selector).forEach(element => {
+                    element.textContent =
+                        name;
 
-            element.textContent =
-                name;
+                }
+            );
 
-        });
+        }
+    );
 
-    });
 
-    const priceElements = [
+    [
         "#selected-plan-price",
         "#payment-plan-price",
         "[data-selected-price]"
-    ];
+    ].forEach(
+        selector => {
 
-    priceElements.forEach(selector => {
+            $$(selector).forEach(
+                element => {
 
-        $$(selector).forEach(element => {
+                    element.textContent =
+                        `$${price}`;
 
-            element.textContent =
-                `$${price}`;
+                }
+            );
 
-        });
+        }
+    );
 
-    });
 
     const walletElement =
         getElement(
             "#payment-wallet",
             "#wallet-address"
         );
+
 
     if (
         walletElement &&
@@ -1322,11 +1424,10 @@ function updatePaymentPanel(plan) {
 
         walletElement.textContent =
             "Wallet not connected";
-
     }
 
-    updateSubscribeButton();
 
+    updateSubscribeButton();
 }
 
 
@@ -1344,18 +1445,22 @@ function updateSubscribeButton() {
         "[data-subscribe]"
     ];
 
-    buttons.forEach(selector => {
 
-        $$(selector).forEach(button => {
+    buttons.forEach(
+        selector => {
 
-            button.disabled =
-                !CompanyDashboardState.selectedPlan ||
-                CompanyDashboardState.paymentPending;
+            $$(selector).forEach(
+                button => {
 
-        });
+                    button.disabled =
+                        !CompanyDashboardState.selectedPlan ||
+                        CompanyDashboardState.paymentPending;
 
-    });
+                }
+            );
 
+        }
+    );
 }
 
 
@@ -1368,7 +1473,6 @@ function walletAvailable() {
     return Boolean(
         window.ethereum
     );
-
 }
 
 
@@ -1386,8 +1490,8 @@ async function connectWallet() {
         );
 
         return null;
-
     }
+
 
     try {
 
@@ -1397,6 +1501,7 @@ async function connectWallet() {
                     "eth_requestAccounts"
             });
 
+
         if (
             !accounts ||
             !accounts.length
@@ -1405,16 +1510,19 @@ async function connectWallet() {
             throw new Error(
                 "No wallet account was returned."
             );
-
         }
 
+
         await switchToBNBChain();
+
 
         const address =
             accounts[0];
 
+
         CompanyDashboardState.walletAddress =
             address;
+
 
         if (
             window.ethers &&
@@ -1427,18 +1535,22 @@ async function connectWallet() {
                 );
 
             CompanyDashboardState.signer =
-                await CompanyDashboardState.provider.getSigner();
-
+                await CompanyDashboardState.provider
+                    .getSigner();
         }
 
+
         updateWalletUI();
+
 
         showMessage(
             "Wallet connected successfully.",
             "success"
         );
 
+
         updateSubscribeButton();
+
 
         return address;
 
@@ -1449,16 +1561,16 @@ async function connectWallet() {
             error
         );
 
+
         showMessage(
             error.message ||
             "Unable to connect wallet.",
             "error"
         );
 
+
         return null;
-
     }
-
 }
 
 
@@ -1473,18 +1585,20 @@ async function switchToBNBChain() {
         throw new Error(
             "Web3 wallet is not available."
         );
-
     }
+
 
     try {
 
         await window.ethereum.request({
             method:
                 "wallet_switchEthereumChain",
+
             params: [
                 {
                     chainId:
-                        COMPANY_DASHBOARD_CONFIG.chainId
+                        COMPANY_DASHBOARD_CONFIG
+                            .chainId
                 }
             ]
         });
@@ -1496,19 +1610,22 @@ async function switchToBNBChain() {
         ) {
 
             throw error;
-
         }
+
 
         await window.ethereum.request({
             method:
                 "wallet_addEthereumChain",
+
             params: [
                 {
                     chainId:
-                        COMPANY_DASHBOARD_CONFIG.chainId,
+                        COMPANY_DASHBOARD_CONFIG
+                            .chainId,
 
                     chainName:
-                        COMPANY_DASHBOARD_CONFIG.chainName,
+                        COMPANY_DASHBOARD_CONFIG
+                            .chainName,
 
                     nativeCurrency: {
                         name:
@@ -1529,13 +1646,10 @@ async function switchToBNBChain() {
                         COMPANY_DASHBOARD_CONFIG
                             .explorer
                     ]
-
                 }
             ]
         });
-
     }
-
 }
 
 
@@ -1548,45 +1662,51 @@ function updateWalletUI() {
     const address =
         CompanyDashboardState.walletAddress;
 
+
     const displayAddress =
         address
             ? `${address.slice(0, 6)}...${address.slice(-4)}`
             : "Connect wallet";
 
-    $$("#wallet-address").forEach(
-        element => {
 
-            element.textContent =
-                displayAddress;
+    $$("#wallet-address")
+        .forEach(
+            element => {
 
-        }
-    );
+                element.textContent =
+                    displayAddress;
 
-    $$("#payment-wallet").forEach(
-        element => {
+            }
+        );
 
-            element.textContent =
-                displayAddress;
 
-        }
-    );
+    $$("#payment-wallet")
+        .forEach(
+            element => {
 
-    $$("#connect-wallet").forEach(
-        button => {
+                element.textContent =
+                    displayAddress;
 
-            button.textContent =
-                address
-                    ? displayAddress
-                    : "Connect Wallet";
+            }
+        );
 
-        }
-    );
 
+    $$("#connect-wallet")
+        .forEach(
+            button => {
+
+                button.textContent =
+                    address
+                        ? displayAddress
+                        : "Connect Wallet";
+
+            }
+        );
 }
 
 
 /* =========================================================
-   CONVERT USD TO BNB
+   BNB PRICE
    ========================================================= */
 
 async function getBnbPrice() {
@@ -1596,21 +1716,24 @@ async function getBnbPrice() {
             "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT"
         );
 
+
     if (!response.ok) {
 
         throw new Error(
             "Unable to retrieve the current BNB price."
         );
-
     }
+
 
     const data =
         await response.json();
+
 
     const price =
         Number(
             data.price
         );
+
 
     if (
         !Number.isFinite(price) ||
@@ -1620,22 +1743,25 @@ async function getBnbPrice() {
         throw new Error(
             "Invalid BNB price."
         );
-
     }
 
-    return price;
 
+    return price;
 }
 
 
-async function usdToBnb(usdAmount) {
+async function usdToBnb(
+    usdAmount
+) {
 
     const bnbUsd =
         await getBnbPrice();
 
+
     const bnbAmount =
         Number(usdAmount) /
         bnbUsd;
+
 
     if (
         !Number.isFinite(bnbAmount) ||
@@ -1645,11 +1771,10 @@ async function usdToBnb(usdAmount) {
         throw new Error(
             "Invalid BNB amount."
         );
-
     }
 
-    return bnbAmount;
 
+    return bnbAmount;
 }
 
 
@@ -1669,16 +1794,16 @@ async function sendSubscriptionPayment() {
         );
 
         return;
-
     }
+
 
     if (
         CompanyDashboardState.paymentPending
     ) {
 
         return;
-
     }
+
 
     if (!walletAvailable()) {
 
@@ -1688,29 +1813,43 @@ async function sendSubscriptionPayment() {
         );
 
         return;
-
     }
+
 
     try {
 
         CompanyDashboardState.paymentPending =
             true;
 
+
         updateSubscribeButton();
+
 
         const address =
             CompanyDashboardState.walletAddress ||
             await connectWallet();
+
 
         if (!address) {
 
             throw new Error(
                 "Wallet connection is required."
             );
-
         }
 
+
         await switchToBNBChain();
+
+
+        if (
+            !window.ethers
+        ) {
+
+            throw new Error(
+                "Ethers library is not loaded."
+            );
+        }
+
 
         if (
             !CompanyDashboardState.signer
@@ -1721,54 +1860,68 @@ async function sendSubscriptionPayment() {
                     window.ethereum
                 );
 
+
             CompanyDashboardState.signer =
                 await CompanyDashboardState.provider
                     .getSigner();
-
         }
+
 
         const plan =
             CompanyDashboardState.selectedPlan;
+
 
         const usdAmount =
             Number(
                 plan.price
             );
 
+
         showPaymentStatus(
             "Calculating BNB amount..."
         );
+
 
         const bnbAmount =
             await usdToBnb(
                 usdAmount
             );
 
+
         const value =
             ethers.parseEther(
                 bnbAmount.toFixed(8)
             );
 
+
         showPaymentStatus(
             `Preparing payment of approximately ${bnbAmount.toFixed(6)} BNB...`
         );
 
-        const transaction =
-            await CompanyDashboardState.signer.sendTransaction({
-                to:
-                    COMPANY_DASHBOARD_CONFIG
-                        .receiverWallet,
 
-                value:
-                    value
-            });
+        const transaction =
+            await CompanyDashboardState
+                .signer
+                .sendTransaction({
+
+                    to:
+                        COMPANY_DASHBOARD_CONFIG
+                            .receiverWallet,
+
+                    value:
+                        value
+
+                });
+
 
         showPaymentStatus(
             "Transaction submitted. Waiting for confirmation..."
         );
 
+
         const receipt =
             await transaction.wait();
+
 
         if (
             !receipt ||
@@ -1778,8 +1931,8 @@ async function sendSubscriptionPayment() {
             throw new Error(
                 "The blockchain transaction was not confirmed."
             );
-
         }
+
 
         await savePayment(
             transaction.hash,
@@ -1788,14 +1941,17 @@ async function sendSubscriptionPayment() {
             plan
         );
 
+
         showPaymentStatus(
             "Payment submitted successfully and is awaiting verification."
         );
+
 
         showMessage(
             "Payment submitted successfully. Your subscription will be activated after verification.",
             "success"
         );
+
 
     } catch (error) {
 
@@ -1804,10 +1960,12 @@ async function sendSubscriptionPayment() {
             error
         );
 
+
         showPaymentStatus(
             error.message ||
             "Payment failed."
         );
+
 
         showMessage(
             error.message ||
@@ -1815,15 +1973,15 @@ async function sendSubscriptionPayment() {
             "error"
         );
 
+
     } finally {
 
         CompanyDashboardState.paymentPending =
             false;
 
+
         updateSubscribeButton();
-
     }
-
 }
 
 
@@ -1839,13 +1997,12 @@ function showPaymentStatus(message) {
             "#subscription-status"
         );
 
+
     if (element) {
 
         element.textContent =
             message;
-
     }
-
 }
 
 
@@ -1863,24 +2020,26 @@ async function savePayment(
     const client =
         getSupabaseClient();
 
+
     if (!client) {
 
         throw new Error(
             "Supabase client is not available."
         );
-
     }
+
 
     const userId =
         CompanyDashboardState.user?.id;
+
 
     if (!userId) {
 
         throw new Error(
             "Authenticated user was not found."
         );
-
     }
+
 
     const paymentData = {
 
@@ -1916,6 +2075,7 @@ async function savePayment(
 
     };
 
+
     const result =
         await client
             .from("payments")
@@ -1923,14 +2083,14 @@ async function savePayment(
                 paymentData
             );
 
+
     if (result.error) {
 
         throw result.error;
-
     }
 
-    return result;
 
+    return result;
 }
 
 
@@ -1942,35 +2102,37 @@ function bindDashboardEvents() {
 
     /* Wallet */
 
-    $$("#connect-wallet").forEach(
-        button => {
+    $$("#connect-wallet")
+        .forEach(
+            button => {
 
-            if (
+                if (
+                    button.dataset
+                        .dashboardBound ===
+                    "true"
+                ) {
+                    return;
+                }
+
+
                 button.dataset
-                    .dashboardBound === "true"
-            ) {
+                    .dashboardBound =
+                    "true";
 
-                return;
+
+                button.addEventListener(
+                    "click",
+                    async event => {
+
+                        event.preventDefault();
+
+                        await connectWallet();
+
+                    }
+                );
 
             }
-
-            button.dataset
-                .dashboardBound =
-                "true";
-
-            button.addEventListener(
-                "click",
-                async event => {
-
-                    event.preventDefault();
-
-                    await connectWallet();
-
-                }
-            );
-
-        }
-    );
+        );
 
 
     /* Payment */
@@ -1982,9 +2144,50 @@ function bindDashboardEvents() {
         "#confirm-subscription"
     ];
 
-    paymentButtons.forEach(selector => {
 
-        $$(selector).forEach(
+    paymentButtons.forEach(
+        selector => {
+
+            $$(selector)
+                .forEach(
+                    button => {
+
+                        if (
+                            button.dataset
+                                .dashboardBound ===
+                            "true"
+                        ) {
+                            return;
+                        }
+
+
+                        button.dataset
+                            .dashboardBound =
+                            "true";
+
+
+                        button.addEventListener(
+                            "click",
+                            async event => {
+
+                                event.preventDefault();
+
+                                await sendSubscriptionPayment();
+
+                            }
+                        );
+
+                    }
+                );
+
+        }
+    );
+
+
+    /* Logout */
+
+    $$("#logout-button")
+        .forEach(
             button => {
 
                 if (
@@ -1992,14 +2195,14 @@ function bindDashboardEvents() {
                         .dashboardBound ===
                     "true"
                 ) {
-
                     return;
-
                 }
+
 
                 button.dataset
                     .dashboardBound =
                     "true";
+
 
                 button.addEventListener(
                     "click",
@@ -2007,7 +2210,7 @@ function bindDashboardEvents() {
 
                         event.preventDefault();
 
-                        await sendSubscriptionPayment();
+                        await logoutCompany();
 
                     }
                 );
@@ -2015,46 +2218,8 @@ function bindDashboardEvents() {
             }
         );
 
-    });
-
-
-    /* Logout */
-
-    $$("#logout-button").forEach(
-        button => {
-
-            if (
-                button.dataset
-                    .dashboardBound === "true"
-            ) {
-
-                return;
-
-            }
-
-            button.dataset
-                .dashboardBound =
-                "true";
-
-            button.addEventListener(
-                "click",
-                async event => {
-
-                    event.preventDefault();
-
-                    await logoutCompany();
-
-                }
-            );
-
-        }
-    );
-
-
-    /* Existing plan buttons */
 
     bindPlanButtons();
-
 }
 
 
@@ -2069,11 +2234,12 @@ async function logoutCompany() {
         const client =
             getSupabaseClient();
 
+
         if (client) {
 
             await client.auth.signOut();
-
         }
+
 
     } catch (error) {
 
@@ -2082,13 +2248,12 @@ async function logoutCompany() {
             error
         );
 
+
     } finally {
 
         window.location.href =
             "login.html";
-
     }
-
 }
 
 
@@ -2099,10 +2264,20 @@ async function logoutCompany() {
 function bindWalletEvents() {
 
     if (!window.ethereum) {
-
         return;
-
     }
+
+
+    if (
+        window.__web3JobsWalletEventsBound
+    ) {
+        return;
+    }
+
+
+    window.__web3JobsWalletEventsBound =
+        true;
+
 
     window.ethereum.on(
         "accountsChanged",
@@ -2113,21 +2288,25 @@ function bindWalletEvents() {
                 !accounts.length
             ) {
 
-                CompanyDashboardState.walletAddress =
+                CompanyDashboardState
+                    .walletAddress =
                     null;
 
-                CompanyDashboardState.provider =
+                CompanyDashboardState
+                    .provider =
                     null;
 
-                CompanyDashboardState.signer =
+                CompanyDashboardState
+                    .signer =
                     null;
 
             } else {
 
-                CompanyDashboardState.walletAddress =
+                CompanyDashboardState
+                    .walletAddress =
                     accounts[0];
-
             }
+
 
             updateWalletUI();
 
@@ -2141,17 +2320,18 @@ function bindWalletEvents() {
         "chainChanged",
         () => {
 
-            CompanyDashboardState.provider =
+            CompanyDashboardState
+                .provider =
                 null;
 
-            CompanyDashboardState.signer =
+            CompanyDashboardState
+                .signer =
                 null;
 
             updateSubscribeButton();
 
         }
     );
-
 }
 
 
@@ -2162,10 +2342,9 @@ function bindWalletEvents() {
 async function detectExistingWallet() {
 
     if (!window.ethereum) {
-
         return;
-
     }
+
 
     try {
 
@@ -2175,17 +2354,20 @@ async function detectExistingWallet() {
                     "eth_accounts"
             });
 
+
         if (
             accounts &&
             accounts.length
         ) {
 
-            CompanyDashboardState.walletAddress =
+            CompanyDashboardState
+                .walletAddress =
                 accounts[0];
 
-            updateWalletUI();
 
+            updateWalletUI();
         }
+
 
     } catch (error) {
 
@@ -2193,14 +2375,12 @@ async function detectExistingWallet() {
             "Wallet detection failed:",
             error
         );
-
     }
-
 }
 
 
 /* =========================================================
-   INIT
+   INITIALIZE DASHBOARD
    ========================================================= */
 
 async function initializeCompanyDashboard() {
@@ -2208,45 +2388,121 @@ async function initializeCompanyDashboard() {
     if (
         CompanyDashboardState.initialized
     ) {
-
         return;
-
     }
+
 
     CompanyDashboardState.initialized =
         true;
 
+
     showLoading();
 
+
     try {
+
+        /*
+         * STEP 1
+         * Authentication is the only
+         * requirement for opening
+         * the dashboard.
+         */
 
         const session =
             await requireCompanySession();
 
-        if (!session) {
 
+        if (!session) {
             return;
+        }
+
+
+        /*
+         * STEP 2
+         * Load company information.
+         * Errors here must not block
+         * the dashboard.
+         */
+
+        try {
+
+            await loadCompanyProfile();
+
+        } catch (error) {
+
+            console.warn(
+                "Company profile loading failed:",
+                error
+            );
 
         }
 
-        await loadCompanyProfile();
 
-        await Promise.allSettled([
-            loadJobStatistics(),
-            loadSubscriptionPlans()
-        ]);
+        /*
+         * STEP 3
+         * Hide loading immediately.
+         *
+         * The dashboard must open even
+         * if jobs, plans or wallet fail.
+         */
+
+        hideLoading();
+
+
+        /*
+         * STEP 4
+         * Bind dashboard controls.
+         */
 
         bindDashboardEvents();
 
+
+        /*
+         * STEP 5
+         * Load secondary data.
+         * These operations are isolated.
+         */
+
+        Promise.resolve()
+            .then(
+                () => loadJobStatistics()
+            )
+            .catch(
+                error => console.warn(
+                    "Job statistics failed:",
+                    error
+                )
+            );
+
+
+        Promise.resolve()
+            .then(
+                () => loadSubscriptionPlans()
+            )
+            .catch(
+                error => console.warn(
+                    "Subscription plans failed:",
+                    error
+                )
+            );
+
+
+        /*
+         * STEP 6
+         * Wallet is optional.
+         */
+
         bindWalletEvents();
+
 
         await detectExistingWallet();
 
+
         updateWalletUI();
+
 
         updateSubscribeButton();
 
-        hideLoading();
 
     } catch (error) {
 
@@ -2255,13 +2511,17 @@ async function initializeCompanyDashboard() {
             error
         );
 
+
+        /*
+         * Only authentication / critical
+         * initialization errors reach here.
+         */
+
         showLoadingError(
             error.message ||
             "Unable to load the company dashboard."
         );
-
     }
-
 }
 
 
@@ -2274,11 +2534,24 @@ function showLoadingError(message) {
     const loading =
         $("#loading-spinner");
 
+
     if (!loading) {
 
-        return;
+        /*
+         * If the loading element does not
+         * exist, do not replace the page.
+         */
 
+        hideLoading();
+
+        showMessage(
+            message,
+            "error"
+        );
+
+        return;
     }
+
 
     loading.innerHTML = `
 
@@ -2309,8 +2582,10 @@ function showLoadingError(message) {
 
     `;
 
+
     const retry =
         $("#dashboard-retry");
+
 
     if (retry) {
 
@@ -2322,9 +2597,7 @@ function showLoadingError(message) {
 
             }
         );
-
     }
-
 }
 
 
@@ -2341,6 +2614,7 @@ window.selectPlan =
                 planId
             );
 
+
         if (!plan) {
 
             showMessage(
@@ -2349,13 +2623,12 @@ window.selectPlan =
             );
 
             return;
-
         }
+
 
         selectPlan(
             plan
         );
-
     };
 
 
