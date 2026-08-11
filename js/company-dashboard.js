@@ -11,61 +11,51 @@
    ========================================================= */
 
 const COMPANY_DASHBOARD_CONFIG = {
-    receiverAddress:
+
+    receiverWallet:
         "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
 
-    chainId: 56,
+    chainId:
+        "0x38",
 
     chainName:
         "BNB Smart Chain",
 
-    nativeSymbol:
+    nativeCurrency:
         "BNB",
+
+    rpcUrls: [
+        "https://bsc-dataseed.binance.org/"
+    ],
 
     explorer:
         "https://bscscan.com",
 
     plans: {
-        monthly: {
-            id: "monthly",
-            name: "Monthly",
-            price: 10,
-            currency: "USDT",
+
+        starter: {
+            code: "starter",
+            name: "Starter",
+            price: 19,
             durationDays: 30
         },
 
-        quarterly: {
-            id: "quarterly",
-            name: "Quarterly",
-            price: 25,
-            currency: "USDT",
-            durationDays: 90
+        professional: {
+            code: "professional",
+            name: "Professional",
+            price: 49,
+            durationDays: 30
         },
 
-        yearly: {
-            id: "yearly",
-            name: "Yearly",
-            price: 80,
-            currency: "USDT",
-            durationDays: 365
+        business: {
+            code: "business",
+            name: "Business",
+            price: 99,
+            durationDays: 30
         }
+
     }
-};
 
-
-/* =========================================================
-   BSC TOKEN CONFIGURATION
-   ========================================================= */
-
-const BSC_TOKENS = {
-    USDT: {
-        symbol: "USDT",
-
-        decimals: 18,
-
-        address:
-            "0x55d398326f99059fF775485246999027B3197955"
-    }
 };
 
 
@@ -73,22 +63,28 @@ const BSC_TOKENS = {
    STATE
    ========================================================= */
 
-const dashboardState = {
+const CompanyDashboardState = {
+
     user: null,
 
-    profile: null,
+    session: null,
 
-    jobs: [],
+    companyProfile: null,
 
-    applications: [],
+    selectedPlan: null,
+
+    plans: [],
 
     walletAddress: null,
 
-    selectedPlan: null,
+    provider: null,
+
+    signer: null,
 
     paymentPending: false,
 
     initialized: false
+
 };
 
 
@@ -96,18 +92,96 @@ const dashboardState = {
    DOM HELPERS
    ========================================================= */
 
-function byId(id) {
-    return document.getElementById(id);
-}
+function $(selector) {
 
-
-function qs(selector) {
     return document.querySelector(selector);
+
 }
 
 
-function qsa(selector) {
-    return Array.from(document.querySelectorAll(selector));
+function $$(selector) {
+
+    return Array.from(
+        document.querySelectorAll(selector)
+    );
+
+}
+
+
+function getElement(...selectors) {
+
+    for (const selector of selectors) {
+
+        const element =
+            document.querySelector(selector);
+
+        if (element) {
+
+            return element;
+
+        }
+
+    }
+
+    return null;
+
+}
+
+
+/* =========================================================
+   SUPABASE CLIENT
+   ========================================================= */
+
+function getSupabaseClient() {
+
+    if (
+        window.supabaseClient &&
+        typeof window.supabaseClient.from === "function"
+    ) {
+
+        return window.supabaseClient;
+
+    }
+
+    if (
+        window.supabase &&
+        typeof window.supabase.from === "function"
+    ) {
+
+        return window.supabase;
+
+    }
+
+    if (
+        window.supabase &&
+        typeof window.supabase.createClient === "function"
+    ) {
+
+        const url =
+            window.SUPABASE_URL ||
+            window.JOBS_SUPABASE_URL;
+
+        const key =
+            window.SUPABASE_ANON_KEY ||
+            window.JOBS_SUPABASE_KEY ||
+            window.SUPABASE_KEY;
+
+        if (url && key) {
+
+            window.supabaseClient =
+                window.supabase.createClient(
+                    url,
+                    key
+                );
+
+            return window.supabaseClient;
+
+        }
+
+    }
+
+    return null;
+
 }
 
 
@@ -116,12 +190,70 @@ function qsa(selector) {
    ========================================================= */
 
 function escapeHtml(value) {
-    return String(value ?? "")
+
+    if (value === null || value === undefined) {
+
+        return "";
+
+    }
+
+    return String(value)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+
+}
+
+
+/* =========================================================
+   LOADING
+   ========================================================= */
+
+function showLoading() {
+
+    const loading =
+        $("#loading-spinner");
+
+    const content =
+        $("#dashboard-content");
+
+    if (loading) {
+
+        loading.style.display = "flex";
+
+    }
+
+    if (content) {
+
+        content.style.display = "none";
+
+    }
+
+}
+
+
+function hideLoading() {
+
+    const loading =
+        $("#loading-spinner");
+
+    const content =
+        $("#dashboard-content");
+
+    if (loading) {
+
+        loading.style.display = "none";
+
+    }
+
+    if (content) {
+
+        content.style.display = "block";
+
+    }
+
 }
 
 
@@ -130,223 +262,258 @@ function escapeHtml(value) {
    ========================================================= */
 
 function showMessage(message, type = "info") {
-    let box = byId("dashboard-message");
+
+    let box =
+        document.getElementById(
+            "dashboard-message"
+        );
 
     if (!box) {
-        box = document.createElement("div");
 
-        box.id = "dashboard-message";
+        box =
+            document.createElement("div");
 
-        box.style.position = "fixed";
-        box.style.left = "50%";
-        box.style.bottom = "24px";
-        box.style.transform = "translateX(-50%)";
-        box.style.zIndex = "999999";
-        box.style.width = "min(92%, 520px)";
-        box.style.padding = "14px 18px";
-        box.style.borderRadius = "12px";
-        box.style.border = "1px solid #294563";
-        box.style.background = "#0d1b2e";
-        box.style.color = "#f5f8ff";
-        box.style.fontSize = "13px";
-        box.style.fontWeight = "700";
-        box.style.boxShadow = "0 20px 50px rgba(0,0,0,.35)";
-        box.style.textAlign = "center";
+        box.id =
+            "dashboard-message";
+
+        box.style.position =
+            "fixed";
+
+        box.style.left =
+            "20px";
+
+        box.style.right =
+            "20px";
+
+        box.style.bottom =
+            "20px";
+
+        box.style.zIndex =
+            "999999";
+
+        box.style.maxWidth =
+            "600px";
+
+        box.style.margin =
+            "0 auto";
+
+        box.style.padding =
+            "14px 18px";
+
+        box.style.borderRadius =
+            "12px";
+
+        box.style.fontSize =
+            "13px";
+
+        box.style.fontWeight =
+            "700";
+
+        box.style.boxShadow =
+            "0 15px 40px rgba(0,0,0,.35)";
 
         document.body.appendChild(box);
+
     }
 
-    box.textContent = message;
+    box.textContent =
+        message;
 
     if (type === "success") {
-        box.style.borderColor = "#6ee7b7";
+
+        box.style.background =
+            "#064e3b";
+
+        box.style.border =
+            "1px solid #10b981";
+
+        box.style.color =
+            "#d1fae5";
+
     } else if (type === "error") {
-        box.style.borderColor = "#f87171";
-    } else if (type === "warning") {
-        box.style.borderColor = "#fbbf24";
+
+        box.style.background =
+            "#450a0a";
+
+        box.style.border =
+            "1px solid #ef4444";
+
+        box.style.color =
+            "#fee2e2";
+
     } else {
-        box.style.borderColor = "#60a5fa";
+
+        box.style.background =
+            "#10233a";
+
+        box.style.border =
+            "1px solid #294563";
+
+        box.style.color =
+            "#f5f8ff";
+
     }
 
-    clearTimeout(showMessage.timer);
+    clearTimeout(
+        box._timer
+    );
 
-    showMessage.timer = setTimeout(() => {
-        box.remove();
-    }, 6000);
+    box._timer =
+        setTimeout(() => {
+
+            box.remove();
+
+        }, 5000);
+
 }
 
 
 /* =========================================================
-   LOADING
+   AUTHENTICATION
    ========================================================= */
 
-function showLoading(message = "Loading dashboard...") {
-    const spinner = byId("loading-spinner");
+async function getCurrentSession() {
 
-    if (!spinner) {
-        return;
-    }
-
-    spinner.style.display = "flex";
-
-    const text =
-        spinner.querySelector(".loading-card p");
-
-    if (text) {
-        text.textContent = message;
-    }
-}
-
-
-function hideLoading() {
-    const spinner = byId("loading-spinner");
-
-    if (spinner) {
-        spinner.style.display = "none";
-    }
-}
-
-
-/* =========================================================
-   SUPABASE
-   ========================================================= */
-
-function getSupabaseClient() {
-    if (
-        typeof window !== "undefined" &&
-        window.supabaseClient
-    ) {
-        return window.supabaseClient;
-    }
-
-    if (
-        typeof window !== "undefined" &&
-        window.supabase
-    ) {
-        if (
-            typeof window.supabase.from === "function"
-        ) {
-            return window.supabase;
-        }
-    }
-
-    return null;
-}
-
-
-/* =========================================================
-   AUTH SESSION
-   ========================================================= */
-
-async function getCurrentUser() {
-    const client = getSupabaseClient();
+    const client =
+        getSupabaseClient();
 
     if (!client) {
+
         throw new Error(
-            "Supabase client is not initialized."
+            "Supabase client is not available."
         );
+
     }
 
     const result =
         await client.auth.getSession();
 
     if (result.error) {
+
         throw result.error;
+
     }
 
-    const session = result.data?.session;
+    return result.data.session;
 
-    if (!session?.user) {
+}
+
+
+async function requireCompanySession() {
+
+    const session =
+        await getCurrentSession();
+
+    if (!session || !session.user) {
+
+        window.location.href =
+            "login.html";
+
         return null;
+
     }
 
-    return session.user;
+    CompanyDashboardState.session =
+        session;
+
+    CompanyDashboardState.user =
+        session.user;
+
+    return session;
+
 }
 
 
 /* =========================================================
-   PROFILE
+   COMPANY PROFILE
    ========================================================= */
 
 async function loadCompanyProfile() {
-    const client = getSupabaseClient();
 
-    if (!client || !dashboardState.user) {
+    const client =
+        getSupabaseClient();
+
+    if (!client ||
+        !CompanyDashboardState.user) {
+
         return null;
+
     }
 
     const userId =
-        dashboardState.user.id;
+        CompanyDashboardState.user.id;
 
-    let profile = null;
+    let profile =
+        null;
 
-    try {
-        const result =
+    const companyResult =
+        await client
+            .from("company_profiles")
+            .select("*")
+            .eq("id", userId)
+            .maybeSingle();
+
+    if (
+        !companyResult.error &&
+        companyResult.data
+    ) {
+
+        profile =
+            companyResult.data;
+
+    }
+
+    if (!profile) {
+
+        const profileResult =
             await client
                 .from("profiles")
                 .select("*")
                 .eq("id", userId)
                 .maybeSingle();
 
-        if (!result.error && result.data) {
-            profile = result.data;
+        if (
+            !profileResult.error &&
+            profileResult.data
+        ) {
+
+            profile =
+                profileResult.data;
+
         }
-    } catch (error) {
-        console.warn(
-            "Profile lookup failed:",
-            error
-        );
+
     }
 
-    if (!profile) {
-        try {
-            const result =
-                await client
-                    .from("company_profiles")
-                    .select("*")
-                    .eq("id", userId)
-                    .maybeSingle();
-
-            if (!result.error && result.data) {
-                profile = result.data;
-            }
-        } catch (error) {
-            console.warn(
-                "Company profile lookup failed:",
-                error
-            );
-        }
-    }
-
-    dashboardState.profile =
+    CompanyDashboardState.companyProfile =
         profile || {};
 
-    updateCompanyIdentity();
+    renderCompanyProfile();
 
-    return dashboardState.profile;
+    return profile;
+
 }
 
 
 /* =========================================================
-   COMPANY IDENTITY
+   COMPANY PROFILE UI
    ========================================================= */
 
-function updateCompanyIdentity() {
+function renderCompanyProfile() {
+
     const profile =
-        dashboardState.profile || {};
+        CompanyDashboardState.companyProfile ||
+        {};
 
     const user =
-        dashboardState.user || {};
-
-    const metadata =
-        user.user_metadata || {};
+        CompanyDashboardState.user ||
+        {};
 
     const companyName =
         profile.company_name ||
         profile.name ||
-        profile.full_name ||
-        metadata.company_name ||
-        metadata.name ||
+        profile.company ||
+        user.user_metadata?.company_name ||
+        user.user_metadata?.name ||
         "Company";
 
     const email =
@@ -355,771 +522,914 @@ function updateCompanyIdentity() {
         "";
 
     const companyNameElements = [
-        byId("company-name"),
-        byId("company-name-header"),
-        byId("company-title")
+        "#company-name",
+        "#company-title",
+        "[data-company-name]"
     ];
 
-    companyNameElements.forEach(element => {
-        if (element) {
-            element.textContent = companyName;
-        }
+    companyNameElements.forEach(selector => {
+
+        $$(selector).forEach(element => {
+
+            element.textContent =
+                companyName;
+
+        });
+
     });
 
     const emailElement =
-        byId("company-email");
+        getElement(
+            "#company-email",
+            "[data-company-email]"
+        );
 
     if (emailElement) {
-        emailElement.textContent = email;
+
+        emailElement.textContent =
+            email;
+
     }
 
-    const welcomeTitle =
-        byId("welcome-company-name");
+    const brandElement =
+        getElement(
+            "#brand-company-name",
+            ".brand-title"
+        );
 
-    if (welcomeTitle) {
-        welcomeTitle.textContent =
+    if (brandElement) {
+
+        brandElement.textContent =
             companyName;
+
     }
+
+    const welcomeElement =
+        getElement(
+            "#welcome-company-name"
+        );
+
+    if (welcomeElement) {
+
+        welcomeElement.textContent =
+            companyName;
+
+    }
+
 }
 
 
 /* =========================================================
-   LOAD JOBS
+   JOB STATISTICS
    ========================================================= */
 
-async function loadCompanyJobs() {
-    const client = getSupabaseClient();
-
-    if (!client || !dashboardState.user) {
-        return [];
-    }
-
-    const userId =
-        dashboardState.user.id;
-
-    try {
-        let result =
-            await client
-                .from("jobs")
-                .select("*")
-                .eq("company_id", userId)
-                .order("created_at", {
-                    ascending: false
-                });
-
-        if (!result.error) {
-            dashboardState.jobs =
-                result.data || [];
-
-            return dashboardState.jobs;
-        }
-    } catch (error) {
-        console.warn(
-            "Company job query failed:",
-            error
-        );
-    }
-
-    try {
-        let result =
-            await client
-                .from("jobs")
-                .select("*")
-                .eq("user_id", userId)
-                .order("created_at", {
-                    ascending: false
-                });
-
-        if (!result.error) {
-            dashboardState.jobs =
-                result.data || [];
-
-            return dashboardState.jobs;
-        }
-    } catch (error) {
-        console.warn(
-            "Alternative job query failed:",
-            error
-        );
-    }
-
-    dashboardState.jobs = [];
-
-    return [];
-}
-
-
-/* =========================================================
-   LOAD APPLICATIONS
-   ========================================================= */
-
-async function loadCompanyApplications() {
-    const client = getSupabaseClient();
-
-    if (!client || !dashboardState.jobs.length) {
-        dashboardState.applications = [];
-        return [];
-    }
-
-    const jobIds =
-        dashboardState.jobs
-            .map(job => job.id)
-            .filter(Boolean);
-
-    if (!jobIds.length) {
-        dashboardState.applications = [];
-        return [];
-    }
-
-    try {
-        const result =
-            await client
-                .from("applications")
-                .select("*")
-                .in("job_id", jobIds);
-
-        if (result.error) {
-            console.warn(
-                "Applications query failed:",
-                result.error
-            );
-
-            dashboardState.applications = [];
-
-            return [];
-        }
-
-        dashboardState.applications =
-            result.data || [];
-
-        return dashboardState.applications;
-    } catch (error) {
-        console.warn(
-            "Applications loading failed:",
-            error
-        );
-
-        dashboardState.applications = [];
-
-        return [];
-    }
-}
-
-
-/* =========================================================
-   STATS
-   ========================================================= */
-
-function updateStats() {
-    const jobs =
-        dashboardState.jobs || [];
-
-    const applications =
-        dashboardState.applications || [];
-
-    const publishedJobs =
-        jobs.length;
-
-    const activeJobs =
-        jobs.filter(job => {
-            const status =
-                String(job.status || "active")
-                    .toLowerCase();
-
-            return (
-                status !== "closed" &&
-                status !== "inactive" &&
-                status !== "expired"
-            );
-        }).length;
-
-    const totalApplications =
-        applications.length;
-
-    const mappings = [
-        {
-            ids: [
-                "published-jobs",
-                "publishedJobs",
-                "jobs-count"
-            ],
-            value: publishedJobs
-        },
-        {
-            ids: [
-                "active-jobs",
-                "activeJobs"
-            ],
-            value: activeJobs
-        },
-        {
-            ids: [
-                "total-applications",
-                "totalApplications",
-                "applications-count"
-            ],
-            value: totalApplications
-        }
-    ];
-
-    mappings.forEach(item => {
-        item.ids.forEach(id => {
-            const element = byId(id);
-
-            if (element) {
-                element.textContent =
-                    String(item.value);
-            }
-        });
-    });
-}
-
-
-/* =========================================================
-   JOB RENDERING
-   ========================================================= */
-
-function renderJobs() {
-    const container =
-        byId("company-jobs-list") ||
-        byId("jobs-list") ||
-        byId("published-jobs-list");
-
-    if (!container) {
-        return;
-    }
-
-    const jobs =
-        dashboardState.jobs || [];
-
-    if (!jobs.length) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <strong>No jobs published yet.</strong>
-                <p>Create your first Web3 job opportunity.</p>
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML =
-        jobs.map(job => {
-            const title =
-                escapeHtml(
-                    job.title || "Untitled Job"
-                );
-
-            const company =
-                escapeHtml(
-                    job.company || ""
-                );
-
-            const location =
-                escapeHtml(
-                    job.location || "Remote"
-                );
-
-            const type =
-                escapeHtml(
-                    job.type || "Full-time"
-                );
-
-            const status =
-                escapeHtml(
-                    job.status || "active"
-                );
-
-            return `
-                <article class="job-card"
-                    data-job-id="${escapeHtml(job.id)}">
-
-                    <div class="job-card-content">
-
-                        <h3>${title}</h3>
-
-                        <p>
-                            ${company}
-                        </p>
-
-                        <div class="job-meta">
-                            <span>${location}</span>
-                            <span>${type}</span>
-                            <span>${status}</span>
-                        </div>
-
-                    </div>
-
-                    <div class="job-actions">
-
-                        <button
-                            type="button"
-                            class="header-button"
-                            data-action="edit-job"
-                            data-job-id="${escapeHtml(job.id)}"
-                        >
-                            Edit
-                        </button>
-
-                        <button
-                            type="button"
-                            class="header-button logout-button"
-                            data-action="delete-job"
-                            data-job-id="${escapeHtml(job.id)}"
-                        >
-                            Delete
-                        </button>
-
-                    </div>
-
-                </article>
-            `;
-        })
-        .join("");
-
-    container
-        .querySelectorAll("[data-action='delete-job']")
-        .forEach(button => {
-            button.addEventListener(
-                "click",
-                () => {
-                    deleteJob(
-                        button.dataset.jobId
-                    );
-                }
-            );
-        });
-
-    container
-        .querySelectorAll("[data-action='edit-job']")
-        .forEach(button => {
-            button.addEventListener(
-                "click",
-                () => {
-                    editJob(
-                        button.dataset.jobId
-                    );
-                }
-            );
-        });
-}
-
-
-/* =========================================================
-   CREATE JOB
-   ========================================================= */
-
-async function addJob(event) {
-    if (event) {
-        event.preventDefault();
-    }
-
-    const client = getSupabaseClient();
-
-    if (!client || !dashboardState.user) {
-        showMessage(
-            "Authentication is required.",
-            "error"
-        );
-
-        return;
-    }
-
-    const form =
-        event?.currentTarget ||
-        byId("post-job-form") ||
-        byId("job-form");
-
-    if (!form) {
-        showMessage(
-            "Job form was not found.",
-            "error"
-        );
-
-        return;
-    }
-
-    const formData =
-        new FormData(form);
-
-    const title =
-        String(
-            formData.get("title") ||
-            byId("job-title")?.value ||
-            ""
-        ).trim();
-
-    const company =
-        String(
-            formData.get("company") ||
-            byId("job-company")?.value ||
-            dashboardState.profile?.company_name ||
-            ""
-        ).trim();
-
-    const location =
-        String(
-            formData.get("location") ||
-            byId("job-location")?.value ||
-            "Remote"
-        ).trim();
-
-    const type =
-        String(
-            formData.get("type") ||
-            byId("job-type")?.value ||
-            "Full-time"
-        ).trim();
-
-    const description =
-        String(
-            formData.get("description") ||
-            byId("job-description")?.value ||
-            ""
-        ).trim();
-
-    const skills =
-        String(
-            formData.get("skills") ||
-            byId("job-skills")?.value ||
-            ""
-        ).trim();
-
-    const salary =
-        String(
-            formData.get("salary") ||
-            byId("job-salary")?.value ||
-            ""
-        ).trim();
-
-    const applicationUrl =
-        String(
-            formData.get("application_url") ||
-            formData.get("apply_link") ||
-            byId("application-url")?.value ||
-            byId("apply-link")?.value ||
-            ""
-        ).trim();
-
-    if (!title) {
-        showMessage(
-            "Job title is required.",
-            "error"
-        );
-
-        return;
-    }
-
-    if (!description) {
-        showMessage(
-            "Job description is required.",
-            "error"
-        );
-
-        return;
-    }
-
-    const payload = {
-        title,
-        company,
-        location,
-        type,
-        description,
-        skills,
-        salary,
-        application_url:
-            applicationUrl || null
-    };
-
-    const companyId =
-        dashboardState.user.id;
-
-    try {
-        let result =
-            await client
-                .from("jobs")
-                .insert({
-                    ...payload,
-                    company_id: companyId
-                })
-                .select()
-                .single();
-
-        if (result.error) {
-            result =
-                await client
-                    .from("jobs")
-                    .insert({
-                        ...payload,
-                        user_id: companyId
-                    })
-                    .select()
-                    .single();
-        }
-
-        if (result.error) {
-            throw result.error;
-        }
-
-        showMessage(
-            "Job published successfully.",
-            "success"
-        );
-
-        form.reset();
-
-        await refreshDashboard();
-
-    } catch (error) {
-        console.error(
-            "Job creation error:",
-            error
-        );
-
-        showMessage(
-            error.message ||
-            "Unable to publish job.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   EDIT JOB
-   ========================================================= */
-
-async function editJob(jobId) {
-    const job =
-        dashboardState.jobs.find(
-            item =>
-                String(item.id) ===
-                String(jobId)
-        );
-
-    if (!job) {
-        return;
-    }
-
-    const title =
-        window.prompt(
-            "Job title:",
-            job.title || ""
-        );
-
-    if (title === null) {
-        return;
-    }
-
-    const description =
-        window.prompt(
-            "Job description:",
-            job.description || ""
-        );
-
-    if (description === null) {
-        return;
-    }
-
-    const client = getSupabaseClient();
-
-    if (!client) {
-        showMessage(
-            "Supabase is not available.",
-            "error"
-        );
-
-        return;
-    }
-
-    try {
-        const result =
-            await client
-                .from("jobs")
-                .update({
-                    title:
-                        title.trim(),
-                    description:
-                        description.trim()
-                })
-                .eq("id", job.id);
-
-        if (result.error) {
-            throw result.error;
-        }
-
-        showMessage(
-            "Job updated successfully.",
-            "success"
-        );
-
-        await refreshDashboard();
-
-    } catch (error) {
-        console.error(
-            "Job update error:",
-            error
-        );
-
-        showMessage(
-            error.message ||
-            "Unable to update job.",
-            "error"
-        );
-    }
-}
-
-
-/* =========================================================
-   DELETE JOB
-   ========================================================= */
-
-async function deleteJob(jobId) {
-    const confirmed =
-        window.confirm(
-            "Delete this job?"
-        );
-
-    if (!confirmed) {
-        return;
-    }
+async function loadJobStatistics() {
 
     const client =
         getSupabaseClient();
 
     if (!client) {
-        showMessage(
-            "Supabase is not available.",
-            "error"
-        );
 
         return;
+
     }
 
-    try {
-        const result =
-            await client
-                .from("jobs")
-                .delete()
-                .eq("id", jobId);
+    const profile =
+        CompanyDashboardState.companyProfile ||
+        {};
 
-        if (result.error) {
-            throw result.error;
+    const companyName =
+        profile.company_name ||
+        profile.name ||
+        profile.company ||
+        CompanyDashboardState.user
+            ?.user_metadata
+            ?.company_name ||
+        null;
+
+    let query =
+        client
+            .from("jobs")
+            .select(
+                "id,title,company,created_at",
+                {
+                    count: "exact"
+                }
+            );
+
+    if (companyName) {
+
+        query =
+            query.eq(
+                "company",
+                companyName
+            );
+
+    }
+
+    const result =
+        await query;
+
+    if (result.error) {
+
+        return;
+
+    }
+
+    const jobs =
+        result.data || [];
+
+    const totalJobs =
+        result.count !== null
+            ? result.count
+            : jobs.length;
+
+    const published =
+        getElement(
+            "#published-jobs",
+            "#publishedJobs",
+            "[data-stat='published-jobs']"
+        );
+
+    if (published) {
+
+        published.textContent =
+            String(totalJobs);
+
+    }
+
+    const active =
+        getElement(
+            "#active-jobs",
+            "#activeJobs",
+            "[data-stat='active-jobs']"
+        );
+
+    if (active) {
+
+        active.textContent =
+            String(totalJobs);
+
+    }
+
+    await loadApplicationStatistics(
+        jobs.map(job => job.id)
+    );
+
+}
+
+
+/* =========================================================
+   APPLICATION STATISTICS
+   ========================================================= */
+
+async function loadApplicationStatistics(
+    jobIds = []
+) {
+
+    const client =
+        getSupabaseClient();
+
+    if (!client) {
+
+        return;
+
+    }
+
+    if (!jobIds.length) {
+
+        updateApplicationCount(0);
+
+        return;
+
+    }
+
+    const result =
+        await client
+            .from("applications")
+            .select(
+                "id",
+                {
+                    count: "exact",
+                    head: true
+                }
+            )
+            .in(
+                "job_id",
+                jobIds
+            );
+
+    if (result.error) {
+
+        updateApplicationCount(0);
+
+        return;
+
+    }
+
+    updateApplicationCount(
+        result.count || 0
+    );
+
+}
+
+
+function updateApplicationCount(count) {
+
+    const elements = [
+        "#total-applications",
+        "#totalApplications",
+        "[data-stat='applications']"
+    ];
+
+    elements.forEach(selector => {
+
+        $$(selector).forEach(element => {
+
+            element.textContent =
+                String(count);
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   LOAD PLANS
+   ========================================================= */
+
+async function loadSubscriptionPlans() {
+
+    const client =
+        getSupabaseClient();
+
+    if (!client) {
+
+        renderDefaultPlans();
+
+        return;
+
+    }
+
+    const result =
+        await client
+            .from("plans")
+            .select(
+                "id,plan_code,plan_name,description,price,currency,duration_days,plan_type,is_active"
+            )
+            .eq(
+                "is_active",
+                true
+            )
+            .order(
+                "price",
+                {
+                    ascending: true
+                }
+            );
+
+    if (
+        result.error ||
+        !result.data ||
+        !result.data.length
+    ) {
+
+        renderDefaultPlans();
+
+        return;
+
+    }
+
+    CompanyDashboardState.plans =
+        result.data;
+
+    renderPlans(
+        result.data
+    );
+
+}
+
+
+/* =========================================================
+   DEFAULT PLANS
+   ========================================================= */
+
+function renderDefaultPlans() {
+
+    CompanyDashboardState.plans = [
+
+        {
+            id: "starter",
+            plan_code: "starter",
+            plan_name: "Starter",
+            description:
+                "For small teams starting with Web3 hiring.",
+            price: 19,
+            currency: "USD",
+            duration_days: 30,
+            plan_type: "monthly",
+            is_active: true
+        },
+
+        {
+            id: "professional",
+            plan_code: "professional",
+            plan_name: "Professional",
+            description:
+                "For growing Web3 companies.",
+            price: 49,
+            currency: "USD",
+            duration_days: 30,
+            plan_type: "monthly",
+            is_active: true
+        },
+
+        {
+            id: "business",
+            plan_code: "business",
+            plan_name: "Business",
+            description:
+                "For companies with advanced hiring needs.",
+            price: 99,
+            currency: "USD",
+            duration_days: 30,
+            plan_type: "monthly",
+            is_active: true
         }
 
-        showMessage(
-            "Job deleted successfully.",
-            "success"
-        );
+    ];
 
-        await refreshDashboard();
+    renderPlans(
+        CompanyDashboardState.plans
+    );
 
-    } catch (error) {
-        console.error(
-            "Job deletion error:",
-            error
-        );
-
-        showMessage(
-            error.message ||
-            "Unable to delete job.",
-            "error"
-        );
-    }
 }
 
 
 /* =========================================================
-   PLAN SELECTION
+   RENDER PLANS
    ========================================================= */
 
-function selectPlan(planId) {
-    const plan =
-        COMPANY_DASHBOARD_CONFIG.plans[
-            planId
-        ];
+function renderPlans(plans) {
+
+    const containers = [
+        "#subscriptions",
+        "#subscription-plans",
+        "#plans-container",
+        "#plans-list"
+    ];
+
+    let container =
+        null;
+
+    for (const selector of containers) {
+
+        container =
+            document.querySelector(selector);
+
+        if (container) {
+
+            break;
+
+        }
+
+    }
+
+    if (!container) {
+
+        return;
+
+    }
+
+    container.innerHTML =
+        plans.map(
+            plan => createPlanHtml(plan)
+        ).join("");
+
+    bindPlanButtons();
+
+}
+
+
+/* =========================================================
+   PLAN HTML
+   ========================================================= */
+
+function createPlanHtml(plan) {
+
+    const id =
+        escapeHtml(
+            plan.id
+        );
+
+    const code =
+        escapeHtml(
+            plan.plan_code || plan.id
+        );
+
+    const name =
+        escapeHtml(
+            plan.plan_name ||
+            plan.name ||
+            code
+        );
+
+    const description =
+        escapeHtml(
+            plan.description ||
+            ""
+        );
+
+    const price =
+        Number(
+            plan.price || 0
+        ).toFixed(2);
+
+    const currency =
+        escapeHtml(
+            plan.currency ||
+            "USD"
+        );
+
+    const duration =
+        Number(
+            plan.duration_days ||
+            30
+        );
+
+    return `
+        <div
+            class="subscription-plan-card"
+            data-plan-card="${id}"
+            data-plan-code="${code}"
+        >
+
+            <div class="plan-card-content">
+
+                <h3>
+                    ${name}
+                </h3>
+
+                <div class="plan-price">
+                    <strong>
+                        $${price}
+                    </strong>
+                    <span>
+                        / ${duration} days
+                    </span>
+                </div>
+
+                <p>
+                    ${description}
+                </p>
+
+                <button
+                    type="button"
+                    class="plan-button"
+                    data-plan="${id}"
+                    data-plan-code="${code}"
+                    data-price="${price}"
+                    data-plan-name="${name}"
+                >
+                    Choose ${name}
+                </button>
+
+            </div>
+
+        </div>
+    `;
+
+}
+
+
+/* =========================================================
+   PLAN BUTTONS
+   ========================================================= */
+
+function bindPlanButtons() {
+
+    const buttons =
+        $$(
+            ".plan-button, " +
+            ".subscription-plan-card button, " +
+            "[data-pay-bnb]"
+        );
+
+    buttons.forEach(button => {
+
+        if (
+            button.dataset
+                .dashboardBound === "true"
+        ) {
+
+            return;
+
+        }
+
+        button.dataset
+            .dashboardBound =
+            "true";
+
+        button.addEventListener(
+            "click",
+            function(event) {
+
+                event.preventDefault();
+
+                const planId =
+                    this.dataset.plan ||
+                    this.dataset.planId ||
+                    this.dataset.id;
+
+                const planCode =
+                    this.dataset.planCode ||
+                    this.dataset.code;
+
+                const plan =
+                    findPlan(
+                        planId,
+                        planCode
+                    );
+
+                if (!plan) {
+
+                    showMessage(
+                        "Please select a valid subscription plan.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+                selectPlan(
+                    plan
+                );
+
+            }
+        );
+
+    });
+
+}
+
+
+/* =========================================================
+   FIND PLAN
+   ========================================================= */
+
+function findPlan(
+    planId,
+    planCode
+) {
+
+    const plans =
+        CompanyDashboardState.plans ||
+        [];
+
+    let plan =
+        plans.find(
+            item =>
+                String(item.id) ===
+                String(planId)
+        );
+
+    if (!plan && planCode) {
+
+        plan =
+            plans.find(
+                item =>
+                    String(
+                        item.plan_code
+                    ).toLowerCase() ===
+                    String(
+                        planCode
+                    ).toLowerCase()
+            );
+
+    }
+
+    if (!plan && planId) {
+
+        const configPlans =
+            Object.values(
+                COMPANY_DASHBOARD_CONFIG.plans
+            );
+
+        plan =
+            configPlans.find(
+                item =>
+                    item.code ===
+                    String(planId)
+            );
+
+    }
+
+    return plan || null;
+
+}
+
+
+/* =========================================================
+   SELECT PLAN
+   ========================================================= */
+
+function selectPlan(plan) {
 
     if (!plan) {
+
         showMessage(
-            "Invalid subscription plan.",
+            "Please select a valid subscription plan.",
             "error"
         );
 
         return;
+
     }
 
-    dashboardState.selectedPlan =
+    CompanyDashboardState.selectedPlan =
         plan;
 
-    qsa(
-        "[data-plan]"
-    ).forEach(card => {
-        card.classList.toggle(
-            "selected",
-            card.dataset.plan ===
-                planId
-        );
-    });
+    markSelectedPlan(
+        plan
+    );
 
-    qsa(
-        ".plan-button"
-    ).forEach(button => {
-        button.classList.toggle(
-            "selected",
-            button.dataset.plan ===
-                planId
+    updatePaymentPanel(
+        plan
+    );
+
+    const paymentPanel =
+        getElement(
+            "#payment-panel",
+            "#subscription-payment",
+            "#payment-section"
         );
-    });
+
+    if (paymentPanel) {
+
+        paymentPanel.style.display =
+            "block";
+
+        paymentPanel.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+    const selectedName =
+        plan.plan_name ||
+        plan.name ||
+        plan.plan_code ||
+        "Selected plan";
 
     showMessage(
-        `${plan.name} plan selected.`,
+        `${selectedName} selected.`,
         "success"
     );
+
+    updateSubscribeButton();
+
 }
 
 
 /* =========================================================
-   WALLET
+   MARK SELECTED PLAN
    ========================================================= */
 
-function hasEthereumProvider() {
-    return (
-        typeof window !== "undefined" &&
-        typeof window.ethereum !== "undefined"
+function markSelectedPlan(plan) {
+
+    $$(".subscription-plan-card").forEach(
+        card => {
+
+            card.classList.remove(
+                "selected",
+                "active",
+                "is-selected"
+            );
+
+        }
     );
+
+    const card =
+        document.querySelector(
+            `[data-plan-card="${CSS.escape(String(plan.id))}"]`
+        );
+
+    if (card) {
+
+        card.classList.add(
+            "selected",
+            "active",
+            "is-selected"
+        );
+
+    }
+
+    $$(".plan-button").forEach(
+        button => {
+
+            button.classList.remove(
+                "selected",
+                "active"
+            );
+
+            const buttonPlan =
+                button.dataset.plan ||
+                button.dataset.planId;
+
+            if (
+                String(buttonPlan) ===
+                String(plan.id)
+            ) {
+
+                button.classList.add(
+                    "selected",
+                    "active"
+                );
+
+            }
+
+        }
+    );
+
 }
 
 
+/* =========================================================
+   PAYMENT PANEL
+   ========================================================= */
+
+function updatePaymentPanel(plan) {
+
+    const name =
+        plan.plan_name ||
+        plan.name ||
+        plan.plan_code ||
+        "Subscription";
+
+    const price =
+        Number(
+            plan.price || 0
+        ).toFixed(2);
+
+    const nameElements = [
+        "#selected-plan-name",
+        "#payment-plan-name",
+        "[data-selected-plan]"
+    ];
+
+    nameElements.forEach(selector => {
+
+        $$(selector).forEach(element => {
+
+            element.textContent =
+                name;
+
+        });
+
+    });
+
+    const priceElements = [
+        "#selected-plan-price",
+        "#payment-plan-price",
+        "[data-selected-price]"
+    ];
+
+    priceElements.forEach(selector => {
+
+        $$(selector).forEach(element => {
+
+            element.textContent =
+                `$${price}`;
+
+        });
+
+    });
+
+    const walletElement =
+        getElement(
+            "#payment-wallet",
+            "#wallet-address"
+        );
+
+    if (
+        walletElement &&
+        !CompanyDashboardState.walletAddress
+    ) {
+
+        walletElement.textContent =
+            "Wallet not connected";
+
+    }
+
+    updateSubscribeButton();
+
+}
+
+
+/* =========================================================
+   SUBSCRIBE BUTTON
+   ========================================================= */
+
+function updateSubscribeButton() {
+
+    const buttons = [
+        "#send-payment",
+        "#subscribe-button",
+        "#pay-button",
+        "#confirm-subscription",
+        "[data-subscribe]"
+    ];
+
+    buttons.forEach(selector => {
+
+        $$(selector).forEach(button => {
+
+            button.disabled =
+                !CompanyDashboardState.selectedPlan ||
+                CompanyDashboardState.paymentPending;
+
+        });
+
+    });
+
+}
+
+
+/* =========================================================
+   WALLET SUPPORT
+   ========================================================= */
+
+function walletAvailable() {
+
+    return Boolean(
+        window.ethereum
+    );
+
+}
+
+
+/* =========================================================
+   CONNECT WALLET
+   ========================================================= */
+
 async function connectWallet() {
-    if (!hasEthereumProvider()) {
+
+    if (!walletAvailable()) {
+
         showMessage(
-            "A Web3 wallet is required.",
+            "Please install a Web3 wallet such as MetaMask.",
             "error"
         );
 
         return null;
+
     }
 
     try {
+
         const accounts =
             await window.ethereum.request({
                 method:
                     "eth_requestAccounts"
             });
 
-        const address =
-            accounts?.[0];
+        if (
+            !accounts ||
+            !accounts.length
+        ) {
 
-        if (!address) {
             throw new Error(
                 "No wallet account was returned."
             );
+
         }
 
-        dashboardState.walletAddress =
+        await switchToBNBChain();
+
+        const address =
+            accounts[0];
+
+        CompanyDashboardState.walletAddress =
             address;
 
-        await switchToBsc();
+        if (
+            window.ethers &&
+            window.ethers.BrowserProvider
+        ) {
+
+            CompanyDashboardState.provider =
+                new ethers.BrowserProvider(
+                    window.ethereum
+                );
+
+            CompanyDashboardState.signer =
+                await CompanyDashboardState.provider.getSigner();
+
+        }
 
         updateWalletUI();
 
@@ -1128,9 +1438,12 @@ async function connectWallet() {
             "success"
         );
 
+        updateSubscribeButton();
+
         return address;
 
     } catch (error) {
+
         console.error(
             "Wallet connection error:",
             error
@@ -1143,74 +1456,86 @@ async function connectWallet() {
         );
 
         return null;
+
     }
+
 }
 
 
 /* =========================================================
-   SWITCH NETWORK
+   BNB SMART CHAIN
    ========================================================= */
 
-async function switchToBsc() {
-    if (!hasEthereumProvider()) {
-        return false;
+async function switchToBNBChain() {
+
+    if (!window.ethereum) {
+
+        throw new Error(
+            "Web3 wallet is not available."
+        );
+
     }
 
-    const chainId =
-        "0x" +
-        COMPANY_DASHBOARD_CONFIG.chainId
-            .toString(16);
-
     try {
+
         await window.ethereum.request({
             method:
                 "wallet_switchEthereumChain",
             params: [
                 {
-                    chainId
+                    chainId:
+                        COMPANY_DASHBOARD_CONFIG.chainId
                 }
             ]
         });
 
-        return true;
-
     } catch (error) {
 
-        if (error.code === 4902) {
+        if (
+            error.code !== 4902
+        ) {
 
-            await window.ethereum.request({
-                method:
-                    "wallet_addEthereumChain",
+            throw error;
 
-                params: [
-                    {
-                        chainId,
-
-                        chainName:
-                            COMPANY_DASHBOARD_CONFIG.chainName,
-
-                        nativeCurrency: {
-                            name: "BNB",
-                            symbol: "BNB",
-                            decimals: 18
-                        },
-
-                        rpcUrls: [
-                            "https://bsc-dataseed.binance.org"
-                        ],
-
-                        blockExplorerUrls: [
-                            COMPANY_DASHBOARD_CONFIG.explorer
-                        ]
-                    }
-                ]
-            });
-
-            return true;
         }
 
-        throw error;
+        await window.ethereum.request({
+            method:
+                "wallet_addEthereumChain",
+            params: [
+                {
+                    chainId:
+                        COMPANY_DASHBOARD_CONFIG.chainId,
+
+                    chainName:
+                        COMPANY_DASHBOARD_CONFIG.chainName,
+
+                    nativeCurrency: {
+                        name:
+                            "BNB",
+
+                        symbol:
+                            "BNB",
+
+                        decimals:
+                            18
+                    },
+
+                    rpcUrls:
+                        COMPANY_DASHBOARD_CONFIG
+                            .rpcUrls,
+
+                    blockExplorerUrls: [
+                        COMPANY_DASHBOARD_CONFIG
+                            .explorer
+                    ]
+
+                }
+            ]
+        });
+
     }
+
 }
 
 
@@ -1219,484 +1544,517 @@ async function switchToBsc() {
    ========================================================= */
 
 function updateWalletUI() {
+
     const address =
-        dashboardState.walletAddress;
+        CompanyDashboardState.walletAddress;
 
-    const elements = [
-        byId("wallet-address"),
-        byId("connected-wallet"),
-        byId("company-wallet")
-    ];
+    const displayAddress =
+        address
+            ? `${address.slice(0, 6)}...${address.slice(-4)}`
+            : "Connect wallet";
 
-    elements.forEach(element => {
-        if (!element) {
-            return;
-        }
+    $$("#wallet-address").forEach(
+        element => {
 
-        if (!address) {
             element.textContent =
-                "Not connected";
+                displayAddress;
 
-            return;
         }
+    );
 
-        element.textContent =
-            `${address.slice(0, 6)}...${address.slice(-4)}`;
-    });
+    $$("#payment-wallet").forEach(
+        element => {
+
+            element.textContent =
+                displayAddress;
+
+        }
+    );
+
+    $$("#connect-wallet").forEach(
+        button => {
+
+            button.textContent =
+                address
+                    ? displayAddress
+                    : "Connect Wallet";
+
+        }
+    );
+
 }
 
 
 /* =========================================================
-   USDT PAYMENT
+   CONVERT USD TO BNB
    ========================================================= */
 
-async function payWithUSDT(planId = null) {
-    if (
-        planId &&
-        COMPANY_DASHBOARD_CONFIG.plans[planId]
-    ) {
-        selectPlan(planId);
-    }
+async function getBnbPrice() {
 
-    const plan =
-        dashboardState.selectedPlan;
-
-    if (!plan) {
-        showMessage(
-            "Please select a subscription plan first.",
-            "warning"
+    const response =
+        await fetch(
+            "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT"
         );
 
-        return;
+    if (!response.ok) {
+
+        throw new Error(
+            "Unable to retrieve the current BNB price."
+        );
+
     }
 
-    if (!hasEthereumProvider()) {
+    const data =
+        await response.json();
+
+    const price =
+        Number(
+            data.price
+        );
+
+    if (
+        !Number.isFinite(price) ||
+        price <= 0
+    ) {
+
+        throw new Error(
+            "Invalid BNB price."
+        );
+
+    }
+
+    return price;
+
+}
+
+
+async function usdToBnb(usdAmount) {
+
+    const bnbUsd =
+        await getBnbPrice();
+
+    const bnbAmount =
+        Number(usdAmount) /
+        bnbUsd;
+
+    if (
+        !Number.isFinite(bnbAmount) ||
+        bnbAmount <= 0
+    ) {
+
+        throw new Error(
+            "Invalid BNB amount."
+        );
+
+    }
+
+    return bnbAmount;
+
+}
+
+
+/* =========================================================
+   SEND PAYMENT
+   ========================================================= */
+
+async function sendSubscriptionPayment() {
+
+    if (
+        !CompanyDashboardState.selectedPlan
+    ) {
+
         showMessage(
-            "Please install or open a Web3 wallet.",
+            "Please select a subscription plan.",
             "error"
         );
 
         return;
+
     }
 
     if (
-        typeof window.ethers ===
-        "undefined"
+        CompanyDashboardState.paymentPending
     ) {
+
+        return;
+
+    }
+
+    if (!walletAvailable()) {
+
         showMessage(
-            "Blockchain library is not available.",
+            "Please connect your Web3 wallet first.",
             "error"
         );
 
         return;
-    }
 
-    if (dashboardState.paymentPending) {
-        return;
     }
-
-    dashboardState.paymentPending =
-        true;
 
     try {
-        const wallet =
+
+        CompanyDashboardState.paymentPending =
+            true;
+
+        updateSubscribeButton();
+
+        const address =
+            CompanyDashboardState.walletAddress ||
             await connectWallet();
 
-        if (!wallet) {
-            return;
-        }
+        if (!address) {
 
-        await switchToBsc();
-
-        const provider =
-            new ethers.BrowserProvider(
-                window.ethereum
+            throw new Error(
+                "Wallet connection is required."
             );
 
-        const signer =
-            await provider.getSigner();
+        }
 
-        const network =
-            await provider.getNetwork();
+        await switchToBNBChain();
 
         if (
-            Number(network.chainId) !==
-            COMPANY_DASHBOARD_CONFIG.chainId
+            !CompanyDashboardState.signer
         ) {
-            throw new Error(
-                "Please switch your wallet to BNB Smart Chain."
-            );
-        }
 
-        const token =
-            BSC_TOKENS[plan.currency];
-
-        if (!token) {
-            throw new Error(
-                "Unsupported payment token."
-            );
-        }
-
-        const tokenContract =
-            new ethers.Contract(
-                token.address,
-
-                [
-                    "function decimals() view returns (uint8)",
-                    "function transfer(address to,uint256 amount) returns (bool)"
-                ],
-
-                signer
-            );
-
-        let decimals =
-            token.decimals;
-
-        try {
-            decimals =
-                Number(
-                    await tokenContract.decimals()
+            CompanyDashboardState.provider =
+                new ethers.BrowserProvider(
+                    window.ethereum
                 );
-        } catch (error) {
-            console.warn(
-                "Unable to read token decimals:",
-                error
-            );
+
+            CompanyDashboardState.signer =
+                await CompanyDashboardState.provider
+                    .getSigner();
+
         }
 
-        const amount =
-            ethers.parseUnits(
-                String(plan.price),
-                decimals
+        const plan =
+            CompanyDashboardState.selectedPlan;
+
+        const usdAmount =
+            Number(
+                plan.price
             );
 
-        const receiver =
-            COMPANY_DASHBOARD_CONFIG
-                .receiverAddress;
+        showPaymentStatus(
+            "Calculating BNB amount..."
+        );
 
-        if (
-            !ethers.isAddress(receiver)
-        ) {
-            throw new Error(
-                "Invalid receiver address."
+        const bnbAmount =
+            await usdToBnb(
+                usdAmount
             );
-        }
 
-        const balance =
-            await tokenContract.balanceOf
-                ? await tokenContract.balanceOf(
-                    wallet
-                )
-                : null;
-
-        if (
-            balance !== null &&
-            balance < amount
-        ) {
-            throw new Error(
-                "Insufficient USDT balance."
+        const value =
+            ethers.parseEther(
+                bnbAmount.toFixed(8)
             );
-        }
 
-        showMessage(
-            "Confirm the payment in your wallet.",
-            "warning"
+        showPaymentStatus(
+            `Preparing payment of approximately ${bnbAmount.toFixed(6)} BNB...`
         );
 
         const transaction =
-            await tokenContract.transfer(
-                receiver,
-                amount
-            );
+            await CompanyDashboardState.signer.sendTransaction({
+                to:
+                    COMPANY_DASHBOARD_CONFIG
+                        .receiverWallet,
 
-        showMessage(
-            "Transaction submitted. Waiting for confirmation...",
-            "info"
+                value:
+                    value
+            });
+
+        showPaymentStatus(
+            "Transaction submitted. Waiting for confirmation..."
         );
 
         const receipt =
             await transaction.wait();
 
-        if (!receipt) {
+        if (
+            !receipt ||
+            receipt.status !== 1
+        ) {
+
             throw new Error(
-                "Transaction confirmation failed."
+                "The blockchain transaction was not confirmed."
             );
+
         }
 
-        const transactionHash =
-            receipt.hash ||
-            transaction.hash;
+        await savePayment(
+            transaction.hash,
+            bnbAmount,
+            usdAmount,
+            plan
+        );
 
-        await recordPayment({
-            userId:
-                dashboardState.user.id,
-
-            walletAddress:
-                wallet,
-
-            planId:
-                plan.id,
-
-            amount:
-                String(plan.price),
-
-            currency:
-                plan.currency,
-
-            transactionHash,
-
-            chainId:
-                COMPANY_DASHBOARD_CONFIG.chainId,
-
-            status:
-                "pending"
-        });
+        showPaymentStatus(
+            "Payment submitted successfully and is awaiting verification."
+        );
 
         showMessage(
-            "Payment submitted successfully. Subscription verification is pending.",
+            "Payment submitted successfully. Your subscription will be activated after verification.",
             "success"
         );
 
-        updatePaymentStatusUI(
-            "pending",
-            transactionHash
-        );
-
     } catch (error) {
+
         console.error(
-            "USDT payment error:",
+            "Subscription payment error:",
             error
         );
 
-        if (
-            error?.code ===
-            "ACTION_REJECTED"
-        ) {
-            showMessage(
-                "Transaction was rejected.",
-                "warning"
-            );
-        } else {
-            showMessage(
-                error.message ||
-                "Payment failed.",
-                "error"
-            );
-        }
+        showPaymentStatus(
+            error.message ||
+            "Payment failed."
+        );
+
+        showMessage(
+            error.message ||
+            "Payment failed.",
+            "error"
+        );
 
     } finally {
-        dashboardState.paymentPending =
+
+        CompanyDashboardState.paymentPending =
             false;
+
+        updateSubscribeButton();
+
     }
+
 }
 
 
 /* =========================================================
-   RECORD PAYMENT
+   PAYMENT STATUS
    ========================================================= */
 
-async function recordPayment(payment) {
+function showPaymentStatus(message) {
+
+    const element =
+        getElement(
+            "#payment-status",
+            "#subscription-status"
+        );
+
+    if (element) {
+
+        element.textContent =
+            message;
+
+    }
+
+}
+
+
+/* =========================================================
+   SAVE PAYMENT
+   ========================================================= */
+
+async function savePayment(
+    transactionHash,
+    bnbAmount,
+    usdAmount,
+    plan
+) {
+
     const client =
         getSupabaseClient();
 
     if (!client) {
+
         throw new Error(
-            "Supabase client is not initialized."
+            "Supabase client is not available."
         );
+
     }
 
-    const possibleTables = [
-        "subscription_payments",
-        "payments"
+    const userId =
+        CompanyDashboardState.user?.id;
+
+    if (!userId) {
+
+        throw new Error(
+            "Authenticated user was not found."
+        );
+
+    }
+
+    const paymentData = {
+
+        user_id:
+            userId,
+
+        payment_provider:
+            "BNB Smart Chain",
+
+        payment_method:
+            "BNB",
+
+        payment_type:
+            "subscription",
+
+        amount:
+            usdAmount,
+
+        currency:
+            "USD",
+
+        status:
+            "pending",
+
+        provider_payment_id:
+            transactionHash,
+
+        transaction_hash:
+            transactionHash,
+
+        blockchain_network:
+            "BNB Smart Chain"
+
+    };
+
+    const result =
+        await client
+            .from("payments")
+            .insert(
+                paymentData
+            );
+
+    if (result.error) {
+
+        throw result.error;
+
+    }
+
+    return result;
+
+}
+
+
+/* =========================================================
+   EVENT BINDING
+   ========================================================= */
+
+function bindDashboardEvents() {
+
+    /* Wallet */
+
+    $$("#connect-wallet").forEach(
+        button => {
+
+            if (
+                button.dataset
+                    .dashboardBound === "true"
+            ) {
+
+                return;
+
+            }
+
+            button.dataset
+                .dashboardBound =
+                "true";
+
+            button.addEventListener(
+                "click",
+                async event => {
+
+                    event.preventDefault();
+
+                    await connectWallet();
+
+                }
+            );
+
+        }
+    );
+
+
+    /* Payment */
+
+    const paymentButtons = [
+        "#send-payment",
+        "#subscribe-button",
+        "#pay-button",
+        "#confirm-subscription"
     ];
 
-    let lastError = null;
+    paymentButtons.forEach(selector => {
 
-    for (
-        const table of possibleTables
-    ) {
-        try {
-            const result =
-                await client
-                    .from(table)
-                    .insert({
-                        user_id:
-                            payment.userId,
+        $$(selector).forEach(
+            button => {
 
-                        wallet_address:
-                            payment.walletAddress,
+                if (
+                    button.dataset
+                        .dashboardBound ===
+                    "true"
+                ) {
 
-                        plan_id:
-                            payment.planId,
+                    return;
 
-                        amount:
-                            payment.amount,
+                }
 
-                        currency:
-                            payment.currency,
+                button.dataset
+                    .dashboardBound =
+                    "true";
 
-                        transaction_hash:
-                            payment.transactionHash,
+                button.addEventListener(
+                    "click",
+                    async event => {
 
-                        chain_id:
-                            payment.chainId,
+                        event.preventDefault();
 
-                        status:
-                            payment.status
-                    });
+                        await sendSubscriptionPayment();
 
-            if (!result.error) {
-                return result.data;
-            }
-
-            lastError =
-                result.error;
-
-        } catch (error) {
-            lastError =
-                error;
-        }
-    }
-
-    if (lastError) {
-        throw lastError;
-    }
-
-    return null;
-}
-
-
-/* =========================================================
-   PAYMENT UI
-   ========================================================= */
-
-function updatePaymentStatusUI(
-    status,
-    transactionHash = ""
-) {
-    const statusElements =
-        [
-            byId("payment-status"),
-            byId("subscription-status")
-        ];
-
-    statusElements.forEach(element => {
-        if (!element) {
-            return;
-        }
-
-        element.textContent =
-            status === "active"
-                ? "Active"
-                : status === "pending"
-                    ? "Pending verification"
-                    : "Not active";
-    });
-
-    const transactionElement =
-        byId("transaction-hash");
-
-    if (
-        transactionElement &&
-        transactionHash
-    ) {
-        transactionElement.textContent =
-            transactionHash;
-
-        transactionElement.href =
-            `${COMPANY_DASHBOARD_CONFIG.explorer}/tx/${transactionHash}`;
-
-        transactionElement.target =
-            "_blank";
-
-        transactionElement.rel =
-            "noopener noreferrer";
-    }
-}
-
-
-/* =========================================================
-   SUBSCRIPTION BUTTONS
-   ========================================================= */
-
-function initializeSubscriptionUI() {
-    qsa("[data-plan]").forEach(element => {
-        element.addEventListener(
-            "click",
-            () => {
-                selectPlan(
-                    element.dataset.plan
+                    }
                 );
+
             }
         );
+
     });
 
-    qsa(".plan-button").forEach(button => {
-        button.addEventListener(
-            "click",
-            event => {
-                event.preventDefault();
 
-                const planId =
-                    button.dataset.plan;
+    /* Logout */
 
-                payWithUSDT(planId);
+    $$("#logout-button").forEach(
+        button => {
+
+            if (
+                button.dataset
+                    .dashboardBound === "true"
+            ) {
+
+                return;
+
             }
-        );
-    });
 
-    qsa(
-        "[data-action='connect-wallet']"
-    ).forEach(button => {
-        button.addEventListener(
-            "click",
-            connectWallet
-        );
-    });
+            button.dataset
+                .dashboardBound =
+                "true";
 
-    qsa(
-        "[data-action='pay-usdt']"
-    ).forEach(button => {
-        button.addEventListener(
-            "click",
-            () => {
-                payWithUSDT(
-                    button.dataset.plan ||
-                    null
-                );
-            }
-        );
-    });
-}
+            button.addEventListener(
+                "click",
+                async event => {
 
+                    event.preventDefault();
 
-/* =========================================================
-   FORM INITIALIZATION
-   ========================================================= */
+                    await logoutCompany();
 
-function initializeJobForm() {
-    const form =
-        byId("post-job-form") ||
-        byId("job-form");
+                }
+            );
 
-    if (!form) {
-        return;
-    }
-
-    if (
-        form.dataset.initialized ===
-        "true"
-    ) {
-        return;
-    }
-
-    form.dataset.initialized =
-        "true";
-
-    form.addEventListener(
-        "submit",
-        addJob
+        }
     );
+
+
+    /* Existing plan buttons */
+
+    bindPlanButtons();
+
 }
 
 
@@ -1705,238 +2063,32 @@ function initializeJobForm() {
    ========================================================= */
 
 async function logoutCompany() {
-    const client =
-        getSupabaseClient();
 
     try {
+
+        const client =
+            getSupabaseClient();
+
         if (client) {
+
             await client.auth.signOut();
+
         }
+
     } catch (error) {
+
         console.error(
             "Logout error:",
             error
         );
+
+    } finally {
+
+        window.location.href =
+            "login.html";
+
     }
 
-    window.location.href =
-        "login.html";
-}
-
-
-/* =========================================================
-   LOGOUT BUTTONS
-   ========================================================= */
-
-function initializeLogout() {
-    qsa(
-        "#logout-button, " +
-        ".logout-button[data-action='logout'], " +
-        "[data-action='logout']"
-    ).forEach(button => {
-        button.addEventListener(
-            "click",
-            event => {
-                event.preventDefault();
-
-                logoutCompany();
-            }
-        );
-    });
-}
-
-
-/* =========================================================
-   HEADER LINKS
-   ========================================================= */
-
-function initializeNavigation() {
-    qsa(
-        "[data-dashboard-link]"
-    ).forEach(link => {
-        link.addEventListener(
-            "click",
-            event => {
-                const target =
-                    link.dataset.dashboardLink;
-
-                if (!target) {
-                    return;
-                }
-
-                event.preventDefault();
-
-                window.location.href =
-                    target;
-            }
-        );
-    });
-}
-
-
-/* =========================================================
-   REFRESH DASHBOARD
-   ========================================================= */
-
-async function refreshDashboard() {
-    await loadCompanyJobs();
-
-    await loadCompanyApplications();
-
-    updateStats();
-
-    renderJobs();
-}
-
-
-/* =========================================================
-   AUTHORIZATION
-   ========================================================= */
-
-async function verifyCompanyAccount() {
-    const user =
-        dashboardState.user;
-
-    if (!user) {
-        return false;
-    }
-
-    const profile =
-        dashboardState.profile || {};
-
-    const metadata =
-        user.user_metadata || {};
-
-    const role =
-        String(
-            profile.role ||
-            metadata.role ||
-            metadata.account_type ||
-            metadata.accountType ||
-            ""
-        ).toLowerCase();
-
-    if (
-        role &&
-        (
-            role === "individual" ||
-            role === "user" ||
-            role === "jobseeker"
-        )
-    ) {
-        return false;
-    }
-
-    return true;
-}
-
-
-/* =========================================================
-   SHOW DASHBOARD
-   ========================================================= */
-
-function showDashboard() {
-    const content =
-        byId("dashboard-content");
-
-    if (content) {
-        content.style.display =
-            "block";
-    }
-}
-
-
-/* =========================================================
-   INITIALIZATION
-   ========================================================= */
-
-async function initializeCompanyDashboard() {
-    if (
-        dashboardState.initialized
-    ) {
-        return;
-    }
-
-    dashboardState.initialized =
-        true;
-
-    showLoading(
-        "Loading your company workspace..."
-    );
-
-    try {
-        const client =
-            getSupabaseClient();
-
-        if (!client) {
-            throw new Error(
-                "Supabase client is not initialized."
-            );
-        }
-
-        const user =
-            await getCurrentUser();
-
-        if (!user) {
-            window.location.href =
-                "login.html";
-
-            return;
-        }
-
-        dashboardState.user =
-            user;
-
-        await loadCompanyProfile();
-
-        const isCompany =
-            await verifyCompanyAccount();
-
-        if (!isCompany) {
-            window.location.href =
-                "dashboard.html";
-
-            return;
-        }
-
-        await refreshDashboard();
-
-        initializeJobForm();
-
-        initializeSubscriptionUI();
-
-        initializeLogout();
-
-        initializeNavigation();
-
-        updateWalletUI();
-
-        showDashboard();
-
-        hideLoading();
-
-    } catch (error) {
-        console.error(
-            "Company dashboard initialization error:",
-            error
-        );
-
-        hideLoading();
-
-        showMessage(
-            error.message ||
-            "Unable to load company dashboard.",
-            "error"
-        );
-
-        const content =
-            byId("dashboard-content");
-
-        if (content) {
-            content.style.display =
-                "block";
-        }
-    }
 }
 
 
@@ -1944,74 +2096,298 @@ async function initializeCompanyDashboard() {
    WALLET EVENTS
    ========================================================= */
 
-function initializeWalletEvents() {
-    if (!hasEthereumProvider()) {
+function bindWalletEvents() {
+
+    if (!window.ethereum) {
+
         return;
+
     }
 
     window.ethereum.on(
         "accountsChanged",
         accounts => {
-            dashboardState.walletAddress =
-                accounts?.[0] || null;
+
+            if (
+                !accounts ||
+                !accounts.length
+            ) {
+
+                CompanyDashboardState.walletAddress =
+                    null;
+
+                CompanyDashboardState.provider =
+                    null;
+
+                CompanyDashboardState.signer =
+                    null;
+
+            } else {
+
+                CompanyDashboardState.walletAddress =
+                    accounts[0];
+
+            }
 
             updateWalletUI();
+
+            updateSubscribeButton();
+
         }
     );
+
 
     window.ethereum.on(
         "chainChanged",
         () => {
-            updateWalletUI();
+
+            CompanyDashboardState.provider =
+                null;
+
+            CompanyDashboardState.signer =
+                null;
+
+            updateSubscribeButton();
+
         }
     );
+
 }
 
 
 /* =========================================================
-   GLOBAL API
+   DETECT CONNECTED WALLET
    ========================================================= */
 
-window.companyDashboard = {
-    state:
-        dashboardState,
+async function detectExistingWallet() {
 
-    config:
-        COMPANY_DASHBOARD_CONFIG,
+    if (!window.ethereum) {
 
-    loadCompanyProfile,
+        return;
 
-    loadCompanyJobs,
+    }
 
-    loadCompanyApplications,
+    try {
 
-    refreshDashboard,
+        const accounts =
+            await window.ethereum.request({
+                method:
+                    "eth_accounts"
+            });
 
-    addJob,
+        if (
+            accounts &&
+            accounts.length
+        ) {
 
-    editJob,
+            CompanyDashboardState.walletAddress =
+                accounts[0];
 
-    deleteJob,
+            updateWalletUI();
 
-    selectPlan,
+        }
 
-    connectWallet,
+    } catch (error) {
 
-    payWithUSDT,
+        console.warn(
+            "Wallet detection failed:",
+            error
+        );
 
-    logoutCompany
-};
+    }
+
+}
 
 
 /* =========================================================
-   START
+   INIT
    ========================================================= */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        initializeWalletEvents();
+async function initializeCompanyDashboard() {
 
-        initializeCompanyDashboard();
+    if (
+        CompanyDashboardState.initialized
+    ) {
+
+        return;
+
     }
-);
+
+    CompanyDashboardState.initialized =
+        true;
+
+    showLoading();
+
+    try {
+
+        const session =
+            await requireCompanySession();
+
+        if (!session) {
+
+            return;
+
+        }
+
+        await loadCompanyProfile();
+
+        await Promise.allSettled([
+            loadJobStatistics(),
+            loadSubscriptionPlans()
+        ]);
+
+        bindDashboardEvents();
+
+        bindWalletEvents();
+
+        await detectExistingWallet();
+
+        updateWalletUI();
+
+        updateSubscribeButton();
+
+        hideLoading();
+
+    } catch (error) {
+
+        console.error(
+            "Company dashboard initialization error:",
+            error
+        );
+
+        showLoadingError(
+            error.message ||
+            "Unable to load the company dashboard."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   LOADING ERROR
+   ========================================================= */
+
+function showLoadingError(message) {
+
+    const loading =
+        $("#loading-spinner");
+
+    if (!loading) {
+
+        return;
+
+    }
+
+    loading.innerHTML = `
+
+        <div class="loading-card">
+
+            <div class="loading-logo">
+                !
+            </div>
+
+            <h2>
+                Dashboard Error
+            </h2>
+
+            <p>
+                ${escapeHtml(message)}
+            </p>
+
+            <button
+                type="button"
+                class="header-button"
+                id="dashboard-retry"
+                style="margin-top:20px;"
+            >
+                Retry
+            </button>
+
+        </div>
+
+    `;
+
+    const retry =
+        $("#dashboard-retry");
+
+    if (retry) {
+
+        retry.addEventListener(
+            "click",
+            () => {
+
+                window.location.reload();
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   GLOBAL FUNCTIONS
+   ========================================================= */
+
+window.selectPlan =
+    function(planId) {
+
+        const plan =
+            findPlan(
+                planId,
+                planId
+            );
+
+        if (!plan) {
+
+            showMessage(
+                "Please select a valid subscription plan.",
+                "error"
+            );
+
+            return;
+
+        }
+
+        selectPlan(
+            plan
+        );
+
+    };
+
+
+window.connectCompanyWallet =
+    connectWallet;
+
+
+window.subscribeToPlan =
+    sendSubscriptionPayment;
+
+
+/* =========================================================
+   DOM READY
+   ========================================================= */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        initializeCompanyDashboard
+    );
+
+} else {
+
+    initializeCompanyDashboard();
+
+}
+
+
+/* =========================================================
+   END
+   ========================================================= */
