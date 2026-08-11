@@ -129,7 +129,8 @@
         }
 
         return Boolean(
-            user.email_confirmed_at
+            user.email_confirmed_at ||
+            user.confirmed_at
         );
     }
 
@@ -158,6 +159,7 @@
             type === "business" ||
             type === "employer" ||
             type === "organization" ||
+            type === "company_account" ||
             type === "شركة"
         ) {
             return "company";
@@ -170,6 +172,7 @@
             type === "candidate" ||
             type === "freelancer" ||
             type === "individuals" ||
+            type === "individual_account" ||
             type === "فرد" ||
             type === "فردي" ||
             type === "فردى"
@@ -214,8 +217,40 @@
 
 
         /* =====================================================
-           1. PROFILES - ROLE
+           AUTH METADATA FIRST
            ===================================================== */
+
+        if (user) {
+
+            const metadata =
+                user.user_metadata || {};
+
+            const metadataValues = [
+                metadata.account_type,
+                metadata.accountType,
+                metadata.role,
+                metadata.user_type,
+                metadata.userType,
+                metadata.type
+            ];
+
+            for (const value of metadataValues) {
+
+                const type =
+                    normalizeAccountType(value);
+
+                if (type) {
+                    return type;
+                }
+            }
+        }
+
+
+        /* =====================================================
+           PROFILE ROLE
+           ===================================================== */
+
+        let profileExists = false;
 
         try {
 
@@ -230,13 +265,15 @@
 
             if (!error && data) {
 
-                const roleType =
+                profileExists = true;
+
+                const type =
                     normalizeAccountType(
                         data.role
                     );
 
-                if (roleType) {
-                    return roleType;
+                if (type) {
+                    return type;
                 }
             }
 
@@ -258,7 +295,7 @@
 
 
         /* =====================================================
-           2. PROFILES - ACCOUNT TYPE
+           PROFILE ACCOUNT TYPE
            ===================================================== */
 
         try {
@@ -274,50 +311,28 @@
 
             if (!error && data) {
 
-                const accountType =
+                profileExists = true;
+
+                const type =
                     normalizeAccountType(
                         data.account_type
                     );
 
-                if (accountType) {
-                    return accountType;
+                if (type) {
+                    return type;
                 }
             }
 
         } catch (error) {
 
-            console.info(
-                "Web3Jobs account_type column not available."
+            console.warn(
+                "Web3Jobs account_type lookup unavailable."
             );
         }
 
 
         /* =====================================================
-           3. AUTH METADATA
-           ===================================================== */
-
-        if (user) {
-
-            const metadata =
-                user.user_metadata || {};
-
-            const metadataType =
-                normalizeAccountType(
-                    metadata.account_type ||
-                    metadata.accountType ||
-                    metadata.role ||
-                    metadata.user_type ||
-                    metadata.userType
-                );
-
-            if (metadataType) {
-                return metadataType;
-            }
-        }
-
-
-        /* =====================================================
-           4. COMPANY PROFILE BY USER_ID
+           COMPANY PROFILE BY USER ID
            ===================================================== */
 
         try {
@@ -340,14 +355,15 @@
 
         } catch (error) {
 
-            console.info(
-                "Web3Jobs company user_id lookup unavailable."
+            console.warn(
+                "Web3Jobs company profile lookup failed:",
+                error
             );
         }
 
 
         /* =====================================================
-           5. COMPANY PROFILE BY ID
+           COMPANY PROFILE BY ID
            ===================================================== */
 
         try {
@@ -370,14 +386,24 @@
 
         } catch (error) {
 
-            console.info(
-                "Web3Jobs company profile id lookup unavailable."
+            console.warn(
+                "Web3Jobs company ID lookup failed:",
+                error
             );
         }
 
 
         /* =====================================================
-           6. USER METADATA FINAL FALLBACK
+           INDIVIDUAL FALLBACK
+           ===================================================== */
+
+        if (profileExists) {
+            return "individual";
+        }
+
+
+        /* =====================================================
+           METADATA FINAL CHECK
            ===================================================== */
 
         if (user) {
@@ -538,6 +564,10 @@
 
         try {
 
+            /* =================================================
+               SUPABASE LOGIN
+               ================================================= */
+
             const {
                 data,
                 error
@@ -567,12 +597,15 @@
             const user =
                 data?.user;
 
+            const session =
+                data?.session;
 
-            if (!user) {
+
+            if (!user || !session) {
 
                 showAuthMessage(
-                    "تعذر العثور على الحساب.",
-                    "User account was not found.",
+                    "تعذر إنشاء جلسة تسجيل الدخول.",
+                    "Could not create a login session.",
                     "error"
                 );
 
@@ -615,19 +648,29 @@
 
             if (!accountType) {
 
+                console.error(
+                    "Web3Jobs: Unable to determine account type.",
+                    user
+                );
+
                 showAuthMessage(
-                    "تم تسجيل الدخول، ولكن لم يتم تحديد نوع الحساب.",
-                    "Login succeeded, but account type could not be determined.",
+                    "تم تسجيل الدخول بنجاح، ولكن لم يتم العثور على ملف الحساب.",
+                    "Login succeeded, but your account profile could not be found.",
                     "error"
                 );
 
                 return {
                     success: false,
                     accountTypeMissing: true,
-                    user
+                    user,
+                    session
                 };
             }
 
+
+            /* =================================================
+               DASHBOARD
+               ================================================= */
 
             const dashboardUrl =
                 getDashboardUrl(
@@ -635,9 +678,21 @@
                 );
 
 
+            console.log(
+                "Web3Jobs Login Success:",
+                {
+                    userId: user.id,
+                    email: user.email,
+                    accountType,
+                    dashboardUrl
+                }
+            );
+
+
             return {
                 success: true,
                 user,
+                session,
                 accountType,
                 dashboardUrl
             };
@@ -671,6 +726,11 @@
             getAuthSupabase();
 
         if (!client) {
+
+            window.location.replace(
+                getLoginUrl()
+            );
+
             return false;
         }
 
@@ -680,12 +740,7 @@
             const session =
                 await getCurrentSession();
 
-            const user =
-                session?.user ||
-                await getCurrentUser();
-
-
-            if (!user) {
+            if (!session?.user) {
 
                 window.location.replace(
                     getLoginUrl()
@@ -693,6 +748,10 @@
 
                 return false;
             }
+
+
+            const user =
+                session.user;
 
 
             if (!isEmailConfirmed(user)) {
@@ -1046,6 +1105,28 @@
         }
 
 
+        if (
+            message.includes(
+                "failed to fetch"
+            ) ||
+            message.includes(
+                "network"
+            ) ||
+            message.includes(
+                "fetch"
+            )
+        ) {
+
+            showAuthMessage(
+                "تعذر الاتصال بخادم تسجيل الدخول. تحقق من اتصال الإنترنت وإعدادات Supabase.",
+                "Could not connect to the authentication server. Check your internet connection and Supabase configuration.",
+                "error"
+            );
+
+            return;
+        }
+
+
         showAuthMessage(
             "حدث خطأ: " + raw,
             "Authentication error: " + raw,
@@ -1139,6 +1220,7 @@
         }
 
         if (dashboard) {
+
             dashboard.style.display =
                 "none";
         }
@@ -1176,8 +1258,10 @@
             page ===
             "company-dashboard.html"
         ) {
+
             return;
         }
+
 
         if (
             page ===
