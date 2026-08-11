@@ -6,29 +6,36 @@
    Supabase + Company Profiles + Jobs + Applications
    USDT BEP-20 Payments on BNB Smart Chain
 
-   Compatible with the provided Company Dashboard HTML.
+   Subscription plans:
+   Free         = 2 jobs / month
+   Starter      = $19 USDT / month = 5 jobs
+   Professional = $49 USDT / month = 20 jobs
+   Enterprise   = $99 USDT / month = Unlimited jobs
+
+   Payment activation occurs ONLY after:
+   1. Wallet confirmation
+   2. Blockchain confirmation
+   3. Transaction verification
+   4. Supabase payment confirmation
    ========================================================= */
 
 "use strict";
+
 
 /* =========================================================
    CONFIGURATION
    ========================================================= */
 
 const COMPANY_DASHBOARD_CONFIG = {
-    supabaseUrl: "https://uewocyaspztybnvnkbmo.supabase.co",
 
-    /*
-     * The public/anon/publishable key is intentionally read from
-     * the already-loaded supabase.js whenever possible.
-     *
-     * Do NOT place a service_role key in this file.
-     */
+    supabaseUrl:
+        "https://uewocyaspztybnvnkbmo.supabase.co",
 
     paymentWallet:
         "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
 
-    bscChainId: "0x38",
+    bscChainId:
+        "0x38",
 
     bscChainName:
         "BNB Smart Chain",
@@ -49,6 +56,7 @@ const COMPANY_DASHBOARD_CONFIG = {
         "https://bsc-dataseed.binance.org/",
 
     plans: {
+
         free: {
             code: "free",
             name: "Free",
@@ -80,7 +88,9 @@ const COMPANY_DASHBOARD_CONFIG = {
             limit: null,
             durationDays: 30
         }
+
     }
+
 };
 
 
@@ -117,14 +127,14 @@ function getSupabaseClient() {
         return supabaseClient;
     }
 
-    /*
-     * Prefer the global client created by js/supabase.js.
-     */
     if (
         window.supabaseClient &&
         typeof window.supabaseClient.from === "function"
     ) {
-        supabaseClient = window.supabaseClient;
+
+        supabaseClient =
+            window.supabaseClient;
+
         return supabaseClient;
     }
 
@@ -133,9 +143,6 @@ function getSupabaseClient() {
         typeof window.supabase.createClient === "function"
     ) {
 
-        /*
-         * Try common names exported by existing supabase.js files.
-         */
         const existingUrl =
             window.SUPABASE_URL ||
             window.supabaseUrl ||
@@ -170,13 +177,15 @@ function getSupabaseClient() {
    ========================================================= */
 
 function $(id) {
+
     return document.getElementById(id);
 }
 
 
 function setText(id, value) {
 
-    const element = $(id);
+    const element =
+        $(id);
 
     if (!element) {
         return;
@@ -193,7 +202,8 @@ function setText(id, value) {
 
 function showElement(id) {
 
-    const element = $(id);
+    const element =
+        $(id);
 
     if (element) {
         element.style.display = "";
@@ -203,7 +213,8 @@ function showElement(id) {
 
 function hideElement(id) {
 
-    const element = $(id);
+    const element =
+        $(id);
 
     if (element) {
         element.style.display = "none";
@@ -213,7 +224,10 @@ function hideElement(id) {
 
 function escapeHtml(value) {
 
-    if (value === null || value === undefined) {
+    if (
+        value === null ||
+        value === undefined
+    ) {
         return "";
     }
 
@@ -227,6 +241,7 @@ function escapeHtml(value) {
 
 
 function escapeAttribute(value) {
+
     return escapeHtml(value);
 }
 
@@ -235,35 +250,48 @@ function escapeAttribute(value) {
    ALERT SYSTEM
    ========================================================= */
 
-function showAlert(message, type = "success") {
+function showAlert(
+    message,
+    type = "success"
+) {
 
-    const alert = $("dashboard-alert");
+    const alert =
+        $("dashboard-alert");
 
     if (!alert) {
+
         console.log(message);
+
         return;
     }
 
-    alert.textContent = message;
+    alert.textContent =
+        message;
 
     alert.className = "";
 
-    alert.id = "dashboard-alert";
+    alert.id =
+        "dashboard-alert";
 
     alert.classList.add(type);
 
-    alert.style.display = "block";
+    alert.style.display =
+        "block";
 
     window.clearTimeout(
         showAlert._timer
     );
 
     showAlert._timer =
-        window.setTimeout(() => {
+        window.setTimeout(
+            () => {
 
-            alert.style.display = "none";
+                alert.style.display =
+                    "none";
 
-        }, 5000);
+            },
+            5000
+        );
 }
 
 
@@ -273,13 +301,15 @@ function showAlert(message, type = "success") {
 
 function showDashboardLoading(message) {
 
-    const spinner = $("loading-spinner");
+    const spinner =
+        $("loading-spinner");
 
     if (!spinner) {
         return;
     }
 
-    spinner.style.display = "flex";
+    spinner.style.display =
+        "flex";
 
     const title =
         spinner.querySelector("h2");
@@ -288,29 +318,40 @@ function showDashboardLoading(message) {
         spinner.querySelector("p");
 
     if (title) {
+
         title.textContent =
             "Loading Company Dashboard";
     }
 
-    if (paragraph && message) {
-        paragraph.textContent = message;
+    if (
+        paragraph &&
+        message
+    ) {
+
+        paragraph.textContent =
+            message;
     }
 }
 
 
 function hideDashboardLoading() {
 
-    const spinner = $("loading-spinner");
+    const spinner =
+        $("loading-spinner");
 
     const content =
         $("dashboard-content");
 
     if (spinner) {
-        spinner.style.display = "none";
+
+        spinner.style.display =
+            "none";
     }
 
     if (content) {
-        content.style.display = "block";
+
+        content.style.display =
+            "block";
     }
 }
 
@@ -327,7 +368,8 @@ async function getCurrentUser() {
     const {
         data,
         error
-    } = await client.auth.getSession();
+    } =
+        await client.auth.getSession();
 
     if (error) {
         throw error;
@@ -338,16 +380,15 @@ async function getCurrentUser() {
         data.session &&
         data.session.user
     ) {
+
         return data.session.user;
     }
 
-    /*
-     * Small fallback for auth state synchronization.
-     */
     const {
         data: userData,
         error: userError
-    } = await client.auth.getUser();
+    } =
+        await client.auth.getUser();
 
     if (userError) {
         return null;
@@ -358,7 +399,7 @@ async function getCurrentUser() {
 
 
 /* =========================================================
-   ROLE DETECTION
+   PROFILE
    ========================================================= */
 
 async function loadProfile() {
@@ -367,17 +408,24 @@ async function loadProfile() {
         getSupabaseClient();
 
     if (!currentUser) {
-        throw new Error("No authenticated user.");
+
+        throw new Error(
+            "No authenticated user."
+        );
     }
 
     const {
         data,
         error
-    } = await client
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .maybeSingle();
+    } =
+        await client
+            .from("profiles")
+            .select("*")
+            .eq(
+                "id",
+                currentUser.id
+            )
+            .maybeSingle();
 
     if (error) {
         throw error;
@@ -440,23 +488,22 @@ async function loadCompanyProfile() {
     const {
         data,
         error
-    } = await client
-        .from("company_profiles")
-        .select("*")
-        .eq("user_id", currentUser.id)
-        .maybeSingle();
+    } =
+        await client
+            .from("company_profiles")
+            .select("*")
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .maybeSingle();
 
     if (error) {
 
-        /*
-         * Some older installations may use id instead of user_id.
-         * Try that only if the first query failed because the
-         * column does not exist.
-         */
-
         const message =
-            String(error.message || "")
-                .toLowerCase();
+            String(
+                error.message || ""
+            ).toLowerCase();
 
         if (
             message.includes("user_id") ||
@@ -467,7 +514,10 @@ async function loadCompanyProfile() {
                 await client
                     .from("company_profiles")
                     .select("*")
-                    .eq("id", currentUser.id)
+                    .eq(
+                        "id",
+                        currentUser.id
+                    )
                     .maybeSingle();
 
             if (!fallback.error) {
@@ -479,16 +529,13 @@ async function loadCompanyProfile() {
             }
         }
 
-        /*
-         * Do not kill the entire dashboard if company_profiles
-         * does not exist yet.
-         */
         console.warn(
             "Company profile could not be loaded:",
             error.message
         );
 
-        currentCompanyProfile = null;
+        currentCompanyProfile =
+            null;
 
         return null;
     }
@@ -520,7 +567,7 @@ function getCompanyName() {
 
 
 /* =========================================================
-   RENDER COMPANY INFORMATION
+   COMPANY INFORMATION
    ========================================================= */
 
 function renderCompanyInformation() {
@@ -545,6 +592,7 @@ function renderCompanyInformation() {
         jobCompany &&
         !jobCompany.value
     ) {
+
         jobCompany.value =
             companyName;
     }
@@ -556,6 +604,7 @@ function renderCompanyInformation() {
         profileName &&
         currentCompanyProfile
     ) {
+
         profileName.value =
             currentCompanyProfile.company_name ||
             currentCompanyProfile.name ||
@@ -569,6 +618,7 @@ function renderCompanyInformation() {
         website &&
         currentCompanyProfile
     ) {
+
         website.value =
             currentCompanyProfile.website ||
             "";
@@ -581,6 +631,7 @@ function renderCompanyInformation() {
         location &&
         currentCompanyProfile
     ) {
+
         location.value =
             currentCompanyProfile.location ||
             "";
@@ -593,6 +644,7 @@ function renderCompanyInformation() {
         linkedin &&
         currentCompanyProfile
     ) {
+
         linkedin.value =
             currentCompanyProfile.linkedin ||
             "";
@@ -605,6 +657,7 @@ function renderCompanyInformation() {
         description &&
         currentCompanyProfile
     ) {
+
         description.value =
             currentCompanyProfile.description ||
             "";
@@ -613,7 +666,7 @@ function renderCompanyInformation() {
 
 
 /* =========================================================
-   PAYMENT / SUBSCRIPTION HELPERS
+   PLAN HELPERS
    ========================================================= */
 
 function normalizePlanCode(value) {
@@ -632,6 +685,7 @@ function normalizePlanCode(value) {
             normalized
         ]
     ) {
+
         return normalized;
     }
 
@@ -651,7 +705,7 @@ function getPlanDefinition(code) {
 
 
 /* =========================================================
-   PAYMENT RECORD LOADING
+   PAYMENT LOADING
    ========================================================= */
 
 async function loadLatestPayment() {
@@ -666,14 +720,21 @@ async function loadLatestPayment() {
     const {
         data,
         error
-    } = await client
-        .from("payments")
-        .select("*")
-        .eq("user_id", currentUser.id)
-        .order("created_at", {
-            ascending: false
-        })
-        .limit(20);
+    } =
+        await client
+            .from("payments")
+            .select("*")
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            )
+            .limit(20);
 
     if (error) {
 
@@ -685,19 +746,21 @@ async function loadLatestPayment() {
         return null;
     }
 
-    if (!data || !data.length) {
+    if (
+        !data ||
+        !data.length
+    ) {
+
         return null;
     }
 
-    /*
-     * Prefer confirmed payments that are still inside their
-     * subscription period if such fields exist.
-     */
     const confirmed =
         data.find(
             payment =>
-                String(payment.status || "")
-                    .toLowerCase() === "confirmed"
+                String(
+                    payment.status || ""
+                ).toLowerCase() ===
+                "confirmed"
         );
 
     currentPayment =
@@ -710,7 +773,7 @@ async function loadLatestPayment() {
 
 
 /* =========================================================
-   SUBSCRIPTION CALCULATION
+   PAYMENT PLAN
    ========================================================= */
 
 function getPaymentPlanCode(payment) {
@@ -734,43 +797,66 @@ function getPaymentExpiration(payment) {
     }
 
     const possibleFields = [
+
         "expires_at",
+
         "subscription_expires_at",
+
         "end_date",
+
         "valid_until"
+
     ];
 
-    for (const field of possibleFields) {
+    for (
+        const field of possibleFields
+    ) {
 
         if (payment[field]) {
 
             const date =
-                new Date(payment[field]);
+                new Date(
+                    payment[field]
+                );
 
-            if (!Number.isNaN(date.getTime())) {
+            if (
+                !Number.isNaN(
+                    date.getTime()
+                )
+            ) {
+
                 return date;
             }
         }
     }
 
-    /*
-     * If no expiration column exists, derive it from created_at.
-     */
     if (payment.created_at) {
 
         const start =
-            new Date(payment.created_at);
+            new Date(
+                payment.created_at
+            );
 
-        if (!Number.isNaN(start.getTime())) {
+        if (
+            !Number.isNaN(
+                start.getTime()
+            )
+        ) {
 
             const code =
-                getPaymentPlanCode(payment);
+                getPaymentPlanCode(
+                    payment
+                );
 
             const plan =
-                getPlanDefinition(code);
+                getPlanDefinition(
+                    code
+                );
 
             const expiration =
-                new Date(start.getTime());
+                new Date(
+                    start.getTime()
+                );
 
             expiration.setDate(
                 expiration.getDate() +
@@ -792,8 +878,9 @@ function isPaymentActive(payment) {
     }
 
     const status =
-        String(payment.status || "")
-            .toLowerCase();
+        String(
+            payment.status || ""
+        ).toLowerCase();
 
     if (
         status !== "confirmed" &&
@@ -801,23 +888,28 @@ function isPaymentActive(payment) {
         status !== "success" &&
         status !== "paid"
     ) {
+
         return false;
     }
 
     const expiration =
-        getPaymentExpiration(payment);
+        getPaymentExpiration(
+            payment
+        );
 
     if (!expiration) {
         return true;
     }
 
-    return expiration.getTime() >
-        Date.now();
+    return (
+        expiration.getTime() >
+        Date.now()
+    );
 }
 
 
 /* =========================================================
-   PLAN RENDERING
+   SUBSCRIPTION
    ========================================================= */
 
 async function loadSubscription() {
@@ -831,10 +923,14 @@ async function loadSubscription() {
     ) {
 
         const code =
-            getPaymentPlanCode(payment);
+            getPaymentPlanCode(
+                payment
+            );
 
         currentPlan =
-            getPlanDefinition(code);
+            getPlanDefinition(
+                code
+            );
 
     } else {
 
@@ -847,6 +943,10 @@ async function loadSubscription() {
     return currentPlan;
 }
 
+
+/* =========================================================
+   RENDER SUBSCRIPTION
+   ========================================================= */
 
 function renderSubscription() {
 
@@ -900,7 +1000,8 @@ function renderSubscription() {
 
         if (plan.limit === null) {
 
-            progress.style.width = "0%";
+            progress.style.width =
+                "0%";
 
         } else {
 
@@ -908,7 +1009,10 @@ function renderSubscription() {
                 plan.limit > 0
                     ? Math.min(
                         100,
-                        (jobsUsed / plan.limit) * 100
+                        (
+                            jobsUsed /
+                            plan.limit
+                        ) * 100
                     )
                     : 0;
 
@@ -935,6 +1039,202 @@ function renderSubscription() {
                 ? "Your current plan allows unlimited job advertisements."
                 : `Your current plan allows ${plan.limit} job advertisements per month.`;
     }
+
+    renderSubscriptionPromotion();
+}
+
+
+/* =========================================================
+   SUBSCRIPTION PROMOTION
+   ========================================================= */
+
+function renderSubscriptionPromotion() {
+
+    const dashboardContent =
+        $("dashboard-content");
+
+    if (!dashboardContent) {
+        return;
+    }
+
+    let banner =
+        $("subscription-promotion");
+
+    if (!banner) {
+
+        banner =
+            document.createElement(
+                "section"
+            );
+
+        banner.id =
+            "subscription-promotion";
+
+        banner.className =
+            "subscription-promotion";
+
+        dashboardContent.prepend(
+            banner
+        );
+    }
+
+    const plans =
+        Object.values(
+            COMPANY_DASHBOARD_CONFIG.plans
+        ).filter(
+            plan =>
+                plan.code !== "free"
+        );
+
+    banner.innerHTML = `
+        <div class="subscription-promotion-header">
+
+            <div>
+
+                <span class="subscription-promotion-badge">
+                    Web3Jobs Business Plans
+                </span>
+
+                <h2>
+                    Grow Your Hiring With Web3Jobs
+                </h2>
+
+                <p>
+                    Choose a plan that gives your company more
+                    monthly job postings and better hiring capabilities.
+                </p>
+
+            </div>
+
+        </div>
+
+        <div class="subscription-plans-grid">
+
+            ${plans.map(plan => {
+
+                const isCurrent =
+                    currentPlan &&
+                    currentPlan.code ===
+                        plan.code;
+
+                const limit =
+                    plan.limit === null
+                        ? "Unlimited"
+                        : `${plan.limit} jobs / month`;
+
+                return `
+                    <div
+                        class="subscription-plan-card ${
+                            plan.code === "professional"
+                                ? "featured"
+                                : ""
+                        }"
+                    >
+
+                        ${
+                            plan.code === "professional"
+                                ? `
+                                    <div class="plan-popular">
+                                        Most Popular
+                                    </div>
+                                  `
+                                : ""
+                        }
+
+                        <h3>
+                            ${escapeHtml(
+                                plan.name
+                            )}
+                        </h3>
+
+                        <div class="plan-price">
+
+                            $${plan.price}
+
+                            <span>
+                                USDT / month
+                            </span>
+
+                        </div>
+
+                        <div class="plan-limit">
+                            ${escapeHtml(
+                                limit
+                            )}
+                        </div>
+
+                        <ul class="plan-features">
+
+                            <li>
+                                ✓ Job publishing
+                            </li>
+
+                            <li>
+                                ✓ Company dashboard
+                            </li>
+
+                            <li>
+                                ✓ Application management
+                            </li>
+
+                            ${
+                                plan.code ===
+                                    "professional" ||
+                                plan.code ===
+                                    "enterprise"
+                                    ? `
+                                        <li>
+                                            ✓ Priority hiring visibility
+                                        </li>
+                                      `
+                                    : ""
+                            }
+
+                            ${
+                                plan.code ===
+                                    "enterprise"
+                                    ? `
+                                        <li>
+                                            ✓ Unlimited job postings
+                                        </li>
+                                      `
+                                    : ""
+                            }
+
+                        </ul>
+
+                        <button
+                            type="button"
+                            class="plan-button ${
+                                isCurrent
+                                    ? "current"
+                                    : ""
+                            }"
+                            data-plan="${escapeAttribute(
+                                plan.code
+                            )}"
+                            ${
+                                isCurrent
+                                    ? "disabled"
+                                    : ""
+                            }
+                        >
+                            ${
+                                isCurrent
+                                    ? "Current Plan"
+                                    : "Choose Plan"
+                            }
+                        </button>
+
+                    </div>
+                `;
+
+            }).join("")}
+
+        </div>
+    `;
+
+    setupPlanButtons();
 }
 
 
@@ -949,32 +1249,49 @@ function setupPlanButtons() {
             ".plan-button[data-plan]"
         );
 
-    buttons.forEach(button => {
+    buttons.forEach(
+        button => {
 
-        button.addEventListener(
-            "click",
-            async () => {
+            if (
+                button.dataset.planBound ===
+                "true"
+            ) {
 
-                const code =
-                    normalizePlanCode(
-                        button.dataset.plan
-                    );
-
-                if (code === "free") {
-
-                    showAlert(
-                        "Free plan is already active.",
-                        "success"
-                    );
-
-                    return;
-                }
-
-                await selectPlan(code);
+                return;
             }
-        );
 
-    });
+            button.dataset.planBound =
+                "true";
+
+            button.addEventListener(
+                "click",
+                async () => {
+
+                    const code =
+                        normalizePlanCode(
+                            button.dataset.plan
+                        );
+
+                    if (
+                        code === "free"
+                    ) {
+
+                        showAlert(
+                            "Free plan is already active.",
+                            "success"
+                        );
+
+                        return;
+                    }
+
+                    await selectPlan(
+                        code
+                    );
+                }
+            );
+
+        }
+    );
 }
 
 
@@ -1004,7 +1321,10 @@ async function selectPlan(code) {
         $("payment-box");
 
     if (paymentBox) {
-        paymentBox.classList.add("active");
+
+        paymentBox.classList.add(
+            "active"
+        );
     }
 
     const status =
@@ -1032,13 +1352,17 @@ async function selectPlan(code) {
 
 function cancelPayment() {
 
-    selectedPlan = null;
+    selectedPlan =
+        null;
 
     const paymentBox =
         $("payment-box");
 
     if (paymentBox) {
-        paymentBox.classList.remove("active");
+
+        paymentBox.classList.remove(
+            "active"
+        );
     }
 
     setText(
@@ -1078,13 +1402,15 @@ async function connectWallet() {
 
         const accounts =
             await window.ethereum.request({
-                method: "eth_requestAccounts"
+                method:
+                    "eth_requestAccounts"
             });
 
         if (
             !accounts ||
             !accounts.length
         ) {
+
             throw new Error(
                 "No wallet account was returned."
             );
@@ -1097,7 +1423,9 @@ async function connectWallet() {
 
         setText(
             "payment-status",
-            `Wallet connected: ${shortAddress(connectedWallet)}`
+            `Wallet connected: ${shortAddress(
+                connectedWallet
+            )}`
         );
 
         const button =
@@ -1106,7 +1434,9 @@ async function connectWallet() {
         if (button) {
 
             button.textContent =
-                `Connected ${shortAddress(connectedWallet)}`;
+                `Connected ${shortAddress(
+                    connectedWallet
+                )}`;
         }
 
         return connectedWallet;
@@ -1136,6 +1466,7 @@ async function connectWallet() {
 async function switchToBSC() {
 
     if (!window.ethereum) {
+
         throw new Error(
             "Web3 wallet is not available."
         );
@@ -1144,20 +1475,22 @@ async function switchToBSC() {
     try {
 
         await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
+
+            method:
+                "wallet_switchEthereumChain",
+
             params: [
                 {
                     chainId:
-                        COMPANY_DASHBOARD_CONFIG.bscChainId
+                        COMPANY_DASHBOARD_CONFIG
+                            .bscChainId
                 }
             ]
+
         });
 
     } catch (error) {
 
-        /*
-         * 4902 = chain not added.
-         */
         if (
             error &&
             (
@@ -1166,39 +1499,39 @@ async function switchToBSC() {
             )
         ) {
 
-            try {
+            await window.ethereum.request({
 
-                await window.ethereum.request({
-                    method: "wallet_addEthereumChain",
-                    params: [
-                        {
-                            chainId:
-                                COMPANY_DASHBOARD_CONFIG.bscChainId,
+                method:
+                    "wallet_addEthereumChain",
 
-                            chainName:
-                                COMPANY_DASHBOARD_CONFIG.bscChainName,
+                params: [
+                    {
+                        chainId:
+                            COMPANY_DASHBOARD_CONFIG
+                                .bscChainId,
 
-                            nativeCurrency: {
-                                name: "BNB",
-                                symbol: "BNB",
-                                decimals: 18
-                            },
+                        chainName:
+                            COMPANY_DASHBOARD_CONFIG
+                                .bscChainName,
 
-                            rpcUrls: [
-                                COMPANY_DASHBOARD_CONFIG.rpcUrl
-                            ],
+                        nativeCurrency: {
+                            name: "BNB",
+                            symbol: "BNB",
+                            decimals: 18
+                        },
 
-                            blockExplorerUrls: [
-                                "https://bscscan.com"
-                            ]
-                        }
-                    ]
-                });
+                        rpcUrls: [
+                            COMPANY_DASHBOARD_CONFIG
+                                .rpcUrl
+                        ],
 
-            } catch (addError) {
+                        blockExplorerUrls: [
+                            "https://bscscan.com"
+                        ]
+                    }
+                ]
 
-                throw addError;
-            }
+            });
 
         } else {
 
@@ -1228,7 +1561,9 @@ function shortAddress(address) {
 
 function normalizeAddress(address) {
 
-    return String(address || "")
+    return String(
+        address || ""
+    )
         .trim()
         .toLowerCase();
 }
@@ -1239,9 +1574,13 @@ function normalizeAddress(address) {
    ========================================================= */
 
 const USDT_ABI = [
+
     "function transfer(address to,uint256 amount) returns (bool)",
+
     "function balanceOf(address account) view returns (uint256)",
+
     "function decimals() view returns (uint8)"
+
 ];
 
 
@@ -1296,6 +1635,16 @@ async function payUSDT() {
 
         await switchToBSC();
 
+        if (
+            typeof ethers ===
+            "undefined"
+        ) {
+
+            throw new Error(
+                "Ethers.js is not loaded."
+            );
+        }
+
         const provider =
             new ethers.BrowserProvider(
                 window.ethereum
@@ -1312,17 +1661,21 @@ async function payUSDT() {
 
         const token =
             new ethers.Contract(
-                COMPANY_DASHBOARD_CONFIG.usdtContract,
+                COMPANY_DASHBOARD_CONFIG
+                    .usdtContract,
                 USDT_ABI,
                 signer
             );
 
         const decimals =
-            COMPANY_DASHBOARD_CONFIG.usdtDecimals;
+            COMPANY_DASHBOARD_CONFIG
+                .usdtDecimals;
 
         const amount =
             ethers.parseUnits(
-                String(selectedPlan.price),
+                String(
+                    selectedPlan.price
+                ),
                 decimals
             );
 
@@ -1331,7 +1684,9 @@ async function payUSDT() {
                 signerAddress
             );
 
-        if (balance < amount) {
+        if (
+            balance < amount
+        ) {
 
             throw new Error(
                 `Insufficient USDT balance. You need ${selectedPlan.price} USDT.`
@@ -1344,7 +1699,8 @@ async function payUSDT() {
 
         const transaction =
             await token.transfer(
-                COMPANY_DASHBOARD_CONFIG.paymentWallet,
+                COMPANY_DASHBOARD_CONFIG
+                    .paymentWallet,
                 amount
             );
 
@@ -1352,12 +1708,11 @@ async function payUSDT() {
             transaction.hash;
 
         setPaymentStatus(
-            `Payment submitted. Transaction: ${shortHash(txHash)}`
+            `Payment submitted. Transaction: ${shortHash(
+                txHash
+            )}`
         );
 
-        /*
-         * Create pending payment immediately.
-         */
         const paymentRecord =
             await createPendingPayment(
                 txHash,
@@ -1365,9 +1720,6 @@ async function payUSDT() {
                 signerAddress
             );
 
-        /*
-         * Wait for blockchain confirmation.
-         */
         setPaymentStatus(
             "Transaction submitted. Waiting for BNB Smart Chain confirmation..."
         );
@@ -1390,9 +1742,6 @@ async function payUSDT() {
             );
         }
 
-        /*
-         * Verify transaction.
-         */
         const verified =
             await verifyUSDTTransaction(
                 txHash,
@@ -1412,9 +1761,6 @@ async function payUSDT() {
             );
         }
 
-        /*
-         * Automatically activate subscription.
-         */
         await confirmPaymentAndActivateSubscription(
             paymentRecord,
             txHash,
@@ -1431,6 +1777,8 @@ async function payUSDT() {
         );
 
         await loadSubscription();
+
+        await loadCompanyJobs();
 
         cancelPayment();
 
@@ -1465,6 +1813,7 @@ function setPaymentStatus(message) {
         $("payment-status");
 
     if (status) {
+
         status.textContent =
             message;
     }
@@ -1499,7 +1848,9 @@ async function createPendingPayment(
         getSupabaseClient();
 
     const record = {
-        user_id: currentUser.id,
+
+        user_id:
+            currentUser.id,
 
         payment_provider:
             "bnb_chain",
@@ -1538,9 +1889,6 @@ async function createPendingPayment(
             walletAddress
     };
 
-    /*
-     * First try with the complete record.
-     */
     let result =
         await client
             .from("payments")
@@ -1548,27 +1896,33 @@ async function createPendingPayment(
             .select()
             .maybeSingle();
 
-    /*
-     * Compatibility fallback for databases where the additional
-     * subscription columns do not yet exist.
-     */
     if (
         result.error &&
         (
-            String(result.error.message)
+            String(
+                result.error.message
+            )
                 .toLowerCase()
                 .includes("plan_code") ||
-            String(result.error.message)
+
+            String(
+                result.error.message
+            )
                 .toLowerCase()
                 .includes("plan_name") ||
-            String(result.error.message)
+
+            String(
+                result.error.message
+            )
                 .toLowerCase()
                 .includes("wallet_address")
         )
     ) {
 
         const fallbackRecord = {
-            user_id: currentUser.id,
+
+            user_id:
+                currentUser.id,
 
             payment_provider:
                 "bnb_chain",
@@ -1601,7 +1955,9 @@ async function createPendingPayment(
         result =
             await client
                 .from("payments")
-                .insert(fallbackRecord)
+                .insert(
+                    fallbackRecord
+                )
                 .select()
                 .maybeSingle();
     }
@@ -1613,10 +1969,6 @@ async function createPendingPayment(
             result.error
         );
 
-        /*
-         * Do not cancel the blockchain payment because Supabase
-         * failed. The transaction itself remains on-chain.
-         */
         showAlert(
             "Blockchain payment was submitted, but the payment record could not be saved. Transaction hash: " +
             txHash,
@@ -1642,9 +1994,18 @@ async function verifyUSDTTransaction(
 
     try {
 
+        if (
+            typeof ethers ===
+            "undefined"
+        ) {
+
+            return false;
+        }
+
         const provider =
             new ethers.JsonRpcProvider(
-                COMPANY_DASHBOARD_CONFIG.rpcUrl
+                COMPANY_DASHBOARD_CONFIG
+                    .rpcUrl
             );
 
         const transaction =
@@ -1665,27 +2026,25 @@ async function verifyUSDTTransaction(
             return false;
         }
 
-        if (receipt.status !== 1) {
+        if (
+            receipt.status !== 1
+        ) {
             return false;
         }
 
-        /*
-         * The transaction must interact with the USDT contract.
-         */
         if (
             normalizeAddress(
                 transaction.to
             ) !==
             normalizeAddress(
-                COMPANY_DASHBOARD_CONFIG.usdtContract
+                COMPANY_DASHBOARD_CONFIG
+                    .usdtContract
             )
         ) {
+
             return false;
         }
 
-        /*
-         * Verify sender.
-         */
         if (
             expectedSender &&
             normalizeAddress(
@@ -1695,14 +2054,10 @@ async function verifyUSDTTransaction(
                 expectedSender
             )
         ) {
+
             return false;
         }
 
-        /*
-         * ERC-20 Transfer event:
-         *
-         * Transfer(address,address,uint256)
-         */
         const transferTopic =
             ethers.id(
                 "Transfer(address,address,uint256)"
@@ -1710,27 +2065,34 @@ async function verifyUSDTTransaction(
 
         const expectedRecipient =
             normalizeAddress(
-                COMPANY_DASHBOARD_CONFIG.paymentWallet
+                COMPANY_DASHBOARD_CONFIG
+                    .paymentWallet
             );
 
         const expectedAmount =
             ethers.parseUnits(
                 String(plan.price),
-                COMPANY_DASHBOARD_CONFIG.usdtDecimals
+                COMPANY_DASHBOARD_CONFIG
+                    .usdtDecimals
             );
 
-        let validTransfer = false;
+        let validTransfer =
+            false;
 
         for (
             const log of receipt.logs
         ) {
 
             if (
-                normalizeAddress(log.address) !==
                 normalizeAddress(
-                    COMPANY_DASHBOARD_CONFIG.usdtContract
+                    log.address
+                ) !==
+                normalizeAddress(
+                    COMPANY_DASHBOARD_CONFIG
+                        .usdtContract
                 )
             ) {
+
                 continue;
             }
 
@@ -1738,6 +2100,7 @@ async function verifyUSDTTransaction(
                 !log.topics ||
                 log.topics.length < 3
             ) {
+
                 continue;
             }
 
@@ -1745,6 +2108,7 @@ async function verifyUSDTTransaction(
                 log.topics[0].toLowerCase() !==
                 transferTopic.toLowerCase()
             ) {
+
                 continue;
             }
 
@@ -1760,12 +2124,17 @@ async function verifyUSDTTransaction(
                 );
 
             if (
-                normalizeAddress(recipient) ===
+                normalizeAddress(
+                    recipient
+                ) ===
                 expectedRecipient &&
-                amount >= expectedAmount
+                amount >=
+                expectedAmount
             ) {
 
-                validTransfer = true;
+                validTransfer =
+                    true;
+
                 break;
             }
         }
@@ -1808,11 +2177,8 @@ async function confirmPaymentAndActivateSubscription(
         plan.durationDays
     );
 
-    /*
-     * Try to update the payment record with all subscription
-     * information.
-     */
     const updateData = {
+
         status:
             "confirmed",
 
@@ -1839,6 +2205,7 @@ async function confirmPaymentAndActivateSubscription(
 
         subscription_expires_at:
             expires.toISOString()
+
     };
 
     let result =
@@ -1854,17 +2221,18 @@ async function confirmPaymentAndActivateSubscription(
                     : txHash
             );
 
-    /*
-     * Compatibility fallback if subscription-specific columns
-     * don't exist.
-     */
     if (
         result.error &&
         (
-            String(result.error.message)
+            String(
+                result.error.message
+            )
                 .toLowerCase()
                 .includes("plan_code") ||
-            String(result.error.message)
+
+            String(
+                result.error.message
+            )
                 .toLowerCase()
                 .includes("subscription_")
         )
@@ -1874,6 +2242,7 @@ async function confirmPaymentAndActivateSubscription(
             await client
                 .from("payments")
                 .update({
+
                     status:
                         "confirmed",
 
@@ -1885,6 +2254,7 @@ async function confirmPaymentAndActivateSubscription(
 
                     blockchain_network:
                         "BSC"
+
                 })
                 .eq(
                     paymentRecord?.id
@@ -1904,11 +2274,6 @@ async function confirmPaymentAndActivateSubscription(
         );
     }
 
-    /*
-     * If a dedicated subscription table exists, update it.
-     * Failure here must NOT invalidate the confirmed blockchain
-     * payment.
-     */
     await upsertSubscriptionSafely(
         plan,
         now,
@@ -1917,16 +2282,30 @@ async function confirmPaymentAndActivateSubscription(
     );
 
     currentPayment = {
+
         ...(paymentRecord || {}),
-        status: "confirmed",
-        plan_code: plan.code,
-        plan_name: plan.name,
-        subscription_status: "active",
+
+        status:
+            "confirmed",
+
+        plan_code:
+            plan.code,
+
+        plan_name:
+            plan.name,
+
+        subscription_status:
+            "active",
+
         subscription_started_at:
             now.toISOString(),
+
         subscription_expires_at:
             expires.toISOString(),
-        transaction_hash: txHash
+
+        transaction_hash:
+            txHash
+
     };
 
     currentPlan =
@@ -1951,6 +2330,7 @@ async function upsertSubscriptionSafely(
     try {
 
         const subscription = {
+
             user_id:
                 currentUser.id,
 
@@ -1971,6 +2351,7 @@ async function upsertSubscriptionSafely(
 
             transaction_hash:
                 txHash
+
         };
 
         const result =
@@ -1984,10 +2365,6 @@ async function upsertSubscriptionSafely(
                     }
                 );
 
-        /*
-         * Ignore missing table/column errors because the
-         * payments table remains the primary source.
-         */
         if (result.error) {
 
             console.info(
@@ -2024,7 +2401,8 @@ async function markPaymentFailed(
             client
                 .from("payments")
                 .update({
-                    status: "failed"
+                    status:
+                        "failed"
                 });
 
         if (paymentId) {
@@ -2084,13 +2462,11 @@ async function loadCompanyJobs() {
                 }
             );
 
-    /*
-     * Older jobs tables may identify company through
-     * company/user email instead.
-     */
     if (
         result.error &&
-        String(result.error.message)
+        String(
+            result.error.message
+        )
             .toLowerCase()
             .includes("user_id")
     ) {
@@ -2118,6 +2494,19 @@ async function loadCompanyJobs() {
             result.error
         );
 
+        window.__companyJobs =
+            [];
+
+        window.__companyJobsCount =
+            0;
+
+        setText(
+            "published-jobs-count",
+            "0"
+        );
+
+        renderSubscription();
+
         renderJobs([]);
 
         return [];
@@ -2130,7 +2519,9 @@ async function loadCompanyJobs() {
         jobs;
 
     window.__companyJobsCount =
-        countMonthlyJobs(jobs);
+        countMonthlyJobs(
+            jobs
+        );
 
     setText(
         "published-jobs-count",
@@ -2139,7 +2530,9 @@ async function loadCompanyJobs() {
 
     renderSubscription();
 
-    renderJobs(jobs);
+    renderJobs(
+        jobs
+    );
 
     return jobs;
 }
@@ -2164,21 +2557,24 @@ function countMonthlyJobs(jobs) {
     const month =
         now.getUTCMonth();
 
-    return jobs.filter(job => {
+    return jobs.filter(
+        job => {
 
-        const date =
-            new Date(
-                job.created_at ||
-                job.createdAt ||
-                0
+            const date =
+                new Date(
+                    job.created_at ||
+                    job.createdAt ||
+                    0
+                );
+
+            return (
+                date.getUTCFullYear() ===
+                    year &&
+                date.getUTCMonth() ===
+                    month
             );
-
-        return (
-            date.getUTCFullYear() === year &&
-            date.getUTCMonth() === month
-        );
-
-    }).length;
+        }
+    ).length;
 }
 
 
@@ -2207,97 +2603,120 @@ function renderJobs(jobs) {
     }
 
     container.innerHTML =
-        jobs.map(job => {
+        jobs.map(
+            job => {
 
-            const title =
-                escapeHtml(
-                    job.title ||
-                    "Untitled Job"
-                );
+                const title =
+                    escapeHtml(
+                        job.title ||
+                        "Untitled Job"
+                    );
 
-            const company =
-                escapeHtml(
-                    job.company ||
-                    getCompanyName()
-                );
+                const company =
+                    escapeHtml(
+                        job.company ||
+                        getCompanyName()
+                    );
 
-            const location =
-                escapeHtml(
-                    job.location ||
-                    "Remote"
-                );
+                const location =
+                    escapeHtml(
+                        job.location ||
+                        "Remote"
+                    );
 
-            const type =
-                escapeHtml(
-                    job.type ||
-                    "Full-time"
-                );
+                const type =
+                    escapeHtml(
+                        job.type ||
+                        "Full-time"
+                    );
 
-            const created =
-                formatDate(
-                    job.created_at
-                );
+                const created =
+                    formatDate(
+                        job.created_at
+                    );
 
-            return `
-                <div class="job-card">
+                return `
+                    <div class="job-card">
 
-                    <div class="job-card-header">
+                        <div class="job-card-header">
 
-                        <div>
+                            <div>
 
-                            <div class="job-title">
-                                ${title}
+                                <div class="job-title">
+                                    ${title}
+                                </div>
+
+                                <div class="job-meta">
+
+                                    <span>
+                                        ${company}
+                                    </span>
+
+                                    <span>•</span>
+
+                                    <span>
+                                        ${location}
+                                    </span>
+
+                                    <span>•</span>
+
+                                    <span>
+                                        ${type}
+                                    </span>
+
+                                    <span>•</span>
+
+                                    <span>
+                                        ${created}
+                                    </span>
+
+                                </div>
+
                             </div>
 
-                            <div class="job-meta">
-                                <span>${company}</span>
-                                <span>•</span>
-                                <span>${location}</span>
-                                <span>•</span>
-                                <span>${type}</span>
-                                <span>•</span>
-                                <span>${created}</span>
+                            <div class="job-actions">
+
+                                <button
+                                    type="button"
+                                    class="small-button delete"
+                                    data-delete-job="${escapeAttribute(
+                                        job.id
+                                    )}"
+                                >
+                                    Delete
+                                </button>
+
                             </div>
-
-                        </div>
-
-                        <div class="job-actions">
-
-                            <button
-                                type="button"
-                                class="small-button delete"
-                                data-delete-job="${escapeAttribute(job.id)}"
-                            >
-                                Delete
-                            </button>
 
                         </div>
 
                     </div>
+                `;
 
-                </div>
-            `;
-
-        }).join("");
+            }
+        ).join("");
 
     container
         .querySelectorAll(
             "[data-delete-job]"
         )
-        .forEach(button => {
+        .forEach(
+            button => {
 
-            button.addEventListener(
-                "click",
-                () => {
+                button.addEventListener(
+                    "click",
+                    () => {
 
-                    deleteJob(
-                        button.dataset.deleteJob
-                    );
+                        deleteJob(
+                            button.dataset
+                                .deleteJob
+                        );
 
-                }
-            );
+                    }
+                );
 
-        });
+            }
+        );
 }
 
 
@@ -2387,17 +2806,23 @@ async function handlePostJob(event) {
 
     const plan =
         currentPlan ||
-        COMPANY_DASHBOARD_CONFIG.plans.free;
+        COMPANY_DASHBOARD_CONFIG
+            .plans
+            .free;
 
     const jobs =
-        window.__companyJobs || [];
+        window.__companyJobs ||
+        [];
 
     const monthlyCount =
-        countMonthlyJobs(jobs);
+        countMonthlyJobs(
+            jobs
+        );
 
     if (
         plan.limit !== null &&
-        monthlyCount >= plan.limit
+        monthlyCount >=
+            plan.limit
     ) {
 
         showAlert(
@@ -2415,6 +2840,16 @@ async function handlePostJob(event) {
             });
         }
 
+        const promotion =
+            $("subscription-promotion");
+
+        if (promotion) {
+
+            promotion.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+
         return;
     }
 
@@ -2426,32 +2861,38 @@ async function handlePostJob(event) {
 
     const title =
         String(
-            formData.get("title") || ""
+            formData.get("title") ||
+            ""
         ).trim();
 
     const company =
         String(
-            formData.get("company") || ""
+            formData.get("company") ||
+            ""
         ).trim();
 
     const location =
         String(
-            formData.get("location") || ""
+            formData.get("location") ||
+            ""
         ).trim();
 
     const type =
         String(
-            formData.get("type") || ""
+            formData.get("type") ||
+            ""
         ).trim();
 
     const applyLink =
         String(
-            formData.get("apply_link") || ""
+            formData.get("apply_link") ||
+            ""
         ).trim();
 
     const description =
         String(
-            formData.get("description") || ""
+            formData.get("description") ||
+            ""
         ).trim();
 
     if (
@@ -2473,8 +2914,12 @@ async function handlePostJob(event) {
         $("publish-job-button");
 
     if (button) {
-        button.disabled = true;
-        button.textContent = "Publishing...";
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Publishing...";
     }
 
     try {
@@ -2483,6 +2928,7 @@ async function handlePostJob(event) {
             getSupabaseClient();
 
         const jobRecord = {
+
             user_id:
                 currentUser.id,
 
@@ -2505,23 +2951,25 @@ async function handlePostJob(event) {
                 applyLink,
 
             created_at:
-                new Date().toISOString()
+                new Date()
+                    .toISOString()
+
         };
 
         let result =
             await client
                 .from("jobs")
-                .insert(jobRecord)
+                .insert(
+                    jobRecord
+                )
                 .select()
                 .maybeSingle();
 
-        /*
-         * Compatibility fallback if created_at is automatic or
-         * some older schema rejects it.
-         */
         if (
             result.error &&
-            String(result.error.message)
+            String(
+                result.error.message
+            )
                 .toLowerCase()
                 .includes("created_at")
         ) {
@@ -2531,7 +2979,9 @@ async function handlePostJob(event) {
             result =
                 await client
                     .from("jobs")
-                    .insert(jobRecord)
+                    .insert(
+                        jobRecord
+                    )
                     .select()
                     .maybeSingle();
         }
@@ -2546,6 +2996,7 @@ async function handlePostJob(event) {
             $("job-company");
 
         if (jobCompany) {
+
             jobCompany.value =
                 getCompanyName();
         }
@@ -2576,7 +3027,9 @@ async function handlePostJob(event) {
 
         if (button) {
 
-            button.disabled = false;
+            button.disabled =
+                false;
+
             button.textContent =
                 "Publish Job";
         }
@@ -2596,25 +3049,34 @@ async function loadApplications() {
     const tbody =
         $("applications-table-body");
 
-    if (!tbody || !currentUser) {
+    if (
+        !tbody ||
+        !currentUser
+    ) {
         return;
     }
 
     try {
 
         const jobs =
-            window.__companyJobs || [];
+            window.__companyJobs ||
+            [];
 
         const jobIds =
             jobs
-                .map(job => job.id)
+                .map(
+                    job => job.id
+                )
                 .filter(Boolean);
 
         if (!jobIds.length) {
 
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="4" class="empty-state">
+                    <td
+                        colspan="4"
+                        class="empty-state"
+                    >
                         No applications yet.
                     </td>
                 </tr>
@@ -2648,7 +3110,8 @@ async function loadApplications() {
         }
 
         const applications =
-            result.data || [];
+            result.data ||
+            [];
 
         setText(
             "applications-count",
@@ -2669,7 +3132,10 @@ async function loadApplications() {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="4" class="empty-state">
+                <td
+                    colspan="4"
+                    class="empty-state"
+                >
                     Applications could not be loaded.
                 </td>
             </tr>
@@ -2698,7 +3164,10 @@ function renderApplications(
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="4" class="empty-state">
+                <td
+                    colspan="4"
+                    class="empty-state"
+                >
                     No applications yet.
                 </td>
             </tr>
@@ -2718,70 +3187,90 @@ function renderApplications(
         );
 
     tbody.innerHTML =
-        applications.map(application => {
+        applications
+            .map(
+                application => {
 
-            const job =
-                jobsMap.get(
-                    String(
-                        application.job_id
-                    )
-                );
-
-            const candidate =
-                application.candidate_name ||
-                application.name ||
-                application.email ||
-                application.user_id ||
-                "Candidate";
-
-            const jobTitle =
-                job?.title ||
-                application.job_title ||
-                "Job";
-
-            const status =
-                String(
-                    application.status ||
-                    "pending"
-                ).toLowerCase();
-
-            const safeStatus =
-                ["pending", "approved", "rejected"]
-                    .includes(status)
-                    ? status
-                    : "pending";
-
-            return `
-                <tr>
-
-                    <td>
-                        ${escapeHtml(candidate)}
-                    </td>
-
-                    <td>
-                        ${escapeHtml(jobTitle)}
-                    </td>
-
-                    <td>
-                        <span class="status ${safeStatus}">
-                            ${escapeHtml(
-                                capitalize(safeStatus)
-                            )}
-                        </span>
-                    </td>
-
-                    <td>
-                        ${escapeHtml(
-                            formatDate(
-                                application.created_at
+                    const job =
+                        jobsMap.get(
+                            String(
+                                application
+                                    .job_id
                             )
-                        )}
-                    </td>
+                        );
 
-                </tr>
-            `;
+                    const candidate =
+                        application
+                            .candidate_name ||
+                        application.name ||
+                        application.email ||
+                        application.user_id ||
+                        "Candidate";
 
-        }).join("");
+                    const jobTitle =
+                        job?.title ||
+                        application.job_title ||
+                        "Job";
+
+                    const status =
+                        String(
+                            application.status ||
+                            "pending"
+                        ).toLowerCase();
+
+                    const safeStatus =
+                        [
+                            "pending",
+                            "approved",
+                            "rejected"
+                        ].includes(status)
+                            ? status
+                            : "pending";
+
+                    return `
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    candidate
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    jobTitle
+                                )}
+                            </td>
+
+                            <td>
+
+                                <span
+                                    class="status ${safeStatus}"
+                                >
+                                    ${escapeHtml(
+                                        capitalize(
+                                            safeStatus
+                                        )
+                                    )}
+                                </span>
+
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    formatDate(
+                                        application
+                                            .created_at
+                                    )
+                                )}
+                            </td>
+
+                        </tr>
+                    `;
+
+                }
+            )
+            .join("");
 }
 
 
@@ -2789,7 +3278,9 @@ function renderApplications(
    COMPANY PROFILE SAVE
    ========================================================= */
 
-async function saveCompanyProfile(event) {
+async function saveCompanyProfile(
+    event
+) {
 
     event.preventDefault();
 
@@ -2802,8 +3293,11 @@ async function saveCompanyProfile(event) {
 
     if (button) {
 
-        button.disabled = true;
-        button.textContent = "Saving...";
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Saving...";
     }
 
     try {
@@ -2816,31 +3310,41 @@ async function saveCompanyProfile(event) {
 
         const companyName =
             String(
-                formData.get("company_name") ||
+                formData.get(
+                    "company_name"
+                ) ||
                 ""
             ).trim();
 
         const website =
             String(
-                formData.get("website") ||
+                formData.get(
+                    "website"
+                ) ||
                 ""
             ).trim();
 
         const location =
             String(
-                formData.get("location") ||
+                formData.get(
+                    "location"
+                ) ||
                 ""
             ).trim();
 
         const linkedin =
             String(
-                formData.get("linkedin") ||
+                formData.get(
+                    "linkedin"
+                ) ||
                 ""
             ).trim();
 
         const description =
             String(
-                formData.get("description") ||
+                formData.get(
+                    "description"
+                ) ||
                 ""
             ).trim();
 
@@ -2848,6 +3352,7 @@ async function saveCompanyProfile(event) {
             getSupabaseClient();
 
         const record = {
+
             user_id:
                 currentUser.id,
 
@@ -2867,7 +3372,9 @@ async function saveCompanyProfile(event) {
                 description,
 
             updated_at:
-                new Date().toISOString()
+                new Date()
+                    .toISOString()
+
         };
 
         let result =
@@ -2883,12 +3390,11 @@ async function saveCompanyProfile(event) {
                 .select()
                 .maybeSingle();
 
-        /*
-         * Fallback for schemas without updated_at.
-         */
         if (
             result.error &&
-            String(result.error.message)
+            String(
+                result.error.message
+            )
                 .toLowerCase()
                 .includes("updated_at")
         ) {
@@ -2941,7 +3447,9 @@ async function saveCompanyProfile(event) {
 
         if (button) {
 
-            button.disabled = false;
+            button.disabled =
+                false;
+
             button.textContent =
                 "Save Profile";
         }
@@ -2962,10 +3470,6 @@ async function logout() {
 
         await client.auth.signOut();
 
-        /*
-         * Use a normal navigation instead of relying on auth.js,
-         * preventing dashboard redirect loops.
-         */
         window.location.href =
             "login.html";
 
@@ -3059,7 +3563,7 @@ function setupEventListeners() {
 
 
 /* =========================================================
-   WALLET EVENTS
+   WALLET LISTENERS
    ========================================================= */
 
 function setupWalletListeners() {
@@ -3085,7 +3589,9 @@ function setupWalletListeners() {
 
                 button.textContent =
                     connectedWallet
-                        ? `Connected ${shortAddress(connectedWallet)}`
+                        ? `Connected ${shortAddress(
+                            connectedWallet
+                        )}`
                         : "Connect Wallet";
             }
         }
@@ -3095,12 +3601,14 @@ function setupWalletListeners() {
         "chainChanged",
         () => {
 
-            connectedWallet = null;
+            connectedWallet =
+                null;
 
             const button =
                 $("connect-wallet-button");
 
             if (button) {
+
                 button.textContent =
                     "Connect Wallet";
             }
@@ -3110,7 +3618,7 @@ function setupWalletListeners() {
 
 
 /* =========================================================
-   DATE
+   DATE HELPERS
    ========================================================= */
 
 function formatDate(value) {
@@ -3127,6 +3635,7 @@ function formatDate(value) {
             date.getTime()
         )
     ) {
+
         return "—";
     }
 
@@ -3164,18 +3673,11 @@ function setupAuthListener() {
         getSupabaseClient();
 
     client.auth.onAuthStateChange(
-        async (event, session) => {
-
-            /*
-             * Do not redirect from here.
-             *
-             * This is intentional because auth.js may also have
-             * an auth listener. Redirecting from two listeners
-             * was one of the common causes of the dashboard loop.
-             */
+        async event => {
 
             if (
-                event === "SIGNED_OUT"
+                event ===
+                "SIGNED_OUT"
             ) {
 
                 window.location.href =
@@ -3196,7 +3698,8 @@ async function initializeCompanyDashboard() {
         return;
     }
 
-    dashboardInitialized = true;
+    dashboardInitialized =
+        true;
 
     showDashboardLoading(
         "Please wait while we prepare your workspace."
@@ -3204,25 +3707,13 @@ async function initializeCompanyDashboard() {
 
     try {
 
-        /*
-         * Initialize Supabase.
-         */
         getSupabaseClient();
 
-        /*
-         * Get session directly from Supabase.
-         *
-         * We intentionally do NOT call auth.js redirect helpers.
-         */
         currentUser =
             await getCurrentUser();
 
         if (!currentUser) {
 
-            /*
-             * Give Supabase Auth a moment in case the session is
-             * still being restored after page navigation.
-             */
             await new Promise(
                 resolve =>
                     setTimeout(
@@ -3243,9 +3734,6 @@ async function initializeCompanyDashboard() {
             return;
         }
 
-        /*
-         * Load profile.
-         */
         try {
 
             await loadProfile();
@@ -3256,69 +3744,40 @@ async function initializeCompanyDashboard() {
                 "Profile loading error:",
                 profileError
             );
-
-            /*
-             * Do NOT redirect the user.
-             *
-             * The authentication session itself is valid.
-             */
         }
 
-        /*
-         * If role exists and is explicitly another account type,
-         * do not force a logout. Show a clear message instead.
-         */
         if (
             currentProfile &&
             currentProfile.role &&
-            !isCompanyProfile(currentProfile)
+            !isCompanyProfile(
+                currentProfile
+            )
         ) {
 
             console.warn(
                 "Current profile role is not company:",
                 currentProfile.role
             );
-
-            /*
-             * We intentionally continue because some old databases
-             * use different role names or do not have role populated.
-             */
         }
 
-        /*
-         * Company profile.
-         */
         await loadCompanyProfile();
 
         renderCompanyInformation();
 
-        /*
-         * Subscription.
-         */
         await loadSubscription();
 
-        /*
-         * Jobs.
-         */
         await loadCompanyJobs();
 
-        /*
-         * Applications.
-         */
         await loadApplications();
 
-        /*
-         * Events.
-         */
         setupEventListeners();
 
         setupWalletListeners();
 
         setupAuthListener();
 
-        /*
-         * Dashboard is now ready.
-         */
+        renderSubscriptionPromotion();
+
         hideDashboardLoading();
 
     } catch (error) {
@@ -3328,15 +3787,14 @@ async function initializeCompanyDashboard() {
             error
         );
 
-        /*
-         * NEVER leave the user permanently stuck on the loading
-         * screen.
-         */
         hideDashboardLoading();
 
         showAlert(
             "Dashboard loaded with limited data. " +
-            (error.message || ""),
+            (
+                error.message ||
+                ""
+            ),
             "error"
         );
     }
@@ -3349,16 +3807,13 @@ async function initializeCompanyDashboard() {
 
 function startCompanyDashboard() {
 
-    /*
-     * DOM is already loaded when this script is normally executed
-     * because the HTML uses defer.
-     */
     initializeCompanyDashboard();
 }
 
 
 if (
-    document.readyState === "loading"
+    document.readyState ===
+    "loading"
 ) {
 
     document.addEventListener(
@@ -3369,4 +3824,4 @@ if (
 } else {
 
     startCompanyDashboard();
-}
+               }
