@@ -1,8 +1,12 @@
 /* =========================================================
    Web3Jobs
    File: js/company-dashboard.js
+
    Company Dashboard
-   Supabase + BNB Smart Chain + Payments + Subscriptions
+   Supabase + Company Profiles + Jobs + Applications
+   USDT BEP-20 Payments on BNB Smart Chain
+
+   Compatible with the provided Company Dashboard HTML.
    ========================================================= */
 
 "use strict";
@@ -12,37 +16,52 @@
    ========================================================= */
 
 const COMPANY_DASHBOARD_CONFIG = {
+    supabaseUrl: "https://uewocyaspztybnvnkbmo.supabase.co",
 
-    receiverWallet:
+    /*
+     * The public/anon/publishable key is intentionally read from
+     * the already-loaded supabase.js whenever possible.
+     *
+     * Do NOT place a service_role key in this file.
+     */
+
+    paymentWallet:
         "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
 
-    chainId:
-        "0x38",
+    bscChainId: "0x38",
 
-    chainName:
+    bscChainName:
         "BNB Smart Chain",
 
-    nativeCurrency: {
-        name: "BNB",
-        symbol: "BNB",
-        decimals: 18
-    },
+    usdtContract:
+        "0x55d398326f99059fF775485246999027B3197955",
 
-    rpcUrls: [
-        "https://bsc-dataseed.binance.org/"
-    ],
+    usdtSymbol:
+        "USDT",
 
-    explorer:
-        "https://bscscan.com",
+    usdtDecimals:
+        18,
 
-    bnbPriceApi:
-        "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT",
+    bscExplorer:
+        "https://bscscan.com/tx/",
+
+    rpcUrl:
+        "https://bsc-dataseed.binance.org/",
 
     plans: {
+        free: {
+            code: "free",
+            name: "Free",
+            price: 0,
+            limit: 2,
+            durationDays: 30
+        },
+
         starter: {
             code: "starter",
             name: "Starter",
             price: 19,
+            limit: 5,
             durationDays: 30
         },
 
@@ -50,13 +69,15 @@ const COMPANY_DASHBOARD_CONFIG = {
             code: "professional",
             name: "Professional",
             price: 49,
+            limit: 20,
             durationDays: 30
         },
 
-        business: {
-            code: "business",
-            name: "Business",
+        enterprise: {
+            code: "enterprise",
+            name: "Enterprise",
             price: 99,
+            limit: null,
             durationDays: 30
         }
     }
@@ -67,82 +88,44 @@ const COMPANY_DASHBOARD_CONFIG = {
    STATE
    ========================================================= */
 
-const CompanyDashboardState = {
+let supabaseClient = null;
 
-    user: null,
+let currentUser = null;
 
-    session: null,
+let currentProfile = null;
 
-    companyProfile: null,
+let currentCompanyProfile = null;
 
-    plans: [],
+let currentPlan = null;
 
-    selectedPlan: null,
+let currentPayment = null;
 
-    walletAddress: null,
+let selectedPlan = null;
 
-    provider: null,
+let connectedWallet = null;
 
-    signer: null,
-
-    paymentPending: false,
-
-    initialized: false,
-
-    currentSubscription: null
-};
+let dashboardInitialized = false;
 
 
 /* =========================================================
-   DOM HELPERS
-   ========================================================= */
-
-function $(selector) {
-    return document.querySelector(selector);
-}
-
-
-function $$(selector) {
-    return Array.from(
-        document.querySelectorAll(selector)
-    );
-}
-
-
-function getElement(...selectors) {
-
-    for (const selector of selectors) {
-
-        const element =
-            document.querySelector(selector);
-
-        if (element) {
-            return element;
-        }
-    }
-
-    return null;
-}
-
-
-/* =========================================================
-   SUPABASE
+   SUPABASE INITIALIZATION
    ========================================================= */
 
 function getSupabaseClient() {
 
+    if (supabaseClient) {
+        return supabaseClient;
+    }
+
+    /*
+     * Prefer the global client created by js/supabase.js.
+     */
     if (
         window.supabaseClient &&
         typeof window.supabaseClient.from === "function"
     ) {
-        return window.supabaseClient;
-    }
-
-    if (
-        window.supabase &&
-        typeof window.supabase.from === "function"
-    ) {
-        return window.supabase;
+        supabaseClient = window.supabaseClient;
+        return supabaseClient;
     }
 
     if (
@@ -150,52 +133,87 @@ function getSupabaseClient() {
         typeof window.supabase.createClient === "function"
     ) {
 
-        const url =
+        /*
+         * Try common names exported by existing supabase.js files.
+         */
+        const existingUrl =
             window.SUPABASE_URL ||
-            window.JOBS_SUPABASE_URL;
+            window.supabaseUrl ||
+            COMPANY_DASHBOARD_CONFIG.supabaseUrl;
 
-        const key =
+        const existingKey =
             window.SUPABASE_ANON_KEY ||
-            window.JOBS_SUPABASE_KEY ||
-            window.SUPABASE_KEY;
+            window.SUPABASE_KEY ||
+            window.supabaseKey ||
+            window.SUPABASE_PUBLISHABLE_KEY;
 
-        if (!url || !key) {
-            return null;
-        }
+        if (existingKey) {
 
-        try {
-
-            window.supabaseClient =
+            supabaseClient =
                 window.supabase.createClient(
-                    url,
-                    key
+                    existingUrl,
+                    existingKey
                 );
 
-            return window.supabaseClient;
-
-        } catch (error) {
-
-            console.error(
-                "Supabase initialization error:",
-                error
-            );
+            return supabaseClient;
         }
     }
 
-    return null;
+    throw new Error(
+        "Supabase client is not available. Check js/supabase.js."
+    );
 }
 
 
 /* =========================================================
-   SECURITY
+   DOM HELPERS
    ========================================================= */
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+
+function setText(id, value) {
+
+    const element = $(id);
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent =
+        value === null ||
+        value === undefined ||
+        value === ""
+            ? "—"
+            : String(value);
+}
+
+
+function showElement(id) {
+
+    const element = $(id);
+
+    if (element) {
+        element.style.display = "";
+    }
+}
+
+
+function hideElement(id) {
+
+    const element = $(id);
+
+    if (element) {
+        element.style.display = "none";
+    }
+}
+
 
 function escapeHtml(value) {
 
-    if (
-        value === null ||
-        value === undefined
-    ) {
+    if (value === null || value === undefined) {
         return "";
     }
 
@@ -208,38 +226,87 @@ function escapeHtml(value) {
 }
 
 
+function escapeAttribute(value) {
+    return escapeHtml(value);
+}
+
+
+/* =========================================================
+   ALERT SYSTEM
+   ========================================================= */
+
+function showAlert(message, type = "success") {
+
+    const alert = $("dashboard-alert");
+
+    if (!alert) {
+        console.log(message);
+        return;
+    }
+
+    alert.textContent = message;
+
+    alert.className = "";
+
+    alert.id = "dashboard-alert";
+
+    alert.classList.add(type);
+
+    alert.style.display = "block";
+
+    window.clearTimeout(
+        showAlert._timer
+    );
+
+    showAlert._timer =
+        window.setTimeout(() => {
+
+            alert.style.display = "none";
+
+        }, 5000);
+}
+
+
 /* =========================================================
    LOADING
    ========================================================= */
 
-function showLoading() {
+function showDashboardLoading(message) {
 
-    const loading =
-        $("#loading-spinner");
+    const spinner = $("loading-spinner");
 
-    const content =
-        $("#dashboard-content");
-
-    if (loading) {
-        loading.style.display = "flex";
+    if (!spinner) {
+        return;
     }
 
-    if (content) {
-        content.style.display = "none";
+    spinner.style.display = "flex";
+
+    const title =
+        spinner.querySelector("h2");
+
+    const paragraph =
+        spinner.querySelector("p");
+
+    if (title) {
+        title.textContent =
+            "Loading Company Dashboard";
+    }
+
+    if (paragraph && message) {
+        paragraph.textContent = message;
     }
 }
 
 
-function hideLoading() {
+function hideDashboardLoading() {
 
-    const loading =
-        $("#loading-spinner");
+    const spinner = $("loading-spinner");
 
     const content =
-        $("#dashboard-content");
+        $("dashboard-content");
 
-    if (loading) {
-        loading.style.display = "none";
+    if (spinner) {
+        spinner.style.display = "none";
     }
 
     if (content) {
@@ -249,145 +316,111 @@ function hideLoading() {
 
 
 /* =========================================================
-   MESSAGES
-   ========================================================= */
-
-function showMessage(
-    message,
-    type = "info"
-) {
-
-    let box =
-        document.getElementById(
-            "dashboard-message"
-        );
-
-    if (!box) {
-
-        box =
-            document.createElement("div");
-
-        box.id =
-            "dashboard-message";
-
-        box.style.position = "fixed";
-        box.style.left = "20px";
-        box.style.right = "20px";
-        box.style.bottom = "20px";
-        box.style.zIndex = "999999";
-        box.style.maxWidth = "620px";
-        box.style.margin = "0 auto";
-        box.style.padding = "15px 18px";
-        box.style.borderRadius = "12px";
-        box.style.fontSize = "14px";
-        box.style.fontWeight = "700";
-        box.style.lineHeight = "1.5";
-        box.style.boxShadow =
-            "0 15px 40px rgba(0,0,0,.35)";
-
-        document.body.appendChild(box);
-    }
-
-    box.textContent =
-        message;
-
-    if (type === "success") {
-
-        box.style.background =
-            "#064e3b";
-
-        box.style.border =
-            "1px solid #10b981";
-
-        box.style.color =
-            "#d1fae5";
-
-    } else if (type === "error") {
-
-        box.style.background =
-            "#450a0a";
-
-        box.style.border =
-            "1px solid #ef4444";
-
-        box.style.color =
-            "#fee2e2";
-
-    } else {
-
-        box.style.background =
-            "#10233a";
-
-        box.style.border =
-            "1px solid #294563";
-
-        box.style.color =
-            "#f5f8ff";
-    }
-
-    clearTimeout(box._timer);
-
-    box._timer =
-        setTimeout(() => {
-
-            if (box.parentNode) {
-                box.remove();
-            }
-
-        }, 5000);
-}
-
-
-/* =========================================================
    AUTHENTICATION
    ========================================================= */
 
-async function getCurrentSession() {
+async function getCurrentUser() {
 
     const client =
         getSupabaseClient();
 
-    if (!client) {
+    const {
+        data,
+        error
+    } = await client.auth.getSession();
 
-        throw new Error(
-            "Supabase client is not available."
-        );
+    if (error) {
+        throw error;
     }
-
-    const result =
-        await client.auth.getSession();
-
-    if (result.error) {
-        throw result.error;
-    }
-
-    return result.data.session;
-}
-
-
-async function requireCompanySession() {
-
-    const session =
-        await getCurrentSession();
 
     if (
-        !session ||
-        !session.user
+        data &&
+        data.session &&
+        data.session.user
     ) {
+        return data.session.user;
+    }
 
-        window.location.href =
-            "login.html";
+    /*
+     * Small fallback for auth state synchronization.
+     */
+    const {
+        data: userData,
+        error: userError
+    } = await client.auth.getUser();
 
+    if (userError) {
         return null;
     }
 
-    CompanyDashboardState.session =
-        session;
+    return userData?.user || null;
+}
 
-    CompanyDashboardState.user =
-        session.user;
 
-    return session;
+/* =========================================================
+   ROLE DETECTION
+   ========================================================= */
+
+async function loadProfile() {
+
+    const client =
+        getSupabaseClient();
+
+    if (!currentUser) {
+        throw new Error("No authenticated user.");
+    }
+
+    const {
+        data,
+        error
+    } = await client
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+    if (error) {
+        throw error;
+    }
+
+    currentProfile =
+        data || null;
+
+    return currentProfile;
+}
+
+
+function normalizeRole(value) {
+
+    if (!value) {
+        return "";
+    }
+
+    return String(value)
+        .trim()
+        .toLowerCase()
+        .replace(/[\s-]+/g, "_");
+}
+
+
+function isCompanyProfile(profile) {
+
+    if (!profile) {
+        return false;
+    }
+
+    const role =
+        normalizeRole(
+            profile.role ||
+            profile.account_type ||
+            profile.user_type
+        );
+
+    return (
+        role === "company" ||
+        role === "employer" ||
+        role === "business"
+    );
 }
 
 
@@ -400,76 +433,70 @@ async function loadCompanyProfile() {
     const client =
         getSupabaseClient();
 
-    const user =
-        CompanyDashboardState.user;
-
-    if (!client || !user) {
+    if (!currentUser) {
         return null;
     }
 
-    let profile = null;
+    const {
+        data,
+        error
+    } = await client
+        .from("company_profiles")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
 
-    try {
+    if (error) {
 
-        const result =
-            await client
-                .from("company_profiles")
-                .select("*")
-                .eq("id", user.id)
-                .maybeSingle();
+        /*
+         * Some older installations may use id instead of user_id.
+         * Try that only if the first query failed because the
+         * column does not exist.
+         */
+
+        const message =
+            String(error.message || "")
+                .toLowerCase();
 
         if (
-            !result.error &&
-            result.data
+            message.includes("user_id") ||
+            message.includes("column")
         ) {
 
-            profile =
-                result.data;
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Company profile lookup failed:",
-            error
-        );
-    }
-
-    if (!profile) {
-
-        try {
-
-            const result =
+            const fallback =
                 await client
-                    .from("profiles")
+                    .from("company_profiles")
                     .select("*")
-                    .eq("id", user.id)
+                    .eq("id", currentUser.id)
                     .maybeSingle();
 
-            if (
-                !result.error &&
-                result.data
-            ) {
+            if (!fallback.error) {
 
-                profile =
-                    result.data;
+                currentCompanyProfile =
+                    fallback.data || null;
+
+                return currentCompanyProfile;
             }
-
-        } catch (error) {
-
-            console.warn(
-                "Profile lookup failed:",
-                error
-            );
         }
+
+        /*
+         * Do not kill the entire dashboard if company_profiles
+         * does not exist yet.
+         */
+        console.warn(
+            "Company profile could not be loaded:",
+            error.message
+        );
+
+        currentCompanyProfile = null;
+
+        return null;
     }
 
-    CompanyDashboardState.companyProfile =
-        profile || {};
+    currentCompanyProfile =
+        data || null;
 
-    renderCompanyProfile();
-
-    return profile;
+    return currentCompanyProfile;
 }
 
 
@@ -479,559 +506,435 @@ async function loadCompanyProfile() {
 
 function getCompanyName() {
 
-    const profile =
-        CompanyDashboardState.companyProfile || {};
-
-    const user =
-        CompanyDashboardState.user || {};
-
     return (
-
-        profile.company_name ||
-
-        profile.name ||
-
-        profile.company ||
-
-        profile.business_name ||
-
-        user.user_metadata?.company_name ||
-
-        user.user_metadata?.company ||
-
-        user.user_metadata?.name ||
-
+        currentCompanyProfile?.company_name ||
+        currentCompanyProfile?.name ||
+        currentProfile?.company_name ||
+        currentProfile?.name ||
+        currentUser?.user_metadata?.company_name ||
+        currentUser?.user_metadata?.name ||
+        currentUser?.email?.split("@")[0] ||
         "Company"
     );
 }
 
 
 /* =========================================================
-   COMPANY PROFILE UI
+   RENDER COMPANY INFORMATION
    ========================================================= */
 
-function renderCompanyProfile() {
+function renderCompanyInformation() {
 
     const companyName =
         getCompanyName();
 
-    const user =
-        CompanyDashboardState.user || {};
+    setText(
+        "company-name",
+        companyName
+    );
 
-    const profile =
-        CompanyDashboardState.companyProfile || {};
+    setText(
+        "company-email",
+        currentUser?.email || "—"
+    );
 
-    const email =
-        profile.email ||
-        user.email ||
-        "";
+    const jobCompany =
+        $("job-company");
 
-    [
-        "#company-name",
-        "#company-title",
-        "#brand-company-name",
-        "#welcome-company-name",
-        "[data-company-name]"
-    ].forEach(selector => {
-
-        $$(selector).forEach(element => {
-
-            element.textContent =
-                companyName;
-        });
-    });
-
-
-    [
-        "#company-email",
-        "[data-company-email]"
-    ].forEach(selector => {
-
-        $$(selector).forEach(element => {
-
-            element.textContent =
-                email;
-        });
-    });
-}
-
-
-/* =========================================================
-   JOB STATISTICS
-   ========================================================= */
-
-async function loadJobStatistics() {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-        return;
+    if (
+        jobCompany &&
+        !jobCompany.value
+    ) {
+        jobCompany.value =
+            companyName;
     }
 
-    const companyName =
-        getCompanyName();
+    const profileName =
+        $("profile-company-name");
 
-    try {
+    if (
+        profileName &&
+        currentCompanyProfile
+    ) {
+        profileName.value =
+            currentCompanyProfile.company_name ||
+            currentCompanyProfile.name ||
+            "";
+    }
 
-        const result =
-            await client
-                .from("jobs")
-                .select(
-                    "id,title,company,created_at",
-                    {
-                        count: "exact"
-                    }
-                )
-                .eq(
-                    "company",
-                    companyName
-                );
+    const website =
+        $("profile-website");
 
-        if (result.error) {
+    if (
+        website &&
+        currentCompanyProfile
+    ) {
+        website.value =
+            currentCompanyProfile.website ||
+            "";
+    }
 
-            console.warn(
-                "Job statistics error:",
-                result.error
-            );
+    const location =
+        $("profile-location");
 
-            return;
-        }
+    if (
+        location &&
+        currentCompanyProfile
+    ) {
+        location.value =
+            currentCompanyProfile.location ||
+            "";
+    }
 
-        const jobs =
-            result.data || [];
+    const linkedin =
+        $("profile-linkedin");
 
-        const count =
-            result.count !== null
-                ? result.count
-                : jobs.length;
+    if (
+        linkedin &&
+        currentCompanyProfile
+    ) {
+        linkedin.value =
+            currentCompanyProfile.linkedin ||
+            "";
+    }
 
-        setStatistic(
-            [
-                "#published-jobs",
-                "#publishedJobs",
-                "[data-stat='published-jobs']"
-            ],
-            count
-        );
+    const description =
+        $("profile-description");
 
-        setStatistic(
-            [
-                "#active-jobs",
-                "#activeJobs",
-                "[data-stat='active-jobs']"
-            ],
-            count
-        );
-
-        await loadApplicationStatistics(
-            jobs.map(job => job.id)
-        );
-
-    } catch (error) {
-
-        console.warn(
-            "Job statistics failed:",
-            error
-        );
+    if (
+        description &&
+        currentCompanyProfile
+    ) {
+        description.value =
+            currentCompanyProfile.description ||
+            "";
     }
 }
 
 
 /* =========================================================
-   STATISTICS HELPER
+   PAYMENT / SUBSCRIPTION HELPERS
    ========================================================= */
 
-function setStatistic(
-    selectors,
-    value
-) {
+function normalizePlanCode(value) {
 
-    selectors.forEach(selector => {
+    if (!value) {
+        return "free";
+    }
 
-        $$(selector).forEach(element => {
+    const normalized =
+        String(value)
+            .trim()
+            .toLowerCase();
 
-            element.textContent =
-                String(value);
-        });
-    });
+    if (
+        COMPANY_DASHBOARD_CONFIG.plans[
+            normalized
+        ]
+    ) {
+        return normalized;
+    }
+
+    return "free";
 }
 
 
-/* =========================================================
-   APPLICATION STATISTICS
-   ========================================================= */
-
-async function loadApplicationStatistics(
-    jobIds = []
-) {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-        return;
-    }
-
-    if (!jobIds.length) {
-
-        setStatistic(
-            [
-                "#total-applications",
-                "#totalApplications",
-                "[data-stat='applications']"
-            ],
-            0
-        );
-
-        return;
-    }
-
-    try {
-
-        const result =
-            await client
-                .from("applications")
-                .select(
-                    "id",
-                    {
-                        count: "exact",
-                        head: true
-                    }
-                )
-                .in(
-                    "job_id",
-                    jobIds
-                );
-
-        if (result.error) {
-
-            console.warn(
-                "Application statistics error:",
-                result.error
-            );
-
-            return;
-        }
-
-        setStatistic(
-            [
-                "#total-applications",
-                "#totalApplications",
-                "[data-stat='applications']"
-            ],
-            result.count || 0
-        );
-
-    } catch (error) {
-
-        console.warn(
-            "Application statistics failed:",
-            error
-        );
-    }
-}
-
-
-/* =========================================================
-   SUBSCRIPTION PLANS
-   ========================================================= */
-
-async function loadSubscriptionPlans() {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-
-        renderDefaultPlans();
-
-        return;
-    }
-
-    try {
-
-        const result =
-            await client
-                .from("plans")
-                .select(
-                    "id,plan_code,plan_name,description,price,currency,duration_days,plan_type,is_active"
-                )
-                .eq(
-                    "is_active",
-                    true
-                )
-                .order(
-                    "price",
-                    {
-                        ascending: true
-                    }
-                );
-
-        if (
-            result.error ||
-            !result.data ||
-            !result.data.length
-        ) {
-
-            console.warn(
-                "Plans table unavailable. Using default plans.",
-                result.error || ""
-            );
-
-            renderDefaultPlans();
-
-            return;
-        }
-
-        CompanyDashboardState.plans =
-            result.data;
-
-        renderPlans(
-            result.data
-        );
-
-    } catch (error) {
-
-        console.warn(
-            "Subscription plans failed:",
-            error
-        );
-
-        renderDefaultPlans();
-    }
-}
-
-
-/* =========================================================
-   DEFAULT PLANS
-   ========================================================= */
-
-function renderDefaultPlans() {
-
-    const plans = [
-
-        {
-            id: "starter",
-
-            plan_code:
-                "starter",
-
-            plan_name:
-                "Starter",
-
-            description:
-                "For small teams starting with Web3 hiring.",
-
-            price:
-                19,
-
-            currency:
-                "USD",
-
-            duration_days:
-                30,
-
-            plan_type:
-                "monthly",
-
-            is_active:
-                true
-        },
-
-        {
-            id: "professional",
-
-            plan_code:
-                "professional",
-
-            plan_name:
-                "Professional",
-
-            description:
-                "For growing Web3 companies.",
-
-            price:
-                49,
-
-            currency:
-                "USD",
-
-            duration_days:
-                30,
-
-            plan_type:
-                "monthly",
-
-            is_active:
-                true
-        },
-
-        {
-            id: "business",
-
-            plan_code:
-                "business",
-
-            plan_name:
-                "Business",
-
-            description:
-                "For companies with advanced hiring needs.",
-
-            price:
-                99,
-
-            currency:
-                "USD",
-
-            duration_days:
-                30,
-
-            plan_type:
-                "monthly",
-
-            is_active:
-                true
-        }
-    ];
-
-    CompanyDashboardState.plans =
-        plans;
-
-    renderPlans(plans);
-}
-
-
-/* =========================================================
-   PLANS CONTAINER
-   ========================================================= */
-
-function getPlansContainer() {
-
-    return getElement(
-        "#subscriptions",
-        "#subscription-plans",
-        "#plans-container",
-        "#plans-list"
+function getPlanDefinition(code) {
+
+    return (
+        COMPANY_DASHBOARD_CONFIG.plans[
+            normalizePlanCode(code)
+        ] ||
+        COMPANY_DASHBOARD_CONFIG.plans.free
     );
 }
 
 
 /* =========================================================
-   RENDER PLANS
+   PAYMENT RECORD LOADING
    ========================================================= */
 
-function renderPlans(plans) {
+async function loadLatestPayment() {
 
-    const container =
-        getPlansContainer();
+    const client =
+        getSupabaseClient();
 
-    if (
-        !container ||
-        !Array.isArray(plans)
-    ) {
-        return;
+    if (!currentUser) {
+        return null;
     }
 
-    container.innerHTML =
-        plans
-            .map(createPlanHtml)
-            .join("");
+    const {
+        data,
+        error
+    } = await client
+        .from("payments")
+        .select("*")
+        .eq("user_id", currentUser.id)
+        .order("created_at", {
+            ascending: false
+        })
+        .limit(20);
 
-    bindPlanButtons();
+    if (error) {
 
-    if (
-        CompanyDashboardState.selectedPlan
-    ) {
-
-        markSelectedPlan(
-            CompanyDashboardState.selectedPlan
+        console.warn(
+            "Payments could not be loaded:",
+            error.message
         );
+
+        return null;
     }
+
+    if (!data || !data.length) {
+        return null;
+    }
+
+    /*
+     * Prefer confirmed payments that are still inside their
+     * subscription period if such fields exist.
+     */
+    const confirmed =
+        data.find(
+            payment =>
+                String(payment.status || "")
+                    .toLowerCase() === "confirmed"
+        );
+
+    currentPayment =
+        confirmed ||
+        data[0] ||
+        null;
+
+    return currentPayment;
 }
 
 
 /* =========================================================
-   PLAN HTML
+   SUBSCRIPTION CALCULATION
    ========================================================= */
 
-function createPlanHtml(plan) {
+function getPaymentPlanCode(payment) {
 
-    const id =
-        escapeHtml(
-            plan.id ||
-            plan.plan_code
-        );
+    if (!payment) {
+        return "free";
+    }
 
-    const code =
-        escapeHtml(
-            plan.plan_code ||
-            plan.id
-        );
+    return normalizePlanCode(
+        payment.plan_code ||
+        payment.plan ||
+        payment.plan_type
+    );
+}
 
-    const name =
-        escapeHtml(
-            plan.plan_name ||
-            plan.name ||
-            code
-        );
 
-    const description =
-        escapeHtml(
-            plan.description ||
-            ""
-        );
+function getPaymentExpiration(payment) {
 
-    const price =
-        Number(plan.price || 0)
-            .toFixed(2);
+    if (!payment) {
+        return null;
+    }
 
-    const duration =
-        Number(
-            plan.duration_days || 30
-        );
+    const possibleFields = [
+        "expires_at",
+        "subscription_expires_at",
+        "end_date",
+        "valid_until"
+    ];
 
-    return `
-        <div
-            class="subscription-plan-card"
-            data-plan-card="${id}"
-            data-plan-code="${code}"
-        >
+    for (const field of possibleFields) {
 
-            <div class="plan-card-content">
+        if (payment[field]) {
 
-                <h3>${name}</h3>
+            const date =
+                new Date(payment[field]);
 
-                <div class="plan-price">
+            if (!Number.isNaN(date.getTime())) {
+                return date;
+            }
+        }
+    }
 
-                    <strong>
-                        $${price}
-                    </strong>
+    /*
+     * If no expiration column exists, derive it from created_at.
+     */
+    if (payment.created_at) {
 
-                    <span>
-                        / ${duration} days
-                    </span>
+        const start =
+            new Date(payment.created_at);
 
-                </div>
+        if (!Number.isNaN(start.getTime())) {
 
-                <p>
-                    ${description}
-                </p>
+            const code =
+                getPaymentPlanCode(payment);
 
-                <button
-                    type="button"
-                    class="plan-button"
-                    data-plan="${id}"
-                    data-plan-code="${code}"
-                >
-                    Choose ${name}
-                </button>
+            const plan =
+                getPlanDefinition(code);
 
-            </div>
+            const expiration =
+                new Date(start.getTime());
 
-        </div>
-    `;
+            expiration.setDate(
+                expiration.getDate() +
+                plan.durationDays
+            );
+
+            return expiration;
+        }
+    }
+
+    return null;
+}
+
+
+function isPaymentActive(payment) {
+
+    if (!payment) {
+        return false;
+    }
+
+    const status =
+        String(payment.status || "")
+            .toLowerCase();
+
+    if (
+        status !== "confirmed" &&
+        status !== "completed" &&
+        status !== "success" &&
+        status !== "paid"
+    ) {
+        return false;
+    }
+
+    const expiration =
+        getPaymentExpiration(payment);
+
+    if (!expiration) {
+        return true;
+    }
+
+    return expiration.getTime() >
+        Date.now();
+}
+
+
+/* =========================================================
+   PLAN RENDERING
+   ========================================================= */
+
+async function loadSubscription() {
+
+    const payment =
+        await loadLatestPayment();
+
+    if (
+        payment &&
+        isPaymentActive(payment)
+    ) {
+
+        const code =
+            getPaymentPlanCode(payment);
+
+        currentPlan =
+            getPlanDefinition(code);
+
+    } else {
+
+        currentPlan =
+            COMPANY_DASHBOARD_CONFIG.plans.free;
+    }
+
+    renderSubscription();
+
+    return currentPlan;
+}
+
+
+function renderSubscription() {
+
+    const plan =
+        currentPlan ||
+        COMPANY_DASHBOARD_CONFIG.plans.free;
+
+    setText(
+        "current-plan-name",
+        plan.name
+    );
+
+    const limit =
+        plan.limit === null
+            ? "Unlimited"
+            : plan.limit;
+
+    setText(
+        "monthly-job-limit",
+        limit
+    );
+
+    const jobsUsed =
+        window.__companyJobsCount || 0;
+
+    setText(
+        "monthly-jobs-used",
+        jobsUsed
+    );
+
+    const jobsRemaining =
+        plan.limit === null
+            ? "Unlimited"
+            : Math.max(
+                0,
+                plan.limit - jobsUsed
+            );
+
+    setText(
+        "jobs-remaining-count",
+        jobsRemaining
+    );
+
+    const progress =
+        $("subscription-progress");
+
+    const progressText =
+        $("subscription-progress-text");
+
+    if (progress) {
+
+        if (plan.limit === null) {
+
+            progress.style.width = "0%";
+
+        } else {
+
+            const percentage =
+                plan.limit > 0
+                    ? Math.min(
+                        100,
+                        (jobsUsed / plan.limit) * 100
+                    )
+                    : 0;
+
+            progress.style.width =
+                percentage + "%";
+        }
+    }
+
+    if (progressText) {
+
+        progressText.textContent =
+            plan.limit === null
+                ? `${jobsUsed} / Unlimited`
+                : `${jobsUsed} / ${plan.limit}`;
+    }
+
+    const publishNote =
+        $("publish-note");
+
+    if (publishNote) {
+
+        publishNote.textContent =
+            plan.limit === null
+                ? "Your current plan allows unlimited job advertisements."
+                : `Your current plan allows ${plan.limit} job advertisements per month.`;
+    }
 }
 
 
@@ -1039,109 +942,39 @@ function createPlanHtml(plan) {
    PLAN BUTTONS
    ========================================================= */
 
-function bindPlanButtons() {
+function setupPlanButtons() {
 
-    $$(".plan-button, [data-plan-select]")
-        .forEach(button => {
+    const buttons =
+        document.querySelectorAll(
+            ".plan-button[data-plan]"
+        );
 
-            if (
-                button.dataset
-                    .dashboardBound === "true"
-            ) {
-                return;
-            }
+    buttons.forEach(button => {
 
-            button.dataset
-                .dashboardBound =
-                "true";
+        button.addEventListener(
+            "click",
+            async () => {
 
-            button.addEventListener(
-                "click",
-                event => {
+                const code =
+                    normalizePlanCode(
+                        button.dataset.plan
+                    );
 
-                    event.preventDefault();
+                if (code === "free") {
 
-                    const planId =
-                        button.dataset.plan ||
-                        button.dataset.planId ||
-                        button.dataset.id;
+                    showAlert(
+                        "Free plan is already active.",
+                        "success"
+                    );
 
-                    const planCode =
-                        button.dataset.planCode ||
-                        button.dataset.code;
-
-                    const plan =
-                        findPlan(
-                            planId,
-                            planCode
-                        );
-
-                    if (!plan) {
-
-                        showMessage(
-                            "Please select a valid subscription plan.",
-                            "error"
-                        );
-
-                        return;
-                    }
-
-                    selectPlan(plan);
+                    return;
                 }
-            );
-        });
-}
 
+                await selectPlan(code);
+            }
+        );
 
-/* =========================================================
-   FIND PLAN
-   ========================================================= */
-
-function findPlan(
-    planId,
-    planCode
-) {
-
-    const plans =
-        CompanyDashboardState.plans || [];
-
-    let plan = null;
-
-    if (planId !== undefined) {
-
-        plan =
-            plans.find(item =>
-                String(item.id) ===
-                String(planId)
-            );
-    }
-
-    if (!plan && planCode) {
-
-        plan =
-            plans.find(item =>
-                String(
-                    item.plan_code || ""
-                ).toLowerCase() ===
-                String(planCode).toLowerCase()
-            );
-    }
-
-    if (!plan && planId) {
-
-        const fallbackPlans =
-            Object.values(
-                COMPANY_DASHBOARD_CONFIG.plans
-            );
-
-        plan =
-            fallbackPlans.find(item =>
-                item.code ===
-                String(planId)
-            );
-    }
-
-    return plan || null;
+    });
 }
 
 
@@ -1149,261 +982,92 @@ function findPlan(
    SELECT PLAN
    ========================================================= */
 
-function selectPlan(plan) {
+async function selectPlan(code) {
 
-    if (!plan) {
+    const plan =
+        getPlanDefinition(code);
 
-        showMessage(
-            "Please select a valid subscription plan.",
-            "error"
-        );
-
-        return;
-    }
-
-    CompanyDashboardState.selectedPlan =
+    selectedPlan =
         plan;
 
-    markSelectedPlan(plan);
+    setText(
+        "selected-plan-name",
+        plan.name
+    );
 
-    updatePaymentPanel(plan);
+    setText(
+        "selected-plan-price",
+        `$${plan.price} USDT`
+    );
 
-    const panel =
-        getElement(
-            "#payment-panel",
-            "#subscription-payment",
-            "#payment-section"
-        );
+    const paymentBox =
+        $("payment-box");
 
-    if (panel) {
-
-        panel.style.display =
-            "block";
-
-        panel.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
+    if (paymentBox) {
+        paymentBox.classList.add("active");
     }
 
-    const name =
-        plan.plan_name ||
-        plan.name ||
-        plan.plan_code ||
-        "Subscription";
+    const status =
+        $("payment-status");
 
-    showMessage(
-        `${name} selected successfully.`,
-        "success"
+    if (status) {
+
+        status.textContent =
+            `Selected ${plan.name}. Connect your wallet and pay ${plan.price} USDT on BNB Smart Chain.`;
+    }
+
+    if (paymentBox) {
+
+        paymentBox.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+        });
+    }
+}
+
+
+/* =========================================================
+   CANCEL PAYMENT
+   ========================================================= */
+
+function cancelPayment() {
+
+    selectedPlan = null;
+
+    const paymentBox =
+        $("payment-box");
+
+    if (paymentBox) {
+        paymentBox.classList.remove("active");
+    }
+
+    setText(
+        "selected-plan-name",
+        "—"
     );
 
-    updateSubscribeButton();
-}
+    setText(
+        "selected-plan-price",
+        "$0 USDT"
+    );
 
-
-/* =========================================================
-   MARK SELECTED PLAN
-   ========================================================= */
-
-function markSelectedPlan(plan) {
-
-    $$(".subscription-plan-card")
-        .forEach(card => {
-
-            card.classList.remove(
-                "selected",
-                "active",
-                "is-selected"
-            );
-        });
-
-    $$(".plan-button")
-        .forEach(button => {
-
-            button.classList.remove(
-                "selected",
-                "active"
-            );
-        });
-
-    $$(".subscription-plan-card")
-        .forEach(card => {
-
-            const cardCode =
-                card.dataset.planCode;
-
-            const cardId =
-                card.dataset.planCard;
-
-            if (
-
-                String(cardId) ===
-                    String(plan.id)
-
-                ||
-
-                String(cardCode).toLowerCase() ===
-                    String(
-                        plan.plan_code || ""
-                    ).toLowerCase()
-
-            ) {
-
-                card.classList.add(
-                    "selected",
-                    "active",
-                    "is-selected"
-                );
-            }
-        });
-
-
-    $$(".plan-button")
-        .forEach(button => {
-
-            const buttonCode =
-                button.dataset.planCode;
-
-            const buttonId =
-                button.dataset.plan;
-
-            if (
-
-                String(buttonId) ===
-                    String(plan.id)
-
-                ||
-
-                String(buttonCode).toLowerCase() ===
-                    String(
-                        plan.plan_code || ""
-                    ).toLowerCase()
-
-            ) {
-
-                button.classList.add(
-                    "selected",
-                    "active"
-                );
-            }
-        });
-}
-
-
-/* =========================================================
-   PAYMENT PANEL
-   ========================================================= */
-
-function updatePaymentPanel(plan) {
-
-    const name =
-        plan.plan_name ||
-        plan.name ||
-        plan.plan_code ||
-        "Subscription";
-
-    const price =
-        Number(plan.price || 0)
-            .toFixed(2);
-
-    [
-        "#selected-plan-name",
-        "#payment-plan-name",
-        "[data-selected-plan]"
-    ].forEach(selector => {
-
-        $$(selector).forEach(element => {
-
-            element.textContent =
-                name;
-        });
-    });
-
-
-    [
-        "#selected-plan-price",
-        "#payment-plan-price",
-        "[data-selected-price]"
-    ].forEach(selector => {
-
-        $$(selector).forEach(element => {
-
-            element.textContent =
-                `$${price}`;
-        });
-    });
-
-    updateWalletUI();
-
-    updateSubscribeButton();
-}
-
-
-/* =========================================================
-   PAYMENT BUTTON
-   ========================================================= */
-
-function updateSubscribeButton() {
-
-    const buttons = [
-
-        "#send-payment",
-
-        "#subscribe-button",
-
-        "#pay-button",
-
-        "#confirm-subscription",
-
-        "[data-subscribe]"
-    ];
-
-    buttons.forEach(selector => {
-
-        $$(selector).forEach(button => {
-
-            button.disabled =
-                !CompanyDashboardState.selectedPlan ||
-                CompanyDashboardState.paymentPending;
-
-            if (
-                !CompanyDashboardState.selectedPlan
-            ) {
-
-                button.title =
-                    "Select a subscription plan first.";
-
-            } else {
-
-                button.title = "";
-            }
-        });
-    });
-}
-
-
-/* =========================================================
-   WALLET
-   ========================================================= */
-
-function walletAvailable() {
-
-    return Boolean(
-        window.ethereum
+    setText(
+        "payment-status",
+        "Select a subscription plan to continue."
     );
 }
 
 
 /* =========================================================
-   CONNECT WALLET
+   WALLET CONNECTION
    ========================================================= */
 
 async function connectWallet() {
 
-    if (!walletAvailable()) {
+    if (!window.ethereum) {
 
-        showMessage(
-            "Please install MetaMask or another compatible Web3 wallet.",
+        showAlert(
+            "No Web3 wallet detected. Please install MetaMask or use a compatible Web3 wallet.",
             "error"
         );
 
@@ -1414,37 +1078,38 @@ async function connectWallet() {
 
         const accounts =
             await window.ethereum.request({
-                method:
-                    "eth_requestAccounts"
+                method: "eth_requestAccounts"
             });
 
         if (
             !accounts ||
             !accounts.length
         ) {
-
             throw new Error(
                 "No wallet account was returned."
             );
         }
 
-        await switchToBNBChain();
-
-        CompanyDashboardState.walletAddress =
+        connectedWallet =
             accounts[0];
 
-        await initializeEthers();
+        await switchToBSC();
 
-        updateWalletUI();
-
-        updateSubscribeButton();
-
-        showMessage(
-            "Wallet connected successfully.",
-            "success"
+        setText(
+            "payment-status",
+            `Wallet connected: ${shortAddress(connectedWallet)}`
         );
 
-        return accounts[0];
+        const button =
+            $("connect-wallet-button");
+
+        if (button) {
+
+            button.textContent =
+                `Connected ${shortAddress(connectedWallet)}`;
+        }
+
+        return connectedWallet;
 
     } catch (error) {
 
@@ -1453,7 +1118,7 @@ async function connectWallet() {
             error
         );
 
-        showMessage(
+        showAlert(
             error.message ||
             "Unable to connect wallet.",
             "error"
@@ -1465,53 +1130,12 @@ async function connectWallet() {
 
 
 /* =========================================================
-   ETHERS INITIALIZATION
+   BSC NETWORK
    ========================================================= */
 
-async function initializeEthers() {
-
-    if (!window.ethers) {
-
-        throw new Error(
-            "Ethers library is not loaded."
-        );
-    }
+async function switchToBSC() {
 
     if (!window.ethereum) {
-
-        throw new Error(
-            "Web3 wallet is not available."
-        );
-    }
-
-    CompanyDashboardState.provider =
-        new window.ethers.BrowserProvider(
-            window.ethereum
-        );
-
-    CompanyDashboardState.signer =
-        await CompanyDashboardState
-            .provider
-            .getSigner();
-
-    return {
-        provider:
-            CompanyDashboardState.provider,
-
-        signer:
-            CompanyDashboardState.signer
-    };
-}
-
-
-/* =========================================================
-   BNB CHAIN
-   ========================================================= */
-
-async function switchToBNBChain() {
-
-    if (!window.ethereum) {
-
         throw new Error(
             "Web3 wallet is not available."
         );
@@ -1520,204 +1144,116 @@ async function switchToBNBChain() {
     try {
 
         await window.ethereum.request({
-
-            method:
-                "wallet_switchEthereumChain",
-
+            method: "wallet_switchEthereumChain",
             params: [
                 {
                     chainId:
-                        COMPANY_DASHBOARD_CONFIG
-                            .chainId
+                        COMPANY_DASHBOARD_CONFIG.bscChainId
                 }
             ]
         });
 
     } catch (error) {
 
-        if (error.code !== 4902) {
+        /*
+         * 4902 = chain not added.
+         */
+        if (
+            error &&
+            (
+                error.code === 4902 ||
+                error.code === -32603
+            )
+        ) {
+
+            try {
+
+                await window.ethereum.request({
+                    method: "wallet_addEthereumChain",
+                    params: [
+                        {
+                            chainId:
+                                COMPANY_DASHBOARD_CONFIG.bscChainId,
+
+                            chainName:
+                                COMPANY_DASHBOARD_CONFIG.bscChainName,
+
+                            nativeCurrency: {
+                                name: "BNB",
+                                symbol: "BNB",
+                                decimals: 18
+                            },
+
+                            rpcUrls: [
+                                COMPANY_DASHBOARD_CONFIG.rpcUrl
+                            ],
+
+                            blockExplorerUrls: [
+                                "https://bscscan.com"
+                            ]
+                        }
+                    ]
+                });
+
+            } catch (addError) {
+
+                throw addError;
+            }
+
+        } else {
+
             throw error;
         }
-
-        await window.ethereum.request({
-
-            method:
-                "wallet_addEthereumChain",
-
-            params: [
-                {
-                    chainId:
-                        COMPANY_DASHBOARD_CONFIG
-                            .chainId,
-
-                    chainName:
-                        COMPANY_DASHBOARD_CONFIG
-                            .chainName,
-
-                    nativeCurrency:
-                        COMPANY_DASHBOARD_CONFIG
-                            .nativeCurrency,
-
-                    rpcUrls:
-                        COMPANY_DASHBOARD_CONFIG
-                            .rpcUrls,
-
-                    blockExplorerUrls: [
-                        COMPANY_DASHBOARD_CONFIG
-                            .explorer
-                    ]
-                }
-            ]
-        });
     }
 }
 
 
 /* =========================================================
-   WALLET UI
+   ADDRESS HELPERS
    ========================================================= */
 
-function updateWalletUI() {
+function shortAddress(address) {
 
-    const address =
-        CompanyDashboardState.walletAddress;
+    if (!address) {
+        return "—";
+    }
 
-    const shortAddress =
-        address
-            ? `${address.slice(0, 6)}...${address.slice(-4)}`
-            : "Connect Wallet";
-
-
-    $$("#wallet-address")
-        .forEach(element => {
-
-            element.textContent =
-                shortAddress;
-        });
+    return (
+        address.slice(0, 6) +
+        "..." +
+        address.slice(-4)
+    );
+}
 
 
-    $$("#payment-wallet")
-        .forEach(element => {
+function normalizeAddress(address) {
 
-            element.textContent =
-                shortAddress;
-        });
-
-
-    $$("#connect-wallet")
-        .forEach(button => {
-
-            button.textContent =
-                address
-                    ? shortAddress
-                    : "Connect Wallet";
-        });
+    return String(address || "")
+        .trim()
+        .toLowerCase();
 }
 
 
 /* =========================================================
-   BNB PRICE
+   USDT CONTRACT
    ========================================================= */
 
-async function getBnbPrice() {
-
-    const response =
-        await fetch(
-            COMPANY_DASHBOARD_CONFIG
-                .bnbPriceApi,
-            {
-                cache: "no-store"
-            }
-        );
-
-    if (!response.ok) {
-
-        throw new Error(
-            "Unable to retrieve the current BNB price."
-        );
-    }
-
-    const data =
-        await response.json();
-
-    const price =
-        Number(data.price);
-
-    if (
-        !Number.isFinite(price) ||
-        price <= 0
-    ) {
-
-        throw new Error(
-            "Invalid BNB price."
-        );
-    }
-
-    return price;
-}
+const USDT_ABI = [
+    "function transfer(address to,uint256 amount) returns (bool)",
+    "function balanceOf(address account) view returns (uint256)",
+    "function decimals() view returns (uint8)"
+];
 
 
 /* =========================================================
-   USD TO BNB
+   PAY USDT
    ========================================================= */
 
-async function usdToBnb(
-    usdAmount
-) {
+async function payUSDT() {
 
-    const price =
-        await getBnbPrice();
+    if (!selectedPlan) {
 
-    const amount =
-        Number(usdAmount) /
-        price;
-
-    if (
-        !Number.isFinite(amount) ||
-        amount <= 0
-    ) {
-
-        throw new Error(
-            "Invalid BNB amount."
-        );
-    }
-
-    return amount;
-}
-
-
-/* =========================================================
-   PAYMENT STATUS
-   ========================================================= */
-
-function showPaymentStatus(message) {
-
-    const element =
-        getElement(
-            "#payment-status",
-            "#subscription-status"
-        );
-
-    if (element) {
-
-        element.textContent =
-            message;
-    }
-}
-
-
-/* =========================================================
-   SEND SUBSCRIPTION PAYMENT
-   ========================================================= */
-
-async function sendSubscriptionPayment() {
-
-    const plan =
-        CompanyDashboardState.selectedPlan;
-
-    if (!plan) {
-
-        showMessage(
+        showAlert(
             "Please select a subscription plan first.",
             "error"
         );
@@ -1726,1167 +1262,1690 @@ async function sendSubscriptionPayment() {
     }
 
     if (
-        CompanyDashboardState.paymentPending
+        !selectedPlan.price ||
+        selectedPlan.price <= 0
     ) {
-        return;
-    }
 
-    if (!walletAvailable()) {
-
-        showMessage(
-            "Please connect your Web3 wallet first.",
+        showAlert(
+            "This plan does not require payment.",
             "error"
         );
 
         return;
     }
 
-    CompanyDashboardState.paymentPending =
-        true;
+    if (!window.ethereum) {
 
-    updateSubscribeButton();
+        showAlert(
+            "Please connect a Web3 wallet first.",
+            "error"
+        );
+
+        return;
+    }
 
     try {
 
-        let address =
-            CompanyDashboardState.walletAddress;
+        const wallet =
+            connectedWallet ||
+            await connectWallet();
 
-        if (!address) {
-
-            address =
-                await connectWallet();
+        if (!wallet) {
+            return;
         }
 
-        if (!address) {
+        await switchToBSC();
 
-            throw new Error(
-                "Wallet connection is required."
-            );
-        }
-
-        await switchToBNBChain();
-
-        await initializeEthers();
-
-        const network =
-            await CompanyDashboardState
-                .provider
-                .getNetwork();
-
-        if (
-            network.chainId !==
-            56n
-        ) {
-
-            throw new Error(
-                "Please switch your wallet to BNB Smart Chain."
-            );
-        }
-
-        const usdAmount =
-            Number(plan.price);
-
-        if (
-            !Number.isFinite(usdAmount) ||
-            usdAmount <= 0
-        ) {
-
-            throw new Error(
-                "Invalid subscription price."
-            );
-        }
-
-        showPaymentStatus(
-            "Getting the current BNB price..."
-        );
-
-        const bnbAmount =
-            await usdToBnb(
-                usdAmount
+        const provider =
+            new ethers.BrowserProvider(
+                window.ethereum
             );
 
-        const roundedBnb =
-            Number(
-                bnbAmount.toFixed(8)
+        const signer =
+            await provider.getSigner();
+
+        const signerAddress =
+            await signer.getAddress();
+
+        connectedWallet =
+            signerAddress;
+
+        const token =
+            new ethers.Contract(
+                COMPANY_DASHBOARD_CONFIG.usdtContract,
+                USDT_ABI,
+                signer
             );
 
-        if (
-            !Number.isFinite(roundedBnb) ||
-            roundedBnb <= 0
-        ) {
+        const decimals =
+            COMPANY_DASHBOARD_CONFIG.usdtDecimals;
 
-            throw new Error(
-                "Invalid BNB payment amount."
+        const amount =
+            ethers.parseUnits(
+                String(selectedPlan.price),
+                decimals
             );
-        }
-
-        const value =
-            window.ethers.parseEther(
-                roundedBnb.toFixed(8)
-            );
-
-        showPaymentStatus(
-            `Payment amount: ${roundedBnb.toFixed(8)} BNB`
-        );
-
-
-        /* =========================================
-           CHECK BALANCE
-           ========================================= */
 
         const balance =
-            await CompanyDashboardState
-                .provider
-                .getBalance(address);
+            await token.balanceOf(
+                signerAddress
+            );
 
-        if (balance < value) {
+        if (balance < amount) {
 
             throw new Error(
-                "Insufficient BNB balance for this payment."
+                `Insufficient USDT balance. You need ${selectedPlan.price} USDT.`
             );
         }
 
-
-        /* =========================================
-           SEND TRANSACTION
-           ========================================= */
-
-        const transaction =
-            await CompanyDashboardState
-                .signer
-                .sendTransaction({
-
-                    to:
-                        COMPANY_DASHBOARD_CONFIG
-                            .receiverWallet,
-
-                    value:
-                        value
-                });
-
-
-        showPaymentStatus(
-            "Transaction submitted. Waiting for confirmation..."
+        setPaymentStatus(
+            "Waiting for wallet confirmation..."
         );
 
+        const transaction =
+            await token.transfer(
+                COMPANY_DASHBOARD_CONFIG.paymentWallet,
+                amount
+            );
 
-        /* =========================================
-           WAIT CONFIRMATION
-           ========================================= */
+        const txHash =
+            transaction.hash;
+
+        setPaymentStatus(
+            `Payment submitted. Transaction: ${shortHash(txHash)}`
+        );
+
+        /*
+         * Create pending payment immediately.
+         */
+        const paymentRecord =
+            await createPendingPayment(
+                txHash,
+                selectedPlan,
+                signerAddress
+            );
+
+        /*
+         * Wait for blockchain confirmation.
+         */
+        setPaymentStatus(
+            "Transaction submitted. Waiting for BNB Smart Chain confirmation..."
+        );
 
         const receipt =
             await transaction.wait();
 
         if (
             !receipt ||
-            Number(receipt.status) !== 1
+            receipt.status !== 1
         ) {
 
+            await markPaymentFailed(
+                paymentRecord?.id,
+                txHash
+            );
+
             throw new Error(
-                "The blockchain transaction failed."
+                "Blockchain transaction failed."
             );
         }
 
-
-        showPaymentStatus(
-            "Transaction confirmed. Saving payment..."
-        );
-
-
-        /* =========================================
-           SAVE PAYMENT
-           ========================================= */
-
-        const payment =
-            await savePayment({
-
-                transactionHash:
-                    transaction.hash,
-
-                bnbAmount:
-                    roundedBnb,
-
-                usdAmount:
-                    usdAmount,
-
-                plan:
-                    plan,
-
-                walletAddress:
-                    address,
-
-                blockNumber:
-                    receipt.blockNumber
-            });
-
-
-        /* =========================================
-           ACTIVATE SUBSCRIPTION
-           ========================================= */
-
-        showPaymentStatus(
-            "Payment confirmed. Activating subscription..."
-        );
-
-        const subscription =
-            await activateSubscription({
-
-                paymentId:
-                    payment?.id || null,
-
-                transactionHash:
-                    transaction.hash,
-
-                plan:
-                    plan,
-
-                walletAddress:
-                    address,
-
-                usdAmount:
-                    usdAmount,
-
-                bnbAmount:
-                    roundedBnb
-            });
-
-
-        if (subscription) {
-
-            CompanyDashboardState
-                .currentSubscription =
-                subscription;
-
-            showPaymentStatus(
-                "Payment confirmed and subscription activated successfully."
+        /*
+         * Verify transaction.
+         */
+        const verified =
+            await verifyUSDTTransaction(
+                txHash,
+                selectedPlan,
+                signerAddress
             );
 
-            showMessage(
-                "Payment confirmed. Your subscription is now active.",
-                "success"
+        if (!verified) {
+
+            await markPaymentFailed(
+                paymentRecord?.id,
+                txHash
             );
 
-        } else {
-
-            showPaymentStatus(
-                "Payment confirmed. Subscription activation record could not be created automatically."
-            );
-
-            showMessage(
-                "Payment confirmed successfully. The payment has been recorded.",
-                "success"
+            throw new Error(
+                "The transaction could not be verified as the expected USDT payment."
             );
         }
 
+        /*
+         * Automatically activate subscription.
+         */
+        await confirmPaymentAndActivateSubscription(
+            paymentRecord,
+            txHash,
+            selectedPlan
+        );
+
+        setPaymentStatus(
+            `Payment confirmed successfully. ${selectedPlan.name} is now active.`
+        );
+
+        showAlert(
+            `${selectedPlan.name} subscription activated successfully.`,
+            "success"
+        );
+
+        await loadSubscription();
+
+        cancelPayment();
 
     } catch (error) {
 
         console.error(
-            "Subscription payment error:",
+            "USDT payment error:",
             error
         );
 
-        showPaymentStatus(
+        setPaymentStatus(
             error.message ||
             "Payment failed."
         );
 
-        showMessage(
+        showAlert(
             error.message ||
             "Payment failed.",
             "error"
         );
-
-    } finally {
-
-        CompanyDashboardState.paymentPending =
-            false;
-
-        updateSubscribeButton();
     }
 }
 
 
 /* =========================================================
-   SAVE PAYMENT
+   PAYMENT STATUS
    ========================================================= */
 
-async function savePayment({
+function setPaymentStatus(message) {
 
-    transactionHash,
+    const status =
+        $("payment-status");
 
-    bnbAmount,
+    if (status) {
+        status.textContent =
+            message;
+    }
+}
 
-    usdAmount,
 
+function shortHash(hash) {
+
+    if (!hash) {
+        return "—";
+    }
+
+    return (
+        hash.slice(0, 10) +
+        "..." +
+        hash.slice(-8)
+    );
+}
+
+
+/* =========================================================
+   CREATE PENDING PAYMENT
+   ========================================================= */
+
+async function createPendingPayment(
+    txHash,
     plan,
-
-    walletAddress,
-
-    blockNumber
-
-}) {
+    walletAddress
+) {
 
     const client =
         getSupabaseClient();
 
-    if (!client) {
-
-        throw new Error(
-            "Supabase client is not available."
-        );
-    }
-
-    const userId =
-        CompanyDashboardState.user?.id;
-
-    if (!userId) {
-
-        throw new Error(
-            "Authenticated user was not found."
-        );
-    }
-
-    const planCode =
-        plan.plan_code ||
-        plan.code ||
-        plan.id ||
-        null;
-
-
-    /* =========================================
-       PAYMENT DATA
-       ========================================= */
-
-    const paymentData = {
-
-        user_id:
-            userId,
+    const record = {
+        user_id: currentUser.id,
 
         payment_provider:
-            "BNB Smart Chain",
+            "bnb_chain",
 
         payment_method:
-            "BNB",
+            "usdt_bep20",
 
         payment_type:
             "subscription",
 
         amount:
-            usdAmount,
+            plan.price,
 
         currency:
-            "USD",
+            "USDT",
 
         status:
-            "confirmed",
+            "pending",
 
         provider_payment_id:
-            transactionHash,
+            txHash,
 
         transaction_hash:
-            transactionHash,
+            txHash,
 
         blockchain_network:
-            "BNB Smart Chain"
+            "BSC",
+
+        plan_code:
+            plan.code,
+
+        plan_name:
+            plan.name,
+
+        wallet_address:
+            walletAddress
     };
 
-
-    /* =========================================
-       INSERT PAYMENT
-       ========================================= */
-
-    const result =
+    /*
+     * First try with the complete record.
+     */
+    let result =
         await client
             .from("payments")
-            .insert(
-                paymentData
-            )
+            .insert(record)
             .select()
             .maybeSingle();
 
+    /*
+     * Compatibility fallback for databases where the additional
+     * subscription columns do not yet exist.
+     */
+    if (
+        result.error &&
+        (
+            String(result.error.message)
+                .toLowerCase()
+                .includes("plan_code") ||
+            String(result.error.message)
+                .toLowerCase()
+                .includes("plan_name") ||
+            String(result.error.message)
+                .toLowerCase()
+                .includes("wallet_address")
+        )
+    ) {
+
+        const fallbackRecord = {
+            user_id: currentUser.id,
+
+            payment_provider:
+                "bnb_chain",
+
+            payment_method:
+                "usdt_bep20",
+
+            payment_type:
+                "subscription",
+
+            amount:
+                plan.price,
+
+            currency:
+                "USDT",
+
+            status:
+                "pending",
+
+            provider_payment_id:
+                txHash,
+
+            transaction_hash:
+                txHash,
+
+            blockchain_network:
+                "BSC"
+        };
+
+        result =
+            await client
+                .from("payments")
+                .insert(fallbackRecord)
+                .select()
+                .maybeSingle();
+    }
 
     if (result.error) {
 
+        console.error(
+            "Could not create payment:",
+            result.error
+        );
+
         /*
-         * If the database rejects confirmed status,
-         * retry as pending. This keeps the payment
-         * record from being lost.
+         * Do not cancel the blockchain payment because Supabase
+         * failed. The transaction itself remains on-chain.
          */
-
-        const fallbackData = {
-
-            ...paymentData,
-
-            status:
-                "pending"
-        };
-
-        const fallback =
-            await client
-                .from("payments")
-                .insert(
-                    fallbackData
-                )
-                .select()
-                .maybeSingle();
-
-        if (fallback.error) {
-
-            throw fallback.error;
-        }
-
-        console.warn(
-            "Payment saved as pending:",
-            fallback.data
+        showAlert(
+            "Blockchain payment was submitted, but the payment record could not be saved. Transaction hash: " +
+            txHash,
+            "error"
         );
 
-        return fallback.data;
-    }
-
-
-    console.log(
-        "Payment saved:",
-        {
-            transactionHash,
-            bnbAmount,
-            usdAmount,
-            planCode,
-            walletAddress,
-            blockNumber
-        }
-    );
-
-    return result.data;
-}
-
-
-/* =========================================================
-   SUBSCRIPTION TABLE DETECTION
-   ========================================================= */
-
-async function findSubscriptionTable() {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
         return null;
     }
 
-    const possibleTables = [
-
-        "subscriptions",
-
-        "company_subscriptions"
-    ];
-
-    for (
-        const tableName of possibleTables
-    ) {
-
-        try {
-
-            const result =
-                await client
-                    .from(tableName)
-                    .select("*")
-                    .limit(1);
-
-            if (!result.error) {
-
-                return tableName;
-            }
-
-        } catch (error) {
-
-            console.warn(
-                `Subscription table check failed for ${tableName}:`,
-                error
-            );
-        }
-    }
-
-    return null;
+    return result.data || null;
 }
 
 
 /* =========================================================
-   ACTIVATE SUBSCRIPTION
+   VERIFY USDT TRANSACTION
    ========================================================= */
 
-async function activateSubscription({
-
-    paymentId,
-
-    transactionHash,
-
+async function verifyUSDTTransaction(
+    txHash,
     plan,
-
-    walletAddress,
-
-    usdAmount,
-
-    bnbAmount
-
-}) {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-        return null;
-    }
-
-    const userId =
-        CompanyDashboardState.user?.id;
-
-    if (!userId) {
-        return null;
-    }
-
-    const tableName =
-        await findSubscriptionTable();
-
-    if (!tableName) {
-
-        console.warn(
-            "No subscription table was found."
-        );
-
-        return null;
-    }
-
-
-    const planCode =
-        plan.plan_code ||
-        plan.code ||
-        plan.id ||
-        null;
-
-    const planName =
-        plan.plan_name ||
-        plan.name ||
-        planCode ||
-        "Subscription";
-
-    const durationDays =
-        Number(
-            plan.duration_days ||
-            plan.durationDays ||
-            30
-        );
-
-
-    /* =========================================
-       DATES
-       ========================================= */
-
-    const startedAt =
-        new Date();
-
-    const expiresAt =
-        new Date(
-            startedAt.getTime() +
-            durationDays *
-            24 *
-            60 *
-            60 *
-            1000
-        );
-
-
-    /* =========================================
-       BUILD DATA
-       ========================================= */
-
-    const data = {
-
-        user_id:
-            userId,
-
-        plan_code:
-            planCode,
-
-        plan_name:
-            planName,
-
-        status:
-            "active",
-
-        start_date:
-            startedAt.toISOString(),
-
-        end_date:
-            expiresAt.toISOString(),
-
-        started_at:
-            startedAt.toISOString(),
-
-        expires_at:
-            expiresAt.toISOString(),
-
-        payment_id:
-            paymentId,
-
-        transaction_hash:
-            transactionHash,
-
-        wallet_address:
-            walletAddress,
-
-        amount:
-            usdAmount,
-
-        currency:
-            "USD",
-
-        bnb_amount:
-            bnbAmount
-    };
-
-
-    /* =========================================
-       REMOVE UNKNOWN COLUMNS
-       ========================================= */
-
-    const cleanedData =
-        await cleanSubscriptionData(
-            tableName,
-            data
-        );
-
-
-    /* =========================================
-       CHECK EXISTING ACTIVE SUBSCRIPTION
-       ========================================= */
-
-    let existing = null;
-
-    try {
-
-        const result =
-            await client
-                .from(tableName)
-                .select("*")
-                .eq(
-                    "user_id",
-                    userId
-                )
-                .eq(
-                    "status",
-                    "active"
-                )
-                .order(
-                    "expires_at",
-                    {
-                        ascending: false
-                    }
-                )
-                .limit(1)
-                .maybeSingle();
-
-        if (!result.error) {
-
-            existing =
-                result.data;
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Existing subscription lookup failed:",
-            error
-        );
-    }
-
-
-    /* =========================================
-       INSERT OR UPDATE
-       ========================================= */
-
-    if (existing) {
-
-        const existingExpiry =
-            new Date(
-                existing.expires_at ||
-                existing.end_date ||
-                Date.now()
-            );
-
-        const now =
-            new Date();
-
-        const baseDate =
-            existingExpiry > now
-                ? existingExpiry
-                : now;
-
-        const newExpiry =
-            new Date(
-                baseDate.getTime() +
-                durationDays *
-                24 *
-                60 *
-                60 *
-                1000
-            );
-
-
-        const updateData =
-            await cleanSubscriptionData(
-                tableName,
-                {
-                    ...cleanedData,
-
-                    status:
-                        "active",
-
-                    expires_at:
-                        newExpiry.toISOString(),
-
-                    end_date:
-                        newExpiry.toISOString(),
-
-                    updated_at:
-                        new Date().toISOString()
-                }
-            );
-
-
-        try {
-
-            const result =
-                await client
-                    .from(tableName)
-                    .update(
-                        updateData
-                    )
-                    .eq(
-                        "id",
-                        existing.id
-                    )
-                    .select()
-                    .maybeSingle();
-
-            if (
-                !result.error
-            ) {
-
-                return result.data;
-            }
-
-            console.warn(
-                "Subscription update failed:",
-                result.error
-            );
-
-        } catch (error) {
-
-            console.warn(
-                "Subscription update exception:",
-                error
-            );
-        }
-    }
-
-
-    /* =========================================
-       CREATE NEW SUBSCRIPTION
-       ========================================= */
-
-    try {
-
-        const result =
-            await client
-                .from(tableName)
-                .insert(
-                    cleanedData
-                )
-                .select()
-                .maybeSingle();
-
-        if (result.error) {
-
-            console.warn(
-                "Subscription activation failed:",
-                result.error
-            );
-
-            return null;
-        }
-
-        return result.data;
-
-    } catch (error) {
-
-        console.warn(
-            "Subscription activation exception:",
-            error
-        );
-
-        return null;
-    }
-}
-
-
-/* =========================================================
-   CLEAN SUBSCRIPTION DATA
-   ========================================================= */
-
-async function cleanSubscriptionData(
-    tableName,
-    data
+    expectedSender
 ) {
 
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-        return data;
-    }
-
     try {
 
-        const result =
-            await client
-                .from(tableName)
-                .select("*")
-                .limit(1);
+        const provider =
+            new ethers.JsonRpcProvider(
+                COMPANY_DASHBOARD_CONFIG.rpcUrl
+            );
 
+        const transaction =
+            await provider.getTransaction(
+                txHash
+            );
+
+        if (!transaction) {
+            return false;
+        }
+
+        const receipt =
+            await provider.getTransactionReceipt(
+                txHash
+            );
+
+        if (!receipt) {
+            return false;
+        }
+
+        if (receipt.status !== 1) {
+            return false;
+        }
+
+        /*
+         * The transaction must interact with the USDT contract.
+         */
         if (
-            result.error
+            normalizeAddress(
+                transaction.to
+            ) !==
+            normalizeAddress(
+                COMPANY_DASHBOARD_CONFIG.usdtContract
+            )
+        ) {
+            return false;
+        }
+
+        /*
+         * Verify sender.
+         */
+        if (
+            expectedSender &&
+            normalizeAddress(
+                transaction.from
+            ) !==
+            normalizeAddress(
+                expectedSender
+            )
+        ) {
+            return false;
+        }
+
+        /*
+         * ERC-20 Transfer event:
+         *
+         * Transfer(address,address,uint256)
+         */
+        const transferTopic =
+            ethers.id(
+                "Transfer(address,address,uint256)"
+            );
+
+        const expectedRecipient =
+            normalizeAddress(
+                COMPANY_DASHBOARD_CONFIG.paymentWallet
+            );
+
+        const expectedAmount =
+            ethers.parseUnits(
+                String(plan.price),
+                COMPANY_DASHBOARD_CONFIG.usdtDecimals
+            );
+
+        let validTransfer = false;
+
+        for (
+            const log of receipt.logs
         ) {
 
-            return data;
-        }
-
-        const columns =
-            result.data &&
-            result.data.length
-                ? Object.keys(
-                    result.data[0]
+            if (
+                normalizeAddress(log.address) !==
+                normalizeAddress(
+                    COMPANY_DASHBOARD_CONFIG.usdtContract
                 )
-                : null;
+            ) {
+                continue;
+            }
 
-        /*
-         * If the table is empty, Supabase does not
-         * expose its columns through select().
-         * Keep the standard payload.
-         */
+            if (
+                !log.topics ||
+                log.topics.length < 3
+            ) {
+                continue;
+            }
 
-        if (!columns) {
-            return data;
+            if (
+                log.topics[0].toLowerCase() !==
+                transferTopic.toLowerCase()
+            ) {
+                continue;
+            }
+
+            const recipient =
+                ethers.getAddress(
+                    "0x" +
+                    log.topics[2].slice(-40)
+                );
+
+            const amount =
+                BigInt(
+                    log.data
+                );
+
+            if (
+                normalizeAddress(recipient) ===
+                expectedRecipient &&
+                amount >= expectedAmount
+            ) {
+
+                validTransfer = true;
+                break;
+            }
         }
 
-        const cleaned = {};
-
-        Object.keys(data)
-            .forEach(key => {
-
-                if (
-                    columns.includes(key)
-                ) {
-
-                    cleaned[key] =
-                        data[key];
-                }
-            });
-
-        return cleaned;
+        return validTransfer;
 
     } catch (error) {
 
-        console.warn(
-            "Subscription data cleanup failed:",
+        console.error(
+            "Transaction verification error:",
             error
         );
 
-        return data;
+        return false;
     }
 }
 
 
 /* =========================================================
-   LOAD CURRENT SUBSCRIPTION
+   CONFIRM PAYMENT
    ========================================================= */
 
-async function loadCurrentSubscription() {
+async function confirmPaymentAndActivateSubscription(
+    paymentRecord,
+    txHash,
+    plan
+) {
 
     const client =
         getSupabaseClient();
 
-    const userId =
-        CompanyDashboardState.user?.id;
+    const now =
+        new Date();
 
-    if (!client || !userId) {
-        return null;
+    const expires =
+        new Date(now);
+
+    expires.setDate(
+        expires.getDate() +
+        plan.durationDays
+    );
+
+    /*
+     * Try to update the payment record with all subscription
+     * information.
+     */
+    const updateData = {
+        status:
+            "confirmed",
+
+        transaction_hash:
+            txHash,
+
+        provider_payment_id:
+            txHash,
+
+        blockchain_network:
+            "BSC",
+
+        plan_code:
+            plan.code,
+
+        plan_name:
+            plan.name,
+
+        subscription_status:
+            "active",
+
+        subscription_started_at:
+            now.toISOString(),
+
+        subscription_expires_at:
+            expires.toISOString()
+    };
+
+    let result =
+        await client
+            .from("payments")
+            .update(updateData)
+            .eq(
+                paymentRecord?.id
+                    ? "id"
+                    : "transaction_hash",
+                paymentRecord?.id
+                    ? paymentRecord.id
+                    : txHash
+            );
+
+    /*
+     * Compatibility fallback if subscription-specific columns
+     * don't exist.
+     */
+    if (
+        result.error &&
+        (
+            String(result.error.message)
+                .toLowerCase()
+                .includes("plan_code") ||
+            String(result.error.message)
+                .toLowerCase()
+                .includes("subscription_")
+        )
+    ) {
+
+        result =
+            await client
+                .from("payments")
+                .update({
+                    status:
+                        "confirmed",
+
+                    transaction_hash:
+                        txHash,
+
+                    provider_payment_id:
+                        txHash,
+
+                    blockchain_network:
+                        "BSC"
+                })
+                .eq(
+                    paymentRecord?.id
+                        ? "id"
+                        : "transaction_hash",
+                    paymentRecord?.id
+                        ? paymentRecord.id
+                        : txHash
+                );
     }
 
-    const tableName =
-        await findSubscriptionTable();
+    if (result.error) {
 
-    if (!tableName) {
-        return null;
+        throw new Error(
+            "Payment was confirmed on-chain, but Supabase could not update the payment record: " +
+            result.error.message
+        );
     }
+
+    /*
+     * If a dedicated subscription table exists, update it.
+     * Failure here must NOT invalidate the confirmed blockchain
+     * payment.
+     */
+    await upsertSubscriptionSafely(
+        plan,
+        now,
+        expires,
+        txHash
+    );
+
+    currentPayment = {
+        ...(paymentRecord || {}),
+        status: "confirmed",
+        plan_code: plan.code,
+        plan_name: plan.name,
+        subscription_status: "active",
+        subscription_started_at:
+            now.toISOString(),
+        subscription_expires_at:
+            expires.toISOString(),
+        transaction_hash: txHash
+    };
+
+    currentPlan =
+        plan;
+}
+
+
+/* =========================================================
+   OPTIONAL SUBSCRIPTIONS TABLE
+   ========================================================= */
+
+async function upsertSubscriptionSafely(
+    plan,
+    startDate,
+    expirationDate,
+    txHash
+) {
+
+    const client =
+        getSupabaseClient();
 
     try {
 
+        const subscription = {
+            user_id:
+                currentUser.id,
+
+            plan_code:
+                plan.code,
+
+            plan_name:
+                plan.name,
+
+            status:
+                "active",
+
+            started_at:
+                startDate.toISOString(),
+
+            expires_at:
+                expirationDate.toISOString(),
+
+            transaction_hash:
+                txHash
+        };
+
         const result =
             await client
-                .from(tableName)
-                .select("*")
-                .eq(
-                    "user_id",
-                    userId
-                )
-                .order(
-                    "expires_at",
+                .from("subscriptions")
+                .upsert(
+                    subscription,
                     {
-                        ascending: false
+                        onConflict:
+                            "user_id"
                     }
-                )
-                .limit(1)
-                .maybeSingle();
+                );
 
+        /*
+         * Ignore missing table/column errors because the
+         * payments table remains the primary source.
+         */
         if (result.error) {
 
-            console.warn(
-                "Current subscription lookup failed:",
-                result.error
+            console.info(
+                "Subscriptions table not used:",
+                result.error.message
             );
-
-            return null;
         }
-
-        CompanyDashboardState
-            .currentSubscription =
-            result.data;
-
-        renderCurrentSubscription(
-            result.data
-        );
-
-        return result.data;
 
     } catch (error) {
 
-        console.warn(
-            "Current subscription loading failed:",
+        console.info(
+            "Optional subscriptions update skipped:",
             error
         );
-
-        return null;
     }
 }
 
 
 /* =========================================================
-   CURRENT SUBSCRIPTION UI
+   MARK PAYMENT FAILED
    ========================================================= */
 
-function renderCurrentSubscription(
-    subscription
+async function markPaymentFailed(
+    paymentId,
+    txHash
 ) {
 
-    if (!subscription) {
+    const client =
+        getSupabaseClient();
+
+    try {
+
+        let query =
+            client
+                .from("payments")
+                .update({
+                    status: "failed"
+                });
+
+        if (paymentId) {
+
+            query =
+                query.eq(
+                    "id",
+                    paymentId
+                );
+
+        } else {
+
+            query =
+                query.eq(
+                    "transaction_hash",
+                    txHash
+                );
+        }
+
+        await query;
+
+    } catch (error) {
+
+        console.warn(
+            "Could not mark payment as failed:",
+            error
+        );
+    }
+}
+
+
+/* =========================================================
+   JOBS
+   ========================================================= */
+
+async function loadCompanyJobs() {
+
+    const client =
+        getSupabaseClient();
+
+    if (!currentUser) {
+        return [];
+    }
+
+    let result =
+        await client
+            .from("jobs")
+            .select("*")
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+    /*
+     * Older jobs tables may identify company through
+     * company/user email instead.
+     */
+    if (
+        result.error &&
+        String(result.error.message)
+            .toLowerCase()
+            .includes("user_id")
+    ) {
+
+        result =
+            await client
+                .from("jobs")
+                .select("*")
+                .eq(
+                    "company",
+                    getCompanyName()
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
+    }
+
+    if (result.error) {
+
+        console.error(
+            "Jobs loading error:",
+            result.error
+        );
+
+        renderJobs([]);
+
+        return [];
+    }
+
+    const jobs =
+        result.data || [];
+
+    window.__companyJobs =
+        jobs;
+
+    window.__companyJobsCount =
+        countMonthlyJobs(jobs);
+
+    setText(
+        "published-jobs-count",
+        jobs.length
+    );
+
+    renderSubscription();
+
+    renderJobs(jobs);
+
+    return jobs;
+}
+
+
+/* =========================================================
+   MONTHLY JOB COUNT
+   ========================================================= */
+
+function countMonthlyJobs(jobs) {
+
+    if (!Array.isArray(jobs)) {
+        return 0;
+    }
+
+    const now =
+        new Date();
+
+    const year =
+        now.getUTCFullYear();
+
+    const month =
+        now.getUTCMonth();
+
+    return jobs.filter(job => {
+
+        const date =
+            new Date(
+                job.created_at ||
+                job.createdAt ||
+                0
+            );
+
+        return (
+            date.getUTCFullYear() === year &&
+            date.getUTCMonth() === month
+        );
+
+    }).length;
+}
+
+
+/* =========================================================
+   RENDER JOBS
+   ========================================================= */
+
+function renderJobs(jobs) {
+
+    const container =
+        $("company-jobs-list");
+
+    if (!container) {
         return;
     }
 
-    const status =
-        subscription.status ||
-        "";
+    if (!jobs.length) {
 
-    const planName =
-        subscription.plan_name ||
-        subscription.plan_code ||
-        "";
+        container.innerHTML = `
+            <div class="empty-state">
+                You have not published any jobs yet.
+            </div>
+        `;
 
-    const expiresAt =
-        subscription.expires_at ||
-        subscription.end_date ||
-        "";
+        return;
+    }
 
+    container.innerHTML =
+        jobs.map(job => {
 
-    $$(
-        "[data-subscription-status]"
-    ).forEach(element => {
+            const title =
+                escapeHtml(
+                    job.title ||
+                    "Untitled Job"
+                );
 
-        element.textContent =
-            status;
-    });
+            const company =
+                escapeHtml(
+                    job.company ||
+                    getCompanyName()
+                );
 
+            const location =
+                escapeHtml(
+                    job.location ||
+                    "Remote"
+                );
 
-    $$(
-        "[data-subscription-plan]"
-    ).forEach(element => {
+            const type =
+                escapeHtml(
+                    job.type ||
+                    "Full-time"
+                );
 
-        element.textContent =
-            planName;
-    });
+            const created =
+                formatDate(
+                    job.created_at
+                );
 
+            return `
+                <div class="job-card">
 
-    $$(
-        "[data-subscription-expires]"
-    ).forEach(element => {
+                    <div class="job-card-header">
 
-        element.textContent =
-            expiresAt
-                ? formatDate(expiresAt)
-                : "";
-    });
+                        <div>
+
+                            <div class="job-title">
+                                ${title}
+                            </div>
+
+                            <div class="job-meta">
+                                <span>${company}</span>
+                                <span>•</span>
+                                <span>${location}</span>
+                                <span>•</span>
+                                <span>${type}</span>
+                                <span>•</span>
+                                <span>${created}</span>
+                            </div>
+
+                        </div>
+
+                        <div class="job-actions">
+
+                            <button
+                                type="button"
+                                class="small-button delete"
+                                data-delete-job="${escapeAttribute(job.id)}"
+                            >
+                                Delete
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+
+    container
+        .querySelectorAll(
+            "[data-delete-job]"
+        )
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    deleteJob(
+                        button.dataset.deleteJob
+                    );
+
+                }
+            );
+
+        });
 }
 
 
 /* =========================================================
-   DATE FORMAT
+   DELETE JOB
    ========================================================= */
 
-function formatDate(value) {
+async function deleteJob(jobId) {
+
+    if (!jobId) {
+        return;
+    }
+
+    const confirmed =
+        window.confirm(
+            "Are you sure you want to delete this job?"
+        );
+
+    if (!confirmed) {
+        return;
+    }
 
     try {
 
-        const date =
-            new Date(value);
+        const client =
+            getSupabaseClient();
 
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
+        const result =
+            await client
+                .from("jobs")
+                .delete()
+                .eq(
+                    "id",
+                    jobId
+                )
+                .eq(
+                    "user_id",
+                    currentUser.id
+                );
 
-            return String(value);
+        if (result.error) {
+            throw result.error;
         }
 
-        return date.toLocaleDateString(
-            "en-US",
-            {
-                year: "numeric",
-                month: "short",
-                day: "numeric"
-            }
+        showAlert(
+            "Job deleted successfully.",
+            "success"
         );
+
+        await loadCompanyJobs();
+
+        await loadApplications();
 
     } catch (error) {
 
-        return String(value);
+        console.error(
+            "Delete job error:",
+            error
+        );
+
+        showAlert(
+            error.message ||
+            "Unable to delete the job.",
+            "error"
+        );
     }
 }
 
 
 /* =========================================================
-   EVENTS
+   POST JOB
    ========================================================= */
 
-function bindDashboardEvents() {
+async function handlePostJob(event) {
+
+    event.preventDefault();
+
+    if (!currentUser) {
+
+        showAlert(
+            "Your session has expired. Please sign in again.",
+            "error"
+        );
+
+        return;
+    }
+
+    const plan =
+        currentPlan ||
+        COMPANY_DASHBOARD_CONFIG.plans.free;
+
+    const jobs =
+        window.__companyJobs || [];
+
+    const monthlyCount =
+        countMonthlyJobs(jobs);
+
+    if (
+        plan.limit !== null &&
+        monthlyCount >= plan.limit
+    ) {
+
+        showAlert(
+            `You have reached your ${plan.name} plan limit of ${plan.limit} jobs this month. Please upgrade your plan.`,
+            "error"
+        );
+
+        const subscription =
+            $("subscription-section");
+
+        if (subscription) {
+
+            subscription.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+
+        return;
+    }
+
+    const form =
+        event.currentTarget;
+
+    const formData =
+        new FormData(form);
+
+    const title =
+        String(
+            formData.get("title") || ""
+        ).trim();
+
+    const company =
+        String(
+            formData.get("company") || ""
+        ).trim();
+
+    const location =
+        String(
+            formData.get("location") || ""
+        ).trim();
+
+    const type =
+        String(
+            formData.get("type") || ""
+        ).trim();
+
+    const applyLink =
+        String(
+            formData.get("apply_link") || ""
+        ).trim();
+
+    const description =
+        String(
+            formData.get("description") || ""
+        ).trim();
+
+    if (
+        !title ||
+        !company ||
+        !applyLink ||
+        !description
+    ) {
+
+        showAlert(
+            "Please complete all required job fields.",
+            "error"
+        );
+
+        return;
+    }
+
+    const button =
+        $("publish-job-button");
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = "Publishing...";
+    }
+
+    try {
+
+        const client =
+            getSupabaseClient();
+
+        const jobRecord = {
+            user_id:
+                currentUser.id,
+
+            title:
+                title,
+
+            company:
+                company,
+
+            location:
+                location,
+
+            type:
+                type,
+
+            description:
+                description,
+
+            apply_link:
+                applyLink,
+
+            created_at:
+                new Date().toISOString()
+        };
+
+        let result =
+            await client
+                .from("jobs")
+                .insert(jobRecord)
+                .select()
+                .maybeSingle();
+
+        /*
+         * Compatibility fallback if created_at is automatic or
+         * some older schema rejects it.
+         */
+        if (
+            result.error &&
+            String(result.error.message)
+                .toLowerCase()
+                .includes("created_at")
+        ) {
+
+            delete jobRecord.created_at;
+
+            result =
+                await client
+                    .from("jobs")
+                    .insert(jobRecord)
+                    .select()
+                    .maybeSingle();
+        }
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        form.reset();
+
+        const jobCompany =
+            $("job-company");
+
+        if (jobCompany) {
+            jobCompany.value =
+                getCompanyName();
+        }
+
+        showAlert(
+            "Job published successfully.",
+            "success"
+        );
+
+        await loadCompanyJobs();
+
+        await loadApplications();
+
+    } catch (error) {
+
+        console.error(
+            "Publish job error:",
+            error
+        );
+
+        showAlert(
+            error.message ||
+            "Unable to publish the job.",
+            "error"
+        );
+
+    } finally {
+
+        if (button) {
+
+            button.disabled = false;
+            button.textContent =
+                "Publish Job";
+        }
+    }
+}
 
 
-    /* =========================================
-       CONNECT WALLET
-       ========================================= */
+/* =========================================================
+   APPLICATIONS
+   ========================================================= */
 
-    $$("#connect-wallet")
-        .forEach(button => {
+async function loadApplications() {
 
-            if (
-                button.dataset
-                    .dashboardBound === "true"
-            ) {
-                return;
-            }
+    const client =
+        getSupabaseClient();
 
-            button.dataset
-                .dashboardBound =
-                "true";
+    const tbody =
+        $("applications-table-body");
 
-            button.addEventListener(
-                "click",
-                async event => {
+    if (!tbody || !currentUser) {
+        return;
+    }
 
-                    event.preventDefault();
+    try {
 
-                    await connectWallet();
-                }
+        const jobs =
+            window.__companyJobs || [];
+
+        const jobIds =
+            jobs
+                .map(job => job.id)
+                .filter(Boolean);
+
+        if (!jobIds.length) {
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4" class="empty-state">
+                        No applications yet.
+                    </td>
+                </tr>
+            `;
+
+            setText(
+                "applications-count",
+                "0"
             );
-        });
 
+            return;
+        }
 
-    /* =========================================
-       PAYMENT
-       ========================================= */
-
-    [
-
-        "#send-payment",
-
-        "#subscribe-button",
-
-        "#pay-button",
-
-        "#confirm-subscription",
-
-        "[data-subscribe]"
-
-    ].forEach(selector => {
-
-        $$(selector)
-            .forEach(button => {
-
-                if (
-                    button.dataset
-                        .dashboardBound === "true"
-                ) {
-                    return;
-                }
-
-                button.dataset
-                    .dashboardBound =
-                    "true";
-
-                button.addEventListener(
-                    "click",
-                    async event => {
-
-                        event.preventDefault();
-
-                        await sendSubscriptionPayment();
+        const result =
+            await client
+                .from("applications")
+                .select("*")
+                .in(
+                    "job_id",
+                    jobIds
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
                     }
                 );
-            });
-    });
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        const applications =
+            result.data || [];
+
+        setText(
+            "applications-count",
+            applications.length
+        );
+
+        renderApplications(
+            applications,
+            jobs
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Applications loading error:",
+            error
+        );
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-state">
+                    Applications could not be loaded.
+                </td>
+            </tr>
+        `;
+    }
+}
 
 
-    /* =========================================
-       LOGOUT
-       ========================================= */
+/* =========================================================
+   RENDER APPLICATIONS
+   ========================================================= */
 
-    $$("#logout-button")
-        .forEach(button => {
+function renderApplications(
+    applications,
+    jobs
+) {
 
-            if (
-                button.dataset
-                    .dashboardBound === "true"
-            ) {
-                return;
-            }
+    const tbody =
+        $("applications-table-body");
 
-            button.dataset
-                .dashboardBound =
-                "true";
+    if (!tbody) {
+        return;
+    }
 
-            button.addEventListener(
-                "click",
-                async event => {
+    if (!applications.length) {
 
-                    event.preventDefault();
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" class="empty-state">
+                    No applications yet.
+                </td>
+            </tr>
+        `;
 
-                    await logoutCompany();
-                }
-            );
-        });
+        return;
+    }
+
+    const jobsMap =
+        new Map(
+            jobs.map(
+                job => [
+                    String(job.id),
+                    job
+                ]
+            )
+        );
+
+    tbody.innerHTML =
+        applications.map(application => {
+
+            const job =
+                jobsMap.get(
+                    String(
+                        application.job_id
+                    )
+                );
+
+            const candidate =
+                application.candidate_name ||
+                application.name ||
+                application.email ||
+                application.user_id ||
+                "Candidate";
+
+            const jobTitle =
+                job?.title ||
+                application.job_title ||
+                "Job";
+
+            const status =
+                String(
+                    application.status ||
+                    "pending"
+                ).toLowerCase();
+
+            const safeStatus =
+                ["pending", "approved", "rejected"]
+                    .includes(status)
+                    ? status
+                    : "pending";
+
+            return `
+                <tr>
+
+                    <td>
+                        ${escapeHtml(candidate)}
+                    </td>
+
+                    <td>
+                        ${escapeHtml(jobTitle)}
+                    </td>
+
+                    <td>
+                        <span class="status ${safeStatus}">
+                            ${escapeHtml(
+                                capitalize(safeStatus)
+                            )}
+                        </span>
+                    </td>
+
+                    <td>
+                        ${escapeHtml(
+                            formatDate(
+                                application.created_at
+                            )
+                        )}
+                    </td>
+
+                </tr>
+            `;
+
+        }).join("");
+}
 
 
-    bindPlanButtons();
+/* =========================================================
+   COMPANY PROFILE SAVE
+   ========================================================= */
+
+async function saveCompanyProfile(event) {
+
+    event.preventDefault();
+
+    if (!currentUser) {
+        return;
+    }
+
+    const button =
+        $("save-profile-button");
+
+    if (button) {
+
+        button.disabled = true;
+        button.textContent = "Saving...";
+    }
+
+    try {
+
+        const form =
+            event.currentTarget;
+
+        const formData =
+            new FormData(form);
+
+        const companyName =
+            String(
+                formData.get("company_name") ||
+                ""
+            ).trim();
+
+        const website =
+            String(
+                formData.get("website") ||
+                ""
+            ).trim();
+
+        const location =
+            String(
+                formData.get("location") ||
+                ""
+            ).trim();
+
+        const linkedin =
+            String(
+                formData.get("linkedin") ||
+                ""
+            ).trim();
+
+        const description =
+            String(
+                formData.get("description") ||
+                ""
+            ).trim();
+
+        const client =
+            getSupabaseClient();
+
+        const record = {
+            user_id:
+                currentUser.id,
+
+            company_name:
+                companyName,
+
+            website:
+                website,
+
+            location:
+                location,
+
+            linkedin:
+                linkedin,
+
+            description:
+                description,
+
+            updated_at:
+                new Date().toISOString()
+        };
+
+        let result =
+            await client
+                .from("company_profiles")
+                .upsert(
+                    record,
+                    {
+                        onConflict:
+                            "user_id"
+                    }
+                )
+                .select()
+                .maybeSingle();
+
+        /*
+         * Fallback for schemas without updated_at.
+         */
+        if (
+            result.error &&
+            String(result.error.message)
+                .toLowerCase()
+                .includes("updated_at")
+        ) {
+
+            delete record.updated_at;
+
+            result =
+                await client
+                    .from("company_profiles")
+                    .upsert(
+                        record,
+                        {
+                            onConflict:
+                                "user_id"
+                        }
+                    )
+                    .select()
+                    .maybeSingle();
+        }
+
+        if (result.error) {
+            throw result.error;
+        }
+
+        currentCompanyProfile =
+            result.data ||
+            record;
+
+        renderCompanyInformation();
+
+        showAlert(
+            "Company profile saved successfully.",
+            "success"
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Company profile error:",
+            error
+        );
+
+        showAlert(
+            error.message ||
+            "Unable to save company profile.",
+            "error"
+        );
+
+    } finally {
+
+        if (button) {
+
+            button.disabled = false;
+            button.textContent =
+                "Save Profile";
+        }
+    }
 }
 
 
@@ -2894,17 +2953,21 @@ function bindDashboardEvents() {
    LOGOUT
    ========================================================= */
 
-async function logoutCompany() {
+async function logout() {
 
     try {
 
         const client =
             getSupabaseClient();
 
-        if (client) {
+        await client.auth.signOut();
 
-            await client.auth.signOut();
-        }
+        /*
+         * Use a normal navigation instead of relying on auth.js,
+         * preventing dashboard redirect loops.
+         */
+        window.location.href =
+            "login.html";
 
     } catch (error) {
 
@@ -2913,8 +2976,6 @@ async function logoutCompany() {
             error
         );
 
-    } finally {
-
         window.location.href =
             "login.html";
     }
@@ -2922,411 +2983,390 @@ async function logoutCompany() {
 
 
 /* =========================================================
+   EVENT LISTENERS
+   ========================================================= */
+
+function setupEventListeners() {
+
+    const logoutButton =
+        $("logout-button");
+
+    if (logoutButton) {
+
+        logoutButton.addEventListener(
+            "click",
+            logout
+        );
+    }
+
+    const postJobForm =
+        $("post-job-form");
+
+    if (postJobForm) {
+
+        postJobForm.addEventListener(
+            "submit",
+            handlePostJob
+        );
+    }
+
+    const profileForm =
+        $("company-profile-form");
+
+    if (profileForm) {
+
+        profileForm.addEventListener(
+            "submit",
+            saveCompanyProfile
+        );
+    }
+
+    const connectButton =
+        $("connect-wallet-button");
+
+    if (connectButton) {
+
+        connectButton.addEventListener(
+            "click",
+            connectWallet
+        );
+    }
+
+    const payButton =
+        $("pay-usdt-button");
+
+    if (payButton) {
+
+        payButton.addEventListener(
+            "click",
+            payUSDT
+        );
+    }
+
+    const cancelButton =
+        $("cancel-payment-button");
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            cancelPayment
+        );
+    }
+
+    setupPlanButtons();
+}
+
+
+/* =========================================================
    WALLET EVENTS
    ========================================================= */
 
-function bindWalletEvents() {
+function setupWalletListeners() {
 
     if (!window.ethereum) {
         return;
     }
-
-    if (
-        window.__web3JobsWalletEventsBound
-    ) {
-        return;
-    }
-
-    window.__web3JobsWalletEventsBound =
-        true;
-
-
-    /* =========================================
-       ACCOUNT CHANGED
-       ========================================= */
 
     window.ethereum.on(
         "accountsChanged",
         accounts => {
 
-            if (
-                !accounts ||
-                !accounts.length
-            ) {
+            connectedWallet =
+                accounts &&
+                accounts.length
+                    ? accounts[0]
+                    : null;
 
-                CompanyDashboardState
-                    .walletAddress =
-                    null;
+            const button =
+                $("connect-wallet-button");
 
-                CompanyDashboardState
-                    .provider =
-                    null;
+            if (button) {
 
-                CompanyDashboardState
-                    .signer =
-                    null;
-
-            } else {
-
-                CompanyDashboardState
-                    .walletAddress =
-                    accounts[0];
-
-                CompanyDashboardState
-                    .provider =
-                    null;
-
-                CompanyDashboardState
-                    .signer =
-                    null;
+                button.textContent =
+                    connectedWallet
+                        ? `Connected ${shortAddress(connectedWallet)}`
+                        : "Connect Wallet";
             }
-
-            updateWalletUI();
-
-            updateSubscribeButton();
         }
     );
-
-
-    /* =========================================
-       CHAIN CHANGED
-       ========================================= */
 
     window.ethereum.on(
         "chainChanged",
         () => {
 
-            CompanyDashboardState
-                .provider =
-                null;
+            connectedWallet = null;
 
-            CompanyDashboardState
-                .signer =
-                null;
+            const button =
+                $("connect-wallet-button");
 
-            updateSubscribeButton();
+            if (button) {
+                button.textContent =
+                    "Connect Wallet";
+            }
         }
     );
 }
 
 
 /* =========================================================
-   EXISTING WALLET
+   DATE
    ========================================================= */
 
-async function detectExistingWallet() {
+function formatDate(value) {
 
-    if (!window.ethereum) {
-        return;
+    if (!value) {
+        return "—";
     }
 
-    try {
+    const date =
+        new Date(value);
 
-        const accounts =
-            await window.ethereum.request({
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+        return "—";
+    }
 
-                method:
-                    "eth_accounts"
-            });
-
-        if (
-            accounts &&
-            accounts.length
-        ) {
-
-            CompanyDashboardState
-                .walletAddress =
-                accounts[0];
-
-            updateWalletUI();
+    return date.toLocaleDateString(
+        undefined,
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
         }
+    );
+}
 
-    } catch (error) {
 
-        console.warn(
-            "Wallet detection failed:",
-            error
-        );
+function capitalize(value) {
+
+    if (!value) {
+        return "";
     }
+
+    return (
+        value.charAt(0).toUpperCase() +
+        value.slice(1)
+    );
 }
 
 
 /* =========================================================
-   LOADING ERROR
+   AUTH STATE MONITOR
    ========================================================= */
 
-function showLoadingError(message) {
+function setupAuthListener() {
 
-    const loading =
-        $("#loading-spinner");
+    const client =
+        getSupabaseClient();
 
-    if (!loading) {
+    client.auth.onAuthStateChange(
+        async (event, session) => {
 
-        hideLoading();
+            /*
+             * Do not redirect from here.
+             *
+             * This is intentional because auth.js may also have
+             * an auth listener. Redirecting from two listeners
+             * was one of the common causes of the dashboard loop.
+             */
 
-        showMessage(
-            message,
-            "error"
-        );
+            if (
+                event === "SIGNED_OUT"
+            ) {
 
-        return;
-    }
-
-    loading.innerHTML = `
-
-        <div class="loading-card">
-
-            <div class="loading-logo">
-                !
-            </div>
-
-            <h2>
-                Dashboard Error
-            </h2>
-
-            <p>
-                ${escapeHtml(message)}
-            </p>
-
-            <button
-                type="button"
-                class="header-button"
-                id="dashboard-retry"
-                style="margin-top:20px;"
-            >
-                Retry
-            </button>
-
-        </div>
-    `;
-
-
-    const retry =
-        $("#dashboard-retry");
-
-    if (retry) {
-
-        retry.addEventListener(
-            "click",
-            () => {
-
-                window.location.reload();
+                window.location.href =
+                    "login.html";
             }
-        );
-    }
+        }
+    );
 }
 
 
 /* =========================================================
-   INITIALIZE
+   MAIN INITIALIZATION
    ========================================================= */
 
 async function initializeCompanyDashboard() {
 
-    if (
-        CompanyDashboardState.initialized
-    ) {
+    if (dashboardInitialized) {
         return;
     }
 
-    CompanyDashboardState.initialized =
-        true;
+    dashboardInitialized = true;
 
-    showLoading();
+    showDashboardLoading(
+        "Please wait while we prepare your workspace."
+    );
 
     try {
 
-        const session =
-            await requireCompanySession();
+        /*
+         * Initialize Supabase.
+         */
+        getSupabaseClient();
 
-        if (!session) {
+        /*
+         * Get session directly from Supabase.
+         *
+         * We intentionally do NOT call auth.js redirect helpers.
+         */
+        currentUser =
+            await getCurrentUser();
+
+        if (!currentUser) {
+
+            /*
+             * Give Supabase Auth a moment in case the session is
+             * still being restored after page navigation.
+             */
+            await new Promise(
+                resolve =>
+                    setTimeout(
+                        resolve,
+                        500
+                    )
+            );
+
+            currentUser =
+                await getCurrentUser();
+        }
+
+        if (!currentUser) {
+
+            window.location.href =
+                "login.html";
+
             return;
         }
 
-
-        /* =========================================
-           COMPANY PROFILE
-           ========================================= */
-
+        /*
+         * Load profile.
+         */
         try {
 
-            await loadCompanyProfile();
+            await loadProfile();
 
-        } catch (error) {
+        } catch (profileError) {
 
-            console.warn(
-                "Company profile loading failed:",
-                error
+            console.error(
+                "Profile loading error:",
+                profileError
             );
+
+            /*
+             * Do NOT redirect the user.
+             *
+             * The authentication session itself is valid.
+             */
         }
 
+        /*
+         * If role exists and is explicitly another account type,
+         * do not force a logout. Show a clear message instead.
+         */
+        if (
+            currentProfile &&
+            currentProfile.role &&
+            !isCompanyProfile(currentProfile)
+        ) {
 
-        /* =========================================
-           SHOW DASHBOARD
-           ========================================= */
-
-        hideLoading();
-
-
-        /* =========================================
-           EVENTS
-           ========================================= */
-
-        bindDashboardEvents();
-
-        bindWalletEvents();
-
-
-        /* =========================================
-           WALLET
-           ========================================= */
-
-        await detectExistingWallet();
-
-
-        updateWalletUI();
-
-        updateSubscribeButton();
-
-
-        /* =========================================
-           JOB STATISTICS
-           ========================================= */
-
-        loadJobStatistics()
-            .catch(error =>
-                console.warn(
-                    "Job statistics failed:",
-                    error
-                )
+            console.warn(
+                "Current profile role is not company:",
+                currentProfile.role
             );
 
+            /*
+             * We intentionally continue because some old databases
+             * use different role names or do not have role populated.
+             */
+        }
 
-        /* =========================================
-           PLANS
-           ========================================= */
+        /*
+         * Company profile.
+         */
+        await loadCompanyProfile();
 
-        loadSubscriptionPlans()
-            .catch(error =>
-                console.warn(
-                    "Subscription plans failed:",
-                    error
-                )
-            );
+        renderCompanyInformation();
 
+        /*
+         * Subscription.
+         */
+        await loadSubscription();
 
-        /* =========================================
-           CURRENT SUBSCRIPTION
-           ========================================= */
+        /*
+         * Jobs.
+         */
+        await loadCompanyJobs();
 
-        loadCurrentSubscription()
-            .catch(error =>
-                console.warn(
-                    "Current subscription loading failed:",
-                    error
-                )
-            );
+        /*
+         * Applications.
+         */
+        await loadApplications();
 
+        /*
+         * Events.
+         */
+        setupEventListeners();
+
+        setupWalletListeners();
+
+        setupAuthListener();
+
+        /*
+         * Dashboard is now ready.
+         */
+        hideDashboardLoading();
 
     } catch (error) {
 
         console.error(
-            "Company dashboard initialization error:",
+            "Company dashboard initialization failed:",
             error
         );
 
-        showLoadingError(
-            error.message ||
-            "Unable to load the company dashboard."
+        /*
+         * NEVER leave the user permanently stuck on the loading
+         * screen.
+         */
+        hideDashboardLoading();
+
+        showAlert(
+            "Dashboard loaded with limited data. " +
+            (error.message || ""),
+            "error"
         );
     }
 }
 
 
 /* =========================================================
-   GLOBAL API
+   START
    ========================================================= */
 
-window.Web3JobsCompanyDashboard = {
+function startCompanyDashboard() {
 
-    state:
-        CompanyDashboardState,
-
-    selectPlan:
-        selectPlan,
-
-    connectWallet:
-        connectWallet,
-
-    subscribe:
-        sendSubscriptionPayment,
-
-    reloadPlans:
-        loadSubscriptionPlans,
-
-    reloadStatistics:
-        loadJobStatistics,
-
-    reloadSubscription:
-        loadCurrentSubscription
-};
-
-
-/* =========================================================
-   BACKWARD COMPATIBILITY
-   ========================================================= */
-
-window.selectPlan =
-    function(planId) {
-
-        const plan =
-            findPlan(
-                planId,
-                planId
-            );
-
-        if (!plan) {
-
-            showMessage(
-                "Please select a valid subscription plan.",
-                "error"
-            );
-
-            return;
-        }
-
-        selectPlan(plan);
-    };
-
-
-window.connectCompanyWallet =
-    connectWallet;
-
-
-window.subscribeToPlan =
-    sendSubscriptionPayment;
-
-
-/* =========================================================
-   DOM READY
-   ========================================================= */
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initializeCompanyDashboard
-    );
-
-} else {
-
+    /*
+     * DOM is already loaded when this script is normally executed
+     * because the HTML uses defer.
+     */
     initializeCompanyDashboard();
 }
 
 
-/* =========================================================
-   END
-   ========================================================= */
+if (
+    document.readyState === "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        startCompanyDashboard
+    );
+
+} else {
+
+    startCompanyDashboard();
+}
