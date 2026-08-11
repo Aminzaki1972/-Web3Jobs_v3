@@ -1,7 +1,7 @@
 /* =========================================================
    Web3Jobs - Company Dashboard
-   Clean / Compact Version
    Supabase + Jobs + Applications + USDT BEP-20
+   Clean / Compact Version
    ========================================================= */
 
 (() => {
@@ -14,11 +14,11 @@
     const CONFIG = window.COMPANY_DASHBOARD_CONFIG || {
         bscChainId: "0x38",
         bscChainName: "BNB Smart Chain",
-        rpcUrl: "https://bsc-dataseed.binance.org/",
         bscExplorer: "https://bscscan.com/tx/",
-        paymentWallet: "",
+        paymentWallet: "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
         usdtContract: "0x55d398326f99059fF775485246999027B3197955",
         usdtDecimals: 18,
+
         plans: {
             free: {
                 code: "free",
@@ -83,9 +83,9 @@
     function alertUser(message, type = "success") {
         if (typeof window.showAlert === "function") {
             window.showAlert(message, type);
-            return;
+        } else {
+            alert(message);
         }
-        alert(message);
     }
 
     function shortAddress(address) {
@@ -95,10 +95,14 @@
 
     function formatDate(value) {
         if (!value) return "—";
-        const d = new Date(value);
-        if (Number.isNaN(d.getTime())) return "—";
 
-        return d.toLocaleDateString(undefined, {
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleDateString(undefined, {
             year: "numeric",
             month: "short",
             day: "numeric"
@@ -121,7 +125,7 @@
     function getPlan(code) {
         return (
             Object.values(CONFIG.plans).find(
-                p => p.code === normalizePlan(code)
+                plan => plan.code === normalizePlan(code)
             ) || CONFIG.plans.free
         );
     }
@@ -130,13 +134,20 @@
         const now = new Date();
 
         return jobs.filter(job => {
-            const d = new Date(job.created_at);
+            if (!job.created_at) return false;
+
+            const date = new Date(job.created_at);
+
             return (
-                d.getUTCFullYear() === now.getUTCFullYear() &&
-                d.getUTCMonth() === now.getUTCMonth()
+                date.getFullYear() === now.getFullYear() &&
+                date.getMonth() === now.getMonth()
             );
         }).length;
     }
+
+    /* =========================
+       SUPABASE
+       ========================= */
 
     function supabase() {
         if (client) return client;
@@ -148,18 +159,16 @@
 
         if (
             window.supabase &&
-            typeof window.supabase.createClient === "function"
+            typeof window.supabase.createClient === "function" &&
+            window.SUPABASE_URL &&
+            window.SUPABASE_ANON_KEY
         ) {
-            if (
-                window.SUPABASE_URL &&
+            client = window.supabase.createClient(
+                window.SUPABASE_URL,
                 window.SUPABASE_ANON_KEY
-            ) {
-                client = window.supabase.createClient(
-                    window.SUPABASE_URL,
-                    window.SUPABASE_ANON_KEY
-                );
-                return client;
-            }
+            );
+
+            return client;
         }
 
         throw new Error("Supabase is not initialized.");
@@ -171,7 +180,9 @@
 
     async function loadUser() {
         const sb = supabase();
-        const { data, error } = await sb.auth.getUser();
+
+        const { data, error } =
+            await sb.auth.getUser();
 
         if (error) throw error;
 
@@ -192,14 +203,18 @@
     async function loadCompanyProfile() {
         const sb = supabase();
 
-        const { data, error } = await sb
-            .from("company_profiles")
-            .select("*")
-            .eq("user_id", user.id)
-            .maybeSingle();
+        const { data, error } =
+            await sb
+                .from("company_profiles")
+                .select("*")
+                .eq("user_id", user.id)
+                .maybeSingle();
 
         if (error) {
-            console.warn("Company profile:", error.message);
+            console.warn(
+                "Company profile:",
+                error.message
+            );
             return;
         }
 
@@ -209,37 +224,30 @@
     }
 
     function renderCompanyProfile() {
-        setText("company-name", companyName());
+        setText(
+            "company-name",
+            companyName()
+        );
 
-        const nameInput = $("company-name-input");
-        if (nameInput) {
-            nameInput.value =
-                companyProfile?.company_name || "";
-        }
+        const fields = {
+            "company-name-input":
+                companyProfile?.company_name || "",
+            "company-website":
+                companyProfile?.website || "",
+            "company-location":
+                companyProfile?.location || "",
+            "company-linkedin":
+                companyProfile?.linkedin || "",
+            "company-description":
+                companyProfile?.description || ""
+        };
 
-        const website = $("company-website");
-        if (website) {
-            website.value =
-                companyProfile?.website || "";
-        }
-
-        const location = $("company-location");
-        if (location) {
-            location.value =
-                companyProfile?.location || "";
-        }
-
-        const linkedin = $("company-linkedin");
-        if (linkedin) {
-            linkedin.value =
-                companyProfile?.linkedin || "";
-        }
-
-        const description = $("company-description");
-        if (description) {
-            description.value =
-                companyProfile?.description || "";
-        }
+        Object.entries(fields).forEach(
+            ([id, value]) => {
+                const el = $(id);
+                if (el) el.value = value;
+            }
+        );
     }
 
     async function saveCompanyProfile(event) {
@@ -247,7 +255,9 @@
 
         const form = event.currentTarget;
         const button =
-            form.querySelector("button[type='submit']");
+            form.querySelector(
+                "button[type='submit']"
+            );
 
         if (button) {
             button.disabled = true;
@@ -255,65 +265,66 @@
         }
 
         try {
-            const sb = supabase();
+            const value = name =>
+                String(
+                    form.querySelector(
+                        `[name="${name}"]`
+                    )?.value || ""
+                ).trim();
 
             const record = {
                 user_id: user.id,
                 company_name:
-                    String(
-                        form.querySelector(
-                            "[name='company_name'],#company-name-input"
-                        )?.value || ""
-                    ).trim(),
+                    value("company_name") ||
+                    $("company-name-input")?.value.trim() ||
+                    "",
                 website:
-                    String(
-                        form.querySelector(
-                            "[name='website'],#company-website"
-                        )?.value || ""
-                    ).trim(),
+                    value("website") ||
+                    $("company-website")?.value.trim() ||
+                    "",
                 location:
-                    String(
-                        form.querySelector(
-                            "[name='location'],#company-location"
-                        )?.value || ""
-                    ).trim(),
+                    value("location") ||
+                    $("company-location")?.value.trim() ||
+                    "",
                 linkedin:
-                    String(
-                        form.querySelector(
-                            "[name='linkedin'],#company-linkedin"
-                        )?.value || ""
-                    ).trim(),
+                    value("linkedin") ||
+                    $("company-linkedin")?.value.trim() ||
+                    "",
                 description:
-                    String(
-                        form.querySelector(
-                            "[name='description'],#company-description"
-                        )?.value || ""
-                    ).trim()
+                    value("description") ||
+                    $("company-description")?.value.trim() ||
+                    ""
             };
 
-            const { data, error } = await sb
-                .from("company_profiles")
-                .upsert(record, {
-                    onConflict: "user_id"
-                })
-                .select()
-                .maybeSingle();
+            const { data, error } =
+                await supabase()
+                    .from("company_profiles")
+                    .upsert(record, {
+                        onConflict: "user_id"
+                    })
+                    .select()
+                    .maybeSingle();
 
             if (error) throw error;
 
             companyProfile = data || record;
+
             renderCompanyProfile();
 
             alertUser(
                 "Company profile saved successfully.",
                 "success"
             );
+
         } catch (error) {
             console.error(error);
+
             alertUser(
-                error.message || "Unable to save profile.",
+                error.message ||
+                "Unable to save company profile.",
                 "error"
             );
+
         } finally {
             if (button) {
                 button.disabled = false;
@@ -327,37 +338,58 @@
        ========================= */
 
     async function loadSubscription() {
-        const sb = supabase();
+        try {
+            const { data, error } =
+                await supabase()
+                    .from("subscriptions")
+                    .select("*")
+                    .eq("user_id", user.id)
+                    .eq("status", "active")
+                    .order("expires_at", {
+                        ascending: false
+                    })
+                    .limit(1)
+                    .maybeSingle();
 
-        const { data } = await sb
-            .from("subscriptions")
-            .select("*")
-            .eq("user_id", user.id)
-            .eq("status", "active")
-            .order("expires_at", { ascending: false })
-            .limit(1)
-            .maybeSingle();
+            if (error) {
+                console.warn(
+                    "Subscription:",
+                    error.message
+                );
 
-        if (data && data.plan_code) {
-            const plan = getPlan(data.plan_code);
+                currentPlan =
+                    CONFIG.plans.free;
+
+                renderSubscription();
+                return;
+            }
 
             if (
-                !data.expires_at ||
-                new Date(data.expires_at) > new Date()
+                data &&
+                data.plan_code &&
+                (
+                    !data.expires_at ||
+                    new Date(data.expires_at) > new Date()
+                )
             ) {
-                currentPlan = plan;
+                currentPlan =
+                    getPlan(data.plan_code);
             } else {
-                currentPlan = CONFIG.plans.free;
+                currentPlan =
+                    CONFIG.plans.free;
             }
-        } else {
-            currentPlan = CONFIG.plans.free;
+
+        } catch (error) {
+            console.warn(error);
+            currentPlan =
+                CONFIG.plans.free;
         }
 
         renderSubscription();
     }
 
     function renderSubscription() {
-        const count = monthlyJobs();
+        const used = monthlyJobs();
         const limit = currentPlan.limit;
 
         setText(
@@ -375,8 +407,8 @@
         setText(
             "subscription-jobs-used",
             limit === null
-                ? `${count} jobs this month`
-                : `${count} / ${limit} jobs this month`
+                ? `${used} jobs this month`
+                : `${used} / ${limit} jobs this month`
         );
 
         setText(
@@ -391,20 +423,25 @@
     }
 
     function openPlanModal() {
-        let modal = $("subscription-plan-modal");
+        const old =
+            $("subscription-plan-modal");
 
-        if (modal) {
-            modal.remove();
-        }
+        if (old) old.remove();
 
-        modal = document.createElement("div");
-        modal.id = "subscription-plan-modal";
-        modal.className = "subscription-plan-modal";
+        const modal =
+            document.createElement("div");
+
+        modal.id =
+            "subscription-plan-modal";
+
+        modal.className =
+            "subscription-plan-modal";
 
         modal.innerHTML = `
             <div class="subscription-modal-backdrop"></div>
 
             <div class="subscription-modal-card">
+
                 <button
                     type="button"
                     class="subscription-modal-close"
@@ -418,36 +455,45 @@
                 <h2>Choose your plan</h2>
 
                 <div class="subscription-plan-list">
-                    ${Object.values(CONFIG.plans).map(plan => `
-                        <button
-                            type="button"
-                            class="subscription-plan-choice ${
-                                plan.code === currentPlan.code
-                                    ? "current"
-                                    : ""
-                            }"
-                            data-plan="${escapeHtml(plan.code)}"
-                        >
-                            <span>
-                                <strong>${escapeHtml(plan.name)}</strong>
-                                <small>
-                                    ${
-                                        plan.price
-                                            ? `$${plan.price} USDT / month`
-                                            : "Free"
-                                    }
-                                </small>
-                            </span>
 
-                            <em>
-                                ${
-                                    plan.limit === null
-                                        ? "Unlimited jobs"
-                                        : `${plan.limit} jobs / month`
-                                }
-                            </em>
-                        </button>
-                    `).join("")}
+                    ${Object.values(CONFIG.plans)
+                        .map(plan => `
+                            <button
+                                type="button"
+                                class="subscription-plan-choice ${
+                                    plan.code === currentPlan.code
+                                        ? "current"
+                                        : ""
+                                }"
+                                data-plan="${escapeHtml(plan.code)}"
+                            >
+
+                                <span>
+                                    <strong>
+                                        ${escapeHtml(plan.name)}
+                                    </strong>
+
+                                    <small>
+                                        ${
+                                            plan.price
+                                                ? `$${plan.price} USDT / month`
+                                                : "Free"
+                                        }
+                                    </small>
+                                </span>
+
+                                <em>
+                                    ${
+                                        plan.limit === null
+                                            ? "Unlimited jobs"
+                                            : `${plan.limit} jobs / month`
+                                    }
+                                </em>
+
+                            </button>
+                        `)
+                        .join("")}
+
                 </div>
             </div>
         `;
@@ -458,13 +504,16 @@
             modal.classList.add("visible");
         });
 
-        $("close-plan-modal")?.addEventListener(
-            "click",
-            closePlanModal
-        );
+        $("close-plan-modal")
+            ?.addEventListener(
+                "click",
+                closePlanModal
+            );
 
         modal
-            .querySelector(".subscription-modal-backdrop")
+            .querySelector(
+                ".subscription-modal-backdrop"
+            )
             ?.addEventListener(
                 "click",
                 closePlanModal
@@ -473,24 +522,32 @@
         modal
             .querySelectorAll("[data-plan]")
             .forEach(button => {
-                button.addEventListener("click", () => {
-                    const plan =
-                        getPlan(button.dataset.plan);
+                button.addEventListener(
+                    "click",
+                    () => {
+                        const plan =
+                            getPlan(
+                                button.dataset.plan
+                            );
 
-                    closePlanModal();
+                        closePlanModal();
 
-                    if (plan.price === 0) {
-                        currentPlan = plan;
-                        renderSubscription();
+                        if (plan.price === 0) {
+                            currentPlan = plan;
 
-                        alertUser(
-                            "Free plan selected.",
-                            "success"
-                        );
-                    } else {
+                            renderSubscription();
+
+                            alertUser(
+                                "Free plan selected.",
+                                "success"
+                            );
+
+                            return;
+                        }
+
                         openPaymentModal(plan);
                     }
-                });
+                );
             });
     }
 
@@ -502,9 +559,10 @@
 
         modal.classList.remove("visible");
 
-        setTimeout(() => {
-            modal.remove();
-        }, 200);
+        setTimeout(
+            () => modal.remove(),
+            200
+        );
     }
 
     /* =========================
@@ -524,30 +582,64 @@
             });
 
         if (!accounts?.length) {
-            throw new Error("No wallet account found.");
+            throw new Error(
+                "No wallet account found."
+            );
         }
 
         wallet = accounts[0];
 
         await switchToBSC();
 
-        setText(
-            "connect-wallet-button",
-            `Connected ${shortAddress(wallet)}`
-        );
-
         return wallet;
     }
 
     async function switchToBSC() {
-        await window.ethereum.request({
-            method: "wallet_switchEthereumChain",
-            params: [
-                {
-                    chainId: CONFIG.bscChainId
-                }
-            ]
-        });
+        if (!window.ethereum) {
+            throw new Error(
+                "Web3 wallet not detected."
+            );
+        }
+
+        try {
+            await window.ethereum.request({
+                method: "wallet_switchEthereumChain",
+                params: [
+                    {
+                        chainId:
+                            CONFIG.bscChainId
+                    }
+                ]
+            });
+        } catch (error) {
+
+            if (error.code !== 4902) {
+                throw error;
+            }
+
+            await window.ethereum.request({
+                method: "wallet_addEthereumChain",
+                params: [
+                    {
+                        chainId:
+                            CONFIG.bscChainId,
+                        chainName:
+                            CONFIG.bscChainName,
+                        nativeCurrency: {
+                            name: "BNB",
+                            symbol: "BNB",
+                            decimals: 18
+                        },
+                        rpcUrls: [
+                            "https://bsc-dataseed.binance.org/"
+                        ],
+                        blockExplorerUrls: [
+                            "https://bscscan.com"
+                        ]
+                    }
+                ]
+            );
+        }
     }
 
     /* =========================
@@ -557,19 +649,25 @@
     function openPaymentModal(plan) {
         selectedPlan = plan;
 
-        let modal =
+        const old =
             $("web3jobs-payment-modal");
 
-        if (modal) modal.remove();
+        if (old) old.remove();
 
-        modal = document.createElement("div");
-        modal.id = "web3jobs-payment-modal";
-        modal.className = "web3jobs-payment-modal";
+        const modal =
+            document.createElement("div");
+
+        modal.id =
+            "web3jobs-payment-modal";
+
+        modal.className =
+            "web3jobs-payment-modal";
 
         modal.innerHTML = `
             <div class="payment-backdrop"></div>
 
             <div class="payment-card">
+
                 <button
                     type="button"
                     class="payment-close"
@@ -580,7 +678,9 @@
                     Secure Web3 Payment
                 </span>
 
-                <h2>${escapeHtml(plan.name)}</h2>
+                <h2>
+                    ${escapeHtml(plan.name)}
+                </h2>
 
                 <div class="payment-price">
                     $${plan.price} USDT / month
@@ -591,9 +691,14 @@
                 </p>
 
                 <div class="payment-wallet">
-                    <small>Payment recipient</small>
+                    <small>
+                        Payment recipient
+                    </small>
+
                     <div>
-                        ${escapeHtml(CONFIG.paymentWallet)}
+                        ${escapeHtml(
+                            CONFIG.paymentWallet
+                        )}
                     </div>
                 </div>
 
@@ -618,7 +723,7 @@
                     id="payment-pay"
                     disabled
                 >
-                    Pay USDT
+                    Pay ${plan.price} USDT
                 </button>
 
                 <button
@@ -628,6 +733,7 @@
                 >
                     Cancel
                 </button>
+
             </div>
         `;
 
@@ -662,11 +768,20 @@
                 async () => {
                     try {
                         await connectWallet();
+
+                        setPaymentStatus(
+                            `Wallet connected: ${shortAddress(wallet)}`
+                        );
+
                         updatePaymentButtons();
+
                     } catch (error) {
+                        console.error(error);
+
                         setPaymentStatus(
                             error.message
                         );
+
                         alertUser(
                             error.message,
                             "error"
@@ -691,9 +806,7 @@
         if (modal) modal.remove();
 
         selectedPlan = null;
-        document.body.classList.remove(
-            "web3jobs-payment-open"
-        );
+        paymentBusy = false;
     }
 
     function setPaymentStatus(message) {
@@ -735,13 +848,26 @@
     ];
 
     async function payUSDT() {
-        if (paymentBusy || !selectedPlan) {
+        if (
+            paymentBusy ||
+            !selectedPlan
+        ) {
             return;
         }
 
         if (!CONFIG.paymentWallet) {
             alertUser(
                 "Payment wallet is not configured.",
+                "error"
+            );
+            return;
+        }
+
+        if (
+            typeof ethers === "undefined"
+        ) {
+            alertUser(
+                "Ethers.js is not loaded.",
                 "error"
             );
             return;
@@ -757,12 +883,6 @@
 
             await switchToBSC();
 
-            if (typeof ethers === "undefined") {
-                throw new Error(
-                    "Ethers.js is not loaded."
-                );
-            }
-
             const provider =
                 new ethers.BrowserProvider(
                     window.ethereum
@@ -771,9 +891,11 @@
             const network =
                 await provider.getNetwork();
 
-            if (String(network.chainId) !== "56") {
+            if (
+                String(network.chainId) !== "56"
+            ) {
                 throw new Error(
-                    "Please use BNB Smart Chain."
+                    "Please switch to BNB Smart Chain."
                 );
             }
 
@@ -810,7 +932,7 @@
             }
 
             setPaymentStatus(
-                "Waiting for wallet confirmation..."
+                "Confirm the transaction in your wallet..."
             );
 
             const tx =
@@ -834,7 +956,8 @@
                 tx.hash
             );
 
-            currentPlan = selectedPlan;
+            currentPlan =
+                selectedPlan;
 
             renderSubscription();
 
@@ -852,15 +975,16 @@
             );
 
             setPaymentStatus(
-                error.message ||
+                error?.message ||
                 "Payment failed."
             );
 
             alertUser(
-                error.message ||
+                error?.message ||
                 "Payment failed.",
                 "error"
             );
+
         } finally {
             paymentBusy = false;
             updatePaymentButtons();
@@ -868,7 +992,7 @@
     }
 
     /* =========================
-       SAVE PAYMENT / SUBSCRIPTION
+       SAVE PAYMENT
        ========================= */
 
     async function activateSubscription(
@@ -877,8 +1001,11 @@
     ) {
         const sb = supabase();
 
-        const start = new Date();
-        const expires = new Date(start);
+        const start =
+            new Date();
+
+        const expires =
+            new Date(start);
 
         expires.setDate(
             expires.getDate() +
@@ -918,17 +1045,23 @@
             plan_code: plan.code,
             plan_name: plan.name,
             status: "active",
-            started_at: start.toISOString(),
-            expires_at: expires.toISOString(),
+            started_at:
+                start.toISOString(),
+            expires_at:
+                expires.toISOString(),
             transaction_hash: txHash
         };
 
         const result =
             await sb
                 .from("subscriptions")
-                .upsert(subscription, {
-                    onConflict: "user_id"
-                });
+                .upsert(
+                    subscription,
+                    {
+                        onConflict:
+                            "user_id"
+                    }
+                );
 
         if (result.error) {
             throw new Error(
@@ -943,10 +1076,8 @@
        ========================= */
 
     async function loadJobs() {
-        const sb = supabase();
-
-        let result =
-            await sb
+        const { data, error } =
+            await supabase()
                 .from("jobs")
                 .select("*")
                 .eq("user_id", user.id)
@@ -954,21 +1085,25 @@
                     ascending: false
                 });
 
-        if (result.error) {
+        if (error) {
             console.error(
                 "Jobs:",
-                result.error.message
+                error.message
             );
 
             jobs = [];
+
             renderJobs();
+            renderSubscription();
+
             return;
         }
 
-        jobs = result.data || [];
+        jobs = data || [];
 
         renderJobs();
         renderSubscription();
+
         await loadApplications();
     }
 
@@ -990,26 +1125,33 @@
         container.innerHTML =
             jobs.map(job => `
                 <div class="job-card">
+
                     <div class="job-title">
                         ${escapeHtml(
-                            job.title || "Untitled Job"
+                            job.title ||
+                            "Untitled Job"
                         )}
                     </div>
 
                     <div class="job-meta">
                         ${escapeHtml(
-                            job.company || companyName()
+                            job.company ||
+                            companyName()
                         )}
                         •
                         ${escapeHtml(
-                            job.location || "Remote"
+                            job.location ||
+                            "Remote"
                         )}
                         •
                         ${escapeHtml(
-                            job.type || "Full-time"
+                            job.type ||
+                            "Full-time"
                         )}
                         •
-                        ${formatDate(job.created_at)}
+                        ${formatDate(
+                            job.created_at
+                        )}
                     </div>
 
                     <button
@@ -1019,17 +1161,22 @@
                     >
                         Delete
                     </button>
+
                 </div>
             `).join("");
 
         container
-            .querySelectorAll("[data-delete-job]")
+            .querySelectorAll(
+                "[data-delete-job]"
+            )
             .forEach(button => {
                 button.addEventListener(
                     "click",
-                    () => deleteJob(
-                        button.dataset.deleteJob
-                    )
+                    () =>
+                        deleteJob(
+                            button.dataset
+                                .deleteJob
+                        )
                 );
             });
     }
@@ -1044,10 +1191,8 @@
         }
 
         try {
-            const sb = supabase();
-
             const { error } =
-                await sb
+                await supabase()
                     .from("jobs")
                     .delete()
                     .eq("id", id)
@@ -1097,7 +1242,8 @@
             return;
         }
 
-        const form = event.currentTarget;
+        const form =
+            event.currentTarget;
 
         const get = name =>
             String(
@@ -1106,16 +1252,27 @@
                 )?.value || ""
             ).trim();
 
-        const title = get("title");
-        const company = get("company");
-        const location = get("location");
-        const type = get("type");
-        const description = get("description");
-        const applyLink = get("apply_link");
+        const title =
+            get("title");
+
+        const company =
+            get("company") ||
+            companyName();
+
+        const location =
+            get("location");
+
+        const type =
+            get("type");
+
+        const description =
+            get("description");
+
+        const applyLink =
+            get("apply_link");
 
         if (
             !title ||
-            !company ||
             !description ||
             !applyLink
         ) {
@@ -1131,14 +1288,13 @@
 
         if (button) {
             button.disabled = true;
-            button.textContent = "Publishing...";
+            button.textContent =
+                "Publishing...";
         }
 
         try {
-            const sb = supabase();
-
             const { error } =
-                await sb
+                await supabase()
                     .from("jobs")
                     .insert({
                         user_id: user.id,
@@ -1147,7 +1303,8 @@
                         location,
                         type,
                         description,
-                        apply_link: applyLink
+                        apply_link:
+                            applyLink
                     });
 
             if (error) throw error;
@@ -1177,10 +1334,12 @@
                 "Unable to publish the job.",
                 "error"
             );
+
         } finally {
             if (button) {
                 button.disabled = false;
-                button.textContent = "Publish Job";
+                button.textContent =
+                    "Publish Job";
             }
         }
     }
@@ -1193,33 +1352,31 @@
         const tbody =
             $("applications-table-body");
 
-        if (!tbody || !jobs.length) {
+        if (!tbody) return;
+
+        if (!jobs.length) {
             setText(
                 "applications-count",
                 "0"
             );
 
-            if (tbody) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="4">
-                            No applications yet.
-                        </td>
-                    </tr>
-                `;
-            }
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="4">
+                        No applications yet.
+                    </td>
+                </tr>
+            `;
 
             return;
         }
 
         try {
-            const sb = supabase();
-
             const ids =
-                jobs.map(j => j.id);
+                jobs.map(job => job.id);
 
             const { data, error } =
-                await sb
+                await supabase()
                     .from("applications")
                     .select("*")
                     .in("job_id", ids)
@@ -1245,42 +1402,59 @@
                         </td>
                     </tr>
                 `;
+
                 return;
             }
 
             tbody.innerHTML =
-                applications.map(app => {
-                    const job =
-                        jobs.find(
-                            j => String(j.id) ===
-                                 String(app.job_id)
-                        );
+                applications
+                    .map(application => {
 
-                    return `
-                        <tr>
-                            <td>
-                                ${escapeHtml(
-                                    job?.title || "Job"
-                                )}
-                            </td>
-                            <td>
-                                ${escapeHtml(
-                                    app.user_id || "—"
-                                )}
-                            </td>
-                            <td>
-                                ${escapeHtml(
-                                    app.status || "pending"
-                                )}
-                            </td>
-                            <td>
-                                ${formatDate(
-                                    app.created_at
-                                )}
-                            </td>
-                        </tr>
-                    `;
-                }).join("");
+                        const job =
+                            jobs.find(
+                                item =>
+                                    String(
+                                        item.id
+                                    ) ===
+                                    String(
+                                        application.job_id
+                                    )
+                            );
+
+                        return `
+                            <tr>
+
+                                <td>
+                                    ${escapeHtml(
+                                        job?.title ||
+                                        "Job"
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        application.user_id ||
+                                        "—"
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${escapeHtml(
+                                        application.status ||
+                                        "pending"
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${formatDate(
+                                        application.created_at
+                                    )}
+                                </td>
+
+                            </tr>
+                        `;
+                    })
+                    .join("");
 
         } catch (error) {
             console.error(
@@ -1311,7 +1485,8 @@
             console.error(error);
         }
 
-        location.href = "login.html";
+        location.href =
+            "login.html";
     }
 
     /* =========================
@@ -1319,6 +1494,7 @@
        ========================= */
 
     function setupEvents() {
+
         $("post-job-form")
             ?.addEventListener(
                 "submit",
@@ -1337,20 +1513,6 @@
                 logout
             );
 
-        $("subscription-promotion")
-            ?.addEventListener(
-                "click",
-                event => {
-                    if (
-                        event.target.closest(
-                            "[data-open-plans]"
-                        )
-                    ) {
-                        openPlanModal();
-                    }
-                }
-            );
-
         document
             .querySelectorAll(
                 "[data-open-plans]"
@@ -1363,11 +1525,14 @@
             });
 
         if (window.ethereum) {
+
             window.ethereum.on(
                 "accountsChanged",
                 accounts => {
                     wallet =
-                        accounts?.[0] || null;
+                        accounts?.[0] ||
+                        null;
+
                     updatePaymentButtons();
                 }
             );
@@ -1387,7 +1552,9 @@
        ========================= */
 
     function injectStyles() {
-        if ($("web3jobs-clean-dashboard-style")) {
+        if (
+            $("web3jobs-clean-dashboard-style")
+        ) {
             return;
         }
 
@@ -1398,6 +1565,7 @@
             "web3jobs-clean-dashboard-style";
 
         style.textContent = `
+
             .subscription-plan-modal,
             .web3jobs-payment-modal {
                 position: fixed;
@@ -1432,7 +1600,9 @@
                     #0c1d31,
                     #07111e
                 );
-                box-shadow: 0 30px 90px rgba(0,0,0,.55);
+                box-shadow:
+                    0 30px 90px
+                    rgba(0,0,0,.55);
             }
 
             .subscription-modal-close,
@@ -1478,7 +1648,8 @@
                 align-items: center;
                 width: 100%;
                 padding: 15px;
-                border: 1px solid rgba(255,255,255,.08);
+                border: 1px solid
+                    rgba(255,255,255,.08);
                 border-radius: 14px;
                 background: #0b1b2d;
                 color: #fff;
@@ -1487,11 +1658,13 @@
             }
 
             .subscription-plan-choice:hover {
-                border-color: rgba(70,210,255,.45);
+                border-color:
+                    rgba(70,210,255,.45);
             }
 
             .subscription-plan-choice.current {
-                border-color: rgba(80,220,170,.45);
+                border-color:
+                    rgba(80,220,170,.45);
             }
 
             .subscription-plan-choice strong,
@@ -1525,7 +1698,8 @@
                 margin: 18px 0;
                 padding: 13px;
                 border-radius: 13px;
-                background: rgba(255,255,255,.035);
+                background:
+                    rgba(255,255,255,.035);
                 color: #dce9f7;
                 font-size: 12px;
                 word-break: break-all;
@@ -1541,7 +1715,8 @@
                 margin-bottom: 14px;
                 padding: 12px;
                 border-radius: 12px;
-                background: rgba(75,208,255,.06);
+                background:
+                    rgba(75,208,255,.06);
                 color: #9cdff2;
                 font-size: 12px;
             }
@@ -1550,7 +1725,8 @@
                 width: 100%;
                 min-height: 48px;
                 margin-top: 9px;
-                border: 1px solid rgba(75,208,255,.35);
+                border: 1px solid
+                    rgba(75,208,255,.35);
                 border-radius: 12px;
                 background: #10374f;
                 color: #fff;
@@ -1559,8 +1735,10 @@
             }
 
             .payment-button.secondary {
-                background: rgba(255,255,255,.04);
-                border-color: rgba(255,255,255,.09);
+                background:
+                    rgba(255,255,255,.04);
+                border-color:
+                    rgba(255,255,255,.09);
             }
 
             .payment-button:disabled {
@@ -1569,6 +1747,7 @@
             }
 
             @media(max-width:600px) {
+
                 .subscription-modal-card,
                 .payment-card {
                     padding: 22px 18px;
@@ -1595,7 +1774,9 @@
             const authenticated =
                 await loadUser();
 
-            if (!authenticated) return;
+            if (!authenticated) {
+                return;
+            }
 
             await loadCompanyProfile();
             await loadSubscription();
@@ -1612,6 +1793,7 @@
             }
 
         } catch (error) {
+
             console.error(
                 "Company Dashboard initialization:",
                 error
