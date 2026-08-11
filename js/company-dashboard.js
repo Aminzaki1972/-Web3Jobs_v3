@@ -1,2071 +1,2115 @@
+/* =========================================================
+Web3Jobs v3
+File: js/company-dashboard.js
+Company Dashboard Controller
+========================================================= */
+
 "use strict";
 
 /* =========================================================
-   Web3Jobs v3
-   File: js/company-dashboard.js
-   Company Dashboard
-   ========================================================= */
+CONFIGURATION
+========================================================= */
 
-/*
-    This file expects:
+const COMPANY_DASHBOARD_CONFIG = {
+profileTables: [
+"company_profiles",
+"profiles"
+],
 
-    - js/supabase.js
-    - js/auth.js
-    - Supabase JS v2
+subscriptionTables: [
+    "subscriptions",
+    "company_subscriptions"
+],
 
-    Main account source:
-    public.profiles.account_type
+jobsTable: "jobs",
+applicationsTable: "applications",
 
-    Company account:
-    account_type = "company"
-*/
+loginPage: "login.html",
+dashboardPage: "company-dashboard.html",
+homePage: "index.html",
 
+defaultPlan: "free",
 
-/* =========================================================
-   GLOBAL STATE
-   ========================================================= */
+walletChainId: "0x38",
 
-const CompanyDashboard = {
-
-    user: null,
-    profile: null,
-    companyProfile: null,
-    jobs: [],
-    applications: [],
-    initialized: false
+debug: false
 
 };
 
+/* =========================================================
+STATE
+========================================================= */
+
+const CompanyDashboard = {
+user: null,
+profile: null,
+subscription: null,
+jobs: [],
+applications: [],
+initialized: false,
+initializing: false,
+supabase: null
+};
 
 /* =========================================================
-   DOM HELPERS
-   ========================================================= */
+LOGGING
+========================================================= */
 
-function $(selector) {
-
-    return document.querySelector(selector);
-
+function dashboardLog(...args) {
+if (COMPANY_DASHBOARD_CONFIG.debug) {
+console.log("[CompanyDashboard]", ...args);
+}
 }
 
-
-function $all(selector) {
-
-    return Array.from(
-        document.querySelectorAll(selector)
-    );
-
+function dashboardError(...args) {
+console.error("[CompanyDashboard]", ...args);
 }
-
 
 /* =========================================================
-   SAFE TEXT
-   ========================================================= */
+DOM HELPERS
+========================================================= */
 
-function escapeHtml(value) {
+function getElement(...selectors) {
+for (const selector of selectors) {
+if (!selector) continue;
 
-    if (value === null || value === undefined) {
-        return "";
+    const element = document.querySelector(selector);
+
+    if (element) {
+        return element;
     }
+}
 
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+return null;
 
 }
 
+function getElements(...selectors) {
+const elements = [];
+
+for (const selector of selectors) {
+    if (!selector) continue;
+
+    document.querySelectorAll(selector).forEach(element => {
+        if (!elements.includes(element)) {
+            elements.push(element);
+        }
+    });
+}
+
+return elements;
+
+}
+
+function setText(value, ...selectors) {
+const element = getElement(...selectors);
+
+if (element) {
+    element.textContent =
+        value === null ||
+        value === undefined ||
+        value === ""
+            ? "-"
+            : String(value);
+}
+
+return element;
+
+}
+
+function setHTML(value, ...selectors) {
+const element = getElement(...selectors);
+
+if (element) {
+    element.innerHTML = value || "";
+}
+
+return element;
+
+}
+
+function showElement(...selectors) {
+const elements = getElements(...selectors);
+
+elements.forEach(element => {
+    element.style.display = "";
+    element.hidden = false;
+});
+
+}
+
+function hideElement(...selectors) {
+const elements = getElements(...selectors);
+
+elements.forEach(element => {
+    element.style.display = "none";
+    element.hidden = true;
+});
+
+}
 
 /* =========================================================
-   SUPABASE CLIENT
-   ========================================================= */
+SUPABASE
+========================================================= */
 
 function getSupabaseClient() {
+if (CompanyDashboard.supabase) {
+return CompanyDashboard.supabase;
+}
 
-    if (
-        window.supabaseClient &&
-        typeof window.supabaseClient.from === "function"
-    ) {
-        return window.supabaseClient;
-    }
+if (
+    window.supabaseClient &&
+    typeof window.supabaseClient.from === "function"
+) {
+    CompanyDashboard.supabase = window.supabaseClient;
+    return CompanyDashboard.supabase;
+}
 
-    if (
-        window.supabase &&
-        typeof window.supabase.from === "function"
-    ) {
-        return window.supabase;
-    }
+if (
+    window.supabase &&
+    typeof window.supabase.from === "function"
+) {
+    CompanyDashboard.supabase = window.supabase;
+    return CompanyDashboard.supabase;
+}
 
-    console.error(
-        "Supabase client is not available."
-    );
-
+if (
+    window.supabase &&
+    typeof window.supabase.createClient === "function"
+) {
     return null;
+}
+
+return null;
 
 }
 
+async function waitForSupabase(timeout = 10000) {
+const started = Date.now();
+
+while (Date.now() - started < timeout) {
+    const client = getSupabaseClient();
+
+    if (client) {
+        return client;
+    }
+
+    await new Promise(resolve => {
+        setTimeout(resolve, 100);
+    });
+}
+
+return null;
+
+}
 
 /* =========================================================
-   LOADING
-   ========================================================= */
-
-function showLoading(message) {
-
-    const spinner =
-        $("#loading-spinner");
-
-    if (!spinner) {
-        return;
-    }
-
-    spinner.style.display = "flex";
-
-    const paragraph =
-        spinner.querySelector("p");
-
-    if (paragraph && message) {
-        paragraph.textContent = message;
-    }
-
-}
-
-
-function hideLoading() {
-
-    const spinner =
-        $("#loading-spinner");
-
-    if (!spinner) {
-        return;
-    }
-
-    spinner.style.display = "none";
-
-}
-
-
-function showDashboard() {
-
-    const content =
-        $("#dashboard-content");
-
-    if (!content) {
-        return;
-    }
-
-    content.style.display = "block";
-
-}
-
-
-/* =========================================================
-   ERROR SCREEN
-   ========================================================= */
-
-function showDashboardError(message) {
-
-    hideLoading();
-
-    const content =
-        $("#dashboard-content");
-
-    if (!content) {
-        return;
-    }
-
-    content.style.display = "block";
-
-    let errorBox =
-        $("#dashboard-error");
-
-    if (!errorBox) {
-
-        errorBox =
-            document.createElement("div");
-
-        errorBox.id =
-            "dashboard-error";
-
-        errorBox.style.cssText = `
-            max-width: 720px;
-            margin: 60px auto;
-            padding: 28px;
-            border: 1px solid rgba(248,113,113,.35);
-            border-radius: 16px;
-            background: rgba(248,113,113,.06);
-            color: #f5f8ff;
-            text-align: center;
-            font-family: Inter, system-ui, sans-serif;
-        `;
-
-        content.prepend(errorBox);
-
-    }
-
-    errorBox.innerHTML = `
-        <div style="
-            font-size:36px;
-            margin-bottom:14px;
-        ">!</div>
-
-        <h2 style="
-            margin-bottom:10px;
-            font-size:22px;
-        ">
-            Unable to load company dashboard
-        </h2>
-
-        <p style="
-            color:#9db0c8;
-            margin-bottom:20px;
-            line-height:1.7;
-        ">
-            ${escapeHtml(message)}
-        </p>
-
-        <button
-            type="button"
-            id="dashboard-retry-button"
-            style="
-                border:1px solid #294563;
-                border-radius:10px;
-                padding:11px 18px;
-                background:#10233a;
-                color:#f5f8ff;
-                cursor:pointer;
-                font-weight:700;
-            "
-        >
-            Try Again
-        </button>
-    `;
-
-    const retry =
-        $("#dashboard-retry-button");
-
-    if (retry) {
-
-        retry.addEventListener(
-            "click",
-            () => {
-                initializeCompanyDashboard();
-            }
-        );
-
-    }
-
-}
-
-
-/* =========================================================
-   AUTH SESSION
-   ========================================================= */
+AUTHENTICATION
+========================================================= */
 
 async function getCurrentUser() {
+const client = CompanyDashboard.supabase;
 
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-        throw new Error(
-            "Supabase connection is not initialized."
-        );
-    }
-
-    const {
-        data,
-        error
-    } = await client.auth.getSession();
-
-    if (error) {
-        throw error;
-    }
-
-    if (
-        !data ||
-        !data.session ||
-        !data.session.user
-    ) {
-        return null;
-    }
-
-    return data.session.user;
-
+if (!client) {
+    return null;
 }
 
-
-/* =========================================================
-   PROFILE
-   ========================================================= */
-
-async function loadProfile(userId) {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-        throw new Error(
-            "Supabase connection is not initialized."
-        );
-    }
-
-    const result =
-        await client
-            .from("profiles")
-            .select("*")
-            .eq("id", userId)
-            .maybeSingle();
+try {
+    const result = await client.auth.getUser();
 
     if (result.error) {
-        throw result.error;
-    }
-
-    return result.data || null;
-
-}
-
-
-/* =========================================================
-   PROFILE BY EMAIL FALLBACK
-   ========================================================= */
-
-async function loadProfileByEmail(email) {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client || !email) {
+        dashboardError("Auth error:", result.error);
         return null;
     }
 
-    const result =
-        await client
-            .from("profiles")
-            .select("*")
-            .eq("email", email)
-            .maybeSingle();
+    return result.data?.user || null;
+} catch (error) {
+    dashboardError("Unable to get current user:", error);
+    return null;
+}
+
+}
+
+async function getCurrentSession() {
+const client = CompanyDashboard.supabase;
+
+if (!client) {
+    return null;
+}
+
+try {
+    const result = await client.auth.getSession();
 
     if (result.error) {
-
-        console.warn(
-            "Profile email lookup failed:",
-            result.error
-        );
-
+        dashboardError("Session error:", result.error);
         return null;
-
     }
 
-    return result.data || null;
+    return result.data?.session || null;
+} catch (error) {
+    dashboardError("Unable to get session:", error);
+    return null;
+}
 
 }
 
+async function requireAuthentication() {
+const session = await getCurrentSession();
+
+if (!session) {
+    redirectToLogin();
+    return false;
+}
+
+const user = await getCurrentUser();
+
+if (!user) {
+    redirectToLogin();
+    return false;
+}
+
+CompanyDashboard.user = user;
+
+return true;
+
+}
+
+function redirectToLogin() {
+const currentPage =
+window.location.pathname.split("/").pop();
+
+if (
+    currentPage !==
+    COMPANY_DASHBOARD_CONFIG.loginPage
+) {
+    window.location.href =
+        COMPANY_DASHBOARD_CONFIG.loginPage;
+}
+
+}
 
 /* =========================================================
-   COMPANY PROFILE
-   ========================================================= */
+ROLE DETECTION
+========================================================= */
 
-async function loadCompanyProfile(userId) {
+function normalizeRole(value) {
+if (!value) {
+return "";
+}
 
-    const client =
-        getSupabaseClient();
+return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
 
-    if (!client) {
-        return null;
-    }
+}
 
-    /*
-        company_profiles may not exist in every database
-        version, so failure here must not block dashboard.
-    */
+function isCompanyRole(value) {
+const role = normalizeRole(value);
 
+return [
+    "company",
+    "employer",
+    "business",
+    "organization",
+    "companyaccount",
+    "employeraccount"
+].includes(role);
+
+}
+
+async function getUserRole(user) {
+if (!user) {
+return "";
+}
+
+const metadata = user.user_metadata || {};
+
+const metadataRole =
+    metadata.role ||
+    metadata.account_type ||
+    metadata.accountType ||
+    metadata.user_type ||
+    metadata.userType;
+
+if (metadataRole) {
+    return metadataRole;
+}
+
+const client = CompanyDashboard.supabase;
+
+if (!client) {
+    return "";
+}
+
+const tables = [
+    "profiles",
+    "company_profiles"
+];
+
+for (const table of tables) {
     try {
+        const result = await client
+            .from(table)
+            .select("*")
+            .eq("id", user.id)
+            .maybeSingle();
 
-        const result =
-            await client
-                .from("company_profiles")
-                .select("*")
-                .eq("id", userId)
-                .maybeSingle();
+        if (
+            !result.error &&
+            result.data
+        ) {
+            const role =
+                result.data.role ||
+                result.data.account_type ||
+                result.data.accountType ||
+                result.data.user_type ||
+                result.data.userType;
 
-        if (result.error) {
-
-            console.warn(
-                "company_profiles lookup:",
-                result.error
-            );
-
-            return null;
-
+            if (role) {
+                return role;
+            }
         }
-
-        return result.data || null;
-
     } catch (error) {
-
-        console.warn(
-            "Company profile lookup failed:",
+        dashboardLog(
+            "Role lookup skipped:",
+            table,
             error
         );
-
-        return null;
-
     }
+}
+
+return "";
 
 }
 
+async function requireCompanyAccount() {
+const role = await getUserRole(
+CompanyDashboard.user
+);
+
+if (!role) {
+    dashboardLog(
+        "No explicit role found. Continuing as authenticated user."
+    );
+
+    return true;
+}
+
+if (isCompanyRole(role)) {
+    return true;
+}
+
+window.location.href =
+    "dashboard.html";
+
+return false;
+
+}
 
 /* =========================================================
-   ACCOUNT TYPE
-   ========================================================= */
+PROFILE
+========================================================= */
 
-function normalizeAccountType(value) {
+async function loadCompanyProfile() {
+const client = CompanyDashboard.supabase;
+const user = CompanyDashboard.user;
 
-    if (!value) {
-        return "";
-    }
-
-    return String(value)
-        .trim()
-        .toLowerCase();
-
+if (!client || !user) {
+    return null;
 }
 
+const userMetadata =
+    user.user_metadata || {};
 
-async function getCompanyAccount(user) {
+let bestProfile = {
+    id: user.id,
+    email: user.email || "",
+    name:
+        userMetadata.company_name ||
+        userMetadata.companyName ||
+        userMetadata.name ||
+        userMetadata.full_name ||
+        "",
+    company:
+        userMetadata.company_name ||
+        userMetadata.companyName ||
+        userMetadata.company ||
+        "",
+    role:
+        userMetadata.role ||
+        userMetadata.account_type ||
+        ""
+};
 
-    if (!user) {
-        return null;
-    }
+for (
+    const table of
+    COMPANY_DASHBOARD_CONFIG.profileTables
+) {
+    try {
+        const result = await client
+            .from(table)
+            .select("*")
+            .eq("id", user.id)
+            .maybeSingle();
 
-    let profile =
-        await loadProfile(user.id);
+        if (
+            result.error ||
+            !result.data
+        ) {
+            continue;
+        }
 
-    /*
-        Fallback to email when the profile ID does not
-        match the Auth user ID.
-    */
-
-    if (!profile && user.email) {
-
-        profile =
-            await loadProfileByEmail(
-                user.email
-            );
-
-    }
-
-    /*
-        Metadata fallback.
-    */
-
-    const metadata =
-        user.user_metadata || {};
-
-    const accountType =
-        normalizeAccountType(
-            profile?.account_type ||
-            profile?.role ||
-            metadata.account_type ||
-            metadata.accountType ||
-            metadata.role
-        );
-
-    if (accountType !== "company") {
-
-        return {
-            isCompany: false,
-            profile: profile,
-            accountType: accountType
+        bestProfile = {
+            ...bestProfile,
+            ...result.data
         };
 
-    }
-
-    return {
-
-        isCompany: true,
-
-        profile: profile,
-
-        accountType: "company"
-
-    };
-
-}
-
-
-/* =========================================================
-   COMPANY NAME
-   ========================================================= */
-
-function getCompanyName() {
-
-    const profile =
-        CompanyDashboard.profile || {};
-
-    const companyProfile =
-        CompanyDashboard.companyProfile || {};
-
-    const user =
-        CompanyDashboard.user || {};
-
-    return (
-        companyProfile.company_name ||
-        companyProfile.name ||
-        companyProfile.companyName ||
-        profile.company_name ||
-        profile.company ||
-        profile.name ||
-        user.user_metadata?.company_name ||
-        user.user_metadata?.companyName ||
-        user.user_metadata?.name ||
-        "Company"
-    );
-
-}
-
-
-/* =========================================================
-   UPDATE HEADER / WELCOME
-   ========================================================= */
-
-function updateCompanyIdentity() {
-
-    const user =
-        CompanyDashboard.user || {};
-
-    const profile =
-        CompanyDashboard.profile || {};
-
-    const companyName =
-        getCompanyName();
-
-    const email =
-        user.email ||
-        profile.email ||
-        "";
-
-    const companyNameElements = [
-        "#company-name",
-        "#company-title",
-        "[data-company-name]"
-    ];
-
-    companyNameElements.forEach(
-        selector => {
-
-            $all(selector).forEach(
-                element => {
-
-                    element.textContent =
-                        companyName;
-
-                }
-            );
-
-        }
-    );
-
-
-    const emailElement =
-        $("#company-email");
-
-    if (emailElement) {
-        emailElement.textContent =
-            email;
-    }
-
-
-    const welcomeTitle =
-        $("#welcome-title");
-
-    if (welcomeTitle) {
-
-        welcomeTitle.textContent =
-            `Welcome, ${companyName}`;
-
-    }
-
-
-    const profileName =
-        $("#profile-company-name");
-
-    if (profileName) {
-        profileName.textContent =
-            companyName;
-    }
-
-}
-
-
-/* =========================================================
-   JOBS
-   ========================================================= */
-
-async function loadCompanyJobs() {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-        return [];
-    }
-
-    /*
-        The current jobs table used by the project has
-        columns such as:
-
-        id
-        title
-        company
-        location
-        type
-        description
-        skills
-        salary
-        application_url
-        company_name
-        created_at
-
-        Older versions may not contain user_id/company_id.
-        Therefore we first load the jobs table and then
-        filter safely when ownership information exists.
-    */
-
-    const result =
-        await client
-            .from("jobs")
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
-
-    if (result.error) {
-
-        console.error(
-            "Jobs loading error:",
-            result.error
-        );
-
-        return [];
-
-    }
-
-    const jobs =
-        Array.isArray(result.data)
-            ? result.data
-            : [];
-
-    const user =
-        CompanyDashboard.user || {};
-
-    const profile =
-        CompanyDashboard.profile || {};
-
-    const companyName =
-        getCompanyName();
-
-
-    /*
-        If the table contains a direct owner column,
-        use it.
-    */
-
-    const ownerColumns = [
-        "user_id",
-        "company_id",
-        "created_by",
-        "owner_id"
-    ];
-
-    const hasOwnerColumn =
-        jobs.some(job =>
-            ownerColumns.some(
-                column =>
-                    Object.prototype.hasOwnProperty.call(
-                        job,
-                        column
-                    )
-            )
-        );
-
-
-    if (hasOwnerColumn) {
-
-        const ownedJobs =
-            jobs.filter(job => {
-
-                return ownerColumns.some(
-                    column => {
-
-                        const value =
-                            job[column];
-
-                        if (!value) {
-                            return false;
-                        }
-
-                        return (
-                            String(value) ===
-                            String(user.id)
-                        );
-
-                    }
-                );
-
-            });
-
-        return ownedJobs;
-
-    }
-
-
-    /*
-        Compatibility with the existing jobs schema:
-        use company name when there is no owner column.
-    */
-
-    const companyFields = [
-        "company",
-        "company_name",
-        "companyName"
-    ];
-
-    const matchingJobs =
-        jobs.filter(job => {
-
-            return companyFields.some(
-                field => {
-
-                    const value =
-                        job[field];
-
-                    if (!value) {
-                        return false;
-                    }
-
-                    return (
-                        String(value)
-                            .trim()
-                            .toLowerCase() ===
-                        String(companyName)
-                            .trim()
-                            .toLowerCase()
-                    );
-
-                }
-            );
-
-        });
-
-
-    /*
-        If no company-name match exists, do not display
-        another company's jobs.
-    */
-
-    return matchingJobs;
-
-}
-
-
-/* =========================================================
-   APPLICATIONS
-   ========================================================= */
-
-async function loadCompanyApplications() {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
-        return [];
-    }
-
-    const jobs =
-        CompanyDashboard.jobs || [];
-
-    if (!jobs.length) {
-        return [];
-    }
-
-    const jobIds =
-        jobs
-            .map(job => job.id)
-            .filter(Boolean);
-
-    if (!jobIds.length) {
-        return [];
-    }
-
-    try {
-
-        const result =
-            await client
-                .from("applications")
-                .select("*")
-                .in(
-                    "job_id",
-                    jobIds
-                );
-
-        if (result.error) {
-
-            console.warn(
-                "Applications loading error:",
-                result.error
-            );
-
-            return [];
-
-        }
-
-        return Array.isArray(result.data)
-            ? result.data
-            : [];
-
-    } catch (error) {
-
-        console.warn(
-            "Applications request failed:",
-            error
-        );
-
-        return [];
-
-    }
-
-}
-
-
-/* =========================================================
-   UPDATE STATS
-   ========================================================= */
-
-function updateStats() {
-
-    const jobs =
-        CompanyDashboard.jobs || [];
-
-    const applications =
-        CompanyDashboard.applications || [];
-
-    const activeJobs =
-        jobs.filter(job => {
-
-            const status =
-                String(
-                    job.status || "active"
-                )
-                    .trim()
-                    .toLowerCase();
-
-            return (
-                status !== "closed" &&
-                status !== "inactive" &&
-                status !== "expired"
-            );
-
-        });
-
-
-    const values = {
-
-        jobs: jobs.length,
-
-        applications:
-            applications.length,
-
-        active:
-            activeJobs.length
-
-    };
-
-
-    const selectors = {
-
-        jobs: [
-            "#published-jobs",
-            "#jobs-count",
-            "#total-jobs",
-            "[data-stat='jobs']"
-        ],
-
-        applications: [
-            "#total-applications",
-            "#applications-count",
-            "[data-stat='applications']"
-        ],
-
-        active: [
-            "#active-jobs",
-            "#active-jobs-count",
-            "[data-stat='active-jobs']"
-        ]
-
-    };
-
-
-    Object.keys(values).forEach(
-        key => {
-
-            selectors[key].forEach(
-                selector => {
-
-                    $all(selector).forEach(
-                        element => {
-
-                            element.textContent =
-                                values[key];
-
-                        }
-                    );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   RENDER JOBS
-   ========================================================= */
-
-function renderJobs() {
-
-    const jobs =
-        CompanyDashboard.jobs || [];
-
-
-    const containers = [
-        "#company-jobs-list",
-        "#jobs-list",
-        "#my-jobs",
-        "[data-company-jobs]"
-    ];
-
-
-    let container = null;
-
-    for (
-        const selector of containers
-    ) {
-
-        container =
-            $(selector);
-
-        if (container) {
+        if (
+            table === "company_profiles" &&
+            result.data
+        ) {
             break;
         }
-
+    } catch (error) {
+        dashboardLog(
+            "Profile table unavailable:",
+            table
+        );
     }
+}
 
+CompanyDashboard.profile =
+    bestProfile;
 
-    if (!container) {
-        return;
-    }
-
-
-    if (!jobs.length) {
-
-        container.innerHTML = `
-            <div style="
-                padding:30px;
-                text-align:center;
-                border:1px dashed #294563;
-                border-radius:12px;
-                color:#9db0c8;
-            ">
-                <div style="
-                    font-size:30px;
-                    margin-bottom:10px;
-                ">
-                    💼
-                </div>
-
-                <strong style="
-                    display:block;
-                    color:#f5f8ff;
-                    margin-bottom:6px;
-                ">
-                    No jobs published yet
-                </strong>
-
-                <span>
-                    Publish your first Web3 job to start receiving applications.
-                </span>
-            </div>
-        `;
-
-        return;
-
-    }
-
-
-    container.innerHTML =
-        jobs.map(job => {
-
-            const title =
-                escapeHtml(
-                    job.title ||
-                    "Untitled Job"
-                );
-
-            const company =
-                escapeHtml(
-                    job.company ||
-                    job.company_name ||
-                    getCompanyName()
-                );
-
-            const location =
-                escapeHtml(
-                    job.location ||
-                    "Remote"
-                );
-
-            const type =
-                escapeHtml(
-                    job.type ||
-                    "Full-time"
-                );
-
-            const created =
-                job.created_at
-                    ? new Date(
-                        job.created_at
-                    ).toLocaleDateString(
-                        "en-US",
-                        {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric"
-                        }
-                    )
-                    : "";
-
-
-            return `
-                <article
-                    class="company-job-card"
-                    data-job-id="${escapeHtml(job.id)}"
-                    style="
-                        padding:18px;
-                        margin-bottom:12px;
-                        border:1px solid #1d3553;
-                        border-radius:14px;
-                        background:#0b192b;
-                    "
-                >
-
-                    <div style="
-                        display:flex;
-                        justify-content:space-between;
-                        gap:15px;
-                        align-items:flex-start;
-                    ">
-
-                        <div style="
-                            min-width:0;
-                        ">
-
-                            <h3 style="
-                                margin-bottom:5px;
-                                font-size:17px;
-                            ">
-                                ${title}
-                            </h3>
-
-                            <div style="
-                                color:#9db0c8;
-                                font-size:12px;
-                            ">
-                                ${company}
-                                ·
-                                ${location}
-                                ·
-                                ${type}
-                            </div>
-
-                        </div>
-
-                        <span style="
-                            padding:5px 9px;
-                            border:1px solid rgba(110,231,183,.25);
-                            border-radius:20px;
-                            color:#6ee7b7;
-                            background:rgba(110,231,183,.06);
-                            font-size:10px;
-                            white-space:nowrap;
-                        ">
-                            Active
-                        </span>
-
-                    </div>
-
-                    ${
-                        created
-                            ? `
-                                <div style="
-                                    margin-top:12px;
-                                    color:#71859d;
-                                    font-size:10px;
-                                ">
-                                    Published ${created}
-                                </div>
-                            `
-                            : ""
-                    }
-
-                </article>
-            `;
-
-        }).join("");
+return bestProfile;
 
 }
 
+/* =========================================================
+PROFILE DISPLAY
+========================================================= */
+
+function getCompanyName() {
+const profile =
+CompanyDashboard.profile || {};
+
+const user =
+    CompanyDashboard.user || {};
+
+const metadata =
+    user.user_metadata || {};
+
+return (
+    profile.company_name ||
+    profile.companyName ||
+    profile.company ||
+    profile.name ||
+    metadata.company_name ||
+    metadata.companyName ||
+    metadata.company ||
+    metadata.name ||
+    "Company"
+);
+
+}
+
+function updateCompanyInformation() {
+const profile =
+CompanyDashboard.profile || {};
+
+const user =
+    CompanyDashboard.user || {};
+
+const companyName =
+    getCompanyName();
+
+const email =
+    profile.email ||
+    user.email ||
+    "";
+
+setText(
+    companyName,
+    "#company-name",
+    "#companyName",
+    "[data-company-name]"
+);
+
+setText(
+    companyName,
+    "#welcome-company-name",
+    "#welcomeCompanyName",
+    "[data-welcome-company]"
+);
+
+setText(
+    email,
+    "#company-email",
+    "#companyEmail",
+    "[data-company-email]"
+);
+
+setText(
+    companyName,
+    ".brand-company-name",
+    "[data-brand-company]"
+);
+
+setText(
+    email,
+    ".company-email"
+);
+
+}
 
 /* =========================================================
-   PUBLISH JOB
-   ========================================================= */
+JOBS
+========================================================= */
 
-async function publishJob(form) {
+async function loadCompanyJobs() {
+const client = CompanyDashboard.supabase;
+const user = CompanyDashboard.user;
 
-    const client =
-        getSupabaseClient();
+if (!client || !user) {
+    return [];
+}
 
-    if (!client) {
+let jobs = [];
 
-        alert(
-            "Supabase connection is not initialized."
-        );
-
-        return;
-
-    }
-
-
-    const user =
-        CompanyDashboard.user;
-
-    if (!user) {
-
-        alert(
-            "Your session has expired. Please log in again."
-        );
-
-        return;
-
-    }
-
-
-    const formData =
-        new FormData(form);
-
-
-    const title =
-        String(
-            formData.get("title") ||
-            ""
-        ).trim();
-
-    const company =
-        String(
-            formData.get("company") ||
-            getCompanyName() ||
-            ""
-        ).trim();
-
-    const location =
-        String(
-            formData.get("location") ||
-            ""
-        ).trim();
-
-    const type =
-        String(
-            formData.get("type") ||
-            ""
-        ).trim();
-
-    const description =
-        String(
-            formData.get("description") ||
-            ""
-        ).trim();
-
-    const skills =
-        String(
-            formData.get("skills") ||
-            ""
-        ).trim();
-
-    const salary =
-        String(
-            formData.get("salary") ||
-            ""
-        ).trim();
-
-    const applicationUrl =
-        String(
-            formData.get("application_url") ||
-            formData.get("apply_link") ||
-            ""
-        ).trim();
-
-
-    if (!title) {
-
-        alert(
-            "Please enter a job title."
-        );
-
-        return;
-
-    }
-
-
-    if (!description) {
-
-        alert(
-            "Please enter a job description."
-        );
-
-        return;
-
-    }
-
-
-    const jobData = {
-
-        title: title,
-
-        company:
-            company || getCompanyName(),
-
-        location:
-            location || "Remote",
-
-        type:
-            type || "Full-time",
-
-        description:
-            description,
-
-        skills:
-            skills,
-
-        salary:
-            salary,
-
-        application_url:
-            applicationUrl
-
-    };
-
-
-    /*
-        Add created_by only when possible.
-        PostgreSQL will reject unknown columns, so we
-        first try the normal schema.
-    */
-
-    let result =
-        await client
-            .from("jobs")
-            .insert(jobData)
-            .select()
-            .single();
-
-
-    /*
-        If application_url is not available in an older
-        schema, retry without optional fields.
-    */
+try {
+    const byUser = await client
+        .from(COMPANY_DASHBOARD_CONFIG.jobsTable)
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", {
+            ascending: false
+        });
 
     if (
-        result.error &&
-        /application_url|skills|salary/i.test(
-            result.error.message || ""
-        )
+        !byUser.error &&
+        Array.isArray(byUser.data)
     ) {
+        jobs = byUser.data;
+    }
+} catch (error) {
+    dashboardLog(
+        "user_id jobs query failed."
+    );
+}
 
-        const fallbackData = {
+if (jobs.length === 0) {
+    const profile =
+        CompanyDashboard.profile || {};
 
-            title: title,
+    const companyName =
+        getCompanyName();
 
-            company:
-                company || getCompanyName(),
+    try {
+        const byCompany = await client
+            .from(COMPANY_DASHBOARD_CONFIG.jobsTable)
+            .select("*")
+            .eq("company", companyName)
+            .order("created_at", {
+                ascending: false
+            });
 
-            location:
-                location || "Remote",
+        if (
+            !byCompany.error &&
+            Array.isArray(byCompany.data)
+        ) {
+            jobs = byCompany.data;
+        }
+    } catch (error) {
+        dashboardLog(
+            "company jobs query failed."
+        );
+    }
+}
 
-            type:
-                type || "Full-time",
+CompanyDashboard.jobs = jobs;
 
-            description:
-                description
+return jobs;
 
-        };
+}
 
+/* =========================================================
+APPLICATIONS
+========================================================= */
 
-        result =
+async function loadCompanyApplications() {
+const client = CompanyDashboard.supabase;
+
+if (
+    !client ||
+    CompanyDashboard.jobs.length === 0
+) {
+    CompanyDashboard.applications = [];
+    return [];
+}
+
+const jobIds =
+    CompanyDashboard.jobs
+        .map(job => job.id)
+        .filter(Boolean);
+
+if (jobIds.length === 0) {
+    CompanyDashboard.applications = [];
+    return [];
+}
+
+try {
+    const result = await client
+        .from(
+            COMPANY_DASHBOARD_CONFIG
+                .applicationsTable
+        )
+        .select("*")
+        .in("job_id", jobIds);
+
+    if (
+        result.error ||
+        !Array.isArray(result.data)
+    ) {
+        CompanyDashboard.applications = [];
+        return [];
+    }
+
+    CompanyDashboard.applications =
+        result.data;
+
+    return result.data;
+} catch (error) {
+    dashboardLog(
+        "Applications table unavailable."
+    );
+
+    CompanyDashboard.applications = [];
+
+    return [];
+}
+
+}
+
+/* =========================================================
+STATISTICS
+========================================================= */
+
+function updateStatistics() {
+const jobs =
+CompanyDashboard.jobs || [];
+
+const applications =
+    CompanyDashboard.applications || [];
+
+const activeJobs =
+    jobs.filter(job => {
+        const status =
+            String(
+                job.status ||
+                job.state ||
+                "active"
+            ).toLowerCase();
+
+        return ![
+            "closed",
+            "inactive",
+            "expired",
+            "archived"
+        ].includes(status);
+    });
+
+setText(
+    jobs.length,
+    "#published-jobs",
+    "#publishedJobs",
+    "#jobs-count",
+    "[data-stat='jobs']"
+);
+
+setText(
+    applications.length,
+    "#total-applications",
+    "#totalApplications",
+    "#applications-count",
+    "[data-stat='applications']"
+);
+
+setText(
+    activeJobs.length,
+    "#active-jobs",
+    "#activeJobs",
+    "[data-stat='active-jobs']"
+);
+
+}
+
+/* =========================================================
+JOB LIST
+========================================================= */
+
+function escapeHTML(value) {
+return String(
+value === null ||
+value === undefined
+? ""
+: value
+)
+.replace(/&/g, "&")
+.replace(/</g, "<")
+.replace(/>/g, ">")
+.replace(/"/g, """)
+.replace(/'/g, "'");
+}
+
+function renderCompanyJobs() {
+const containers = getElements(
+"#company-jobs-list",
+"#companyJobsList",
+"#jobs-list",
+"[data-company-jobs]"
+);
+
+if (containers.length === 0) {
+    return;
+}
+
+const jobs =
+    CompanyDashboard.jobs || [];
+
+if (jobs.length === 0) {
+    const emptyHTML = `
+        <div class="empty-state">
+            <div class="empty-state-icon">+</div>
+            <h3>No jobs published yet</h3>
+            <p>Create your first Web3 job posting.</p>
+        </div>
+    `;
+
+    containers.forEach(container => {
+        container.innerHTML = emptyHTML;
+    });
+
+    return;
+}
+
+const html =
+    jobs.map(job => {
+        const title =
+            escapeHTML(
+                job.title ||
+                "Untitled Job"
+            );
+
+        const company =
+            escapeHTML(
+                job.company ||
+                getCompanyName()
+            );
+
+        const location =
+            escapeHTML(
+                job.location ||
+                "Remote"
+            );
+
+        const type =
+            escapeHTML(
+                job.type ||
+                "Full-time"
+            );
+
+        const status =
+            escapeHTML(
+                job.status ||
+                "active"
+            );
+
+        const date =
+            job.created_at
+                ? new Date(
+                    job.created_at
+                ).toLocaleDateString()
+                : "";
+
+        return `
+            <article class="company-job-card"
+                     data-job-id="${escapeHTML(job.id)}">
+
+                <div class="company-job-main">
+                    <h3>${title}</h3>
+
+                    <p>
+                        ${company}
+                    </p>
+
+                    <div class="company-job-meta">
+                        <span>${location}</span>
+                        <span>${type}</span>
+                        <span>${status}</span>
+                    </div>
+                </div>
+
+                <div class="company-job-side">
+                    <small>${date}</small>
+                </div>
+
+            </article>
+        `;
+    }).join("");
+
+containers.forEach(container => {
+    container.innerHTML = html;
+});
+
+}
+
+/* =========================================================
+SUBSCRIPTION HELPERS
+========================================================= */
+
+function normalizePlan(value) {
+if (!value) {
+return "";
+}
+
+return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
+
+}
+
+function extractPlanFromElement(element) {
+if (!element) {
+return null;
+}
+
+return (
+    element.dataset.plan ||
+    element.dataset.planId ||
+    element.dataset.planName ||
+    element.getAttribute("data-subscription") ||
+    element.getAttribute("data-package") ||
+    null
+);
+
+}
+
+function extractPlanPrice(element) {
+if (!element) {
+return null;
+}
+
+const value =
+    element.dataset.price ||
+    element.dataset.amount ||
+    element.getAttribute("data-price") ||
+    element.getAttribute("data-amount");
+
+if (
+    value === null ||
+    value === undefined ||
+    value === ""
+) {
+    return null;
+}
+
+const number =
+    Number(
+        String(value)
+            .replace(/[^0-9.]/g, "")
+    );
+
+return Number.isFinite(number)
+    ? number
+    : null;
+
+}
+
+/* =========================================================
+LOAD SUBSCRIPTION
+========================================================= */
+
+async function loadCompanySubscription() {
+const client = CompanyDashboard.supabase;
+const user = CompanyDashboard.user;
+
+if (!client || !user) {
+    return null;
+}
+
+for (
+    const table of
+    COMPANY_DASHBOARD_CONFIG.subscriptionTables
+) {
+    try {
+        const result = await client
+            .from(table)
+            .select("*")
+            .eq("user_id", user.id)
+            .order("created_at", {
+                ascending: false
+            })
+            .limit(1)
+            .maybeSingle();
+
+        if (
+            !result.error &&
+            result.data
+        ) {
+            CompanyDashboard.subscription =
+                result.data;
+
+            return result.data;
+        }
+    } catch (error) {
+        dashboardLog(
+            "Subscription table unavailable:",
+            table
+        );
+    }
+}
+
+CompanyDashboard.subscription = null;
+
+return null;
+
+}
+
+/* =========================================================
+SUBSCRIPTION DISPLAY
+========================================================= */
+
+function getCurrentPlan() {
+const subscription =
+CompanyDashboard.subscription;
+
+if (!subscription) {
+    return COMPANY_DASHBOARD_CONFIG
+        .defaultPlan;
+}
+
+return (
+    subscription.plan ||
+    subscription.plan_name ||
+    subscription.planName ||
+    subscription.package ||
+    subscription.package_name ||
+    subscription.tier ||
+    COMPANY_DASHBOARD_CONFIG
+        .defaultPlan
+);
+
+}
+
+function updateSubscriptionUI() {
+const subscription =
+CompanyDashboard.subscription;
+
+const currentPlan =
+    getCurrentPlan();
+
+const normalized =
+    normalizePlan(currentPlan);
+
+setText(
+    currentPlan,
+    "#current-plan",
+    "#currentPlan",
+    "#subscription-plan",
+    "#subscriptionPlan",
+    "[data-current-plan]"
+);
+
+const status =
+    subscription?.status ||
+    (
+        normalized === "free"
+            ? "active"
+            : "inactive"
+    );
+
+setText(
+    status,
+    "#subscription-status",
+    "#subscriptionStatus",
+    "[data-subscription-status]"
+);
+
+const expiry =
+    subscription?.expires_at ||
+    subscription?.end_date ||
+    subscription?.endDate;
+
+if (expiry) {
+    const date =
+        new Date(expiry);
+
+    if (!Number.isNaN(date.getTime())) {
+        setText(
+            date.toLocaleDateString(),
+            "#subscription-expiry",
+            "#subscriptionExpiry",
+            "[data-subscription-expiry]"
+        );
+    }
+}
+
+const planElements =
+    getElements(
+        "[data-plan]",
+        "[data-plan-id]",
+        "[data-plan-name]"
+    );
+
+planElements.forEach(element => {
+    const plan =
+        normalizePlan(
+            extractPlanFromElement(element)
+        );
+
+    const isCurrent =
+        plan &&
+        plan === normalized;
+
+    element.classList.toggle(
+        "active",
+        isCurrent
+    );
+
+    element.classList.toggle(
+        "current",
+        isCurrent
+    );
+
+    const currentBadge =
+        element.querySelector(
+            "[data-current-badge]"
+        );
+
+    if (currentBadge) {
+        currentBadge.style.display =
+            isCurrent
+                ? ""
+                : "none";
+    }
+});
+
+}
+
+/* =========================================================
+SUBSCRIPTION SAVE
+========================================================= */
+
+async function saveSubscription(plan, price = null) {
+const client =
+CompanyDashboard.supabase;
+
+const user =
+    CompanyDashboard.user;
+
+if (!client || !user) {
+    throw new Error(
+        "Authentication is required."
+    );
+}
+
+const payload = {
+    user_id: user.id,
+    plan: plan,
+    status: "active"
+};
+
+if (price !== null) {
+    payload.amount = price;
+}
+
+const tables =
+    COMPANY_DASHBOARD_CONFIG
+        .subscriptionTables;
+
+let lastError = null;
+
+for (const table of tables) {
+    try {
+        const existing =
             await client
-                .from("jobs")
-                .insert(fallbackData)
+                .from(table)
+                .select("id")
+                .eq("user_id", user.id)
+                .limit(1)
+                .maybeSingle();
+
+        if (
+            existing.error &&
+            !String(
+                existing.error.message || ""
+            ).toLowerCase().includes(
+                "column"
+            )
+        ) {
+            lastError =
+                existing.error;
+            continue;
+        }
+
+        if (existing.data?.id) {
+            const update =
+                await client
+                    .from(table)
+                    .update(payload)
+                    .eq(
+                        "id",
+                        existing.data.id
+                    )
+                    .select()
+                    .single();
+
+            if (!update.error) {
+                return update.data;
+            }
+
+            lastError =
+                update.error;
+            continue;
+        }
+
+        const insert =
+            await client
+                .from(table)
+                .insert(payload)
                 .select()
                 .single();
 
+        if (!insert.error) {
+            return insert.data;
+        }
+
+        lastError =
+            insert.error;
+    } catch (error) {
+        lastError = error;
     }
+}
 
-
-    if (result.error) {
-
-        console.error(
-            "Publish job error:",
-            result.error
-        );
-
-        alert(
-            result.error.message ||
-            "Unable to publish job."
-        );
-
-        return;
-
-    }
-
-
-    alert(
-        "Job published successfully."
-    );
-
-
-    form.reset();
-
-
-    await refreshDashboard();
+throw (
+    lastError ||
+    new Error(
+        "Unable to save subscription."
+    )
+);
 
 }
 
+/* =========================================================
+SUBSCRIPTION BUTTON STATE
+========================================================= */
+
+function setSubscriptionButtonLoading(
+button,
+loading
+) {
+if (!button) {
+return;
+}
+
+if (loading) {
+    if (!button.dataset.originalText) {
+        button.dataset.originalText =
+            button.textContent;
+    }
+
+    button.disabled = true;
+    button.setAttribute(
+        "aria-busy",
+        "true"
+    );
+
+    button.textContent =
+        "Processing...";
+} else {
+    button.disabled = false;
+    button.removeAttribute(
+        "aria-busy"
+    );
+
+    if (button.dataset.originalText) {
+        button.textContent =
+            button.dataset.originalText;
+    }
+}
+
+}
 
 /* =========================================================
-   FORM HANDLING
-   ========================================================= */
+NOTIFICATIONS
+========================================================= */
 
-function setupJobForm() {
+function showDashboardMessage(
+message,
+type = "info"
+) {
+let box =
+getElement(
+"#dashboard-message",
+"#subscription-message",
+"#company-dashboard-message",
+"[data-dashboard-message]"
+);
 
-    const selectors = [
-        "#post-job-form",
-        "#job-form",
-        "form[data-job-form]"
-    ];
+if (!box) {
+    box =
+        document.createElement("div");
 
+    box.id =
+        "dashboard-message";
 
-    let form = null;
+    document.body.appendChild(box);
+}
 
+box.textContent =
+    String(message);
 
-    for (
-        const selector of selectors
-    ) {
+box.dataset.type =
+    type;
 
-        form =
-            $(selector);
+box.style.position =
+    "fixed";
 
-        if (form) {
-            break;
-        }
+box.style.left =
+    "50%";
 
-    }
+box.style.bottom =
+    "25px";
 
+box.style.transform =
+    "translateX(-50%)";
 
-    if (!form) {
-        return;
-    }
+box.style.zIndex =
+    "100000";
 
+box.style.maxWidth =
+    "min(90%, 520px)";
+
+box.style.padding =
+    "13px 18px";
+
+box.style.border =
+    "1px solid rgba(255,255,255,.12)";
+
+box.style.borderRadius =
+    "12px";
+
+box.style.background =
+    "#10233a";
+
+box.style.color =
+    "#f5f8ff";
+
+box.style.boxShadow =
+    "0 15px 40px rgba(0,0,0,.35)";
+
+clearTimeout(
+    box._hideTimer
+);
+
+box._hideTimer =
+    setTimeout(() => {
+        box.style.opacity = "0";
+
+        setTimeout(() => {
+            if (box.parentNode) {
+                box.parentNode.removeChild(
+                    box
+                );
+            }
+        }, 250);
+    }, 4000);
+
+}
+
+/* =========================================================
+WALLET
+========================================================= */
+
+function getEthereumProvider() {
+if (
+window.ethereum &&
+typeof window.ethereum.request ===
+"function"
+) {
+return window.ethereum;
+}
+
+return null;
+
+}
+
+async function connectWallet() {
+const ethereum =
+getEthereumProvider();
+
+if (!ethereum) {
+    showDashboardMessage(
+        "No compatible wallet was detected.",
+        "error"
+    );
+
+    return null;
+}
+
+try {
+    const accounts =
+        await ethereum.request({
+            method:
+                "eth_requestAccounts"
+        });
 
     if (
-        form.dataset.dashboardBound === "true"
+        !accounts ||
+        !accounts.length
+    ) {
+        throw new Error(
+            "No wallet account was returned."
+        );
+    }
+
+    return accounts[0];
+} catch (error) {
+    dashboardError(
+        "Wallet connection failed:",
+        error
+    );
+
+    showDashboardMessage(
+        error?.message ||
+            "Wallet connection failed.",
+        "error"
+    );
+
+    return null;
+}
+
+}
+
+async function switchToBNBSmartChain() {
+const ethereum =
+getEthereumProvider();
+
+if (!ethereum) {
+    return false;
+}
+
+try {
+    await ethereum.request({
+        method:
+            "wallet_switchEthereumChain",
+        params: [
+            {
+                chainId:
+                    COMPANY_DASHBOARD_CONFIG
+                        .walletChainId
+            }
+        ]
+    });
+
+    return true;
+} catch (error) {
+    if (error?.code === 4902) {
+        try {
+            await ethereum.request({
+                method:
+                    "wallet_addEthereumChain",
+                params: [
+                    {
+                        chainId:
+                            "0x38",
+                        chainName:
+                            "BNB Smart Chain",
+                        nativeCurrency: {
+                            name: "BNB",
+                            symbol: "BNB",
+                            decimals: 18
+                        },
+                        rpcUrls: [
+                            "https://bsc-dataseed.binance.org/"
+                        ],
+                        blockExplorerUrls: [
+                            "https://bscscan.com/"
+                        ]
+                    }
+                ]
+            });
+
+            return true;
+        } catch (addError) {
+            dashboardError(
+                "Unable to add BNB Smart Chain:",
+                addError
+            );
+
+            return false;
+        }
+    }
+
+    dashboardError(
+        "Unable to switch network:",
+        error
+    );
+
+    return false;
+}
+
+}
+
+function shortenWallet(address) {
+if (!address) {
+return "";
+}
+
+return (
+    address.slice(0, 6) +
+    "..." +
+    address.slice(-4)
+);
+
+}
+
+function updateWalletUI(address) {
+if (!address) {
+return;
+}
+
+setText(
+    shortenWallet(address),
+    "#wallet-address",
+    "#walletAddress",
+    "[data-wallet-address]"
+);
+
+const buttons =
+    getElements(
+        "#connect-wallet",
+        "#connectWallet",
+        "[data-connect-wallet]"
+    );
+
+buttons.forEach(button => {
+    button.textContent =
+        shortenWallet(address);
+
+    button.dataset.connected =
+        "true";
+});
+
+}
+
+/* =========================================================
+SUBSCRIPTION FLOW
+========================================================= */
+
+async function handleSubscription(
+button
+) {
+if (!button) {
+return;
+}
+
+const plan =
+    extractPlanFromElement(button);
+
+if (!plan) {
+    showDashboardMessage(
+        "Subscription plan is not configured.",
+        "error"
+    );
+
+    return;
+}
+
+const price =
+    extractPlanPrice(button);
+
+const normalizedPlan =
+    normalizePlan(plan);
+
+const currentPlan =
+    normalizePlan(
+        getCurrentPlan()
+    );
+
+if (
+    normalizedPlan ===
+    currentPlan
+) {
+    showDashboardMessage(
+        "This plan is already active.",
+        "info"
+    );
+
+    return;
+}
+
+setSubscriptionButtonLoading(
+    button,
+    true
+);
+
+try {
+    /*
+     * Free plans can be activated directly.
+     * Paid plans are also stored as pending
+     * unless a payment contract is connected.
+     *
+     * This prevents the dashboard from
+     * becoming unusable while the payment
+     * provider is being configured.
+     */
+
+    if (
+        price &&
+        price > 0
+    ) {
+        const wallet =
+            await connectWallet();
+
+        if (!wallet) {
+            return;
+        }
+
+        const switched =
+            await switchToBNBSmartChain();
+
+        if (!switched) {
+            showDashboardMessage(
+                "Please switch your wallet to BNB Smart Chain.",
+                "error"
+            );
+
+            return;
+        }
+
+        /*
+         * Payment transaction execution is intentionally
+         * not fabricated here. A real contract address,
+         * recipient address, or payment gateway must be
+         * configured before sending funds.
+         */
+
+        const subscription =
+            await saveSubscription(
+                plan,
+                price
+            );
+
+        CompanyDashboard.subscription =
+            subscription;
+
+        updateSubscriptionUI();
+
+        updateWalletUI(
+            wallet
+        );
+
+        showDashboardMessage(
+            "Subscription selected successfully. Payment configuration is required before funds can be transferred.",
+            "success"
+        );
+
+        return;
+    }
+
+    const subscription =
+        await saveSubscription(
+            plan,
+            price
+        );
+
+    CompanyDashboard.subscription =
+        subscription;
+
+    updateSubscriptionUI();
+
+    showDashboardMessage(
+        "Subscription activated successfully.",
+        "success"
+    );
+} catch (error) {
+    dashboardError(
+        "Subscription error:",
+        error
+    );
+
+    showDashboardMessage(
+        error?.message ||
+            "Unable to activate the subscription.",
+        "error"
+    );
+} finally {
+    setSubscriptionButtonLoading(
+        button,
+        false
+    );
+}
+
+}
+
+/* =========================================================
+SUBSCRIPTION EVENTS
+========================================================= */
+
+function bindSubscriptionEvents() {
+const buttons =
+getElements(
+"[data-subscribe]",
+"[data-subscription-plan]",
+".subscribe-button",
+".plan-button",
+".subscription-button"
+);
+
+buttons.forEach(button => {
+    if (
+        button.dataset
+            .subscriptionBound ===
+        "true"
     ) {
         return;
     }
 
-
-    form.dataset.dashboardBound =
+    button.dataset
+        .subscriptionBound =
         "true";
 
-
-    form.addEventListener(
-        "submit",
-        async event => {
-
+    button.addEventListener(
+        "click",
+        event => {
             event.preventDefault();
 
-            const submitButton =
-                form.querySelector(
-                    'button[type="submit"]'
-                );
-
-
-            const originalText =
-                submitButton
-                    ? submitButton.textContent
-                    : "";
-
-
-            if (submitButton) {
-
-                submitButton.disabled =
-                    true;
-
-                submitButton.textContent =
-                    "Publishing...";
-
-            }
-
-
-            try {
-
-                await publishJob(form);
-
-            } catch (error) {
-
-                console.error(
-                    "Job form error:",
-                    error
-                );
-
-                alert(
-                    error.message ||
-                    "Unable to publish job."
-                );
-
-            } finally {
-
-                if (submitButton) {
-
-                    submitButton.disabled =
-                        false;
-
-                    submitButton.textContent =
-                        originalText ||
-                        "Publish Job";
-
-                }
-
-            }
-
+            handleSubscription(
+                button
+            );
         }
     );
+});
 
 }
 
+/* =========================================================
+WALLET EVENTS
+========================================================= */
+
+function bindWalletEvents() {
+const buttons =
+getElements(
+"#connect-wallet",
+"#connectWallet",
+"[data-connect-wallet]"
+);
+
+buttons.forEach(button => {
+    if (
+        button.dataset
+            .walletBound ===
+        "true"
+    ) {
+        return;
+    }
+
+    button.dataset.walletBound =
+        "true";
+
+    button.addEventListener(
+        "click",
+        async event => {
+            event.preventDefault();
+
+            const address =
+                await connectWallet();
+
+            if (address) {
+                updateWalletUI(
+                    address
+                );
+            }
+        }
+    );
+});
+
+}
 
 /* =========================================================
-   LOGOUT
-   ========================================================= */
+LOGOUT
+========================================================= */
 
 async function logoutCompany() {
+const client =
+CompanyDashboard.supabase;
 
-    const client =
-        getSupabaseClient();
-
-    try {
-
-        if (client) {
-
-            await client.auth.signOut();
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Logout error:",
-            error
-        );
-
-    } finally {
-
-        window.location.href =
-            "login.html";
-
+try {
+    if (client) {
+        await client.auth.signOut();
     }
-
-}
-
-
-/* =========================================================
-   LOGOUT BUTTON
-   ========================================================= */
-
-function setupLogout() {
-
-    const buttons = [
-        "#logout-button",
-        "#company-logout",
-        "[data-action='logout']"
-    ];
-
-
-    buttons.forEach(
-        selector => {
-
-            $all(selector).forEach(
-                button => {
-
-                    if (
-                        button.dataset.logoutBound ===
-                        "true"
-                    ) {
-                        return;
-                    }
-
-                    button.dataset.logoutBound =
-                        "true";
-
-                    button.addEventListener(
-                        "click",
-                        event => {
-
-                            event.preventDefault();
-
-                            logoutCompany();
-
-                        }
-                    );
-
-                }
-            );
-
-        }
+} catch (error) {
+    dashboardError(
+        "Logout error:",
+        error
     );
+}
+
+window.location.href =
+    COMPANY_DASHBOARD_CONFIG.loginPage;
 
 }
 
+function bindLogoutEvents() {
+const buttons =
+getElements(
+"#logout-button",
+"#logoutButton",
+".logout-button",
+"[data-logout]"
+);
 
-/* =========================================================
-   WALLET
-   ========================================================= */
-
-async function connectCompanyWallet() {
-
+buttons.forEach(button => {
     if (
-        typeof window.ethereum ===
-        "undefined"
+        button.dataset.logoutBound ===
+        "true"
     ) {
-
-        alert(
-            "No Web3 wallet was detected. Please open the dashboard in a wallet-enabled browser."
-        );
-
-        return null;
-
-    }
-
-
-    if (
-        typeof window.ethers ===
-        "undefined"
-    ) {
-
-        alert(
-            "Wallet library is not available."
-        );
-
-        return null;
-
-    }
-
-
-    try {
-
-        const provider =
-            new ethers.BrowserProvider(
-                window.ethereum
-            );
-
-
-        await provider.send(
-            "eth_requestAccounts",
-            []
-        );
-
-
-        const signer =
-            await provider.getSigner();
-
-
-        const address =
-            await signer.getAddress();
-
-
-        const network =
-            await provider.getNetwork();
-
-
-        /*
-            BNB Smart Chain Mainnet:
-            56
-        */
-
-        if (
-            network.chainId !== 56n
-        ) {
-
-            alert(
-                "Please switch your wallet to BNB Smart Chain Mainnet."
-            );
-
-            try {
-
-                await window.ethereum.request({
-                    method:
-                        "wallet_switchEthereumChain",
-                    params: [
-                        {
-                            chainId: "0x38"
-                        }
-                    ]
-                });
-
-            } catch (switchError) {
-
-                console.warn(
-                    "Network switch failed:",
-                    switchError
-                );
-
-            }
-
-        }
-
-
-        updateWalletDisplay(
-            address
-        );
-
-
-        return address;
-
-    } catch (error) {
-
-        console.error(
-            "Wallet connection error:",
-            error
-        );
-
-        alert(
-            error.message ||
-            "Unable to connect wallet."
-        );
-
-        return null;
-
-    }
-
-}
-
-
-/* =========================================================
-   WALLET DISPLAY
-   ========================================================= */
-
-function shortenAddress(address) {
-
-    if (!address) {
-        return "";
-    }
-
-    if (address.length < 12) {
-        return address;
-    }
-
-    return (
-        address.slice(0, 6) +
-        "..." +
-        address.slice(-4)
-    );
-
-}
-
-
-function updateWalletDisplay(address) {
-
-    const elements = [
-        "#wallet-address",
-        "#connected-wallet",
-        "[data-wallet-address]"
-    ];
-
-
-    elements.forEach(
-        selector => {
-
-            $all(selector).forEach(
-                element => {
-
-                    element.textContent =
-                        shortenAddress(
-                            address
-                        );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-function setupWalletButtons() {
-
-    const selectors = [
-        "#connect-wallet",
-        "#connect-company-wallet",
-        "[data-action='connect-wallet']"
-    ];
-
-
-    selectors.forEach(
-        selector => {
-
-            $all(selector).forEach(
-                button => {
-
-                    if (
-                        button.dataset.walletBound ===
-                        "true"
-                    ) {
-                        return;
-                    }
-
-
-                    button.dataset.walletBound =
-                        "true";
-
-
-                    button.addEventListener(
-                        "click",
-                        event => {
-
-                            event.preventDefault();
-
-                            connectCompanyWallet();
-
-                        }
-                    );
-
-                }
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   REFRESH DASHBOARD
-   ========================================================= */
-
-async function refreshDashboard() {
-
-    try {
-
-        CompanyDashboard.jobs =
-            await loadCompanyJobs();
-
-        CompanyDashboard.applications =
-            await loadCompanyApplications();
-
-        updateStats();
-
-        renderJobs();
-
-    } catch (error) {
-
-        console.error(
-            "Dashboard refresh error:",
-            error
-        );
-
-        /*
-            Do not lock the dashboard because statistics
-            failed. The main dashboard remains available.
-        */
-
-        CompanyDashboard.jobs = [];
-        CompanyDashboard.applications = [];
-
-        updateStats();
-        renderJobs();
-
-    }
-
-}
-
-
-/* =========================================================
-   AUTH STATE LISTENER
-   ========================================================= */
-
-function setupAuthListener() {
-
-    const client =
-        getSupabaseClient();
-
-    if (!client) {
         return;
     }
 
+    button.dataset.logoutBound =
+        "true";
 
-    client.auth.onAuthStateChange(
-        (event, session) => {
+    button.addEventListener(
+        "click",
+        event => {
+            event.preventDefault();
 
-            if (
-                event === "SIGNED_OUT"
-            ) {
-
-                window.location.href =
-                    "login.html";
-
-                return;
-
-            }
-
-
-            if (
-                event === "SIGNED_IN" ||
-                event === "TOKEN_REFRESHED"
-            ) {
-
-                if (
-                    session &&
-                    session.user &&
-                    !CompanyDashboard.initialized
-                ) {
-
-                    initializeCompanyDashboard();
-
-                }
-
-            }
-
+            logoutCompany();
         }
     );
+});
 
 }
 
+/* =========================================================
+NAVIGATION
+========================================================= */
+
+function bindNavigation() {
+const homeLinks =
+getElements(
+"[data-dashboard-home]"
+);
+
+homeLinks.forEach(link => {
+    link.addEventListener(
+        "click",
+        event => {
+            event.preventDefault();
+
+            window.location.href =
+                COMPANY_DASHBOARD_CONFIG
+                    .homePage;
+        }
+    );
+});
+
+}
 
 /* =========================================================
-   INITIALIZE
-   ========================================================= */
+LOADING SCREEN
+========================================================= */
+
+function hideLoadingScreen() {
+const loading =
+getElement(
+"#loading-spinner",
+"#loadingSpinner",
+".loading-screen"
+);
+
+if (!loading) {
+    return;
+}
+
+loading.style.opacity =
+    "0";
+
+loading.style.pointerEvents =
+    "none";
+
+setTimeout(() => {
+    loading.style.display =
+        "none";
+}, 250);
+
+}
+
+function showDashboardContent() {
+const content =
+getElement(
+"#dashboard-content",
+"#dashboardContent",
+"main[data-dashboard-content]",
+".dashboard-content"
+);
+
+if (content) {
+    content.style.display =
+        "";
+    content.hidden =
+        false;
+}
+
+}
+
+/* =========================================================
+ERROR SCREEN
+========================================================= */
+
+function showDashboardError(
+message
+) {
+const loading =
+getElement(
+"#loading-spinner",
+"#loadingSpinner",
+".loading-screen"
+);
+
+if (loading) {
+    const paragraph =
+        loading.querySelector("p");
+
+    const heading =
+        loading.querySelector("h2");
+
+    if (heading) {
+        heading.textContent =
+            "Dashboard Error";
+    }
+
+    if (paragraph) {
+        paragraph.textContent =
+            message;
+    }
+
+    const spinner =
+        loading.querySelector(
+            ".loading-spinner-circle"
+        );
+
+    if (spinner) {
+        spinner.style.display =
+            "none";
+    }
+
+    loading.style.display =
+        "flex";
+
+    loading.style.opacity =
+        "1";
+
+    loading.style.pointerEvents =
+        "auto";
+}
+
+}
+
+/* =========================================================
+AUTH STATE LISTENER
+========================================================= */
+
+function bindAuthStateListener() {
+const client =
+CompanyDashboard.supabase;
+
+if (
+    !client ||
+    !client.auth
+) {
+    return;
+}
+
+client.auth.onAuthStateChange(
+    (event, session) => {
+        if (
+            event ===
+                "SIGNED_OUT" ||
+            !session
+        ) {
+            window.location.href =
+                COMPANY_DASHBOARD_CONFIG
+                    .loginPage;
+        }
+    }
+);
+
+}
+
+/* =========================================================
+INITIALIZATION
+========================================================= */
 
 async function initializeCompanyDashboard() {
+if (
+CompanyDashboard.initialized ||
+CompanyDashboard.initializing
+) {
+return;
+}
 
-    if (
-        CompanyDashboard.initialized
-    ) {
+CompanyDashboard.initializing =
+    true;
+
+try {
+    const client =
+        await waitForSupabase();
+
+    if (!client) {
+        throw new Error(
+            "Supabase client is not available."
+        );
+    }
+
+    CompanyDashboard.supabase =
+        client;
+
+    const authenticated =
+        await requireAuthentication();
+
+    if (!authenticated) {
         return;
     }
 
+    const companyAccount =
+        await requireCompanyAccount();
 
-    showLoading(
-        "Please wait while we prepare your workspace."
+    if (!companyAccount) {
+        return;
+    }
+
+    await loadCompanyProfile();
+
+    updateCompanyInformation();
+
+    await loadCompanyJobs();
+
+    await loadCompanyApplications();
+
+    await loadCompanySubscription();
+
+    updateStatistics();
+
+    renderCompanyJobs();
+
+    updateSubscriptionUI();
+
+    bindSubscriptionEvents();
+
+    bindWalletEvents();
+
+    bindLogoutEvents();
+
+    bindNavigation();
+
+    bindAuthStateListener();
+
+    showDashboardContent();
+
+    hideLoadingScreen();
+
+    CompanyDashboard.initialized =
+        true;
+
+    dashboardLog(
+        "Company dashboard initialized."
+    );
+} catch (error) {
+    dashboardError(
+        "Dashboard initialization failed:",
+        error
     );
 
-
-    try {
-
-        const client =
-            getSupabaseClient();
-
-
-        if (!client) {
-
-            throw new Error(
-                "Supabase connection is not initialized. Check js/supabase.js."
-            );
-
-        }
-
-
-        const user =
-            await getCurrentUser();
-
-
-        if (!user) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        CompanyDashboard.user =
-            user;
-
-
-        const account =
-            await getCompanyAccount(
-                user
-            );
-
-
-        if (!account) {
-
-            throw new Error(
-                "Unable to determine your account type."
-            );
-
-        }
-
-
-        if (!account.isCompany) {
-
-            /*
-                Prevent individual accounts from opening
-                the company dashboard.
-            */
-
-            window.location.href =
-                "dashboard.html";
-
-            return;
-
-        }
-
-
-        CompanyDashboard.profile =
-            account.profile || {};
-
-
-        CompanyDashboard.companyProfile =
-            await loadCompanyProfile(
-                user.id
-            );
-
-
-        updateCompanyIdentity();
-
-
-        /*
-            The dashboard itself should never be blocked
-            by jobs/applications queries.
-        */
-
-        showDashboard();
-
-        hideLoading();
-
-
-        await refreshDashboard();
-
-
-        setupJobForm();
-
-        setupLogout();
-
-        setupWalletButtons();
-
-        setupAuthListener();
-
-
-        CompanyDashboard.initialized =
-            true;
-
-
-    } catch (error) {
-
-        console.error(
-            "Company dashboard initialization error:",
-            error
-        );
-
-
-        showDashboardError(
-            error.message ||
-            "An unexpected error occurred while loading the dashboard."
-        );
-
-    }
+    showDashboardError(
+        error?.message ||
+            "Unable to initialize the company dashboard."
+    );
+} finally {
+    CompanyDashboard.initializing =
+        false;
+}
 
 }
 
-
 /* =========================================================
-   PUBLIC FUNCTIONS
-   ========================================================= */
+PUBLIC API
+========================================================= */
 
 window.CompanyDashboard =
-    CompanyDashboard;
+CompanyDashboard;
 
 window.initializeCompanyDashboard =
-    initializeCompanyDashboard;
+initializeCompanyDashboard;
 
-window.refreshCompanyDashboard =
-    refreshDashboard;
+window.loadCompanyProfile =
+loadCompanyProfile;
 
-window.connectCompanyWallet =
-    connectCompanyWallet;
+window.loadCompanyJobs =
+loadCompanyJobs;
+
+window.loadCompanyApplications =
+loadCompanyApplications;
+
+window.loadCompanySubscription =
+loadCompanySubscription;
+
+window.handleSubscription =
+handleSubscription;
+
+window.connectWallet =
+connectWallet;
 
 window.logoutCompany =
-    logoutCompany;
-
-window.publishCompanyJob =
-    publishJob;
-
+logoutCompany;
 
 /* =========================================================
-   DOM READY
-   ========================================================= */
+DOM READY
+========================================================= */
 
+if (
+document.readyState ===
+"loading"
+) {
 document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-
-        initializeCompanyDashboard();
-
-    }
+"DOMContentLoaded",
+initializeCompanyDashboard,
+{
+once: true
+}
 );
-
+} else {
+initializeCompanyDashboard();
+}
 
 /* =========================================================
-   GLOBAL ERROR PROTECTION
-   ========================================================= */
+FALLBACK INITIALIZATION
+========================================================= */
 
 window.addEventListener(
-    "error",
-    event => {
-
-        console.error(
-            "Dashboard JavaScript error:",
-            event.error || event.message
-        );
-
-    }
-);
-
-
-window.addEventListener(
-    "unhandledrejection",
-    event => {
-
-        console.error(
-            "Dashboard promise error:",
-            event.reason
-        );
-
-    }
+"load",
+() => {
+if (
+!CompanyDashboard.initialized
+) {
+initializeCompanyDashboard();
+}
+},
+{
+once: true
+}
 );
