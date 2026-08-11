@@ -17,7 +17,13 @@ const SUPABASE_STORAGE_KEY =
 
 let web3jobsSupabase = null;
 
+
+/* =========================================================
+   INITIALIZE
+   ========================================================= */
+
 function initializeSupabase() {
+
     if (web3jobsSupabase) {
         return web3jobsSupabase;
     }
@@ -35,6 +41,7 @@ function initializeSupabase() {
     }
 
     try {
+
         web3jobsSupabase =
             window.supabase.createClient(
                 SUPABASE_URL,
@@ -44,7 +51,8 @@ function initializeSupabase() {
                         persistSession: true,
                         autoRefreshToken: true,
                         detectSessionInUrl: true,
-                        storageKey: SUPABASE_STORAGE_KEY
+                        storageKey:
+                            SUPABASE_STORAGE_KEY
                     }
                 }
             );
@@ -55,8 +63,9 @@ function initializeSupabase() {
         return web3jobsSupabase;
 
     } catch (error) {
+
         console.error(
-            "Web3Jobs: Supabase initialization error:",
+            "Web3Jobs: Supabase initialization failed:",
             error
         );
 
@@ -67,14 +76,20 @@ function initializeSupabase() {
     }
 }
 
+
+/* =========================================================
+   GET CLIENT
+   ========================================================= */
+
 function getSupabaseClient() {
+
     if (web3jobsSupabase) {
         return web3jobsSupabase;
     }
 
     if (
         window.supabaseClient &&
-        typeof window.supabaseClient.auth === "object"
+        typeof window.supabaseClient.from === "function"
     ) {
         web3jobsSupabase =
             window.supabaseClient;
@@ -85,11 +100,22 @@ function getSupabaseClient() {
     return initializeSupabase();
 }
 
+
+/* =========================================================
+   BACKWARD COMPATIBILITY
+   ========================================================= */
+
 function getClient() {
     return getSupabaseClient();
 }
 
+
+/* =========================================================
+   SESSION
+   ========================================================= */
+
 async function getSupabaseSession() {
+
     const client =
         getSupabaseClient();
 
@@ -98,12 +124,15 @@ async function getSupabaseSession() {
     }
 
     try {
+
         const {
             data,
             error
-        } = await client.auth.getSession();
+        } =
+            await client.auth.getSession();
 
         if (error) {
+
             console.error(
                 "Web3Jobs: getSession error:",
                 error
@@ -115,6 +144,7 @@ async function getSupabaseSession() {
         return data?.session || null;
 
     } catch (error) {
+
         console.error(
             "Web3Jobs: getSession exception:",
             error
@@ -124,7 +154,13 @@ async function getSupabaseSession() {
     }
 }
 
+
+/* =========================================================
+   CURRENT USER
+   ========================================================= */
+
 async function getSupabaseUser() {
+
     const client =
         getSupabaseClient();
 
@@ -133,12 +169,15 @@ async function getSupabaseUser() {
     }
 
     try {
+
         const {
             data,
             error
-        } = await client.auth.getUser();
+        } =
+            await client.auth.getUser();
 
         if (error) {
+
             console.error(
                 "Web3Jobs: getUser error:",
                 error
@@ -150,6 +189,7 @@ async function getSupabaseUser() {
         return data?.user || null;
 
     } catch (error) {
+
         console.error(
             "Web3Jobs: getUser exception:",
             error
@@ -159,7 +199,35 @@ async function getSupabaseUser() {
     }
 }
 
+
+/* =========================================================
+   AUTH STATE
+   ========================================================= */
+
+function onAuthStateChange(callback) {
+
+    const client =
+        getSupabaseClient();
+
+    if (
+        !client ||
+        typeof callback !== "function"
+    ) {
+        return null;
+    }
+
+    return client.auth.onAuthStateChange(
+        callback
+    );
+}
+
+
+/* =========================================================
+   SIGN OUT
+   ========================================================= */
+
 async function signOutSupabase() {
+
     const client =
         getSupabaseClient();
 
@@ -168,11 +236,14 @@ async function signOutSupabase() {
     }
 
     try {
+
         const {
             error
-        } = await client.auth.signOut();
+        } =
+            await client.auth.signOut();
 
         if (error) {
+
             console.error(
                 "Web3Jobs: signOut error:",
                 error
@@ -184,6 +255,7 @@ async function signOutSupabase() {
         return true;
 
     } catch (error) {
+
         console.error(
             "Web3Jobs: signOut exception:",
             error
@@ -193,31 +265,30 @@ async function signOutSupabase() {
     }
 }
 
-function onAuthStateChange(callback) {
-    const client =
-        getSupabaseClient();
 
-    if (!client || typeof callback !== "function") {
-        return null;
-    }
-
-    return client.auth.onAuthStateChange(
-        callback
-    );
-}
+/* =========================================================
+   GLOBAL API
+   ========================================================= */
 
 window.Web3JobsSupabase = {
-    url: SUPABASE_URL,
-    publishableKey: SUPABASE_PUBLISHABLE_KEY,
+
+    url:
+        SUPABASE_URL,
+
+    publishableKey:
+        SUPABASE_PUBLISHABLE_KEY,
+
+    storageKey:
+        SUPABASE_STORAGE_KEY,
 
     initialize:
         initializeSupabase,
 
-    getSupabaseClient:
+    getClient:
         getSupabaseClient,
 
-    getClient:
-        getClient,
+    getSupabaseClient:
+        getSupabaseClient,
 
     getSession:
         getSupabaseSession,
@@ -225,11 +296,16 @@ window.Web3JobsSupabase = {
     getUser:
         getSupabaseUser,
 
-    signOut:
-        signOutSupabase,
-
     onAuthStateChange:
-        onAuthStateChange
+        onAuthStateChange,
+
+    signOut:
+        signOutSupabase
 };
+
+
+/* =========================================================
+   START
+   ========================================================= */
 
 initializeSupabase();
