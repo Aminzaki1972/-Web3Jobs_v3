@@ -11,18 +11,18 @@
    ========================================================= */
 
 const COMPANY_DASHBOARD_CONFIG = {
-
     receiverWallet:
         "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
 
-    chainId:
-        "0x38",
+    chainId: "0x38",
 
-    chainName:
-        "BNB Smart Chain",
+    chainName: "BNB Smart Chain",
 
-    nativeCurrency:
-        "BNB",
+    nativeCurrency: {
+        name: "BNB",
+        symbol: "BNB",
+        decimals: 18
+    },
 
     rpcUrls: [
         "https://bsc-dataseed.binance.org/"
@@ -31,8 +31,10 @@ const COMPANY_DASHBOARD_CONFIG = {
     explorer:
         "https://bscscan.com",
 
-    plans: {
+    bnbPriceApi:
+        "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT",
 
+    plans: {
         starter: {
             code: "starter",
             name: "Starter",
@@ -53,9 +55,7 @@ const COMPANY_DASHBOARD_CONFIG = {
             price: 99,
             durationDays: 30
         }
-
     }
-
 };
 
 
@@ -64,27 +64,19 @@ const COMPANY_DASHBOARD_CONFIG = {
    ========================================================= */
 
 const CompanyDashboardState = {
-
     user: null,
-
     session: null,
-
     companyProfile: null,
 
+    plans: [],
     selectedPlan: null,
 
-    plans: [],
-
     walletAddress: null,
-
     provider: null,
-
     signer: null,
 
     paymentPending: false,
-
     initialized: false
-
 };
 
 
@@ -96,25 +88,20 @@ function $(selector) {
     return document.querySelector(selector);
 }
 
-
 function $$(selector) {
     return Array.from(
         document.querySelectorAll(selector)
     );
 }
 
-
 function getElement(...selectors) {
-
     for (const selector of selectors) {
-
         const element =
             document.querySelector(selector);
 
         if (element) {
             return element;
         }
-
     }
 
     return null;
@@ -122,11 +109,10 @@ function getElement(...selectors) {
 
 
 /* =========================================================
-   SUPABASE CLIENT
+   SUPABASE
    ========================================================= */
 
 function getSupabaseClient() {
-
     if (
         window.supabaseClient &&
         typeof window.supabaseClient.from === "function"
@@ -145,7 +131,6 @@ function getSupabaseClient() {
         window.supabase &&
         typeof window.supabase.createClient === "function"
     ) {
-
         const url =
             window.SUPABASE_URL ||
             window.JOBS_SUPABASE_URL;
@@ -155,29 +140,25 @@ function getSupabaseClient() {
             window.JOBS_SUPABASE_KEY ||
             window.SUPABASE_KEY;
 
-        if (url && key) {
-
-            try {
-
-                window.supabaseClient =
-                    window.supabase.createClient(
-                        url,
-                        key
-                    );
-
-                return window.supabaseClient;
-
-            } catch (error) {
-
-                console.error(
-                    "Supabase client creation error:",
-                    error
-                );
-
-            }
-
+        if (!url || !key) {
+            return null;
         }
 
+        try {
+            window.supabaseClient =
+                window.supabase.createClient(
+                    url,
+                    key
+                );
+
+            return window.supabaseClient;
+
+        } catch (error) {
+            console.error(
+                "Supabase initialization error:",
+                error
+            );
+        }
     }
 
     return null;
@@ -185,11 +166,10 @@ function getSupabaseClient() {
 
 
 /* =========================================================
-   SAFE TEXT
+   SECURITY
    ========================================================= */
 
 function escapeHtml(value) {
-
     if (
         value === null ||
         value === undefined
@@ -211,7 +191,6 @@ function escapeHtml(value) {
    ========================================================= */
 
 function showLoading() {
-
     const loading =
         $("#loading-spinner");
 
@@ -227,9 +206,7 @@ function showLoading() {
     }
 }
 
-
 function hideLoading() {
-
     const loading =
         $("#loading-spinner");
 
@@ -247,60 +224,37 @@ function hideLoading() {
 
 
 /* =========================================================
-   NOTIFICATIONS
+   MESSAGE
    ========================================================= */
 
 function showMessage(
     message,
     type = "info"
 ) {
-
     let box =
         document.getElementById(
             "dashboard-message"
         );
 
     if (!box) {
-
         box =
             document.createElement("div");
 
         box.id =
             "dashboard-message";
 
-        box.style.position =
-            "fixed";
-
-        box.style.left =
-            "20px";
-
-        box.style.right =
-            "20px";
-
-        box.style.bottom =
-            "20px";
-
-        box.style.zIndex =
-            "999999";
-
-        box.style.maxWidth =
-            "600px";
-
-        box.style.margin =
-            "0 auto";
-
-        box.style.padding =
-            "14px 18px";
-
-        box.style.borderRadius =
-            "12px";
-
-        box.style.fontSize =
-            "13px";
-
-        box.style.fontWeight =
-            "700";
-
+        box.style.position = "fixed";
+        box.style.left = "20px";
+        box.style.right = "20px";
+        box.style.bottom = "20px";
+        box.style.zIndex = "999999";
+        box.style.maxWidth = "620px";
+        box.style.margin = "0 auto";
+        box.style.padding = "15px 18px";
+        box.style.borderRadius = "12px";
+        box.style.fontSize = "14px";
+        box.style.fontWeight = "700";
+        box.style.lineHeight = "1.5";
         box.style.boxShadow =
             "0 15px 40px rgba(0,0,0,.35)";
 
@@ -311,54 +265,29 @@ function showMessage(
         message;
 
     if (type === "success") {
-
-        box.style.background =
-            "#064e3b";
-
-        box.style.border =
-            "1px solid #10b981";
-
-        box.style.color =
-            "#d1fae5";
+        box.style.background = "#064e3b";
+        box.style.border = "1px solid #10b981";
+        box.style.color = "#d1fae5";
 
     } else if (type === "error") {
-
-        box.style.background =
-            "#450a0a";
-
-        box.style.border =
-            "1px solid #ef4444";
-
-        box.style.color =
-            "#fee2e2";
+        box.style.background = "#450a0a";
+        box.style.border = "1px solid #ef4444";
+        box.style.color = "#fee2e2";
 
     } else {
-
-        box.style.background =
-            "#10233a";
-
-        box.style.border =
-            "1px solid #294563";
-
-        box.style.color =
-            "#f5f8ff";
+        box.style.background = "#10233a";
+        box.style.border = "1px solid #294563";
+        box.style.color = "#f5f8ff";
     }
 
-    clearTimeout(
-        box._timer
-    );
+    clearTimeout(box._timer);
 
     box._timer =
-        setTimeout(
-            () => {
-
-                if (box.parentNode) {
-                    box.remove();
-                }
-
-            },
-            5000
-        );
+        setTimeout(() => {
+            if (box.parentNode) {
+                box.remove();
+            }
+        }, 5000);
 }
 
 
@@ -367,12 +296,10 @@ function showMessage(
    ========================================================= */
 
 async function getCurrentSession() {
-
     const client =
         getSupabaseClient();
 
     if (!client) {
-
         throw new Error(
             "Supabase client is not available."
         );
@@ -390,7 +317,6 @@ async function getCurrentSession() {
 
 
 async function requireCompanySession() {
-
     const session =
         await getCurrentSession();
 
@@ -398,7 +324,6 @@ async function requireCompanySession() {
         !session ||
         !session.user
     ) {
-
         window.location.href =
             "login.html";
 
@@ -420,83 +345,63 @@ async function requireCompanySession() {
    ========================================================= */
 
 async function loadCompanyProfile() {
-
     const client =
         getSupabaseClient();
 
-    if (
-        !client ||
-        !CompanyDashboardState.user
-    ) {
+    const user =
+        CompanyDashboardState.user;
+
+    if (!client || !user) {
         return null;
     }
 
-    const userId =
-        CompanyDashboardState.user.id;
-
-    let profile =
-        null;
-
+    let profile = null;
 
     try {
-
-        const companyResult =
+        const result =
             await client
                 .from("company_profiles")
                 .select("*")
-                .eq("id", userId)
+                .eq("id", user.id)
                 .maybeSingle();
 
         if (
-            !companyResult.error &&
-            companyResult.data
+            !result.error &&
+            result.data
         ) {
-
             profile =
-                companyResult.data;
+                result.data;
         }
-
     } catch (error) {
-
         console.warn(
             "Company profile lookup failed:",
             error
         );
-
     }
 
-
     if (!profile) {
-
         try {
-
-            const profileResult =
+            const result =
                 await client
                     .from("profiles")
                     .select("*")
-                    .eq("id", userId)
+                    .eq("id", user.id)
                     .maybeSingle();
 
             if (
-                !profileResult.error &&
-                profileResult.data
+                !result.error &&
+                result.data
             ) {
-
                 profile =
-                    profileResult.data;
+                    result.data;
             }
-
         } catch (error) {
-
             console.warn(
                 "Profile lookup failed:",
                 error
             );
-
         }
-
     }
-
 
     CompanyDashboardState.companyProfile =
         profile || {};
@@ -511,86 +416,62 @@ async function loadCompanyProfile() {
    COMPANY PROFILE UI
    ========================================================= */
 
-function renderCompanyProfile() {
-
+function getCompanyName() {
     const profile =
-        CompanyDashboardState.companyProfile ||
-        {};
+        CompanyDashboardState.companyProfile || {};
 
     const user =
-        CompanyDashboardState.user ||
-        {};
+        CompanyDashboardState.user || {};
 
-    const companyName =
+    return (
         profile.company_name ||
         profile.name ||
         profile.company ||
         user.user_metadata?.company_name ||
+        user.user_metadata?.company ||
         user.user_metadata?.name ||
-        "Company";
+        "Company"
+    );
+}
+
+
+function renderCompanyProfile() {
+    const companyName =
+        getCompanyName();
+
+    const user =
+        CompanyDashboardState.user || {};
+
+    const profile =
+        CompanyDashboardState.companyProfile || {};
 
     const email =
         profile.email ||
         user.email ||
         "";
 
-
     [
         "#company-name",
         "#company-title",
+        "#brand-company-name",
+        "#welcome-company-name",
         "[data-company-name]"
-    ].forEach(
-        selector => {
+    ].forEach(selector => {
+        $$(selector).forEach(element => {
+            element.textContent =
+                companyName;
+        });
+    });
 
-            $$(selector).forEach(
-                element => {
-
-                    element.textContent =
-                        companyName;
-
-                }
-            );
-
-        }
-    );
-
-
-    const emailElement =
-        getElement(
-            "#company-email",
-            "[data-company-email]"
-        );
-
-    if (emailElement) {
-
-        emailElement.textContent =
-            email;
-    }
-
-
-    const brandElement =
-        getElement(
-            "#brand-company-name",
-            ".brand-title"
-        );
-
-    if (brandElement) {
-
-        brandElement.textContent =
-            companyName;
-    }
-
-
-    const welcomeElement =
-        getElement(
-            "#welcome-company-name"
-        );
-
-    if (welcomeElement) {
-
-        welcomeElement.textContent =
-            companyName;
-    }
+    [
+        "#company-email",
+        "[data-company-email]"
+    ].forEach(selector => {
+        $$(selector).forEach(element => {
+            element.textContent =
+                email;
+        });
+    });
 }
 
 
@@ -599,7 +480,6 @@ function renderCompanyProfile() {
    ========================================================= */
 
 async function loadJobStatistics() {
-
     const client =
         getSupabaseClient();
 
@@ -607,48 +487,27 @@ async function loadJobStatistics() {
         return;
     }
 
-    const profile =
-        CompanyDashboardState.companyProfile ||
-        {};
-
     const companyName =
-        profile.company_name ||
-        profile.name ||
-        profile.company ||
-        CompanyDashboardState.user
-            ?.user_metadata
-            ?.company_name ||
-        null;
-
+        getCompanyName();
 
     try {
-
-        let query =
-            client
+        const result =
+            await client
                 .from("jobs")
                 .select(
                     "id,title,company,created_at",
                     {
                         count: "exact"
                     }
-                );
-
-        if (companyName) {
-
-            query =
-                query.eq(
+                )
+                .eq(
                     "company",
                     companyName
                 );
-        }
-
-        const result =
-            await query;
 
         if (result.error) {
-
             console.warn(
-                "Jobs statistics error:",
+                "Job statistics error:",
                 result.error
             );
 
@@ -658,52 +517,52 @@ async function loadJobStatistics() {
         const jobs =
             result.data || [];
 
-        const totalJobs =
+        const count =
             result.count !== null
                 ? result.count
                 : jobs.length;
 
-
-        const published =
-            getElement(
+        setStatistic(
+            [
                 "#published-jobs",
                 "#publishedJobs",
                 "[data-stat='published-jobs']"
-            );
+            ],
+            count
+        );
 
-        if (published) {
-            published.textContent =
-                String(totalJobs);
-        }
-
-
-        const active =
-            getElement(
+        setStatistic(
+            [
                 "#active-jobs",
                 "#activeJobs",
                 "[data-stat='active-jobs']"
-            );
-
-        if (active) {
-            active.textContent =
-                String(totalJobs);
-        }
-
+            ],
+            count
+        );
 
         await loadApplicationStatistics(
-            jobs.map(
-                job => job.id
-            )
+            jobs.map(job => job.id)
         );
 
     } catch (error) {
-
         console.warn(
             "Job statistics failed:",
             error
         );
-
     }
+}
+
+
+function setStatistic(
+    selectors,
+    value
+) {
+    selectors.forEach(selector => {
+        $$(selector).forEach(element => {
+            element.textContent =
+                String(value);
+        });
+    });
 }
 
 
@@ -714,7 +573,6 @@ async function loadJobStatistics() {
 async function loadApplicationStatistics(
     jobIds = []
 ) {
-
     const client =
         getSupabaseClient();
 
@@ -723,15 +581,19 @@ async function loadApplicationStatistics(
     }
 
     if (!jobIds.length) {
-
-        updateApplicationCount(0);
+        setStatistic(
+            [
+                "#total-applications",
+                "#totalApplications",
+                "[data-stat='applications']"
+            ],
+            0
+        );
 
         return;
     }
 
-
     try {
-
         const result =
             await client
                 .from("applications")
@@ -748,76 +610,46 @@ async function loadApplicationStatistics(
                 );
 
         if (result.error) {
-
             console.warn(
                 "Application statistics error:",
                 result.error
             );
 
-            updateApplicationCount(0);
-
             return;
         }
 
-        updateApplicationCount(
+        setStatistic(
+            [
+                "#total-applications",
+                "#totalApplications",
+                "[data-stat='applications']"
+            ],
             result.count || 0
         );
 
     } catch (error) {
-
         console.warn(
             "Application statistics failed:",
             error
         );
-
-        updateApplicationCount(0);
-
     }
-}
-
-
-function updateApplicationCount(count) {
-
-    [
-        "#total-applications",
-        "#totalApplications",
-        "[data-stat='applications']"
-    ].forEach(
-        selector => {
-
-            $$(selector).forEach(
-                element => {
-
-                    element.textContent =
-                        String(count);
-
-                }
-            );
-
-        }
-    );
 }
 
 
 /* =========================================================
-   LOAD SUBSCRIPTION PLANS
+   SUBSCRIPTION PLANS
    ========================================================= */
 
 async function loadSubscriptionPlans() {
-
     const client =
         getSupabaseClient();
 
     if (!client) {
-
         renderDefaultPlans();
-
         return;
     }
 
-
     try {
-
         const result =
             await client
                 .from("plans")
@@ -835,23 +667,14 @@ async function loadSubscriptionPlans() {
                     }
                 );
 
-
         if (
             result.error ||
             !result.data ||
             !result.data.length
         ) {
-
-            console.warn(
-                "Plans table unavailable. Using default plans.",
-                result.error || ""
-            );
-
             renderDefaultPlans();
-
             return;
         }
-
 
         CompanyDashboardState.plans =
             result.data;
@@ -861,14 +684,12 @@ async function loadSubscriptionPlans() {
         );
 
     } catch (error) {
-
         console.warn(
             "Subscription plans failed:",
             error
         );
 
         renderDefaultPlans();
-
     }
 }
 
@@ -878,9 +699,7 @@ async function loadSubscriptionPlans() {
    ========================================================= */
 
 function renderDefaultPlans() {
-
-    CompanyDashboardState.plans = [
-
+    const plans = [
         {
             id: "starter",
             plan_code: "starter",
@@ -893,7 +712,6 @@ function renderDefaultPlans() {
             plan_type: "monthly",
             is_active: true
         },
-
         {
             id: "professional",
             plan_code: "professional",
@@ -906,7 +724,6 @@ function renderDefaultPlans() {
             plan_type: "monthly",
             is_active: true
         },
-
         {
             id: "business",
             plan_code: "business",
@@ -919,12 +736,12 @@ function renderDefaultPlans() {
             plan_type: "monthly",
             is_active: true
         }
-
     ];
 
-    renderPlans(
-        CompanyDashboardState.plans
-    );
+    CompanyDashboardState.plans =
+        plans;
+
+    renderPlans(plans);
 }
 
 
@@ -932,47 +749,41 @@ function renderDefaultPlans() {
    RENDER PLANS
    ========================================================= */
 
-function renderPlans(plans) {
-
-    if (!Array.isArray(plans)) {
-        return;
-    }
-
-    const containers = [
+function getPlansContainer() {
+    return getElement(
         "#subscriptions",
         "#subscription-plans",
         "#plans-container",
         "#plans-list"
-    ];
+    );
+}
 
-    let container =
-        null;
 
-    for (const selector of containers) {
+function renderPlans(plans) {
+    const container =
+        getPlansContainer();
 
-        container =
-            document.querySelector(selector);
-
-        if (container) {
-            break;
-        }
-    }
-
-    if (!container) {
+    if (
+        !container ||
+        !Array.isArray(plans)
+    ) {
         return;
     }
 
-
     container.innerHTML =
         plans
-            .map(
-                plan =>
-                    createPlanHtml(plan)
-            )
+            .map(createPlanHtml)
             .join("");
 
-
     bindPlanButtons();
+
+    if (
+        CompanyDashboardState.selectedPlan
+    ) {
+        markSelectedPlan(
+            CompanyDashboardState.selectedPlan
+        );
+    }
 }
 
 
@@ -981,10 +792,10 @@ function renderPlans(plans) {
    ========================================================= */
 
 function createPlanHtml(plan) {
-
     const id =
         escapeHtml(
-            plan.id
+            plan.id ||
+            plan.plan_code
         );
 
     const code =
@@ -1007,22 +818,13 @@ function createPlanHtml(plan) {
         );
 
     const price =
-        Number(
-            plan.price || 0
-        ).toFixed(2);
-
-    const currency =
-        escapeHtml(
-            plan.currency ||
-            "USD"
-        );
+        Number(plan.price || 0)
+            .toFixed(2);
 
     const duration =
         Number(
-            plan.duration_days ||
-            30
+            plan.duration_days || 30
         );
-
 
     return `
         <div
@@ -1030,42 +832,27 @@ function createPlanHtml(plan) {
             data-plan-card="${id}"
             data-plan-code="${code}"
         >
-
             <div class="plan-card-content">
 
-                <h3>
-                    ${name}
-                </h3>
+                <h3>${name}</h3>
 
                 <div class="plan-price">
-
-                    <strong>
-                        $${price}
-                    </strong>
-
-                    <span>
-                        / ${duration} days
-                    </span>
-
+                    <strong>$${price}</strong>
+                    <span>/ ${duration} days</span>
                 </div>
 
-                <p>
-                    ${description}
-                </p>
+                <p>${description}</p>
 
                 <button
                     type="button"
                     class="plan-button"
                     data-plan="${id}"
                     data-plan-code="${code}"
-                    data-price="${price}"
-                    data-plan-name="${name}"
                 >
                     Choose ${name}
                 </button>
 
             </div>
-
         </div>
     `;
 }
@@ -1076,17 +863,8 @@ function createPlanHtml(plan) {
    ========================================================= */
 
 function bindPlanButtons() {
-
-    const buttons =
-        $$(
-            ".plan-button, " +
-            ".subscription-plan-card button, " +
-            "[data-pay-bnb]"
-        );
-
-
-    buttons.forEach(
-        button => {
+    $$(".plan-button, [data-plan-select]")
+        .forEach(button => {
 
             if (
                 button.dataset
@@ -1095,27 +873,23 @@ function bindPlanButtons() {
                 return;
             }
 
-
             button.dataset
                 .dashboardBound =
                 "true";
 
-
             button.addEventListener(
                 "click",
-                function(event) {
-
+                event => {
                     event.preventDefault();
 
                     const planId =
-                        this.dataset.plan ||
-                        this.dataset.planId ||
-                        this.dataset.id;
+                        button.dataset.plan ||
+                        button.dataset.planId ||
+                        button.dataset.id;
 
                     const planCode =
-                        this.dataset.planCode ||
-                        this.dataset.code;
-
+                        button.dataset.planCode ||
+                        button.dataset.code;
 
                     const plan =
                         findPlan(
@@ -1123,9 +897,7 @@ function bindPlanButtons() {
                             planCode
                         );
 
-
                     if (!plan) {
-
                         showMessage(
                             "Please select a valid subscription plan.",
                             "error"
@@ -1134,16 +906,10 @@ function bindPlanButtons() {
                         return;
                     }
 
-
-                    selectPlan(
-                        plan
-                    );
-
+                    selectPlan(plan);
                 }
             );
-
-        }
-    );
+        });
 }
 
 
@@ -1155,49 +921,41 @@ function findPlan(
     planId,
     planCode
 ) {
-
     const plans =
-        CompanyDashboardState.plans ||
-        [];
+        CompanyDashboardState.plans || [];
 
-    let plan =
-        plans.find(
-            item =>
+    let plan = null;
+
+    if (planId !== undefined) {
+        plan =
+            plans.find(item =>
                 String(item.id) ===
                 String(planId)
-        );
-
-
-    if (!plan && planCode) {
-
-        plan =
-            plans.find(
-                item =>
-                    String(
-                        item.plan_code
-                    ).toLowerCase() ===
-                    String(
-                        planCode
-                    ).toLowerCase()
             );
     }
 
+    if (!plan && planCode) {
+        plan =
+            plans.find(item =>
+                String(
+                    item.plan_code || ""
+                ).toLowerCase() ===
+                String(planCode).toLowerCase()
+            );
+    }
 
     if (!plan && planId) {
-
-        const configPlans =
+        const fallbackPlans =
             Object.values(
                 COMPANY_DASHBOARD_CONFIG.plans
             );
 
         plan =
-            configPlans.find(
-                item =>
-                    item.code ===
-                    String(planId)
+            fallbackPlans.find(item =>
+                item.code ===
+                String(planId)
             );
     }
-
 
     return plan || null;
 }
@@ -1208,9 +966,7 @@ function findPlan(
    ========================================================= */
 
 function selectPlan(plan) {
-
     if (!plan) {
-
         showMessage(
             "Please select a valid subscription plan.",
             "error"
@@ -1219,53 +975,40 @@ function selectPlan(plan) {
         return;
     }
 
-
     CompanyDashboardState.selectedPlan =
         plan;
 
+    markSelectedPlan(plan);
 
-    markSelectedPlan(
-        plan
-    );
+    updatePaymentPanel(plan);
 
-
-    updatePaymentPanel(
-        plan
-    );
-
-
-    const paymentPanel =
+    const panel =
         getElement(
             "#payment-panel",
             "#subscription-payment",
             "#payment-section"
         );
 
-
-    if (paymentPanel) {
-
-        paymentPanel.style.display =
+    if (panel) {
+        panel.style.display =
             "block";
 
-        paymentPanel.scrollIntoView({
+        panel.scrollIntoView({
             behavior: "smooth",
             block: "start"
         });
     }
 
-
-    const selectedName =
+    const name =
         plan.plan_name ||
         plan.name ||
         plan.plan_code ||
-        "Selected plan";
-
+        "Subscription";
 
     showMessage(
-        `${selectedName} selected.`,
+        `${name} selected successfully.`,
         "success"
     );
-
 
     updateSubscribeButton();
 }
@@ -1276,78 +1019,71 @@ function selectPlan(plan) {
    ========================================================= */
 
 function markSelectedPlan(plan) {
-
     $$(".subscription-plan-card")
-        .forEach(
-            card => {
-
-                card.classList.remove(
-                    "selected",
-                    "active",
-                    "is-selected"
-                );
-
-            }
-        );
-
-
-    let card = null;
-
-    try {
-
-        card =
-            document.querySelector(
-                `[data-plan-card="${CSS.escape(String(plan.id))}"]`
+        .forEach(card => {
+            card.classList.remove(
+                "selected",
+                "active",
+                "is-selected"
             );
-
-    } catch (error) {
-
-        card =
-            document.querySelector(
-                `[data-plan-card="${String(plan.id).replace(/"/g, '\\"')}"]`
-            );
-
-    }
-
-
-    if (card) {
-
-        card.classList.add(
-            "selected",
-            "active",
-            "is-selected"
-        );
-    }
-
+        });
 
     $$(".plan-button")
-        .forEach(
-            button => {
+        .forEach(button => {
+            button.classList.remove(
+                "selected",
+                "active"
+            );
+        });
 
-                button.classList.remove(
+    const cards =
+        $$(".subscription-plan-card");
+
+    cards.forEach(card => {
+        const cardCode =
+            card.dataset.planCode;
+
+        const cardId =
+            card.dataset.planCard;
+
+        if (
+            String(cardId) ===
+                String(plan.id) ||
+            String(cardCode).toLowerCase() ===
+                String(
+                    plan.plan_code || ""
+                ).toLowerCase()
+        ) {
+            card.classList.add(
+                "selected",
+                "active",
+                "is-selected"
+            );
+        }
+    });
+
+    $$(".plan-button")
+        .forEach(button => {
+            const buttonCode =
+                button.dataset.planCode;
+
+            const buttonId =
+                button.dataset.plan;
+
+            if (
+                String(buttonId) ===
+                    String(plan.id) ||
+                String(buttonCode).toLowerCase() ===
+                    String(
+                        plan.plan_code || ""
+                    ).toLowerCase()
+            ) {
+                button.classList.add(
                     "selected",
                     "active"
                 );
-
-
-                const buttonPlan =
-                    button.dataset.plan ||
-                    button.dataset.planId;
-
-
-                if (
-                    String(buttonPlan) ===
-                    String(plan.id)
-                ) {
-
-                    button.classList.add(
-                        "selected",
-                        "active"
-                    );
-                }
-
             }
-        );
+        });
 }
 
 
@@ -1356,87 +1092,48 @@ function markSelectedPlan(plan) {
    ========================================================= */
 
 function updatePaymentPanel(plan) {
-
     const name =
         plan.plan_name ||
         plan.name ||
         plan.plan_code ||
         "Subscription";
 
-
     const price =
-        Number(
-            plan.price || 0
-        ).toFixed(2);
-
+        Number(plan.price || 0)
+            .toFixed(2);
 
     [
         "#selected-plan-name",
         "#payment-plan-name",
         "[data-selected-plan]"
-    ].forEach(
-        selector => {
-
-            $$(selector).forEach(
-                element => {
-
-                    element.textContent =
-                        name;
-
-                }
-            );
-
-        }
-    );
-
+    ].forEach(selector => {
+        $$(selector).forEach(element => {
+            element.textContent =
+                name;
+        });
+    });
 
     [
         "#selected-plan-price",
         "#payment-plan-price",
         "[data-selected-price]"
-    ].forEach(
-        selector => {
+    ].forEach(selector => {
+        $$(selector).forEach(element => {
+            element.textContent =
+                `$${price}`;
+        });
+    });
 
-            $$(selector).forEach(
-                element => {
-
-                    element.textContent =
-                        `$${price}`;
-
-                }
-            );
-
-        }
-    );
-
-
-    const walletElement =
-        getElement(
-            "#payment-wallet",
-            "#wallet-address"
-        );
-
-
-    if (
-        walletElement &&
-        !CompanyDashboardState.walletAddress
-    ) {
-
-        walletElement.textContent =
-            "Wallet not connected";
-    }
-
-
+    updateWalletUI();
     updateSubscribeButton();
 }
 
 
 /* =========================================================
-   SUBSCRIBE BUTTON
+   PAYMENT BUTTON
    ========================================================= */
 
 function updateSubscribeButton() {
-
     const buttons = [
         "#send-payment",
         "#subscribe-button",
@@ -1445,122 +1142,99 @@ function updateSubscribeButton() {
         "[data-subscribe]"
     ];
 
+    buttons.forEach(selector => {
+        $$(selector).forEach(button => {
 
-    buttons.forEach(
-        selector => {
+            button.disabled =
+                !CompanyDashboardState.selectedPlan ||
+                CompanyDashboardState.paymentPending;
 
-            $$(selector).forEach(
-                button => {
-
-                    button.disabled =
-                        !CompanyDashboardState.selectedPlan ||
-                        CompanyDashboardState.paymentPending;
-
-                }
-            );
-
-        }
-    );
+            if (
+                !CompanyDashboardState.selectedPlan
+            ) {
+                button.title =
+                    "Select a subscription plan first.";
+            } else {
+                button.title = "";
+            }
+        });
+    });
 }
 
 
 /* =========================================================
-   WALLET SUPPORT
+   WALLET
    ========================================================= */
 
 function walletAvailable() {
-
     return Boolean(
         window.ethereum
     );
 }
 
 
-/* =========================================================
-   CONNECT WALLET
-   ========================================================= */
-
 async function connectWallet() {
-
     if (!walletAvailable()) {
-
         showMessage(
-            "Please install a Web3 wallet such as MetaMask.",
+            "Please install MetaMask or another compatible Web3 wallet.",
             "error"
         );
 
         return null;
     }
 
-
     try {
-
         const accounts =
             await window.ethereum.request({
                 method:
                     "eth_requestAccounts"
             });
 
-
         if (
             !accounts ||
             !accounts.length
         ) {
-
             throw new Error(
                 "No wallet account was returned."
             );
         }
 
-
         await switchToBNBChain();
 
-
-        const address =
-            accounts[0];
-
-
         CompanyDashboardState.walletAddress =
-            address;
-
+            accounts[0];
 
         if (
             window.ethers &&
             window.ethers.BrowserProvider
         ) {
-
             CompanyDashboardState.provider =
-                new ethers.BrowserProvider(
+                new window.ethers.BrowserProvider(
                     window.ethereum
                 );
 
             CompanyDashboardState.signer =
-                await CompanyDashboardState.provider
+                await CompanyDashboardState
+                    .provider
                     .getSigner();
         }
 
-
         updateWalletUI();
 
+        updateSubscribeButton();
 
         showMessage(
             "Wallet connected successfully.",
             "success"
         );
 
-
-        updateSubscribeButton();
-
-
-        return address;
+        return accounts[0];
 
     } catch (error) {
-
         console.error(
             "Wallet connection error:",
             error
         );
-
 
         showMessage(
             error.message ||
@@ -1568,32 +1242,26 @@ async function connectWallet() {
             "error"
         );
 
-
         return null;
     }
 }
 
 
 /* =========================================================
-   BNB SMART CHAIN
+   BNB CHAIN
    ========================================================= */
 
 async function switchToBNBChain() {
-
     if (!window.ethereum) {
-
         throw new Error(
             "Web3 wallet is not available."
         );
     }
 
-
     try {
-
         await window.ethereum.request({
             method:
                 "wallet_switchEthereumChain",
-
             params: [
                 {
                     chainId:
@@ -1605,18 +1273,13 @@ async function switchToBNBChain() {
 
     } catch (error) {
 
-        if (
-            error.code !== 4902
-        ) {
-
+        if (error.code !== 4902) {
             throw error;
         }
-
 
         await window.ethereum.request({
             method:
                 "wallet_addEthereumChain",
-
             params: [
                 {
                     chainId:
@@ -1627,16 +1290,9 @@ async function switchToBNBChain() {
                         COMPANY_DASHBOARD_CONFIG
                             .chainName,
 
-                    nativeCurrency: {
-                        name:
-                            "BNB",
-
-                        symbol:
-                            "BNB",
-
-                        decimals:
-                            18
-                    },
+                    nativeCurrency:
+                        COMPANY_DASHBOARD_CONFIG
+                            .nativeCurrency,
 
                     rpcUrls:
                         COMPANY_DASHBOARD_CONFIG
@@ -1658,50 +1314,33 @@ async function switchToBNBChain() {
    ========================================================= */
 
 function updateWalletUI() {
-
     const address =
         CompanyDashboardState.walletAddress;
 
-
-    const displayAddress =
+    const shortAddress =
         address
             ? `${address.slice(0, 6)}...${address.slice(-4)}`
-            : "Connect wallet";
-
+            : "Connect Wallet";
 
     $$("#wallet-address")
-        .forEach(
-            element => {
-
-                element.textContent =
-                    displayAddress;
-
-            }
-        );
-
+        .forEach(element => {
+            element.textContent =
+                shortAddress;
+        });
 
     $$("#payment-wallet")
-        .forEach(
-            element => {
-
-                element.textContent =
-                    displayAddress;
-
-            }
-        );
-
+        .forEach(element => {
+            element.textContent =
+                shortAddress;
+        });
 
     $$("#connect-wallet")
-        .forEach(
-            button => {
-
-                button.textContent =
-                    address
-                        ? displayAddress
-                        : "Connect Wallet";
-
-            }
-        );
+        .forEach(button => {
+            button.textContent =
+                address
+                    ? shortAddress
+                    : "Connect Wallet";
+        });
 }
 
 
@@ -1710,41 +1349,35 @@ function updateWalletUI() {
    ========================================================= */
 
 async function getBnbPrice() {
-
     const response =
         await fetch(
-            "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT"
+            COMPANY_DASHBOARD_CONFIG
+                .bnbPriceApi,
+            {
+                cache: "no-store"
+            }
         );
 
-
     if (!response.ok) {
-
         throw new Error(
             "Unable to retrieve the current BNB price."
         );
     }
 
-
     const data =
         await response.json();
 
-
     const price =
-        Number(
-            data.price
-        );
-
+        Number(data.price);
 
     if (
         !Number.isFinite(price) ||
         price <= 0
     ) {
-
         throw new Error(
             "Invalid BNB price."
         );
     }
-
 
     return price;
 }
@@ -1753,235 +1386,23 @@ async function getBnbPrice() {
 async function usdToBnb(
     usdAmount
 ) {
-
-    const bnbUsd =
+    const price =
         await getBnbPrice();
 
-
-    const bnbAmount =
+    const amount =
         Number(usdAmount) /
-        bnbUsd;
-
+        price;
 
     if (
-        !Number.isFinite(bnbAmount) ||
-        bnbAmount <= 0
+        !Number.isFinite(amount) ||
+        amount <= 0
     ) {
-
         throw new Error(
             "Invalid BNB amount."
         );
     }
 
-
-    return bnbAmount;
-}
-
-
-/* =========================================================
-   SEND PAYMENT
-   ========================================================= */
-
-async function sendSubscriptionPayment() {
-
-    if (
-        !CompanyDashboardState.selectedPlan
-    ) {
-
-        showMessage(
-            "Please select a subscription plan.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        CompanyDashboardState.paymentPending
-    ) {
-
-        return;
-    }
-
-
-    if (!walletAvailable()) {
-
-        showMessage(
-            "Please connect your Web3 wallet first.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    try {
-
-        CompanyDashboardState.paymentPending =
-            true;
-
-
-        updateSubscribeButton();
-
-
-        const address =
-            CompanyDashboardState.walletAddress ||
-            await connectWallet();
-
-
-        if (!address) {
-
-            throw new Error(
-                "Wallet connection is required."
-            );
-        }
-
-
-        await switchToBNBChain();
-
-
-        if (
-            !window.ethers
-        ) {
-
-            throw new Error(
-                "Ethers library is not loaded."
-            );
-        }
-
-
-        if (
-            !CompanyDashboardState.signer
-        ) {
-
-            CompanyDashboardState.provider =
-                new ethers.BrowserProvider(
-                    window.ethereum
-                );
-
-
-            CompanyDashboardState.signer =
-                await CompanyDashboardState.provider
-                    .getSigner();
-        }
-
-
-        const plan =
-            CompanyDashboardState.selectedPlan;
-
-
-        const usdAmount =
-            Number(
-                plan.price
-            );
-
-
-        showPaymentStatus(
-            "Calculating BNB amount..."
-        );
-
-
-        const bnbAmount =
-            await usdToBnb(
-                usdAmount
-            );
-
-
-        const value =
-            ethers.parseEther(
-                bnbAmount.toFixed(8)
-            );
-
-
-        showPaymentStatus(
-            `Preparing payment of approximately ${bnbAmount.toFixed(6)} BNB...`
-        );
-
-
-        const transaction =
-            await CompanyDashboardState
-                .signer
-                .sendTransaction({
-
-                    to:
-                        COMPANY_DASHBOARD_CONFIG
-                            .receiverWallet,
-
-                    value:
-                        value
-
-                });
-
-
-        showPaymentStatus(
-            "Transaction submitted. Waiting for confirmation..."
-        );
-
-
-        const receipt =
-            await transaction.wait();
-
-
-        if (
-            !receipt ||
-            receipt.status !== 1
-        ) {
-
-            throw new Error(
-                "The blockchain transaction was not confirmed."
-            );
-        }
-
-
-        await savePayment(
-            transaction.hash,
-            bnbAmount,
-            usdAmount,
-            plan
-        );
-
-
-        showPaymentStatus(
-            "Payment submitted successfully and is awaiting verification."
-        );
-
-
-        showMessage(
-            "Payment submitted successfully. Your subscription will be activated after verification.",
-            "success"
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "Subscription payment error:",
-            error
-        );
-
-
-        showPaymentStatus(
-            error.message ||
-            "Payment failed."
-        );
-
-
-        showMessage(
-            error.message ||
-            "Payment failed.",
-            "error"
-        );
-
-
-    } finally {
-
-        CompanyDashboardState.paymentPending =
-            false;
-
-
-        updateSubscribeButton();
-    }
+    return amount;
 }
 
 
@@ -1990,18 +1411,212 @@ async function sendSubscriptionPayment() {
    ========================================================= */
 
 function showPaymentStatus(message) {
-
     const element =
         getElement(
             "#payment-status",
             "#subscription-status"
         );
 
-
     if (element) {
-
         element.textContent =
             message;
+    }
+}
+
+
+/* =========================================================
+   SEND PAYMENT
+   ========================================================= */
+
+async function sendSubscriptionPayment() {
+    const plan =
+        CompanyDashboardState.selectedPlan;
+
+    if (!plan) {
+        showMessage(
+            "Please select a subscription plan first.",
+            "error"
+        );
+
+        return;
+    }
+
+    if (
+        CompanyDashboardState.paymentPending
+    ) {
+        return;
+    }
+
+    if (!walletAvailable()) {
+        showMessage(
+            "Please connect your Web3 wallet first.",
+            "error"
+        );
+
+        return;
+    }
+
+    CompanyDashboardState.paymentPending =
+        true;
+
+    updateSubscribeButton();
+
+    try {
+        let address =
+            CompanyDashboardState.walletAddress;
+
+        if (!address) {
+            address =
+                await connectWallet();
+        }
+
+        if (!address) {
+            throw new Error(
+                "Wallet connection is required."
+            );
+        }
+
+        await switchToBNBChain();
+
+        if (!window.ethers) {
+            throw new Error(
+                "Ethers library is not loaded."
+            );
+        }
+
+        if (
+            !CompanyDashboardState.provider
+        ) {
+            CompanyDashboardState.provider =
+                new window.ethers.BrowserProvider(
+                    window.ethereum
+                );
+        }
+
+        if (
+            !CompanyDashboardState.signer
+        ) {
+            CompanyDashboardState.signer =
+                await CompanyDashboardState
+                    .provider
+                    .getSigner();
+        }
+
+        const usdAmount =
+            Number(plan.price);
+
+        if (
+            !Number.isFinite(usdAmount) ||
+            usdAmount <= 0
+        ) {
+            throw new Error(
+                "Invalid subscription price."
+            );
+        }
+
+        showPaymentStatus(
+            "Getting the current BNB price..."
+        );
+
+        const bnbAmount =
+            await usdToBnb(
+                usdAmount
+            );
+
+        const roundedBnb =
+            Number(
+                bnbAmount.toFixed(8)
+            );
+
+        const value =
+            window.ethers.parseEther(
+                roundedBnb.toFixed(8)
+            );
+
+        showPaymentStatus(
+            `Payment amount: ${roundedBnb.toFixed(8)} BNB`
+        );
+
+        const transaction =
+            await CompanyDashboardState
+                .signer
+                .sendTransaction({
+                    to:
+                        COMPANY_DASHBOARD_CONFIG
+                            .receiverWallet,
+
+                    value:
+                        value
+                });
+
+        showPaymentStatus(
+            "Transaction submitted. Waiting for confirmation..."
+        );
+
+        const receipt =
+            await transaction.wait();
+
+        if (
+            !receipt ||
+            Number(receipt.status) !== 1
+        ) {
+            throw new Error(
+                "The blockchain transaction failed."
+            );
+        }
+
+        showPaymentStatus(
+            "Transaction confirmed. Saving payment..."
+        );
+
+        await savePayment({
+            transactionHash:
+                transaction.hash,
+
+            bnbAmount:
+                roundedBnb,
+
+            usdAmount:
+                usdAmount,
+
+            plan:
+                plan,
+
+            walletAddress:
+                address
+        });
+
+        showPaymentStatus(
+            "Payment submitted successfully and is awaiting verification."
+        );
+
+        showMessage(
+            "Payment submitted successfully. Your subscription will be activated after verification.",
+            "success"
+        );
+
+    } catch (error) {
+        console.error(
+            "Subscription payment error:",
+            error
+        );
+
+        showPaymentStatus(
+            error.message ||
+            "Payment failed."
+        );
+
+        showMessage(
+            error.message ||
+            "Payment failed.",
+            "error"
+        );
+
+    } finally {
+        CompanyDashboardState.paymentPending =
+            false;
+
+        updateSubscribeButton();
     }
 }
 
@@ -2010,39 +1625,38 @@ function showPaymentStatus(message) {
    SAVE PAYMENT
    ========================================================= */
 
-async function savePayment(
+async function savePayment({
     transactionHash,
     bnbAmount,
     usdAmount,
-    plan
-) {
-
+    plan,
+    walletAddress
+}) {
     const client =
         getSupabaseClient();
 
-
     if (!client) {
-
         throw new Error(
             "Supabase client is not available."
         );
     }
 
-
     const userId =
         CompanyDashboardState.user?.id;
 
-
     if (!userId) {
-
         throw new Error(
             "Authenticated user was not found."
         );
     }
 
+    const planCode =
+        plan.plan_code ||
+        plan.code ||
+        plan.id ||
+        null;
 
     const paymentData = {
-
         user_id:
             userId,
 
@@ -2072,30 +1686,37 @@ async function savePayment(
 
         blockchain_network:
             "BNB Smart Chain"
-
     };
-
 
     const result =
         await client
             .from("payments")
             .insert(
                 paymentData
-            );
-
+            )
+            .select();
 
     if (result.error) {
-
         throw result.error;
     }
 
+    console.log(
+        "Payment saved:",
+        {
+            transactionHash,
+            bnbAmount,
+            usdAmount,
+            planCode,
+            walletAddress
+        }
+    );
 
-    return result;
+    return result.data;
 }
 
 
 /* =========================================================
-   EVENT BINDING
+   EVENTS
    ========================================================= */
 
 function bindDashboardEvents() {
@@ -2103,120 +1724,91 @@ function bindDashboardEvents() {
     /* Wallet */
 
     $$("#connect-wallet")
-        .forEach(
-            button => {
+        .forEach(button => {
+
+            if (
+                button.dataset
+                    .dashboardBound === "true"
+            ) {
+                return;
+            }
+
+            button.dataset
+                .dashboardBound =
+                "true";
+
+            button.addEventListener(
+                "click",
+                async event => {
+                    event.preventDefault();
+
+                    await connectWallet();
+                }
+            );
+        });
+
+
+    /* Payment */
+
+    [
+        "#send-payment",
+        "#subscribe-button",
+        "#pay-button",
+        "#confirm-subscription",
+        "[data-subscribe]"
+    ].forEach(selector => {
+
+        $$(selector)
+            .forEach(button => {
 
                 if (
                     button.dataset
-                        .dashboardBound ===
-                    "true"
+                        .dashboardBound === "true"
                 ) {
                     return;
                 }
-
 
                 button.dataset
                     .dashboardBound =
                     "true";
 
-
                 button.addEventListener(
                     "click",
                     async event => {
-
                         event.preventDefault();
 
-                        await connectWallet();
-
+                        await sendSubscriptionPayment();
                     }
                 );
-
-            }
-        );
-
-
-    /* Payment */
-
-    const paymentButtons = [
-        "#send-payment",
-        "#subscribe-button",
-        "#pay-button",
-        "#confirm-subscription"
-    ];
-
-
-    paymentButtons.forEach(
-        selector => {
-
-            $$(selector)
-                .forEach(
-                    button => {
-
-                        if (
-                            button.dataset
-                                .dashboardBound ===
-                            "true"
-                        ) {
-                            return;
-                        }
-
-
-                        button.dataset
-                            .dashboardBound =
-                            "true";
-
-
-                        button.addEventListener(
-                            "click",
-                            async event => {
-
-                                event.preventDefault();
-
-                                await sendSubscriptionPayment();
-
-                            }
-                        );
-
-                    }
-                );
-
-        }
-    );
+            });
+    });
 
 
     /* Logout */
 
     $$("#logout-button")
-        .forEach(
-            button => {
+        .forEach(button => {
 
-                if (
-                    button.dataset
-                        .dashboardBound ===
-                    "true"
-                ) {
-                    return;
-                }
-
-
+            if (
                 button.dataset
-                    .dashboardBound =
-                    "true";
-
-
-                button.addEventListener(
-                    "click",
-                    async event => {
-
-                        event.preventDefault();
-
-                        await logoutCompany();
-
-                    }
-                );
-
+                    .dashboardBound === "true"
+            ) {
+                return;
             }
-        );
+
+            button.dataset
+                .dashboardBound =
+                "true";
+
+            button.addEventListener(
+                "click",
+                async event => {
+                    event.preventDefault();
+
+                    await logoutCompany();
+                }
+            );
+        });
 
 
     bindPlanButtons();
@@ -2228,29 +1820,21 @@ function bindDashboardEvents() {
    ========================================================= */
 
 async function logoutCompany() {
-
     try {
-
         const client =
             getSupabaseClient();
 
-
         if (client) {
-
             await client.auth.signOut();
         }
 
-
     } catch (error) {
-
         console.error(
             "Logout error:",
             error
         );
 
-
     } finally {
-
         window.location.href =
             "login.html";
     }
@@ -2262,11 +1846,9 @@ async function logoutCompany() {
    ========================================================= */
 
 function bindWalletEvents() {
-
     if (!window.ethereum) {
         return;
     }
-
 
     if (
         window.__web3JobsWalletEventsBound
@@ -2274,10 +1856,8 @@ function bindWalletEvents() {
         return;
     }
 
-
     window.__web3JobsWalletEventsBound =
         true;
-
 
     window.ethereum.on(
         "accountsChanged",
@@ -2287,7 +1867,6 @@ function bindWalletEvents() {
                 !accounts ||
                 !accounts.length
             ) {
-
                 CompanyDashboardState
                     .walletAddress =
                     null;
@@ -2301,17 +1880,21 @@ function bindWalletEvents() {
                     null;
 
             } else {
-
                 CompanyDashboardState
                     .walletAddress =
                     accounts[0];
+
+                CompanyDashboardState
+                    .provider =
+                    null;
+
+                CompanyDashboardState
+                    .signer =
+                    null;
             }
 
-
             updateWalletUI();
-
             updateSubscribeButton();
-
         }
     );
 
@@ -2329,197 +1912,42 @@ function bindWalletEvents() {
                 null;
 
             updateSubscribeButton();
-
         }
     );
 }
 
 
 /* =========================================================
-   DETECT CONNECTED WALLET
+   EXISTING WALLET
    ========================================================= */
 
 async function detectExistingWallet() {
-
     if (!window.ethereum) {
         return;
     }
 
-
     try {
-
         const accounts =
             await window.ethereum.request({
                 method:
                     "eth_accounts"
             });
 
-
         if (
             accounts &&
             accounts.length
         ) {
-
             CompanyDashboardState
                 .walletAddress =
                 accounts[0];
 
-
             updateWalletUI();
         }
 
-
     } catch (error) {
-
         console.warn(
             "Wallet detection failed:",
             error
-        );
-    }
-}
-
-
-/* =========================================================
-   INITIALIZE DASHBOARD
-   ========================================================= */
-
-async function initializeCompanyDashboard() {
-
-    if (
-        CompanyDashboardState.initialized
-    ) {
-        return;
-    }
-
-
-    CompanyDashboardState.initialized =
-        true;
-
-
-    showLoading();
-
-
-    try {
-
-        /*
-         * STEP 1
-         * Authentication is the only
-         * requirement for opening
-         * the dashboard.
-         */
-
-        const session =
-            await requireCompanySession();
-
-
-        if (!session) {
-            return;
-        }
-
-
-        /*
-         * STEP 2
-         * Load company information.
-         * Errors here must not block
-         * the dashboard.
-         */
-
-        try {
-
-            await loadCompanyProfile();
-
-        } catch (error) {
-
-            console.warn(
-                "Company profile loading failed:",
-                error
-            );
-
-        }
-
-
-        /*
-         * STEP 3
-         * Hide loading immediately.
-         *
-         * The dashboard must open even
-         * if jobs, plans or wallet fail.
-         */
-
-        hideLoading();
-
-
-        /*
-         * STEP 4
-         * Bind dashboard controls.
-         */
-
-        bindDashboardEvents();
-
-
-        /*
-         * STEP 5
-         * Load secondary data.
-         * These operations are isolated.
-         */
-
-        Promise.resolve()
-            .then(
-                () => loadJobStatistics()
-            )
-            .catch(
-                error => console.warn(
-                    "Job statistics failed:",
-                    error
-                )
-            );
-
-
-        Promise.resolve()
-            .then(
-                () => loadSubscriptionPlans()
-            )
-            .catch(
-                error => console.warn(
-                    "Subscription plans failed:",
-                    error
-                )
-            );
-
-
-        /*
-         * STEP 6
-         * Wallet is optional.
-         */
-
-        bindWalletEvents();
-
-
-        await detectExistingWallet();
-
-
-        updateWalletUI();
-
-
-        updateSubscribeButton();
-
-
-    } catch (error) {
-
-        console.error(
-            "Company dashboard initialization error:",
-            error
-        );
-
-
-        /*
-         * Only authentication / critical
-         * initialization errors reach here.
-         */
-
-        showLoadingError(
-            error.message ||
-            "Unable to load the company dashboard."
         );
     }
 }
@@ -2530,18 +1958,10 @@ async function initializeCompanyDashboard() {
    ========================================================= */
 
 function showLoadingError(message) {
-
     const loading =
         $("#loading-spinner");
 
-
     if (!loading) {
-
-        /*
-         * If the loading element does not
-         * exist, do not replace the page.
-         */
-
         hideLoading();
 
         showMessage(
@@ -2552,18 +1972,11 @@ function showLoadingError(message) {
         return;
     }
 
-
     loading.innerHTML = `
-
         <div class="loading-card">
+            <div class="loading-logo">!</div>
 
-            <div class="loading-logo">
-                !
-            </div>
-
-            <h2>
-                Dashboard Error
-            </h2>
+            <h2>Dashboard Error</h2>
 
             <p>
                 ${escapeHtml(message)}
@@ -2577,24 +1990,17 @@ function showLoadingError(message) {
             >
                 Retry
             </button>
-
         </div>
-
     `;
-
 
     const retry =
         $("#dashboard-retry");
 
-
     if (retry) {
-
         retry.addEventListener(
             "click",
             () => {
-
                 window.location.reload();
-
             }
         );
     }
@@ -2602,7 +2008,105 @@ function showLoadingError(message) {
 
 
 /* =========================================================
-   GLOBAL FUNCTIONS
+   INITIALIZE
+   ========================================================= */
+
+async function initializeCompanyDashboard() {
+    if (
+        CompanyDashboardState.initialized
+    ) {
+        return;
+    }
+
+    CompanyDashboardState.initialized =
+        true;
+
+    showLoading();
+
+    try {
+        const session =
+            await requireCompanySession();
+
+        if (!session) {
+            return;
+        }
+
+        try {
+            await loadCompanyProfile();
+        } catch (error) {
+            console.warn(
+                "Company profile loading failed:",
+                error
+            );
+        }
+
+        hideLoading();
+
+        bindDashboardEvents();
+        bindWalletEvents();
+
+        await detectExistingWallet();
+
+        updateWalletUI();
+        updateSubscribeButton();
+
+        loadJobStatistics()
+            .catch(error =>
+                console.warn(
+                    "Job statistics failed:",
+                    error
+                )
+            );
+
+        loadSubscriptionPlans()
+            .catch(error =>
+                console.warn(
+                    "Subscription plans failed:",
+                    error
+                )
+            );
+
+    } catch (error) {
+        console.error(
+            "Company dashboard initialization error:",
+            error
+        );
+
+        showLoadingError(
+            error.message ||
+            "Unable to load the company dashboard."
+        );
+    }
+}
+
+
+/* =========================================================
+   GLOBAL API
+   ========================================================= */
+
+window.Web3JobsCompanyDashboard = {
+    state:
+        CompanyDashboardState,
+
+    selectPlan:
+        selectPlan,
+
+    connectWallet:
+        connectWallet,
+
+    subscribe:
+        sendSubscriptionPayment,
+
+    reloadPlans:
+        loadSubscriptionPlans,
+
+    reloadStatistics:
+        loadJobStatistics
+};
+
+
+/* =========================================================
+   BACKWARD COMPATIBILITY
    ========================================================= */
 
 window.selectPlan =
@@ -2614,9 +2118,7 @@ window.selectPlan =
                 planId
             );
 
-
         if (!plan) {
-
             showMessage(
                 "Please select a valid subscription plan.",
                 "error"
@@ -2625,10 +2127,7 @@ window.selectPlan =
             return;
         }
 
-
-        selectPlan(
-            plan
-        );
+        selectPlan(plan);
     };
 
 
@@ -2648,16 +2147,12 @@ if (
     document.readyState ===
     "loading"
 ) {
-
     document.addEventListener(
         "DOMContentLoaded",
         initializeCompanyDashboard
     );
-
 } else {
-
     initializeCompanyDashboard();
-
 }
 
 
