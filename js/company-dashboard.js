@@ -31,11 +31,6 @@ const COMPANY_DASHBOARD_CONFIG = {
     supabaseUrl:
         "https://uewocyaspztybnvnkbmo.supabase.co",
 
-    /* =====================================================
-       PAYMENT RECEIVING WALLET
-       USDT BEP-20 / BNB Smart Chain
-       ===================================================== */
-
     paymentWallet:
         "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
 
@@ -121,6 +116,8 @@ let connectedWallet = null;
 
 let dashboardInitialized = false;
 
+let paymentInProgress = false;
+
 
 /* =========================================================
    SUPABASE INITIALIZATION
@@ -182,13 +179,15 @@ function getSupabaseClient() {
    ========================================================= */
 
 function $(id) {
+
     return document.getElementById(id);
 }
 
 
 function setText(id, value) {
 
-    const element = $(id);
+    const element =
+        $(id);
 
     if (!element) {
         return;
@@ -205,7 +204,8 @@ function setText(id, value) {
 
 function showElement(id) {
 
-    const element = $(id);
+    const element =
+        $(id);
 
     if (element) {
         element.style.display = "";
@@ -215,7 +215,8 @@ function showElement(id) {
 
 function hideElement(id) {
 
-    const element = $(id);
+    const element =
+        $(id);
 
     if (element) {
         element.style.display = "none";
@@ -242,6 +243,7 @@ function escapeHtml(value) {
 
 
 function escapeAttribute(value) {
+
     return escapeHtml(value);
 }
 
@@ -255,7 +257,8 @@ function showAlert(
     type = "success"
 ) {
 
-    const alert = $("dashboard-alert");
+    const alert =
+        $("dashboard-alert");
 
     if (!alert) {
 
@@ -317,6 +320,7 @@ function showDashboardLoading(message) {
         spinner.querySelector("p");
 
     if (title) {
+
         title.textContent =
             "Loading Company Dashboard";
     }
@@ -325,6 +329,7 @@ function showDashboardLoading(message) {
         paragraph &&
         message
     ) {
+
         paragraph.textContent =
             message;
     }
@@ -340,11 +345,13 @@ function hideDashboardLoading() {
         $("dashboard-content");
 
     if (spinner) {
+
         spinner.style.display =
             "none";
     }
 
     if (content) {
+
         content.style.display =
             "block";
     }
@@ -375,6 +382,7 @@ async function getCurrentUser() {
         data.session &&
         data.session.user
     ) {
+
         return data.session.user;
     }
 
@@ -385,6 +393,7 @@ async function getCurrentUser() {
         await client.auth.getUser();
 
     if (userError) {
+
         return null;
     }
 
@@ -402,6 +411,7 @@ async function loadProfile() {
         getSupabaseClient();
 
     if (!currentUser) {
+
         throw new Error(
             "No authenticated user."
         );
@@ -678,6 +688,7 @@ function normalizePlanCode(value) {
             normalized
         ]
     ) {
+
         return normalized;
     }
 
@@ -742,6 +753,7 @@ async function loadLatestPayment() {
         !data ||
         !data.length
     ) {
+
         return null;
     }
 
@@ -810,6 +822,7 @@ function getPaymentExpiration(payment) {
                     date.getTime()
                 )
             ) {
+
                 return date;
             }
         }
@@ -873,6 +886,7 @@ function isPaymentActive(payment) {
         status !== "success" &&
         status !== "paid"
     ) {
+
         return false;
     }
 
@@ -1034,9 +1048,6 @@ function renderSubscription() {
 
 /* =========================================================
    SUBSCRIPTION PROMOTION
-   NEW DESIGN
-   Only buttons are displayed.
-   Clicking a button opens a professional modal.
    ========================================================= */
 
 function renderSubscriptionPromotion() {
@@ -1359,6 +1370,7 @@ function openPlanModal(code) {
 
     requestAnimationFrame(
         () => {
+
             modal.classList.add(
                 "visible"
             );
@@ -1394,6 +1406,12 @@ function openPlanModal(code) {
             "click",
             async () => {
 
+                chooseButton.disabled =
+                    true;
+
+                chooseButton.textContent =
+                    "Opening Payment...";
+
                 closePlanModal();
 
                 await selectPlan(
@@ -1414,8 +1432,15 @@ function openPlanModal(code) {
 
                 closePlanModal();
 
+                currentPlan =
+                    COMPANY_DASHBOARD_CONFIG
+                        .plans
+                        .free;
+
+                renderSubscription();
+
                 showAlert(
-                    "Free plan is already available.",
+                    "Free plan selected.",
                     "success"
                 );
             }
@@ -1443,6 +1468,7 @@ function closePlanModal() {
             () => {
 
                 if (modal.parentNode) {
+
                     modal.parentNode.removeChild(
                         modal
                     );
@@ -1478,10 +1504,6 @@ function injectSubscriptionStyles() {
         "web3jobs-subscription-styles";
 
     style.textContent = `
-
-        /* ================================================
-           SUBSCRIPTION BUTTONS
-           ================================================ */
 
         #subscription-promotion {
             margin: 28px 0;
@@ -1623,10 +1645,6 @@ function injectSubscriptionStyles() {
             font-size: 18px;
         }
 
-        /* ================================================
-           MODAL
-           ================================================ */
-
         body.subscription-modal-open {
             overflow: hidden;
         }
@@ -1673,7 +1691,9 @@ function injectSubscriptionStyles() {
                 );
             box-shadow:
                 0 30px 90px rgba(0,0,0,.55);
-            transform: translateY(12px) scale(.98);
+            transform:
+                translateY(12px)
+                scale(.98);
             transition:
                 transform .18s ease;
         }
@@ -1701,7 +1721,8 @@ function injectSubscriptionStyles() {
         }
 
         .subscription-modal-close:hover {
-            background: rgba(255,255,255,.09);
+            background:
+                rgba(255,255,255,.09);
             color: #fff;
         }
 
@@ -1710,8 +1731,10 @@ function injectSubscriptionStyles() {
             margin-bottom: 10px;
             padding: 5px 9px;
             border-radius: 999px;
-            background: rgba(59, 202, 255, .09);
-            border: 1px solid rgba(59, 202, 255, .18);
+            background:
+                rgba(59, 202, 255, .09);
+            border:
+                1px solid rgba(59, 202, 255, .18);
             color: #81e1ff;
             font-size: 10px;
             font-weight: 700;
@@ -1767,7 +1790,8 @@ function injectSubscriptionStyles() {
             width: 22px;
             height: 22px;
             border-radius: 50%;
-            background: rgba(64, 210, 174, .09);
+            background:
+                rgba(64, 210, 174, .09);
             color: #65e1ba;
             font-size: 12px;
         }
@@ -1775,7 +1799,8 @@ function injectSubscriptionStyles() {
         .subscription-modal-action {
             width: 100%;
             min-height: 48px;
-            border: 1px solid rgba(75, 208, 255, .35);
+            border:
+                1px solid rgba(75, 208, 255, .35);
             border-radius: 13px;
             background:
                 linear-gradient(
@@ -1791,7 +1816,8 @@ function injectSubscriptionStyles() {
         }
 
         .subscription-modal-action:hover {
-            transform: translateY(-1px);
+            transform:
+                translateY(-1px);
             border-color:
                 rgba(75, 208, 255, .65);
         }
@@ -1812,6 +1838,260 @@ function injectSubscriptionStyles() {
             color: #718399 !important;
         }
 
+        /* =================================================
+           PAYMENT MODAL
+           ================================================= */
+
+        body.web3jobs-payment-open {
+            overflow: hidden;
+        }
+
+        #web3jobs-payment-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease;
+        }
+
+        #web3jobs-payment-modal.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .web3jobs-payment-backdrop {
+            position: absolute;
+            inset: 0;
+            background:
+                rgba(1, 7, 14, .82);
+            backdrop-filter:
+                blur(9px);
+        }
+
+        .web3jobs-payment-card {
+            position: relative;
+            z-index: 2;
+            width: min(440px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 28px;
+            border:
+                1px solid rgba(92, 175, 225, .25);
+            border-radius: 24px;
+            background:
+                linear-gradient(
+                    145deg,
+                    #0c1d31,
+                    #07111e
+                );
+            box-shadow:
+                0 30px 90px rgba(0,0,0,.58);
+            transform:
+                translateY(12px)
+                scale(.98);
+            transition:
+                transform .2s ease;
+        }
+
+        #web3jobs-payment-modal.visible
+        .web3jobs-payment-card {
+            transform:
+                translateY(0)
+                scale(1);
+        }
+
+        .web3jobs-payment-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 36px;
+            height: 36px;
+            border:
+                1px solid rgba(255,255,255,.08);
+            border-radius: 10px;
+            background:
+                rgba(255,255,255,.04);
+            color: #aab8c9;
+            font-size: 23px;
+            cursor: pointer;
+        }
+
+        .web3jobs-payment-badge {
+            display: inline-block;
+            padding: 5px 9px;
+            margin-bottom: 10px;
+            border-radius: 999px;
+            background:
+                rgba(59,202,255,.09);
+            border:
+                1px solid rgba(59,202,255,.18);
+            color: #81e1ff;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        .web3jobs-payment-card h2 {
+            margin: 0;
+            color: #fff;
+            font-size: 27px;
+        }
+
+        .web3jobs-payment-price {
+            margin-top: 7px;
+            color: #76dcff;
+            font-size: 21px;
+            font-weight: 800;
+        }
+
+        .web3jobs-payment-network {
+            margin-top: 5px;
+            color: #8396aa;
+            font-size: 12px;
+        }
+
+        .web3jobs-payment-divider {
+            height: 1px;
+            margin: 20px 0;
+            background:
+                rgba(255,255,255,.08);
+        }
+
+        .web3jobs-payment-wallet {
+            padding: 13px;
+            border-radius: 13px;
+            border:
+                1px solid rgba(255,255,255,.07);
+            background:
+                rgba(255,255,255,.025);
+        }
+
+        .web3jobs-payment-wallet-label {
+            color: #7f91a7;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+
+        .web3jobs-payment-wallet-address {
+            word-break: break-all;
+            color: #dce9f7;
+            font-size: 12px;
+        }
+
+        .web3jobs-payment-status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 12px;
+            background:
+                rgba(75,208,255,.06);
+            border:
+                1px solid rgba(75,208,255,.13);
+            color: #9cdff2;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .web3jobs-payment-actions {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 17px;
+        }
+
+        .web3jobs-payment-button {
+            width: 100%;
+            min-height: 49px;
+            border-radius: 13px;
+            border:
+                1px solid rgba(75,208,255,.35);
+            background:
+                linear-gradient(
+                    135deg,
+                    #123b55,
+                    #0b2539
+                );
+            color: #e9faff;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .web3jobs-payment-button:hover {
+            border-color:
+                rgba(75,208,255,.65);
+        }
+
+        .web3jobs-payment-button.secondary {
+            background:
+                rgba(255,255,255,.035);
+            border-color:
+                rgba(255,255,255,.09);
+            color: #aebdcd;
+        }
+
+        .web3jobs-payment-button:disabled {
+            opacity: .55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .web3jobs-payment-security {
+            margin-top: 14px;
+            text-align: center;
+            color: #718399;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        .web3jobs-tx-link {
+            display: inline-block;
+            margin-top: 8px;
+            color: #76dcff;
+            text-decoration: none;
+        }
+
+        /* =================================================
+           LOGOUT
+           ================================================= */
+
+        .web3jobs-logout-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 40px;
+            padding: 0 14px;
+            border:
+                1px solid rgba(255,255,255,.10);
+            border-radius: 11px;
+            background:
+                rgba(255,255,255,.035);
+            color: #c7d4e3;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .web3jobs-logout-button:hover {
+            background:
+                rgba(255,255,255,.075);
+            border-color:
+                rgba(255,255,255,.20);
+            color: #fff;
+        }
+
+        .web3jobs-logout-button:disabled {
+            opacity: .6;
+            cursor: wait;
+        }
+
         @media (max-width: 760px) {
 
             #subscription-promotion {
@@ -1827,9 +2107,11 @@ function injectSubscriptionStyles() {
                 min-height: 72px;
             }
 
-            .subscription-modal-card {
+            .subscription-modal-card,
+            .web3jobs-payment-card {
                 padding: 24px 20px;
             }
+
         }
 
     `;
@@ -1886,6 +2168,317 @@ function setupPlanButtons() {
 
 
 /* =========================================================
+   PAYMENT UI
+   ========================================================= */
+
+function ensurePaymentUI() {
+
+    if (
+        $("web3jobs-payment-modal")
+    ) {
+
+        return;
+    }
+
+    const modal =
+        document.createElement("div");
+
+    modal.id =
+        "web3jobs-payment-modal";
+
+    modal.innerHTML = `
+
+        <div
+            class="web3jobs-payment-backdrop"
+            data-close-payment="true"
+        ></div>
+
+        <div
+            class="web3jobs-payment-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="web3jobs-payment-title"
+        >
+
+            <button
+                type="button"
+                class="web3jobs-payment-close"
+                id="web3jobs-payment-close"
+                aria-label="Close"
+            >
+                ×
+            </button>
+
+            <div class="web3jobs-payment-badge">
+                Secure Web3 Payment
+            </div>
+
+            <h2 id="web3jobs-payment-title">
+                Payment
+            </h2>
+
+            <div
+                class="web3jobs-payment-price"
+                id="web3jobs-payment-price"
+            >
+                $0 USDT
+            </div>
+
+            <div class="web3jobs-payment-network">
+                USDT BEP-20 on BNB Smart Chain
+            </div>
+
+            <div class="web3jobs-payment-divider"></div>
+
+            <div class="web3jobs-payment-wallet">
+
+                <div class="web3jobs-payment-wallet-label">
+                    Payment recipient
+                </div>
+
+                <div
+                    class="web3jobs-payment-wallet-address"
+                >
+                    ${escapeHtml(
+                        COMPANY_DASHBOARD_CONFIG
+                            .paymentWallet
+                    )}
+                </div>
+
+            </div>
+
+            <div
+                class="web3jobs-payment-status"
+                id="web3jobs-payment-status"
+            >
+                Connect your wallet to continue.
+            </div>
+
+            <div class="web3jobs-payment-actions">
+
+                <button
+                    type="button"
+                    class="web3jobs-payment-button"
+                    id="web3jobs-modal-connect"
+                >
+                    Connect Wallet
+                </button>
+
+                <button
+                    type="button"
+                    class="web3jobs-payment-button"
+                    id="web3jobs-modal-pay"
+                    disabled
+                >
+                    Pay USDT
+                </button>
+
+                <button
+                    type="button"
+                    class="web3jobs-payment-button secondary"
+                    id="web3jobs-modal-cancel"
+                >
+                    Cancel
+                </button>
+
+            </div>
+
+            <div class="web3jobs-payment-security">
+                Your subscription is activated only after the
+                blockchain transaction is confirmed and verified.
+            </div>
+
+        </div>
+    `;
+
+    document.body.appendChild(
+        modal
+    );
+
+    const closeButton =
+        $("web3jobs-payment-close");
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closePaymentModal
+        );
+    }
+
+    const cancelButton =
+        $("web3jobs-modal-cancel");
+
+    if (cancelButton) {
+
+        cancelButton.addEventListener(
+            "click",
+            closePaymentModal
+        );
+    }
+
+    const backdrop =
+        modal.querySelector(
+            "[data-close-payment]"
+        );
+
+    if (backdrop) {
+
+        backdrop.addEventListener(
+            "click",
+            closePaymentModal
+        );
+    }
+
+    const connectButton =
+        $("web3jobs-modal-connect");
+
+    if (connectButton) {
+
+        connectButton.addEventListener(
+            "click",
+            async () => {
+
+                const wallet =
+                    await connectWallet();
+
+                updatePaymentModalState(
+                    wallet
+                );
+            }
+        );
+    }
+
+    const payButton =
+        $("web3jobs-modal-pay");
+
+    if (payButton) {
+
+        payButton.addEventListener(
+            "click",
+            payUSDT
+        );
+    }
+}
+
+
+function openPaymentModal(plan) {
+
+    ensurePaymentUI();
+
+    selectedPlan =
+        plan;
+
+    const modal =
+        $("web3jobs-payment-modal");
+
+    const title =
+        $("web3jobs-payment-title");
+
+    const price =
+        $("web3jobs-payment-price");
+
+    if (title) {
+
+        title.textContent =
+            `${plan.name} Subscription`;
+    }
+
+    if (price) {
+
+        price.textContent =
+            `$${plan.price} USDT / month`;
+    }
+
+    setPaymentModalStatus(
+        "Connect your wallet to continue."
+    );
+
+    updatePaymentModalState(
+        connectedWallet
+    );
+
+    if (modal) {
+
+        modal.classList.add(
+            "visible"
+        );
+    }
+
+    document.body.classList.add(
+        "web3jobs-payment-open"
+    );
+}
+
+
+function closePaymentModal() {
+
+    const modal =
+        $("web3jobs-payment-modal");
+
+    if (modal) {
+
+        modal.classList.remove(
+            "visible"
+        );
+    }
+
+    document.body.classList.remove(
+        "web3jobs-payment-open"
+    );
+}
+
+
+function setPaymentModalStatus(
+    message
+) {
+
+    const status =
+        $("web3jobs-payment-status");
+
+    if (status) {
+
+        status.textContent =
+            message;
+    }
+
+    setPaymentStatus(
+        message
+    );
+}
+
+
+function updatePaymentModalState(
+    wallet
+) {
+
+    const connectButton =
+        $("web3jobs-modal-connect");
+
+    const payButton =
+        $("web3jobs-modal-pay");
+
+    if (connectButton) {
+
+        connectButton.textContent =
+            wallet
+                ? `Connected ${shortAddress(
+                    wallet
+                )}`
+                : "Connect Wallet";
+    }
+
+    if (payButton) {
+
+        payButton.disabled =
+            !wallet ||
+            !selectedPlan ||
+            paymentInProgress;
+    }
+}
+
+
+/* =========================================================
    SELECT PLAN
    ========================================================= */
 
@@ -1907,32 +2500,29 @@ async function selectPlan(code) {
         `$${plan.price} USDT`
     );
 
-    const paymentBox =
-        $("payment-box");
+    if (
+        !plan.price ||
+        plan.price <= 0
+    ) {
 
-    if (paymentBox) {
+        currentPlan =
+            plan;
 
-        paymentBox.classList.add(
-            "active"
+        renderSubscription();
+
+        showAlert(
+            "Free plan selected.",
+            "success"
         );
+
+        return;
     }
 
-    const status =
-        $("payment-status");
+    ensurePaymentUI();
 
-    if (status) {
-
-        status.textContent =
-            `Selected ${plan.name}. Connect your wallet and pay ${plan.price} USDT on BNB Smart Chain.`;
-    }
-
-    if (paymentBox) {
-
-        paymentBox.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-        });
-    }
+    openPaymentModal(
+        plan
+    );
 }
 
 
@@ -1944,6 +2534,8 @@ function cancelPayment() {
 
     selectedPlan =
         null;
+
+    closePaymentModal();
 
     const paymentBox =
         $("payment-box");
@@ -1965,9 +2557,12 @@ function cancelPayment() {
         "$0 USDT"
     );
 
-    setText(
-        "payment-status",
+    setPaymentStatus(
         "Select a subscription plan to continue."
+    );
+
+    updatePaymentModalState(
+        null
     );
 }
 
@@ -1983,6 +2578,10 @@ async function connectWallet() {
         showAlert(
             "No Web3 wallet detected. Please install MetaMask or use a compatible Web3 wallet.",
             "error"
+        );
+
+        setPaymentModalStatus(
+            "No Web3 wallet detected."
         );
 
         return null;
@@ -2011,8 +2610,7 @@ async function connectWallet() {
 
         await switchToBSC();
 
-        setText(
-            "payment-status",
+        setPaymentModalStatus(
             `Wallet connected: ${shortAddress(
                 connectedWallet
             )}`
@@ -2029,6 +2627,10 @@ async function connectWallet() {
                 )}`;
         }
 
+        updatePaymentModalState(
+            connectedWallet
+        );
+
         return connectedWallet;
 
     } catch (error) {
@@ -2042,6 +2644,11 @@ async function connectWallet() {
             error.message ||
             "Unable to connect wallet.",
             "error"
+        );
+
+        setPaymentModalStatus(
+            error.message ||
+            "Unable to connect wallet."
         );
 
         return null;
@@ -2180,6 +2787,10 @@ const USDT_ABI = [
 
 async function payUSDT() {
 
+    if (paymentInProgress) {
+        return;
+    }
+
     if (!selectedPlan) {
 
         showAlert(
@@ -2213,14 +2824,45 @@ async function payUSDT() {
         return;
     }
 
+    paymentInProgress =
+        true;
+
+    const payButton =
+        $("web3jobs-modal-pay");
+
+    const connectButton =
+        $("web3jobs-modal-connect");
+
+    if (payButton) {
+
+        payButton.disabled =
+            true;
+
+        payButton.textContent =
+            "Processing...";
+    }
+
+    if (connectButton) {
+
+        connectButton.disabled =
+            true;
+    }
+
     try {
 
-        const wallet =
-            connectedWallet ||
-            await connectWallet();
+        let wallet =
+            connectedWallet;
 
         if (!wallet) {
-            return;
+
+            wallet =
+                await connectWallet();
+        }
+
+        if (!wallet) {
+            throw new Error(
+                "Wallet connection was not completed."
+            );
         }
 
         await switchToBSC();
@@ -2239,6 +2881,22 @@ async function payUSDT() {
             new ethers.BrowserProvider(
                 window.ethereum
             );
+
+        const network =
+            await provider.getNetwork();
+
+        if (
+            String(
+                network.chainId
+            ) !== "56"
+        ) {
+
+            await switchToBSC();
+
+            throw new Error(
+                "Please switch your wallet to BNB Smart Chain and try again."
+            );
+        }
 
         const signer =
             await provider.getSigner();
@@ -2269,6 +2927,10 @@ async function payUSDT() {
                 decimals
             );
 
+        setPaymentModalStatus(
+            "Checking USDT balance..."
+        );
+
         const balance =
             await token.balanceOf(
                 signerAddress
@@ -2283,7 +2945,7 @@ async function payUSDT() {
             );
         }
 
-        setPaymentStatus(
+        setPaymentModalStatus(
             "Waiting for wallet confirmation..."
         );
 
@@ -2297,20 +2959,37 @@ async function payUSDT() {
         const txHash =
             transaction.hash;
 
-        setPaymentStatus(
-            `Payment submitted. Transaction: ${shortHash(
+        setPaymentModalStatus(
+            `Transaction submitted: ${shortHash(
                 txHash
             )}`
         );
 
-        const paymentRecord =
-            await createPendingPayment(
-                txHash,
-                selectedPlan,
-                signerAddress
-            );
+        addTransactionLink(
+            txHash
+        );
 
-        setPaymentStatus(
+        let paymentRecord =
+            null;
+
+        try {
+
+            paymentRecord =
+                await createPendingPayment(
+                    txHash,
+                    selectedPlan,
+                    signerAddress
+                );
+
+        } catch (databaseError) {
+
+            console.warn(
+                "Pending payment record could not be created:",
+                databaseError
+            );
+        }
+
+        setPaymentModalStatus(
             "Transaction submitted. Waiting for BNB Smart Chain confirmation..."
         );
 
@@ -2332,6 +3011,10 @@ async function payUSDT() {
             );
         }
 
+        setPaymentModalStatus(
+            "Transaction confirmed. Verifying USDT payment..."
+        );
+
         const verified =
             await verifyUSDTTransaction(
                 txHash,
@@ -2351,13 +3034,17 @@ async function payUSDT() {
             );
         }
 
+        setPaymentModalStatus(
+            "Payment verified. Activating your subscription..."
+        );
+
         await confirmPaymentAndActivateSubscription(
             paymentRecord,
             txHash,
             selectedPlan
         );
 
-        setPaymentStatus(
+        setPaymentModalStatus(
             `Payment confirmed successfully. ${selectedPlan.name} is now active.`
         );
 
@@ -2370,7 +3057,19 @@ async function payUSDT() {
 
         await loadCompanyJobs();
 
-        cancelPayment();
+        await loadApplications();
+
+        setTimeout(
+            () => {
+
+                closePaymentModal();
+
+                selectedPlan =
+                    null;
+
+            },
+            1200
+        );
 
     } catch (error) {
 
@@ -2379,7 +3078,7 @@ async function payUSDT() {
             error
         );
 
-        setPaymentStatus(
+        setPaymentModalStatus(
             error.message ||
             "Payment failed."
         );
@@ -2389,6 +3088,28 @@ async function payUSDT() {
             "Payment failed.",
             "error"
         );
+
+    } finally {
+
+        paymentInProgress =
+            false;
+
+        if (payButton) {
+
+            payButton.disabled =
+                !connectedWallet ||
+                !selectedPlan;
+
+            payButton.textContent =
+                "Pay USDT";
+        }
+
+        if (connectButton) {
+
+            connectButton.disabled =
+                false;
+        }
+
     }
 }
 
@@ -2403,6 +3124,7 @@ function setPaymentStatus(message) {
         $("payment-status");
 
     if (status) {
+
         status.textContent =
             message;
     }
@@ -2419,6 +3141,56 @@ function shortHash(hash) {
         hash.slice(0, 10) +
         "..." +
         hash.slice(-8)
+    );
+}
+
+
+function addTransactionLink(txHash) {
+
+    const status =
+        $("web3jobs-payment-status");
+
+    if (!status || !txHash) {
+        return;
+    }
+
+    const existing =
+        status.querySelector(
+            ".web3jobs-tx-link"
+        );
+
+    if (existing) {
+        return;
+    }
+
+    const link =
+        document.createElement("a");
+
+    link.className =
+        "web3jobs-tx-link";
+
+    link.href =
+        COMPANY_DASHBOARD_CONFIG
+            .bscExplorer +
+        encodeURIComponent(
+            txHash
+        );
+
+    link.target =
+        "_blank";
+
+    link.rel =
+        "noopener noreferrer";
+
+    link.textContent =
+        "View transaction on BscScan";
+
+    status.appendChild(
+        document.createElement("br")
+    );
+
+    status.appendChild(
+        link
     );
 }
 
@@ -2558,12 +3330,6 @@ async function createPendingPayment(
             result.error
         );
 
-        showAlert(
-            "Blockchain payment was submitted, but the payment record could not be saved. Transaction hash: " +
-            txHash,
-            "error"
-        );
-
         return null;
     }
 
@@ -2587,6 +3353,7 @@ async function verifyUSDTTransaction(
             typeof ethers ===
             "undefined"
         ) {
+
             return false;
         }
 
@@ -2617,6 +3384,7 @@ async function verifyUSDTTransaction(
         if (
             receipt.status !== 1
         ) {
+
             return false;
         }
 
@@ -2629,6 +3397,7 @@ async function verifyUSDTTransaction(
                     .usdtContract
             )
         ) {
+
             return false;
         }
 
@@ -2641,6 +3410,7 @@ async function verifyUSDTTransaction(
                 expectedSender
             )
         ) {
+
             return false;
         }
 
@@ -2678,6 +3448,7 @@ async function verifyUSDTTransaction(
                         .usdtContract
                 )
             ) {
+
                 continue;
             }
 
@@ -2685,6 +3456,7 @@ async function verifyUSDTTransaction(
                 !log.topics ||
                 log.topics.length < 3
             ) {
+
                 continue;
             }
 
@@ -2692,6 +3464,7 @@ async function verifyUSDTTransaction(
                 log.topics[0].toLowerCase() !==
                 transferTopic.toLowerCase()
             ) {
+
                 continue;
             }
 
@@ -2791,18 +3564,30 @@ async function confirmPaymentAndActivateSubscription(
 
     };
 
-    let result =
-        await client
-            .from("payments")
-            .update(updateData)
-            .eq(
-                paymentRecord?.id
-                    ? "id"
-                    : "transaction_hash",
-                paymentRecord?.id
-                    ? paymentRecord.id
-                    : txHash
-            );
+    let result;
+
+    if (paymentRecord?.id) {
+
+        result =
+            await client
+                .from("payments")
+                .update(updateData)
+                .eq(
+                    "id",
+                    paymentRecord.id
+                );
+
+    } else {
+
+        result =
+            await client
+                .from("payments")
+                .update(updateData)
+                .eq(
+                    "transaction_hash",
+                    txHash
+                );
+    }
 
     if (
         result.error &&
@@ -2821,32 +3606,47 @@ async function confirmPaymentAndActivateSubscription(
         )
     ) {
 
-        result =
-            await client
-                .from("payments")
-                .update({
+        const fallbackData = {
 
-                    status:
-                        "confirmed",
+            status:
+                "confirmed",
 
-                    transaction_hash:
-                        txHash,
+            transaction_hash:
+                txHash,
 
-                    provider_payment_id:
-                        txHash,
+            provider_payment_id:
+                txHash,
 
-                    blockchain_network:
-                        "BSC"
+            blockchain_network:
+                "BSC"
+        };
 
-                })
-                .eq(
-                    paymentRecord?.id
-                        ? "id"
-                        : "transaction_hash",
-                    paymentRecord?.id
-                        ? paymentRecord.id
-                        : txHash
-                );
+        if (paymentRecord?.id) {
+
+            result =
+                await client
+                    .from("payments")
+                    .update(
+                        fallbackData
+                    )
+                    .eq(
+                        "id",
+                        paymentRecord.id
+                    );
+
+        } else {
+
+            result =
+                await client
+                    .from("payments")
+                    .update(
+                        fallbackData
+                    )
+                    .eq(
+                        "transaction_hash",
+                        txHash
+                    );
+        }
     }
 
     if (result.error) {
@@ -3327,7 +4127,7 @@ async function deleteJob(jobId) {
         const client =
             getSupabaseClient();
 
-        const result =
+        let result =
             await client
                 .from("jobs")
                 .delete()
@@ -3339,6 +4139,25 @@ async function deleteJob(jobId) {
                     "user_id",
                     currentUser.id
                 );
+
+        if (
+            result.error &&
+            String(
+                result.error.message
+            )
+                .toLowerCase()
+                .includes("user_id")
+        ) {
+
+            result =
+                await client
+                    .from("jobs")
+                    .delete()
+                    .eq(
+                        "id",
+                        jobId
+                    );
+        }
 
         if (result.error) {
             throw result.error;
@@ -4046,15 +4865,24 @@ async function saveCompanyProfile(
 
 async function logout() {
 
+    const button =
+        $("logout-button");
+
+    if (button) {
+
+        button.disabled =
+            true;
+
+        button.textContent =
+            "Signing out...";
+    }
+
     try {
 
         const client =
             getSupabaseClient();
 
         await client.auth.signOut();
-
-        window.location.href =
-            "login.html";
 
     } catch (error) {
 
@@ -4063,9 +4891,118 @@ async function logout() {
             error
         );
 
+    } finally {
+
         window.location.href =
             "login.html";
     }
+}
+
+
+/* =========================================================
+   LOGOUT BUTTON CREATION
+   ========================================================= */
+
+function ensureLogoutButton() {
+
+    let button =
+        $("logout-button");
+
+    if (button) {
+
+        button.classList.add(
+            "web3jobs-logout-button"
+        );
+
+        return button;
+    }
+
+    injectSubscriptionStyles();
+
+    button =
+        document.createElement(
+            "button"
+        );
+
+    button.id =
+        "logout-button";
+
+    button.type =
+        "button";
+
+    button.className =
+        "web3jobs-logout-button";
+
+    button.innerHTML =
+        `
+            <span aria-hidden="true">
+                ↪
+            </span>
+            <span>
+                Logout
+            </span>
+        `;
+
+    button.addEventListener(
+        "click",
+        logout
+    );
+
+    const possibleContainers = [
+        ".dashboard-header-actions",
+        ".header-actions",
+        ".topbar-actions",
+        ".dashboard-topbar",
+        ".topbar",
+        "header"
+    ];
+
+    let inserted =
+        false;
+
+    for (
+        const selector of possibleContainers
+    ) {
+
+        const container =
+            document.querySelector(
+                selector
+            );
+
+        if (!container) {
+            continue;
+        }
+
+        container.appendChild(
+            button
+        );
+
+        inserted =
+            true;
+
+        break;
+    }
+
+    if (!inserted) {
+
+        button.style.position =
+            "fixed";
+
+        button.style.top =
+            "18px";
+
+        button.style.right =
+            "18px";
+
+        button.style.zIndex =
+            "9998";
+
+        document.body.appendChild(
+            button
+        );
+    }
+
+    return button;
 }
 
 
@@ -4075,10 +5012,18 @@ async function logout() {
 
 function setupEventListeners() {
 
+    ensureLogoutButton();
+
     const logoutButton =
         $("logout-button");
 
-    if (logoutButton) {
+    if (
+        logoutButton &&
+        logoutButton.dataset.bound !== "true"
+    ) {
+
+        logoutButton.dataset.bound =
+            "true";
 
         logoutButton.addEventListener(
             "click",
@@ -4089,7 +5034,13 @@ function setupEventListeners() {
     const postJobForm =
         $("post-job-form");
 
-    if (postJobForm) {
+    if (
+        postJobForm &&
+        postJobForm.dataset.bound !== "true"
+    ) {
+
+        postJobForm.dataset.bound =
+            "true";
 
         postJobForm.addEventListener(
             "submit",
@@ -4100,7 +5051,13 @@ function setupEventListeners() {
     const profileForm =
         $("company-profile-form");
 
-    if (profileForm) {
+    if (
+        profileForm &&
+        profileForm.dataset.bound !== "true"
+    ) {
+
+        profileForm.dataset.bound =
+            "true";
 
         profileForm.addEventListener(
             "submit",
@@ -4111,7 +5068,13 @@ function setupEventListeners() {
     const connectButton =
         $("connect-wallet-button");
 
-    if (connectButton) {
+    if (
+        connectButton &&
+        connectButton.dataset.bound !== "true"
+    ) {
+
+        connectButton.dataset.bound =
+            "true";
 
         connectButton.addEventListener(
             "click",
@@ -4122,7 +5085,13 @@ function setupEventListeners() {
     const payButton =
         $("pay-usdt-button");
 
-    if (payButton) {
+    if (
+        payButton &&
+        payButton.dataset.bound !== "true"
+    ) {
+
+        payButton.dataset.bound =
+            "true";
 
         payButton.addEventListener(
             "click",
@@ -4133,13 +5102,21 @@ function setupEventListeners() {
     const cancelButton =
         $("cancel-payment-button");
 
-    if (cancelButton) {
+    if (
+        cancelButton &&
+        cancelButton.dataset.bound !== "true"
+    ) {
+
+        cancelButton.dataset.bound =
+            "true";
 
         cancelButton.addEventListener(
             "click",
             cancelPayment
         );
     }
+
+    ensurePaymentUI();
 
     setupPlanButtons();
 }
@@ -4154,6 +5131,16 @@ function setupWalletListeners() {
     if (!window.ethereum) {
         return;
     }
+
+    if (
+        window.__web3jobsWalletListenersAttached
+    ) {
+
+        return;
+    }
+
+    window.__web3jobsWalletListenersAttached =
+        true;
 
     window.ethereum.on(
         "accountsChanged",
@@ -4177,6 +5164,19 @@ function setupWalletListeners() {
                         )}`
                         : "Connect Wallet";
             }
+
+            updatePaymentModalState(
+                connectedWallet
+            );
+
+            if (connectedWallet) {
+
+                setPaymentModalStatus(
+                    `Wallet connected: ${shortAddress(
+                        connectedWallet
+                    )}`
+                );
+            }
         }
     );
 
@@ -4195,6 +5195,14 @@ function setupWalletListeners() {
                 button.textContent =
                     "Connect Wallet";
             }
+
+            updatePaymentModalState(
+                null
+            );
+
+            setPaymentModalStatus(
+                "Network changed. Please connect your wallet again."
+            );
         }
     );
 }
@@ -4218,6 +5226,7 @@ function formatDate(value) {
             date.getTime()
         )
     ) {
+
         return "—";
     }
 
