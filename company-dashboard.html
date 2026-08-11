@@ -12,7 +12,7 @@
 
     <meta
         name="description"
-        content="Web3Jobs Company Dashboard"
+        content="Web3Jobs Company Dashboard - Manage jobs, applications and subscription"
     >
 
     <meta
@@ -33,11 +33,29 @@
 
     <script src="js/auth.js"></script>
 
-    <script src="js/company-dashboard.js"></script>
+
+    <!-- =====================================================
+         ETHERS
+         BNB SMART CHAIN
+         ===================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"
+    ></script>
 
 
     <!-- =====================================================
-         DASHBOARD CSS
+         COMPANY DASHBOARD JS
+         ===================================================== -->
+
+    <script
+        src="js/company-dashboard.js"
+        defer
+    ></script>
+
+
+    <!-- =====================================================
+         STYLE
          ===================================================== -->
 
     <style>
@@ -45,34 +63,53 @@
         :root {
 
             --bg: #06101d;
-            --bg2: #09182a;
+
+            --bg-secondary: #09182a;
 
             --card: #0d1b2e;
-            --card2: #10233a;
+
+            --card-hover: #10233a;
 
             --border: #1d3553;
-            --border2: #294563;
+
+            --border-light: #294563;
 
             --text: #f5f8ff;
+
             --muted: #9db0c8;
 
             --green: #6ee7b7;
+
             --blue: #60a5fa;
+
             --red: #f87171;
+
             --yellow: #fbbf24;
+
+            --bnb: #f3ba2f;
+
+            --white: #ffffff;
+
+            --max-width: 1200px;
 
         }
 
 
         * {
+
             box-sizing: border-box;
+
             margin: 0;
+
             padding: 0;
+
         }
 
 
         html {
+
             scroll-behavior: smooth;
+
         }
 
 
@@ -80,13 +117,11 @@
 
             min-height: 100vh;
 
-            margin: 0;
-
             background:
                 linear-gradient(
                     180deg,
                     var(--bg),
-                    var(--bg2)
+                    var(--bg-secondary)
                 );
 
             color: var(--text);
@@ -100,6 +135,8 @@
                 Arial,
                 sans-serif;
 
+            line-height: 1.5;
+
         }
 
 
@@ -107,18 +144,25 @@
         input,
         select,
         textarea {
+
             font: inherit;
+
         }
 
 
         button {
+
             cursor: pointer;
+
         }
 
 
         a {
-            text-decoration: none;
+
             color: inherit;
+
+            text-decoration: none;
+
         }
 
 
@@ -140,18 +184,18 @@
 
             justify-content: center;
 
-            background: var(--bg);
-
             padding: 20px;
+
+            background: var(--bg);
 
         }
 
 
-        .loading-box {
+        .loading-card {
 
-            width: min(420px, 100%);
+            width: min(100%, 420px);
 
-            padding: 35px 25px;
+            padding: 35px;
 
             text-align: center;
 
@@ -161,24 +205,28 @@
 
             border-radius: 18px;
 
+            box-shadow:
+                0 20px 60px
+                rgba(0, 0, 0, .25);
+
         }
 
 
-        .loading-icon {
+        .loading-logo {
 
             width: 58px;
 
             height: 58px;
 
-            margin: 0 auto 18px;
+            margin: 0 auto 20px;
 
             display: grid;
 
             place-items: center;
 
-            border-radius: 15px;
+            border: 1px solid var(--border-light);
 
-            border: 1px solid var(--border2);
+            border-radius: 15px;
 
             background: #071423;
 
@@ -186,10 +234,12 @@
 
             font-size: 25px;
 
+            font-weight: 900;
+
         }
 
 
-        .loading-box h2 {
+        .loading-card h2 {
 
             margin-bottom: 8px;
 
@@ -198,16 +248,16 @@
         }
 
 
-        .loading-box p {
+        .loading-card p {
 
             color: var(--muted);
 
-            font-size: 12px;
+            font-size: 13px;
 
         }
 
 
-        .loading-circle {
+        .loading-spinner-circle {
 
             width: 34px;
 
@@ -215,13 +265,14 @@
 
             margin: 20px auto 0;
 
-            border: 3px solid #1a3048;
+            border: 3px solid #19304a;
 
             border-top-color: var(--green);
 
             border-radius: 50%;
 
-            animation: spin .8s linear infinite;
+            animation:
+                spin .8s linear infinite;
 
         }
 
@@ -229,7 +280,9 @@
         @keyframes spin {
 
             to {
+
                 transform: rotate(360deg);
+
             }
 
         }
@@ -250,7 +303,10 @@
 
         .container {
 
-            width: min(1180px, 92%);
+            width: min(
+                var(--max-width),
+                92%
+            );
 
             margin: 0 auto;
 
@@ -269,6 +325,9 @@
 
             z-index: 1000;
 
+            border-bottom:
+                1px solid var(--border);
+
             background:
                 rgba(
                     6,
@@ -277,9 +336,8 @@
                     .96
                 );
 
-            border-bottom: 1px solid var(--border);
-
-            backdrop-filter: blur(14px);
+            backdrop-filter:
+                blur(15px);
 
         }
 
@@ -294,7 +352,7 @@
 
             justify-content: space-between;
 
-            gap: 15px;
+            gap: 20px;
 
         }
 
@@ -318,23 +376,31 @@
 
             height: 43px;
 
-            flex: 0 0 43px;
-
             display: grid;
 
             place-items: center;
 
-            border-radius: 11px;
+            flex: 0 0 43px;
 
-            border: 1px solid var(--border2);
+            border:
+                1px solid var(--border-light);
+
+            border-radius: 11px;
 
             background: #0b1d31;
 
             color: var(--green);
 
+            font-size: 20px;
+
             font-weight: 900;
 
-            font-size: 20px;
+        }
+
+
+        .brand-text {
+
+            min-width: 0;
 
         }
 
@@ -350,8 +416,6 @@
 
         .brand-subtitle {
 
-            margin-top: 2px;
-
             color: var(--muted);
 
             font-size: 10px;
@@ -365,14 +429,12 @@
 
             align-items: center;
 
-            gap: 8px;
+            gap: 9px;
 
         }
 
 
         .header-button {
-
-            min-height: 40px;
 
             display: inline-flex;
 
@@ -380,25 +442,34 @@
 
             justify-content: center;
 
+            min-height: 40px;
+
             padding: 9px 14px;
 
-            border-radius: 9px;
+            border:
+                1px solid var(--border-light);
 
-            border: 1px solid var(--border2);
+            border-radius: 9px;
 
             background: #10233a;
 
             color: var(--text);
 
-            font-size: 11px;
+            font-size: 12px;
 
-            font-weight: 800;
+            font-weight: 750;
+
+            transition: .2s;
 
         }
 
 
         .header-button:hover {
+
+            transform: translateY(-1px);
+
             border-color: var(--blue);
+
         }
 
 
@@ -409,24 +480,26 @@
                     248,
                     113,
                     113,
-                    .35
+                    .3
                 );
 
             color: #fecaca;
+
+        }
+
+
+        .logout-button:hover {
+
+            border-color: var(--red);
 
             background:
                 rgba(
                     248,
                     113,
                     113,
-                    .05
+                    .08
                 );
 
-        }
-
-
-        .logout-button:hover {
-            border-color: var(--red);
         }
 
 
@@ -436,7 +509,7 @@
 
         .dashboard-main {
 
-            padding: 38px 0 70px;
+            padding: 45px 0 80px;
 
         }
 
@@ -451,13 +524,14 @@
 
             overflow: hidden;
 
-            margin-bottom: 20px;
+            padding: 32px;
 
-            padding: 30px;
+            margin-bottom: 24px;
+
+            border:
+                1px solid var(--border);
 
             border-radius: 20px;
-
-            border: 1px solid var(--border);
 
             background:
                 linear-gradient(
@@ -475,9 +549,9 @@
 
             position: absolute;
 
-            width: 250px;
+            width: 260px;
 
-            height: 250px;
+            height: 260px;
 
             right: -100px;
 
@@ -492,7 +566,7 @@
                         110,
                         231,
                         183,
-                        .13
+                        .12
                     ),
                     transparent 70%
                 );
@@ -504,11 +578,17 @@
 
         .welcome-label {
 
-            margin-bottom: 10px;
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            margin-bottom: 12px;
 
             color: var(--green);
 
-            font-size: 10px;
+            font-size: 11px;
 
             font-weight: 850;
 
@@ -523,7 +603,7 @@
 
             font-size:
                 clamp(
-                    28px,
+                    27px,
                     5vw,
                     40px
                 );
@@ -537,18 +617,14 @@
 
             color: var(--muted);
 
-            font-size: 12px;
+            font-size: 13px;
 
         }
 
 
         #company-email {
 
-            display: inline-block;
-
-            margin-top: 6px;
-
-            color: #c9d7e7;
+            color: #c7d7e9;
 
         }
 
@@ -567,18 +643,19 @@
                     1fr
                 );
 
-            gap: 15px;
+            gap: 16px;
 
-            margin-bottom: 20px;
+            margin-bottom: 24px;
 
         }
 
 
         .stat-card {
 
-            padding: 22px;
+            padding: 23px;
 
-            border: 1px solid var(--border);
+            border:
+                1px solid var(--border);
 
             border-radius: 16px;
 
@@ -597,7 +674,7 @@
 
             gap: 10px;
 
-            margin-bottom: 13px;
+            margin-bottom: 15px;
 
         }
 
@@ -608,26 +685,27 @@
 
             font-size: 11px;
 
-            font-weight: 750;
+            font-weight: 700;
 
         }
 
 
         .stat-icon {
 
-            width: 37px;
+            width: 36px;
 
-            height: 37px;
+            height: 36px;
 
             display: grid;
 
             place-items: center;
 
+            border:
+                1px solid var(--border-light);
+
             border-radius: 10px;
 
             background: #122a43;
-
-            border: 1px solid var(--border2);
 
         }
 
@@ -642,16 +720,17 @@
 
 
         /* =====================================================
-           SECTION
+           SECTIONS
            ===================================================== */
 
         .dashboard-section {
 
-            margin-bottom: 20px;
+            margin-bottom: 25px;
 
-            padding: 24px;
+            padding: 25px;
 
-            border: 1px solid var(--border);
+            border:
+                1px solid var(--border);
 
             border-radius: 18px;
 
@@ -670,14 +749,14 @@
 
             gap: 15px;
 
-            margin-bottom: 20px;
+            margin-bottom: 22px;
 
         }
 
 
         .section-title {
 
-            font-size: 20px;
+            font-size: 21px;
 
             font-weight: 850;
 
@@ -696,30 +775,59 @@
 
 
         /* =====================================================
-           BILLING
+           SUBSCRIPTION
            ===================================================== */
 
-        .billing-section {
+        .subscription-section {
 
-            border-color: #244866;
+            position: relative;
 
-            background:
-                linear-gradient(
-                    135deg,
-                    #0d1e31,
-                    #0a1828
-                );
+            overflow: hidden;
 
         }
 
 
-        .billing-header {
+        .subscription-section::before {
 
-            display: flex;
+            content: "";
 
-            align-items: center;
+            position: absolute;
 
-            justify-content: space-between;
+            width: 320px;
+
+            height: 320px;
+
+            right: -160px;
+
+            top: -160px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(
+                    circle,
+                    rgba(
+                        243,
+                        186,
+                        47,
+                        .09
+                    ),
+                    transparent 70%
+                );
+
+            pointer-events: none;
+
+        }
+
+
+        .current-plan {
+
+            display: grid;
+
+            grid-template-columns:
+                1.4fr
+                1fr
+                1fr;
 
             gap: 15px;
 
@@ -728,32 +836,209 @@
         }
 
 
-        .billing-badge {
+        .plan-status-card {
 
-            display: inline-flex;
+            padding: 20px;
 
-            align-items: center;
+            border:
+                1px solid var(--border-light);
 
-            gap: 7px;
+            border-radius: 14px;
 
-            padding: 7px 10px;
+            background: #0a1728;
 
-            border-radius: 999px;
+        }
 
-            border: 1px solid
+
+        .plan-status-label {
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+            text-transform: uppercase;
+
+            letter-spacing: .7px;
+
+        }
+
+
+        .plan-status-value {
+
+            margin-top: 7px;
+
+            font-size: 22px;
+
+            font-weight: 900;
+
+        }
+
+
+        .plan-status-value.green {
+
+            color: var(--green);
+
+        }
+
+
+        .plan-status-value.yellow {
+
+            color: var(--yellow);
+
+        }
+
+
+        .progress-wrapper {
+
+            margin-top: 12px;
+
+        }
+
+
+        .progress-bar {
+
+            width: 100%;
+
+            height: 8px;
+
+            overflow: hidden;
+
+            border-radius: 99px;
+
+            background: #182b40;
+
+        }
+
+
+        .progress-fill {
+
+            width: 0%;
+
+            height: 100%;
+
+            border-radius: inherit;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    var(--green),
+                    var(--blue)
+                );
+
+            transition: width .3s ease;
+
+        }
+
+
+        .progress-text {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            margin-top: 7px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+        }
+
+
+        /* =====================================================
+           PRICING
+           ===================================================== */
+
+        .pricing-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    4,
+                    1fr
+                );
+
+            gap: 14px;
+
+        }
+
+
+        .pricing-card {
+
+            position: relative;
+
+            display: flex;
+
+            flex-direction: column;
+
+            padding: 22px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 16px;
+
+            background: #0a1728;
+
+            transition: .2s;
+
+        }
+
+
+        .pricing-card:hover {
+
+            transform: translateY(-3px);
+
+            border-color:
+                var(--border-light);
+
+            background:
+                var(--card-hover);
+
+        }
+
+
+        .pricing-card.featured {
+
+            border-color:
                 rgba(
                     110,
                     231,
                     183,
-                    .28
+                    .45
                 );
+
+            box-shadow:
+                0 0 0 1px
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .08
+                );
+
+        }
+
+
+        .plan-badge {
+
+            display: inline-flex;
+
+            width: fit-content;
+
+            margin-bottom: 12px;
+
+            padding: 5px 8px;
+
+            border-radius: 99px;
 
             background:
                 rgba(
                     110,
                     231,
                     183,
-                    .06
+                    .1
                 );
 
             color: var(--green);
@@ -762,58 +1047,175 @@
 
             font-weight: 850;
 
-        }
-
-
-        .billing-grid {
-
-            display: grid;
-
-            grid-template-columns:
-                1fr
-                1.2fr;
-
-            gap: 16px;
+            text-transform: uppercase;
 
         }
 
 
-        .billing-card {
+        .pricing-card h3 {
 
-            padding: 20px;
+            margin-bottom: 4px;
 
-            border-radius: 15px;
-
-            border: 1px solid var(--border);
-
-            background: #091727;
+            font-size: 18px;
 
         }
 
 
-        .billing-card h3 {
+        .plan-price {
 
-            margin-bottom: 7px;
+            margin: 9px 0 3px;
 
-            font-size: 16px;
+            font-size: 29px;
+
+            font-weight: 900;
 
         }
 
 
-        .billing-card-description {
-
-            margin-bottom: 18px;
+        .plan-price small {
 
             color: var(--muted);
 
-            font-size: 10px;
+            font-size: 11px;
 
-            line-height: 1.6;
+            font-weight: 500;
 
         }
 
 
-        .current-plan {
+        .plan-limit {
+
+            margin-bottom: 17px;
+
+            color: var(--muted);
+
+            font-size: 11px;
+
+        }
+
+
+        .plan-features {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 9px;
+
+            margin-bottom: 20px;
+
+            color: #c8d5e4;
+
+            font-size: 11px;
+
+        }
+
+
+        .plan-features div {
+
+            display: flex;
+
+            gap: 7px;
+
+        }
+
+
+        .plan-check {
+
+            color: var(--green);
+
+            font-weight: 900;
+
+        }
+
+
+        .plan-button {
+
+            width: 100%;
+
+            min-height: 42px;
+
+            margin-top: auto;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1c765a,
+                    #175a47
+                );
+
+            color: var(--white);
+
+            font-size: 11px;
+
+            font-weight: 850;
+
+        }
+
+
+        .plan-button:hover {
+
+            filter: brightness(1.1);
+
+        }
+
+
+        .plan-button.secondary {
+
+            border:
+                1px solid var(--border-light);
+
+            background: #10233a;
+
+        }
+
+
+        /* =====================================================
+           PAYMENT
+           ===================================================== */
+
+        .payment-box {
+
+            display: none;
+
+            margin-top: 22px;
+
+            padding: 22px;
+
+            border:
+                1px solid
+                rgba(
+                    243,
+                    186,
+                    47,
+                    .25
+                );
+
+            border-radius: 15px;
+
+            background:
+                rgba(
+                    243,
+                    186,
+                    47,
+                    .035
+                );
+
+        }
+
+
+        .payment-box.active {
+
+            display: block;
+
+        }
+
+
+        .payment-header {
 
             display: flex;
 
@@ -823,132 +1225,50 @@
 
             gap: 15px;
 
-            padding: 15px;
-
-            margin-bottom: 14px;
-
-            border-radius: 12px;
-
-            border: 1px solid var(--border2);
-
-            background: #0d2035;
+            margin-bottom: 18px;
 
         }
 
 
-        .plan-name {
+        .payment-title {
 
-            font-size: 15px;
+            font-size: 17px;
 
             font-weight: 850;
 
         }
 
 
-        .plan-status {
+        .bnb-label {
 
-            display: inline-block;
+            display: inline-flex;
 
-            margin-top: 5px;
+            align-items: center;
 
-            color: var(--green);
+            gap: 6px;
 
-            font-size: 9px;
+            padding: 6px 9px;
+
+            border-radius: 99px;
+
+            background:
+                rgba(
+                    243,
+                    186,
+                    47,
+                    .1
+                );
+
+            color: var(--bnb);
+
+            font-size: 10px;
 
             font-weight: 800;
 
         }
 
 
-        .plan-price {
-            text-align: right;
-        }
-
-
-        .plan-price strong {
-
-            display: block;
-
-            font-size: 24px;
-
-            font-weight: 900;
-
-        }
-
-
-        .plan-price span {
-
-            color: var(--muted);
-
-            font-size: 9px;
-
-        }
-
-
-        .crypto-box {
-
-            padding: 18px;
-
-            margin-bottom: 14px;
-
-            border-radius: 13px;
-
-            border: 1px solid
-                rgba(
-                    96,
-                    165,
-                    250,
-                    .25
-                );
-
-            background:
-                rgba(
-                    96,
-                    165,
-                    250,
-                    .045
-                );
-
-        }
-
-
-        .crypto-title {
-
-            display: flex;
-
-            align-items: center;
-
-            gap: 9px;
-
-            margin-bottom: 7px;
-
-            font-size: 13px;
-
-            font-weight: 850;
-
-        }
-
-
-        .crypto-icon {
-
-            width: 31px;
-
-            height: 31px;
-
-            display: grid;
-
-            place-items: center;
-
-            border-radius: 9px;
-
-            background: #132b45;
-
-            border: 1px solid var(--border2);
-
-        }
-
-
-        .crypto-info {
+        .payment-details {
 
             display: grid;
 
@@ -958,300 +1278,87 @@
                     1fr
                 );
 
-            gap: 9px;
-
-            margin-top: 13px;
+            gap: 12px;
 
         }
 
 
-        .crypto-info-item {
+        .payment-detail {
 
-            padding: 10px;
+            padding: 15px;
 
-            border-radius: 9px;
+            border:
+                1px solid var(--border);
 
-            background: #071423;
+            border-radius: 11px;
 
-            border: 1px solid var(--border);
+            background: #081423;
 
         }
 
 
-        .crypto-info-item span {
+        .payment-detail span {
 
             display: block;
 
-            margin-bottom: 4px;
+            margin-bottom: 6px;
 
             color: var(--muted);
 
-            font-size: 8px;
-
-        }
-
-
-        .crypto-info-item strong {
             font-size: 10px;
-        }
-
-
-        .wallet-label {
-
-            margin-bottom: 7px;
-
-            color: var(--muted);
-
-            font-size: 9px;
 
         }
 
 
-        .wallet-row {
+        .payment-detail strong {
 
-            display: flex;
+            display: block;
 
-            align-items: stretch;
+            word-break: break-word;
 
-            gap: 7px;
+            font-size: 13px;
 
         }
 
 
         .wallet-address {
 
-            min-width: 0;
-
-            flex: 1;
-
-            padding: 11px;
-
-            border-radius: 9px;
-
-            border: 1px solid var(--border2);
-
-            background: #071423;
-
-            color: #dbeafe;
-
-            font-family:
-                ui-monospace,
-                SFMono-Regular,
-                Menlo,
-                Consolas,
-                monospace;
-
-            font-size: 9px;
-
-            word-break: break-all;
+            color: var(--bnb);
 
         }
 
 
-        .copy-wallet-button {
-
-            flex: 0 0 auto;
-
-            padding: 8px 12px;
-
-            border-radius: 9px;
-
-            border: 1px solid var(--border2);
-
-            background: #10243b;
-
-            color: var(--text);
-
-            font-size: 9px;
-
-            font-weight: 800;
-
-        }
-
-
-        .copy-wallet-button:hover {
-            border-color: var(--blue);
-        }
-
-
-        .payment-warning {
-
-            padding: 11px 12px;
-
-            margin-top: 12px;
-
-            border-radius: 9px;
-
-            border: 1px solid
-                rgba(
-                    251,
-                    191,
-                    36,
-                    .22
-                );
-
-            background:
-                rgba(
-                    251,
-                    191,
-                    36,
-                    .045
-                );
-
-            color: #fcd87a;
-
-            font-size: 9px;
-
-            line-height: 1.6;
-
-        }
-
-
-        .payment-form {
+        .payment-actions {
 
             display: flex;
 
-            flex-direction: column;
-
-            gap: 13px;
-
-        }
-
-
-        .payment-form label {
-
-            color: #d9e5f2;
-
-            font-size: 10px;
-
-            font-weight: 750;
-
-        }
-
-
-        .payment-form select,
-        .payment-form input {
-
-            width: 100%;
-
-            margin-top: 6px;
-
-            outline: none;
-
-            padding: 12px;
-
-            border-radius: 9px;
-
-            border: 1px solid var(--border2);
-
-            background: #071423;
-
-            color: var(--text);
-
-            font-size: 11px;
-
-        }
-
-
-        .payment-form select:focus,
-        .payment-form input:focus {
-
-            border-color: var(--blue);
-
-        }
-
-
-        .payment-amount {
-
-            display: grid;
-
-            grid-template-columns:
-                1fr
-                1fr;
+            flex-wrap: wrap;
 
             gap: 10px;
-
-        }
-
-
-        .amount-box {
-
-            padding: 14px;
-
-            border-radius: 10px;
-
-            border: 1px solid var(--border);
-
-            background: #071423;
-
-        }
-
-
-        .amount-box span {
-
-            display: block;
-
-            margin-bottom: 5px;
-
-            color: var(--muted);
-
-            font-size: 8px;
-
-        }
-
-
-        .amount-box strong {
-            font-size: 18px;
-        }
-
-
-        .submit-payment-button {
-
-            width: 100%;
-
-            min-height: 44px;
-
-            border: 0;
-
-            border-radius: 9px;
-
-            background: var(--green);
-
-            color: #06101d;
-
-            font-size: 11px;
-
-            font-weight: 900;
-
-        }
-
-
-        .submit-payment-button:hover {
-            filter: brightness(1.06);
-        }
-
-
-        .submit-payment-button:disabled {
-
-            opacity: .55;
-
-            cursor: not-allowed;
-
-        }
-
-
-        .payment-history {
 
             margin-top: 16px;
 
         }
 
 
-        .payment-history-title {
+        .primary-button {
 
-            margin-bottom: 10px;
+            min-height: 43px;
 
-            color: #d9e5f2;
+            padding: 10px 16px;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1c765a,
+                    #175a47
+                );
+
+            color: white;
 
             font-size: 11px;
 
@@ -1260,250 +1367,50 @@
         }
 
 
-        .payment-history-table {
+        .secondary-button {
 
-            overflow-x: auto;
+            min-height: 43px;
 
-            border: 1px solid var(--border);
+            padding: 10px 16px;
+
+            border:
+                1px solid var(--border-light);
 
             border-radius: 10px;
 
-        }
-
-
-        .payment-history-row {
-
-            min-width: 540px;
-
-            display: grid;
-
-            grid-template-columns:
-                1.2fr
-                .8fr
-                .8fr
-                .8fr;
-
-            gap: 10px;
-
-            padding: 12px;
-
-            border-bottom: 1px solid var(--border);
-
-            font-size: 9px;
-
-        }
-
-
-        .payment-history-row:last-child {
-            border-bottom: 0;
-        }
-
-
-        .payment-history-row.header {
-
             background: #10233a;
 
-            color: var(--muted);
+            color: var(--text);
 
-            font-weight: 800;
+            font-size: 11px;
+
+            font-weight: 750;
 
         }
 
 
         .payment-status {
 
-            display: inline-flex;
+            margin-top: 14px;
 
-            width: fit-content;
+            padding: 12px;
 
-            padding: 4px 7px;
+            border-radius: 10px;
 
-            border-radius: 999px;
-
-            font-size: 8px;
-
-            font-weight: 800;
-
-        }
-
-
-        .payment-status.pending {
-
-            background:
-                rgba(
-                    251,
-                    191,
-                    36,
-                    .08
-                );
-
-            border: 1px solid
-                rgba(
-                    251,
-                    191,
-                    36,
-                    .22
-                );
-
-            color: #fcd34d;
-
-        }
-
-
-        .payment-status.paid {
-
-            background:
-                rgba(
-                    110,
-                    231,
-                    183,
-                    .08
-                );
-
-            border: 1px solid
-                rgba(
-                    110,
-                    231,
-                    183,
-                    .22
-                );
-
-            color: var(--green);
-
-        }
-
-
-        .payment-status.rejected {
-
-            background:
-                rgba(
-                    248,
-                    113,
-                    113,
-                    .08
-                );
-
-            border: 1px solid
-                rgba(
-                    248,
-                    113,
-                    113,
-                    .22
-                );
-
-            color: #fca5a5;
-
-        }
-
-
-        .payment-empty {
-
-            padding: 20px;
-
-            text-align: center;
+            background: #081423;
 
             color: var(--muted);
 
-            font-size: 10px;
-
-        }
-
-
-        #payment-message {
-
-            display: none;
-
-            padding: 10px 12px;
-
-            border-radius: 9px;
-
-            font-size: 9px;
-
-            line-height: 1.5;
-
-        }
-
-
-        #payment-message.success {
-
-            display: block;
-
-            border: 1px solid
-                rgba(
-                    110,
-                    231,
-                    183,
-                    .25
-                );
-
-            background:
-                rgba(
-                    110,
-                    231,
-                    183,
-                    .06
-                );
-
-            color: var(--green);
-
-        }
-
-
-        #payment-message.error {
-
-            display: block;
-
-            border: 1px solid
-                rgba(
-                    248,
-                    113,
-                    113,
-                    .25
-                );
-
-            background:
-                rgba(
-                    248,
-                    113,
-                    113,
-                    .06
-                );
-
-            color: #fca5a5;
-
-        }
-
-
-        #payment-message.info {
-
-            display: block;
-
-            border: 1px solid
-                rgba(
-                    96,
-                    165,
-                    250,
-                    .25
-                );
-
-            background:
-                rgba(
-                    96,
-                    165,
-                    250,
-                    .06
-                );
-
-            color: #bfdbfe;
+            font-size: 11px;
 
         }
 
 
         /* =====================================================
-           FORM
+           JOB POSTING
            ===================================================== */
 
-        #create-job-form {
+        .form-grid {
 
             display: grid;
 
@@ -1513,7 +1420,7 @@
                     1fr
                 );
 
-            gap: 14px;
+            gap: 15px;
 
         }
 
@@ -1530,17 +1437,19 @@
 
 
         .form-group.full {
+
             grid-column: 1 / -1;
+
         }
 
 
         .form-group label {
 
-            color: #d9e5f2;
+            color: #cbd7e6;
 
             font-size: 11px;
 
-            font-weight: 750;
+            font-weight: 700;
 
         }
 
@@ -1551,15 +1460,16 @@
 
             width: 100%;
 
-            outline: none;
-
             padding: 12px 13px;
+
+            border:
+                1px solid var(--border);
 
             border-radius: 10px;
 
-            border: 1px solid var(--border2);
+            outline: none;
 
-            background: #071423;
+            background: #081423;
 
             color: var(--text);
 
@@ -1568,10 +1478,11 @@
         }
 
 
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
+        .form-group textarea {
 
-            color: #627891;
+            min-height: 150px;
+
+            resize: vertical;
 
         }
 
@@ -1582,63 +1493,35 @@
 
             border-color: var(--blue);
 
-            box-shadow:
-                0 0 0 3px
-                rgba(
-                    96,
-                    165,
-                    250,
-                    .08
-                );
-
         }
 
 
-        .form-group textarea {
-
-            min-height: 125px;
-
-            resize: vertical;
-
-        }
-
-
-        .form-actions {
-
-            grid-column: 1 / -1;
+        .publish-area {
 
             display: flex;
 
-            justify-content: flex-end;
+            align-items: center;
 
-            margin-top: 3px;
+            justify-content: space-between;
 
-        }
+            gap: 15px;
 
+            margin-top: 18px;
 
-        .primary-button {
+            padding-top: 18px;
 
-            min-height: 42px;
-
-            padding: 10px 17px;
-
-            border: 0;
-
-            border-radius: 9px;
-
-            background: var(--green);
-
-            color: #06101d;
-
-            font-size: 11px;
-
-            font-weight: 850;
+            border-top:
+                1px solid var(--border);
 
         }
 
 
-        .primary-button:hover {
-            filter: brightness(1.06);
+        .publish-note {
+
+            color: var(--muted);
+
+            font-size: 10px;
+
         }
 
 
@@ -1646,7 +1529,244 @@
            JOBS
            ===================================================== */
 
-        #company-jobs-list {
+        .jobs-list {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 12px;
+
+        }
+
+
+        .job-card {
+
+            padding: 18px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 13px;
+
+            background: #091625;
+
+        }
+
+
+        .job-card-header {
+
+            display: flex;
+
+            align-items: flex-start;
+
+            justify-content: space-between;
+
+            gap: 15px;
+
+        }
+
+
+        .job-title {
+
+            font-size: 15px;
+
+            font-weight: 850;
+
+        }
+
+
+        .job-meta {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 8px;
+
+            margin-top: 7px;
+
+            color: var(--muted);
+
+            font-size: 10px;
+
+        }
+
+
+        .job-actions {
+
+            display: flex;
+
+            flex-wrap: wrap;
+
+            gap: 7px;
+
+        }
+
+
+        .small-button {
+
+            min-height: 34px;
+
+            padding: 7px 10px;
+
+            border:
+                1px solid var(--border-light);
+
+            border-radius: 8px;
+
+            background: #10233a;
+
+            color: var(--text);
+
+            font-size: 10px;
+
+            font-weight: 700;
+
+        }
+
+
+        .small-button.delete {
+
+            border-color:
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .3
+                );
+
+            color: #fecaca;
+
+        }
+
+
+        .empty-state {
+
+            padding: 35px 20px;
+
+            text-align: center;
+
+            color: var(--muted);
+
+            font-size: 12px;
+
+        }
+
+
+        /* =====================================================
+           APPLICATIONS
+           ===================================================== */
+
+        .applications-table-wrapper {
+
+            width: 100%;
+
+            overflow-x: auto;
+
+        }
+
+
+        .applications-table {
+
+            width: 100%;
+
+            min-width: 650px;
+
+            border-collapse: collapse;
+
+        }
+
+
+        .applications-table th,
+        .applications-table td {
+
+            padding: 13px;
+
+            border-bottom:
+                1px solid var(--border);
+
+            text-align: left;
+
+            font-size: 11px;
+
+        }
+
+
+        .applications-table th {
+
+            color: var(--muted);
+
+            font-weight: 750;
+
+        }
+
+
+        .status {
+
+            display: inline-flex;
+
+            padding: 5px 8px;
+
+            border-radius: 99px;
+
+            font-size: 9px;
+
+            font-weight: 800;
+
+        }
+
+
+        .status.pending {
+
+            background:
+                rgba(
+                    251,
+                    191,
+                    36,
+                    .1
+                );
+
+            color: var(--yellow);
+
+        }
+
+
+        .status.approved {
+
+            background:
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .1
+                );
+
+            color: var(--green);
+
+        }
+
+
+        .status.rejected {
+
+            background:
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .1
+                );
+
+            color: var(--red);
+
+        }
+
+
+        /* =====================================================
+           PROFILE
+           ===================================================== */
+
+        .profile-grid {
 
             display: grid;
 
@@ -1656,394 +1776,253 @@
                     1fr
                 );
 
-            gap: 14px;
-
-        }
-
-
-        .company-job-card {
-
-            display: flex;
-
-            flex-direction: column;
-
-            justify-content: space-between;
-
-            min-height: 220px;
-
-            padding: 20px;
-
-            border-radius: 15px;
-
-            border: 1px solid var(--border);
-
-            background: #0b192b;
-
-        }
-
-
-        .company-job-card:hover {
-
-            border-color: var(--border2);
-
-            background: var(--card2);
-
-        }
-
-
-        .company-job-content h3 {
-
-            margin-bottom: 10px;
-
-            font-size: 17px;
-
-        }
-
-
-        .company-job-meta {
-
-            display: flex;
-
-            flex-wrap: wrap;
-
-            gap: 7px;
-
-            margin-bottom: 12px;
-
-        }
-
-
-        .company-job-meta span {
-
-            padding: 5px 8px;
-
-            border-radius: 999px;
-
-            border: 1px solid var(--border);
-
-            background: #10243b;
-
-            color: var(--muted);
-
-            font-size: 9px;
-
-        }
-
-
-        .company-job-content p {
-
-            margin-top: 10px;
-
-            color: var(--muted);
-
-            font-size: 11px;
-
-            line-height: 1.7;
-
-            display: -webkit-box;
-
-            -webkit-line-clamp: 4;
-
-            -webkit-box-orient: vertical;
-
-            overflow: hidden;
-
-        }
-
-
-        .company-job-actions {
-
-            display: flex;
-
-            justify-content: flex-end;
-
-            margin-top: 15px;
-
-        }
-
-
-        .company-job-actions button {
-
-            min-height: 36px;
-
-            padding: 8px 13px;
-
-            border-radius: 9px;
-
-            border: 1px solid
-                rgba(
-                    248,
-                    113,
-                    113,
-                    .35
-                );
-
-            background:
-                rgba(
-                    248,
-                    113,
-                    113,
-                    .05
-                );
-
-            color: #fca5a5;
-
-            font-size: 10px;
-
-            font-weight: 800;
-
-        }
-
-
-        .company-job-actions button:hover {
-            border-color: var(--red);
-        }
-
-
-        /* =====================================================
-           EMPTY STATE
-           ===================================================== */
-
-        .no-company-jobs {
-
-            grid-column: 1 / -1;
-
-            padding: 42px 20px;
-
-            text-align: center;
-
-            border: 1px dashed var(--border2);
-
-            border-radius: 15px;
-
-            background: #071423;
-
-        }
-
-
-        .no-company-jobs h3 {
-
-            margin-bottom: 7px;
-
-            font-size: 18px;
-
-        }
-
-
-        .no-company-jobs p {
-
-            margin-bottom: 17px;
-
-            color: var(--muted);
-
-            font-size: 11px;
-
-        }
-
-
-        .company-create-job-button {
-
-            min-height: 40px;
-
-            padding: 9px 16px;
-
-            border: 0;
-
-            border-radius: 9px;
-
-            background: var(--green);
-
-            color: #06101d;
-
-            font-size: 11px;
-
-            font-weight: 850;
-
-        }
-
-
-        /* =====================================================
-           FOOTER
-           ===================================================== */
-
-        .dashboard-footer {
-
-            padding: 25px 0;
-
-            border-top: 1px solid var(--border);
-
-        }
-
-
-        .footer-inner {
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: space-between;
-
-            gap: 20px;
-
-        }
-
-
-        .footer-text {
-
-            color: #71869e;
-
-            font-size: 10px;
-
-        }
-
-
-        .footer-links {
-
-            display: flex;
-
-            flex-wrap: wrap;
-
             gap: 15px;
 
         }
 
 
-        .footer-links a {
+        /* =====================================================
+           ALERT
+           ===================================================== */
 
-            color: #9db0c8;
+        #dashboard-alert {
 
-            font-size: 10px;
+            display: none;
+
+            position: fixed;
+
+            right: 20px;
+
+            bottom: 20px;
+
+            z-index: 9999;
+
+            width: min(
+                360px,
+                calc(
+                    100% - 40px
+                )
+            );
+
+            padding: 15px;
+
+            border:
+                1px solid var(--border);
+
+            border-radius: 12px;
+
+            background: #0d1b2e;
+
+            box-shadow:
+                0 20px 50px
+                rgba(
+                    0,
+                    0,
+                    0,
+                    .35
+                );
+
+            font-size: 11px;
 
         }
 
 
-        .footer-links a:hover {
-            color: var(--green);
+        #dashboard-alert.success {
+
+            border-color:
+                rgba(
+                    110,
+                    231,
+                    183,
+                    .4
+                );
+
+        }
+
+
+        #dashboard-alert.error {
+
+            border-color:
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .4
+                );
+
         }
 
 
         /* =====================================================
-           MOBILE
+           RESPONSIVE
            ===================================================== */
 
-        @media (max-width: 850px) {
+        @media (max-width: 1000px) {
 
-            #company-jobs-list {
-                grid-template-columns: 1fr;
-            }
+            .pricing-grid {
 
-            .billing-grid {
-                grid-template-columns: 1fr;
-            }
+                grid-template-columns:
+                    repeat(
+                        2,
+                        1fr
+                    );
 
-        }
-
-
-        @media (max-width: 700px) {
-
-            .dashboard-main {
-                padding: 25px 0 55px;
-            }
-
-            .header-inner {
-                min-height: 64px;
-            }
-
-            .brand-subtitle {
-                display: none;
-            }
-
-            .header-button {
-                min-height: 37px;
-                padding: 8px 10px;
-                font-size: 10px;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            #create-job-form {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group.full {
-                grid-column: auto;
-            }
-
-            .form-actions {
-                grid-column: auto;
-            }
-
-            .dashboard-section {
-                padding: 18px;
-            }
-
-            .welcome-card {
-                padding: 24px 20px;
-            }
-
-            .section-header {
-                align-items: flex-start;
-                flex-direction: column;
-            }
-
-            .billing-header {
-                align-items: flex-start;
-                flex-direction: column;
             }
 
             .current-plan {
-                align-items: flex-start;
-                flex-direction: column;
-            }
 
-            .plan-price {
-                text-align: left;
-            }
+                grid-template-columns:
+                    repeat(
+                        3,
+                        1fr
+                    );
 
-            .payment-amount {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-inner {
-                flex-direction: column;
-                text-align: center;
             }
 
         }
 
 
-        @media (max-width: 430px) {
+        @media (max-width: 760px) {
 
-            .container {
-                width: 94%;
+            .header-inner {
+
+                min-height: 64px;
+
             }
 
-            .brand-title {
-                font-size: 14px;
-            }
+            .brand-subtitle {
 
-            .brand-icon {
-                width: 39px;
-                height: 39px;
-                flex-basis: 39px;
-            }
+                display: none;
 
-            .header-actions {
-                gap: 5px;
             }
 
             .header-button {
-                padding: 7px 8px;
+
+                padding:
+                    8px 10px;
+
             }
 
-            .wallet-row {
-                flex-direction: column;
+            .dashboard-main {
+
+                padding:
+                    25px 0 60px;
+
             }
 
-            .copy-wallet-button {
-                width: 100%;
+            .welcome-card {
+
+                padding: 23px;
+
+            }
+
+            .stats-grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+            .current-plan {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+            .pricing-grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+            .payment-details {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+            .form-grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+            .profile-grid {
+
+                grid-template-columns:
+                    1fr;
+
+            }
+
+            .publish-area {
+
+                flex-direction:
+                    column;
+
+                align-items:
+                    stretch;
+
+            }
+
+            .job-card-header {
+
+                flex-direction:
+                    column;
+
+            }
+
+        }
+
+
+        @media (max-width: 480px) {
+
+            .container {
+
+                width: 94%;
+
+            }
+
+            .dashboard-section {
+
+                padding: 18px;
+
+            }
+
+            .section-header {
+
+                align-items:
+                    flex-start;
+
+                flex-direction:
+                    column;
+
+            }
+
+            .header-actions {
+
+                gap: 5px;
+
+            }
+
+            .header-button {
+
+                min-height:
+                    36px;
+
+                font-size:
+                    10px;
+
+            }
+
+            .logout-button {
+
+                padding:
+                    8px;
+
             }
 
         }
@@ -2062,21 +2041,21 @@
 
     <div id="loading-spinner">
 
-        <div class="loading-box">
+        <div class="loading-card">
 
-            <div class="loading-icon">
-                ◈
+            <div class="loading-logo">
+                W3
             </div>
 
             <h2>
-                Authenticating Company Account
+                Loading Company Dashboard
             </h2>
 
             <p>
-                Please wait...
+                Please wait while we prepare your workspace.
             </p>
 
-            <div class="loading-circle"></div>
+            <div class="loading-spinner-circle"></div>
 
         </div>
 
@@ -2096,51 +2075,44 @@
 
         <header class="dashboard-header">
 
-            <div class="container header-inner">
+            <div class="container">
+
+                <div class="header-inner">
 
 
-                <a
-                    href="index.html"
-                    class="brand"
-                >
+                    <div class="brand">
 
-                    <div class="brand-icon">
-                        ◈
-                    </div>
-
-                    <div>
-
-                        <div class="brand-title">
-                            Web3Jobs
+                        <div class="brand-icon">
+                            W3
                         </div>
 
-                        <div class="brand-subtitle">
-                            Company Dashboard
+                        <div class="brand-text">
+
+                            <div class="brand-title">
+                                Web3Jobs
+                            </div>
+
+                            <div class="brand-subtitle">
+                                Company Dashboard
+                            </div>
+
                         </div>
 
                     </div>
 
-                </a>
 
+                    <div class="header-actions">
 
-                <div class="header-actions">
+                        <button
+                            type="button"
+                            class="header-button logout-button"
+                            id="logout-button"
+                        >
+                            Logout
+                        </button>
 
-                    <a
-                        href="jobs.html"
-                        class="header-button"
-                    >
-                        Browse Jobs
-                    </a>
+                    </div>
 
-
-                    <button
-                        type="button"
-                        id="company-logout"
-                        class="header-button logout-button"
-                        data-action="logout"
-                    >
-                        Logout
-                    </button>
 
                 </div>
 
@@ -2158,51 +2130,49 @@
             <div class="container">
 
 
-                <!-- =========================================
+                <!-- =============================================
                      WELCOME
-                     ========================================= -->
+                     ============================================= -->
 
                 <section class="welcome-card">
 
                     <div class="welcome-label">
-                        COMPANY ACCOUNT
+                        ● COMPANY WORKSPACE
                     </div>
 
-
                     <h1>
-
-                        Welcome back,
+                        Welcome,
                         <span id="company-name">
                             Company
                         </span>
-
                     </h1>
 
-
                     <p>
-                        Manage your company and Web3 job opportunities.
+                        Manage your jobs, applications,
+                        company profile and subscription.
                     </p>
 
-
-                    <span id="company-email"></span>
+                    <p id="company-email">
+                        company@example.com
+                    </p>
 
                 </section>
 
 
-                <!-- =========================================
-                     STATISTICS
-                     ========================================= -->
+                <!-- =============================================
+                     STATS
+                     ============================================= -->
 
                 <section class="stats-grid">
 
 
-                    <article class="stat-card">
+                    <div class="stat-card">
 
                         <div class="stat-top">
 
-                            <span class="stat-label">
-                                Published Jobs
-                            </span>
+                            <div class="stat-label">
+                                PUBLISHED JOBS
+                            </div>
 
                             <div class="stat-icon">
                                 💼
@@ -2210,286 +2180,167 @@
 
                         </div>
 
-
                         <div
-                            id="total-jobs"
                             class="stat-value"
-                            data-total-jobs
+                            id="published-jobs-count"
                         >
                             0
                         </div>
 
-                    </article>
+                    </div>
 
 
-                    <article class="stat-card">
+                    <div class="stat-card">
 
                         <div class="stat-top">
 
-                            <span class="stat-label">
-                                Active Jobs
-                            </span>
+                            <div class="stat-label">
+                                APPLICATIONS
+                            </div>
 
                             <div class="stat-icon">
-                                ⚡
+                                👥
                             </div>
 
                         </div>
 
-
                         <div
-                            id="active-jobs"
                             class="stat-value"
-                            data-active-jobs
+                            id="applications-count"
                         >
                             0
                         </div>
 
-                    </article>
+                    </div>
 
 
-                    <article class="stat-card">
+                    <div class="stat-card">
 
                         <div class="stat-top">
 
-                            <span class="stat-label">
-                                Account Status
-                            </span>
+                            <div class="stat-label">
+                                JOBS REMAINING
+                            </div>
 
                             <div class="stat-icon">
-                                ✓
+                                📊
                             </div>
 
                         </div>
 
-
                         <div
                             class="stat-value"
-                            style="
-                                font-size:20px;
-                                color:#6ee7b7;
-                            "
+                            id="jobs-remaining-count"
                         >
-                            Active
+                            2
                         </div>
 
-                    </article>
+                    </div>
+
 
                 </section>
 
 
-                <!-- =========================================
-                     BILLING & PAYMENTS
-                     ========================================= -->
+                <!-- =============================================
+                     SUBSCRIPTION
+                     ============================================= -->
 
                 <section
-                    id="billing-payments"
-                    class="dashboard-section billing-section"
+                    class="dashboard-section subscription-section"
+                    id="subscription-section"
                 >
 
 
-                    <div class="billing-header">
+                    <div class="section-header">
 
                         <div>
 
-                            <h2 class="section-title">
-                                Billing & Payments
-                            </h2>
+                            <div class="section-title">
+                                Subscription
+                            </div>
 
-                            <p class="section-description">
-                                Manage your subscription and pay securely with USDT on BNB Smart Chain.
-                            </p>
+                            <div class="section-description">
+                                Manage your monthly job publishing
+                                allowance and plan.
+                            </div>
 
-                        </div>
-
-
-                        <div class="billing-badge">
-                            ● Crypto Payments Available
                         </div>
 
                     </div>
 
 
-                    <div class="billing-grid">
+                    <!-- CURRENT PLAN -->
+
+                    <div class="current-plan">
 
 
-                        <!-- =================================
-                             CURRENT PLAN
-                             ================================= -->
+                        <div class="plan-status-card">
 
-                        <div class="billing-card">
+                            <div class="plan-status-label">
+                                CURRENT PLAN
+                            </div>
 
-                            <h3>
-                                Current Plan
-                            </h3>
+                            <div
+                                class="plan-status-value green"
+                                id="current-plan-name"
+                            >
+                                Free
+                            </div>
+
+                        </div>
 
 
-                            <p class="billing-card-description">
-                                Your Web3Jobs subscription and billing information.
-                            </p>
+                        <div class="plan-status-card">
+
+                            <div class="plan-status-label">
+                                MONTHLY JOB LIMIT
+                            </div>
+
+                            <div
+                                class="plan-status-value"
+                                id="monthly-job-limit"
+                            >
+                                2
+                            </div>
+
+                        </div>
 
 
-                            <div class="current-plan">
+                        <div class="plan-status-card">
 
-                                <div>
+                            <div class="plan-status-label">
+                                JOBS USED
+                            </div>
+
+                            <div
+                                class="plan-status-value"
+                                id="monthly-jobs-used"
+                            >
+                                0
+                            </div>
+
+                            <div class="progress-wrapper">
+
+                                <div class="progress-bar">
 
                                     <div
-                                        id="current-plan-name"
-                                        class="plan-name"
-                                    >
-                                        Free Plan
-                                    </div>
+                                        class="progress-fill"
+                                        id="subscription-progress"
+                                    ></div>
 
+                                </div>
+
+                                <div class="progress-text">
+
+                                    <span>
+                                        Monthly usage
+                                    </span>
 
                                     <span
-                                        id="current-plan-status"
-                                        class="plan-status"
+                                        id="subscription-progress-text"
                                     >
-                                        Active
+                                        0 / 2
                                     </span>
-
-                                </div>
-
-
-                                <div class="plan-price">
-
-                                    <strong
-                                        id="current-plan-price"
-                                    >
-                                        $0
-                                    </strong>
-
-                                    <span>
-                                        USD
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-
-                            <div class="crypto-box">
-
-
-                                <div class="crypto-title">
-
-                                    <div class="crypto-icon">
-                                        ₮
-                                    </div>
-
-                                    <span>
-                                        Pay with Crypto
-                                    </span>
-
-                                </div>
-
-
-                                <p class="billing-card-description">
-
-                                    Pay your Web3Jobs subscription using USDT on BNB Smart Chain (BEP-20).
-
-                                </p>
-
-
-                                <div class="crypto-info">
-
-
-                                    <div class="crypto-info-item">
-
-                                        <span>
-                                            PAYMENT TOKEN
-                                        </span>
-
-                                        <strong>
-                                            USDT
-                                        </strong>
-
-                                    </div>
-
-
-                                    <div class="crypto-info-item">
-
-                                        <span>
-                                            NETWORK
-                                        </span>
-
-                                        <strong>
-                                            BNB Smart Chain
-                                        </strong>
-
-                                    </div>
-
-
-                                    <div class="crypto-info-item">
-
-                                        <span>
-                                            STANDARD
-                                        </span>
-
-                                        <strong>
-                                            BEP-20
-                                        </strong>
-
-                                    </div>
-
-
-                                    <div class="crypto-info-item">
-
-                                        <span>
-                                            PRICING
-                                        </span>
-
-                                        <strong>
-                                            USD
-                                        </strong>
-
-                                    </div>
-
-                                </div>
-
-
-                                <div
-                                    style="
-                                        margin-top:15px;
-                                    "
-                                >
-
-                                    <div class="wallet-label">
-                                        Web3Jobs Payment Wallet
-                                    </div>
-
-
-                                    <div class="wallet-row">
-
-
-                                        <div
-                                            id="payment-wallet-address"
-                                            class="wallet-address"
-                                        >
-                                            0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36
-                                        </div>
-
-
-                                        <button
-                                            type="button"
-                                            id="copy-wallet-button"
-                                            class="copy-wallet-button"
-                                        >
-                                            Copy
-                                        </button>
-
-
-                                    </div>
-
-                                </div>
-
-
-                                <div class="payment-warning">
-
-                                    ⚠️ Send <strong>USDT only</strong> using
-                                    <strong>BNB Smart Chain (BEP-20)</strong>
-                                    to the wallet address above.
-                                    Do not send funds using another network.
 
                                 </div>
 
@@ -2497,202 +2348,420 @@
 
                         </div>
 
-
-                        <!-- =================================
-                             MAKE PAYMENT
-                             ================================= -->
-
-                        <div class="billing-card">
-
-                            <h3>
-                                Make a Payment
-                            </h3>
-
-
-                            <p class="billing-card-description">
-
-                                Select your subscription plan, send the required USDT amount, then submit your transaction hash for verification.
-
-                            </p>
-
-
-                            <form
-                                id="crypto-payment-form"
-                                class="payment-form"
-                            >
-
-
-                                <div>
-
-                                    <label for="payment-plan">
-                                        Subscription Plan
-                                    </label>
-
-
-                                    <select
-                                        id="payment-plan"
-                                        name="payment_plan"
-                                    >
-
-                                        <option
-                                            value="starter"
-                                            data-price="19"
-                                        >
-                                            Starter — $19 USD
-                                        </option>
-
-
-                                        <option
-                                            value="professional"
-                                            data-price="49"
-                                        >
-                                            Professional — $49 USD
-                                        </option>
-
-
-                                        <option
-                                            value="business"
-                                            data-price="99"
-                                        >
-                                            Business — $99 USD
-                                        </option>
-
-                                    </select>
-
-                                </div>
-
-
-                                <div class="payment-amount">
-
-
-                                    <div class="amount-box">
-
-                                        <span>
-                                            PLAN PRICE
-                                        </span>
-
-                                        <strong
-                                            id="payment-usd-amount"
-                                        >
-                                            $19
-                                        </strong>
-
-                                    </div>
-
-
-                                    <div class="amount-box">
-
-                                        <span>
-                                            USDT TO SEND
-                                        </span>
-
-                                        <strong
-                                            id="payment-usdt-amount"
-                                        >
-                                            19 USDT
-                                        </strong>
-
-                                    </div>
-
-
-                                </div>
-
-
-                                <div>
-
-                                    <label for="transaction-hash">
-                                        Transaction Hash
-                                    </label>
-
-
-                                    <input
-                                        id="transaction-hash"
-                                        name="transaction_hash"
-                                        type="text"
-                                        placeholder="0x..."
-                                        autocomplete="off"
-                                        spellcheck="false"
-                                        maxlength="66"
-                                        required
-                                    >
-
-                                </div>
-
-
-                                <div
-                                    id="payment-message"
-                                    role="alert"
-                                ></div>
-
-
-                                <button
-                                    type="submit"
-                                    id="submit-payment-button"
-                                    class="submit-payment-button"
-                                >
-                                    Submit Payment for Verification
-                                </button>
-
-
-                            </form>
-
-
-                            <div class="payment-history">
-
-                                <div class="payment-history-title">
-                                    Payment History
-                                </div>
-
-
-                                <div class="payment-history-table">
-
-
-                                    <div class="payment-history-row header">
-
-                                        <div>
-                                            Date
-                                        </div>
-
-                                        <div>
-                                            Plan
-                                        </div>
-
-                                        <div>
-                                            Amount
-                                        </div>
-
-                                        <div>
-                                            Status
-                                        </div>
-
-                                    </div>
-
-
-                                    <div
-                                        id="payment-history-list"
-                                    >
-
-                                        <div class="payment-empty">
-                                            Loading payment history...
-                                        </div>
-
-                                    </div>
-
-
-                                </div>
-
-                            </div>
-
-                        </div>
 
                     </div>
+
+
+                    <!-- =========================================
+                         PLANS
+                         ========================================= -->
+
+                    <div class="pricing-grid">
+
+
+                        <!-- FREE -->
+
+                        <div class="pricing-card">
+
+                            <span class="plan-badge">
+                                Free
+                            </span>
+
+                            <h3>
+                                Free
+                            </h3>
+
+                            <div class="plan-price">
+                                $0
+                                <small>
+                                    / month
+                                </small>
+                            </div>
+
+                            <div class="plan-limit">
+                                2 job advertisements / month
+                            </div>
+
+                            <div class="plan-features">
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Company profile
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    2 job posts monthly
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Application management
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="plan-button secondary"
+                                data-plan="free"
+                            >
+                                Current / Free
+                            </button>
+
+                        </div>
+
+
+                        <!-- STARTER -->
+
+                        <div class="pricing-card">
+
+                            <span class="plan-badge">
+                                Starter
+                            </span>
+
+                            <h3>
+                                Starter
+                            </h3>
+
+                            <div class="plan-price">
+                                $19
+                                <small>
+                                    / month
+                                </small>
+                            </div>
+
+                            <div class="plan-limit">
+                                5 job advertisements / month
+                            </div>
+
+                            <div class="plan-features">
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    5 job posts monthly
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Application management
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Company profile
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Priority support
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="plan-button"
+                                data-plan="starter"
+                            >
+                                Upgrade — $19
+                            </button>
+
+                        </div>
+
+
+                        <!-- PROFESSIONAL -->
+
+                        <div
+                            class="pricing-card featured"
+                        >
+
+                            <span class="plan-badge">
+                                Most Popular
+                            </span>
+
+                            <h3>
+                                Professional
+                            </h3>
+
+                            <div class="plan-price">
+                                $49
+                                <small>
+                                    / month
+                                </small>
+                            </div>
+
+                            <div class="plan-limit">
+                                20 job advertisements / month
+                            </div>
+
+                            <div class="plan-features">
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    20 job posts monthly
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Application management
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Company profile
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Priority support
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Enhanced visibility
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="plan-button"
+                                data-plan="professional"
+                            >
+                                Upgrade — $49
+                            </button>
+
+                        </div>
+
+
+                        <!-- ENTERPRISE -->
+
+                        <div class="pricing-card">
+
+                            <span class="plan-badge">
+                                Full Access
+                            </span>
+
+                            <h3>
+                                Enterprise
+                            </h3>
+
+                            <div class="plan-price">
+                                $99
+                                <small>
+                                    / month
+                                </small>
+                            </div>
+
+                            <div class="plan-limit">
+                                Unlimited job publishing
+                            </div>
+
+                            <div class="plan-features">
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Unlimited job posts
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    All platform features
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Advanced company tools
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Priority support
+                                </div>
+
+                                <div>
+                                    <span class="plan-check">✓</span>
+                                    Enhanced visibility
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="button"
+                                class="plan-button"
+                                data-plan="enterprise"
+                            >
+                                Upgrade — $99
+                            </button>
+
+                        </div>
+
+
+                    </div>
+
+
+                    <!-- =========================================
+                         PAYMENT
+                         ========================================= -->
+
+                    <div
+                        class="payment-box"
+                        id="payment-box"
+                    >
+
+
+                        <div class="payment-header">
+
+                            <div>
+
+                                <div class="payment-title">
+                                    Pay with USDT
+                                </div>
+
+                                <div
+                                    class="section-description"
+                                >
+                                    BNB Smart Chain
+                                    (BEP-20)
+                                </div>
+
+                            </div>
+
+                            <div class="bnb-label">
+                                ◆ BNB CHAIN
+                            </div>
+
+                        </div>
+
+
+                        <div class="payment-details">
+
+
+                            <div class="payment-detail">
+
+                                <span>
+                                    SELECTED PLAN
+                                </span>
+
+                                <strong
+                                    id="selected-plan-name"
+                                >
+                                    —
+                                </strong>
+
+                            </div>
+
+
+                            <div class="payment-detail">
+
+                                <span>
+                                    AMOUNT
+                                </span>
+
+                                <strong
+                                    id="selected-plan-price"
+                                >
+                                    $0 USDT
+                                </strong>
+
+                            </div>
+
+
+                            <div class="payment-detail">
+
+                                <span>
+                                    NETWORK
+                                </span>
+
+                                <strong>
+                                    BNB Smart Chain
+                                </strong>
+
+                            </div>
+
+
+                            <div class="payment-detail">
+
+                                <span>
+                                    PAYMENT TOKEN
+                                </span>
+
+                                <strong>
+                                    USDT (BEP-20)
+                                </strong>
+
+                            </div>
+
+
+                            <div
+                                class="payment-detail"
+                                style="grid-column:1/-1;"
+                            >
+
+                                <span>
+                                    WEB3JOBS PAYMENT ADDRESS
+                                </span>
+
+                                <strong
+                                    class="wallet-address"
+                                    id="payment-wallet-address"
+                                >
+                                    Payment address will be configured
+                                </strong>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="payment-actions">
+
+                            <button
+                                type="button"
+                                class="primary-button"
+                                id="connect-wallet-button"
+                            >
+                                Connect Wallet
+                            </button>
+
+                            <button
+                                type="button"
+                                class="secondary-button"
+                                id="pay-usdt-button"
+                            >
+                                Pay USDT
+                            </button>
+
+                            <button
+                                type="button"
+                                class="secondary-button"
+                                id="cancel-payment-button"
+                            >
+                                Cancel
+                            </button>
+
+                        </div>
+
+
+                        <div
+                            class="payment-status"
+                            id="payment-status"
+                        >
+                            Connect your BNB Chain wallet to continue.
+                        </div>
+
+
+                    </div>
+
 
                 </section>
 
 
-                <!-- =========================================
-                     CREATE JOB
-                     ========================================= -->
+                <!-- =============================================
+                     POST JOB
+                     ============================================= -->
 
                 <section class="dashboard-section">
 
@@ -2701,13 +2770,14 @@
 
                         <div>
 
-                            <h2 class="section-title">
+                            <div class="section-title">
                                 Post a New Job
-                            </h2>
+                            </div>
 
-                            <p class="section-description">
-                                Publish a new opportunity for Web3 professionals.
-                            </p>
+                            <div class="section-description">
+                                Publish a new Web3 opportunity
+                                for qualified candidates.
+                            </div>
 
                         </div>
 
@@ -2715,189 +2785,165 @@
 
 
                     <form
-                        id="create-job-form"
-                        class="create-job-form"
-                        data-create-job-form
+                        id="post-job-form"
                     >
 
 
-                        <div class="form-group">
+                        <div class="form-grid">
 
-                            <label for="job-title">
-                                Job Title
-                            </label>
 
-                            <input
-                                id="job-title"
-                                type="text"
-                                name="title"
-                                placeholder="Senior Solidity Developer"
-                                required
-                                autocomplete="off"
+                            <div class="form-group">
+
+                                <label for="job-title">
+                                    Job Title
+                                </label>
+
+                                <input
+                                    id="job-title"
+                                    name="title"
+                                    type="text"
+                                    placeholder="e.g. Solidity Developer"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="job-company">
+                                    Company
+                                </label>
+
+                                <input
+                                    id="job-company"
+                                    name="company"
+                                    type="text"
+                                    placeholder="Company name"
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="job-location">
+                                    Location
+                                </label>
+
+                                <input
+                                    id="job-location"
+                                    name="location"
+                                    type="text"
+                                    placeholder="Remote / Dubai / London..."
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="job-type">
+                                    Job Type
+                                </label>
+
+                                <select
+                                    id="job-type"
+                                    name="type"
+                                >
+
+                                    <option value="Full-time">
+                                        Full-time
+                                    </option>
+
+                                    <option value="Part-time">
+                                        Part-time
+                                    </option>
+
+                                    <option value="Contract">
+                                        Contract
+                                    </option>
+
+                                    <option value="Freelance">
+                                        Freelance
+                                    </option>
+
+                                    <option value="Internship">
+                                        Internship
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label for="job-apply-link">
+                                    Application URL
+                                </label>
+
+                                <input
+                                    id="job-apply-link"
+                                    name="apply_link"
+                                    type="url"
+                                    placeholder="https://..."
+                                    required
+                                >
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label for="job-description">
+                                    Job Description
+                                </label>
+
+                                <textarea
+                                    id="job-description"
+                                    name="description"
+                                    placeholder="Describe the role, requirements, responsibilities and benefits..."
+                                    required
+                                ></textarea>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="publish-area">
+
+                            <div
+                                class="publish-note"
+                                id="publish-note"
                             >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="job-company">
-                                Company
-                            </label>
-
-                            <input
-                                id="job-company"
-                                type="text"
-                                name="company"
-                                placeholder="Company name"
-                                autocomplete="organization"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="job-location">
-                                Location
-                            </label>
-
-                            <input
-                                id="job-location"
-                                type="text"
-                                name="location"
-                                placeholder="Remote / London / New York"
-                                autocomplete="off"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="job-type">
-                                Job Type
-                            </label>
-
-                            <select
-                                id="job-type"
-                                name="type"
-                            >
-
-                                <option value="Full Time">
-                                    Full Time
-                                </option>
-
-                                <option value="Part Time">
-                                    Part Time
-                                </option>
-
-                                <option value="Remote">
-                                    Remote
-                                </option>
-
-                                <option value="Freelance">
-                                    Freelance
-                                </option>
-
-                                <option value="Internship">
-                                    Internship
-                                </option>
-
-                                <option value="Contract">
-                                    Contract
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="job-skills">
-                                Skills
-                            </label>
-
-                            <input
-                                id="job-skills"
-                                type="text"
-                                name="skills"
-                                placeholder="Solidity, React, Ethereum"
-                                autocomplete="off"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="job-salary">
-                                Salary
-                            </label>
-
-                            <input
-                                id="job-salary"
-                                type="text"
-                                name="salary"
-                                placeholder="$80k - $120k"
-                                autocomplete="off"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group full">
-
-                            <label for="job-application-url">
-                                Application URL
-                            </label>
-
-                            <input
-                                id="job-application-url"
-                                type="url"
-                                name="application_url"
-                                placeholder="https://example.com/apply"
-                                autocomplete="url"
-                            >
-
-                        </div>
-
-
-                        <div class="form-group full">
-
-                            <label for="job-description">
-                                Job Description
-                            </label>
-
-                            <textarea
-                                id="job-description"
-                                name="description"
-                                placeholder="Describe the role, responsibilities and requirements..."
-                            ></textarea>
-
-                        </div>
-
-
-                        <div class="form-actions">
+                                Your current plan allows 2 job
+                                advertisements per month.
+                            </div>
 
                             <button
                                 type="submit"
                                 class="primary-button"
+                                id="publish-job-button"
                             >
                                 Publish Job
                             </button>
 
                         </div>
 
+
                     </form>
+
 
                 </section>
 
 
-                <!-- =========================================
-                     COMPANY JOBS
-                     ========================================= -->
+                <!-- =============================================
+                     MY JOBS
+                     ============================================= -->
 
                 <section class="dashboard-section">
 
@@ -2906,47 +2952,247 @@
 
                         <div>
 
-                            <h2 class="section-title">
-                                Your Published Jobs
-                            </h2>
+                            <div class="section-title">
+                                My Jobs
+                            </div>
 
-                            <p class="section-description">
+                            <div class="section-description">
                                 Manage the jobs published by your company.
-                            </p>
+                            </div>
 
                         </div>
-
-
-                        <button
-                            type="button"
-                            class="primary-button"
-                            data-action="create-job"
-                        >
-                            + New Job
-                        </button>
 
                     </div>
 
 
                     <div
+                        class="jobs-list"
                         id="company-jobs-list"
-                        class="company-jobs-list"
-                        data-company-jobs
                     >
 
-                        <div class="no-company-jobs">
+                        <div class="empty-state">
+                            Loading your jobs...
+                        </div>
 
-                            <h3>
-                                Loading Jobs...
-                            </h3>
+                    </div>
 
-                            <p>
-                                Please wait while your jobs are loaded.
-                            </p>
+
+                </section>
+
+
+                <!-- =============================================
+                     APPLICATIONS
+                     ============================================= -->
+
+                <section class="dashboard-section">
+
+
+                    <div class="section-header">
+
+                        <div>
+
+                            <div class="section-title">
+                                Applications
+                            </div>
+
+                            <div class="section-description">
+                                Review applications submitted to your jobs.
+                            </div>
 
                         </div>
 
                     </div>
+
+
+                    <div
+                        class="applications-table-wrapper"
+                    >
+
+                        <table
+                            class="applications-table"
+                        >
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>
+                                        Candidate
+                                    </th>
+
+                                    <th>
+                                        Job
+                                    </th>
+
+                                    <th>
+                                        Status
+                                    </th>
+
+                                    <th>
+                                        Date
+                                    </th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody
+                                id="applications-table-body"
+                            >
+
+                                <tr>
+
+                                    <td
+                                        colspan="4"
+                                        class="empty-state"
+                                    >
+                                        Loading applications...
+                                    </td>
+
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                </section>
+
+
+                <!-- =============================================
+                     COMPANY PROFILE
+                     ============================================= -->
+
+                <section class="dashboard-section">
+
+
+                    <div class="section-header">
+
+                        <div>
+
+                            <div class="section-title">
+                                Company Profile
+                            </div>
+
+                            <div class="section-description">
+                                Keep your company information up to date.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        id="company-profile-form"
+                    >
+
+
+                        <div class="profile-grid">
+
+
+                            <div class="form-group">
+
+                                <label for="profile-company-name">
+                                    Company Name
+                                </label>
+
+                                <input
+                                    id="profile-company-name"
+                                    name="company_name"
+                                    type="text"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="profile-website">
+                                    Website
+                                </label>
+
+                                <input
+                                    id="profile-website"
+                                    name="website"
+                                    type="url"
+                                    placeholder="https://..."
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="profile-location">
+                                    Location
+                                </label>
+
+                                <input
+                                    id="profile-location"
+                                    name="location"
+                                    type="text"
+                                >
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <label for="profile-linkedin">
+                                    LinkedIn
+                                </label>
+
+                                <input
+                                    id="profile-linkedin"
+                                    name="linkedin"
+                                    type="url"
+                                    placeholder="https://linkedin.com/company/..."
+                                >
+
+                            </div>
+
+
+                            <div class="form-group full">
+
+                                <label for="profile-description">
+                                    Company Description
+                                </label>
+
+                                <textarea
+                                    id="profile-description"
+                                    name="description"
+                                    placeholder="Tell candidates about your company..."
+                                ></textarea>
+
+                            </div>
+
+
+                        </div>
+
+
+                        <div class="publish-area">
+
+                            <div class="publish-note">
+                                Your public company profile helps candidates
+                                understand your organization.
+                            </div>
+
+                            <button
+                                type="submit"
+                                class="primary-button"
+                                id="save-profile-button"
+                            >
+                                Save Profile
+                            </button>
+
+                        </div>
+
+
+                    </form>
+
 
                 </section>
 
@@ -2956,1627 +3202,76 @@
         </main>
 
 
-        <!-- =================================================
-             FOOTER
-             ================================================= -->
-
-        <footer class="dashboard-footer">
-
-            <div class="container footer-inner">
-
-
-                <div class="footer-text">
-                    © 2026 Web3Jobs. All rights reserved.
-                </div>
-
-
-                <div class="footer-links">
-
-                    <a href="index.html">
-                        Home
-                    </a>
-
-                    <a href="jobs.html">
-                        Jobs
-                    </a>
-
-                    <a href="companies.html">
-                        Companies
-                    </a>
-
-                </div>
-
-
-            </div>
-
-        </footer>
-
-
     </div>
 
 
     <!-- =====================================================
-         COMPANY AUTHENTICATION
+         ALERT
+         ===================================================== -->
+
+    <div
+        id="dashboard-alert"
+        role="alert"
+    ></div>
+
+
+    <!-- =====================================================
+         FALLBACK INITIALIZATION
          ===================================================== -->
 
     <script>
-
-        "use strict";
-
-
-        /* =====================================================
-           PAYMENT CONFIGURATION
-           ===================================================== */
-
-        const WEB3JOBS_PAYMENT_CONFIG = {
-
-            wallet:
-                "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
-
-            network:
-                "BNB Smart Chain",
-
-            blockchainNetwork:
-                "BNB Smart Chain",
-
-            token:
-                "USDT",
-
-            paymentProvider:
-                "crypto",
-
-            paymentMethod:
-                "USDT",
-
-            currency:
-                "USD",
-
-            plans: {
-
-                starter: {
-
-                    name:
-                        "Starter",
-
-                    price:
-                        19
-
-                },
-
-                professional: {
-
-                    name:
-                        "Professional",
-
-                    price:
-                        49
-
-                },
-
-                business: {
-
-                    name:
-                        "Business",
-
-                    price:
-                        99
-
-                }
-
-            }
-
-        };
-
-
-        /* =====================================================
-           GLOBAL USER
-           ===================================================== */
-
-        let WEB3JOBS_CURRENT_USER = null;
-
-
-        /* =====================================================
-           DOM READY - AUTH
-           ===================================================== */
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            async function () {
-
-                const loadingSpinner =
-                    document.getElementById(
-                        "loading-spinner"
-                    );
-
-
-                const dashboardContent =
-                    document.getElementById(
-                        "dashboard-content"
-                    );
-
-
-                try {
-
-                    if (
-                        !window.Web3JobsAuth ||
-                        typeof
-                        window.Web3JobsAuth
-                            .protectCompanyDashboard
-                        !==
-                        "function"
-                    ) {
-
-                        throw new Error(
-                            "Authentication system is not loaded."
-                        );
-
-                    }
-
-
-                    const result =
-                        await
-                        window.Web3JobsAuth
-                            .protectCompanyDashboard();
-
-
-                    if (
-                        !result ||
-                        !result.authenticated
-                    ) {
-
-                        window.location.href =
-                            "login.html";
-
-                        return;
-
-                    }
-
-
-                    if (
-                        String(
-                            result.accountType || ""
-                        )
-                            .trim()
-                            .toLowerCase()
-                        !==
-                        "company"
-                    ) {
-
-                        window.location.href =
-                            "dashboard.html";
-
-                        return;
-
-                    }
-
-
-                    WEB3JOBS_CURRENT_USER =
-                        result.user || null;
-
-
-                    const nameElement =
-                        document.getElementById(
-                            "company-name"
-                        );
-
-
-                    if (
-                        nameElement &&
-                        result.user
-                    ) {
-
-                        const metadata =
-                            result.user
-                                .user_metadata || {};
-
-
-                        nameElement.textContent =
-                            metadata.company_name ||
-                            metadata.full_name ||
-                            metadata.name ||
-                            "Company";
-
-                    }
-
-
-                    const emailElement =
-                        document.getElementById(
-                            "company-email"
-                        );
-
-
-                    if (
-                        emailElement &&
-                        result.user
-                    ) {
-
-                        emailElement.textContent =
-                            result.user.email || "";
-
-                    }
-
-
-                    if (loadingSpinner) {
-
-                        loadingSpinner.style.display =
-                            "none";
-
-                    }
-
-
-                    if (dashboardContent) {
-
-                        dashboardContent.style.display =
-                            "block";
-
-                    }
-
-
-                    /* Load payments after authentication */
-
-                    await loadPaymentHistory();
-
-                    await loadCurrentSubscription();
-
-
-                } catch (error) {
-
-                    console.error(
-                        "Company Dashboard Initialization Error:",
-                        error
-                    );
-
-
-                    if (loadingSpinner) {
-
-                        loadingSpinner.innerHTML = `
-
-                            <div class="loading-box">
-
-                                <div class="loading-icon">
-                                    !
-                                </div>
-
-                                <h2>
-                                    Unable to load dashboard
-                                </h2>
-
-                                <p>
-                                    Redirecting to login...
-                                </p>
-
-                            </div>
-
-                        `;
-
-                    }
-
-
-                    setTimeout(
-                        function () {
-
-                            window.location.href =
-                                "login.html";
-
-                        },
-                        1200
-                    );
-
-                }
-
-            }
-        );
-
-
-        /* =====================================================
-           PAYMENT HELPERS
-           ===================================================== */
-
-
-        function getSupabaseClient() {
-
-            if (
-                window.supabaseClient &&
-                typeof
-                window.supabaseClient
-                    .from === "function"
-            ) {
-
-                return window.supabaseClient;
-
-            }
-
-
-            if (
-                window.supabase &&
-                typeof
-                window.supabase.from === "function"
-            ) {
-
-                return window.supabase;
-
-            }
-
-
-            if (
-                window.Web3JobsSupabase &&
-                typeof
-                window.Web3JobsSupabase
-                    .from === "function"
-            ) {
-
-                return window.Web3JobsSupabase;
-
-            }
-
-
-            return null;
-
-        }
-
-
-        function getCurrentUserId() {
-
-            if (
-                WEB3JOBS_CURRENT_USER &&
-                WEB3JOBS_CURRENT_USER.id
-            ) {
-
-                return WEB3JOBS_CURRENT_USER.id;
-
-            }
-
-
-            return null;
-
-        }
-
-
-        function getSelectedPlan() {
-
-            const paymentPlan =
-                document.getElementById(
-                    "payment-plan"
-                );
-
-
-            if (!paymentPlan) {
-
-                return null;
-
-            }
-
-
-            const value =
-                paymentPlan.value;
-
-
-            return (
-                WEB3JOBS_PAYMENT_CONFIG
-                    .plans[value]
-                ||
-                null
-            );
-
-        }
-
-
-        function updatePaymentAmount() {
-
-            const paymentPlan =
-                document.getElementById(
-                    "payment-plan"
-                );
-
-
-            const usdAmount =
-                document.getElementById(
-                    "payment-usd-amount"
-                );
-
-
-            const usdtAmount =
-                document.getElementById(
-                    "payment-usdt-amount"
-                );
-
-
-            if (!paymentPlan) {
-                return;
-            }
-
-
-            const selectedPlan =
-                WEB3JOBS_PAYMENT_CONFIG
-                    .plans[
-                        paymentPlan.value
-                    ];
-
-
-            if (!selectedPlan) {
-                return;
-            }
-
-
-            if (usdAmount) {
-
-                usdAmount.textContent =
-                    "$" +
-                    selectedPlan.price;
-
-            }
-
-
-            if (usdtAmount) {
-
-                usdtAmount.textContent =
-                    selectedPlan.price +
-                    " USDT";
-
-            }
-
-        }
-
-
-        function showPaymentMessage(
-            message,
-            type
-        ) {
-
-            const paymentMessage =
-                document.getElementById(
-                    "payment-message"
-                );
-
-
-            if (!paymentMessage) {
-                return;
-            }
-
-
-            paymentMessage.className = "";
-
-
-            paymentMessage.classList.add(
-                type
-            );
-
-
-            paymentMessage.textContent =
-                message;
-
-        }
-
-
-        function normalizeTransactionHash(
-            value
-        ) {
-
-            return String(
-                value || ""
-            )
-                .trim()
-                .replace(/\s+/g, "");
-
-        }
-
-
-        function isValidTransactionHash(
-            hash
-        ) {
-
-            return /^0x[a-fA-F0-9]{64}$/
-                .test(hash);
-
-        }
-
-
-        function getPlanLabel(
-            planCode
-        ) {
-
-            const plan =
-                WEB3JOBS_PAYMENT_CONFIG
-                    .plans[
-                        String(
-                            planCode || ""
-                        ).toLowerCase()
-                    ];
-
-
-            if (plan) {
-                return plan.name;
-            }
-
-
-            return (
-                planCode ||
-                "Subscription"
-            );
-
-        }
-
-
-        function formatPaymentDate(
-            dateValue
-        ) {
-
-            if (!dateValue) {
-                return "-";
-            }
-
-
-            const date =
-                new Date(dateValue);
-
-
-            if (
-                Number.isNaN(
-                    date.getTime()
-                )
-            ) {
-
-                return "-";
-
-            }
-
-
-            return date.toLocaleDateString(
-                "en-US",
-                {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric"
-                }
-            );
-
-        }
-
-
-        function escapeHtml(
-            value
-        ) {
-
-            const div =
-                document.createElement(
-                    "div"
-                );
-
-
-            div.textContent =
-                String(
-                    value ?? ""
-                );
-
-
-            return div.innerHTML;
-
-        }
-
-
-        /* =====================================================
-           CURRENT PLAN
-           ===================================================== */
-
-        async function loadCurrentSubscription() {
-
-            const supabase =
-                getSupabaseClient();
-
-
-            const userId =
-                getCurrentUserId();
-
-
-            if (
-                !supabase ||
-                !userId
-            ) {
-
-                return;
-
-            }
-
-
-            try {
-
-                /*
-                 * The dashboard can work even if the subscription
-                 * table is not available.
-                 *
-                 * We first try a common "subscriptions" table.
-                 */
-
-                const result =
-                    await supabase
-                        .from(
-                            "subscriptions"
-                        )
-                        .select("*")
-                        .eq(
-                            "user_id",
-                            userId
-                        )
-                        .order(
-                            "created_at",
-                            {
-                                ascending:
-                                    false
-                            }
-                        )
-                        .limit(1)
-                        .maybeSingle();
-
-
-                if (
-                    result.error ||
-                    !result.data
-                ) {
-
-                    return;
-
-                }
-
-
-                const subscription =
-                    result.data;
-
-
-                const planCode =
-                    subscription.plan_code ||
-                    subscription.plan ||
-                    subscription.plan_type;
-
-
-                const plan =
-                    WEB3JOBS_PAYMENT_CONFIG
-                        .plans[
-                            String(
-                                planCode || ""
-                            ).toLowerCase()
-                        ];
-
-
-                const nameElement =
-                    document.getElementById(
-                        "current-plan-name"
-                    );
-
-
-                const priceElement =
-                    document.getElementById(
-                        "current-plan-price"
-                    );
-
-
-                const statusElement =
-                    document.getElementById(
-                        "current-plan-status"
-                    );
-
-
-                if (nameElement) {
-
-                    nameElement.textContent =
-                        plan
-                            ? plan.name
-                            : (
-                                subscription.plan_name ||
-                                "Free Plan"
-                            );
-
-                }
-
-
-                if (priceElement) {
-
-                    priceElement.textContent =
-                        plan
-                            ? "$" +
-                              plan.price
-                            : (
-                                subscription.price
-                                    ? "$" +
-                                      subscription.price
-                                    : "$0"
-                            );
-
-                }
-
-
-                if (statusElement) {
-
-                    statusElement.textContent =
-                        subscription.status ||
-                        "Active";
-
-                }
-
-
-            } catch (error) {
-
-                console.warn(
-                    "Subscription table not available:",
-                    error
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           LOAD PAYMENT HISTORY
-           ===================================================== */
-
-        async function loadPaymentHistory() {
-
-            const list =
-                document.getElementById(
-                    "payment-history-list"
-                );
-
-
-            if (!list) {
-                return;
-            }
-
-
-            const supabase =
-                getSupabaseClient();
-
-
-            const userId =
-                getCurrentUserId();
-
-
-            if (
-                !supabase ||
-                !userId
-            ) {
-
-                list.innerHTML = `
-
-                    <div class="payment-empty">
-                        Payment history is unavailable.
-                    </div>
-
-                `;
-
-                return;
-
-            }
-
-
-            try {
-
-                const result =
-                    await supabase
-                        .from("payments")
-                        .select(
-                            "*"
-                        )
-                        .eq(
-                            "user_id",
-                            userId
-                        )
-                        .order(
-                            "created_at",
-                            {
-                                ascending:
-                                    false
-                            }
-                        )
-                        .limit(20);
-
-
-                if (result.error) {
-
-                    console.warn(
-                        "Payment history error:",
-                        result.error
-                    );
-
-
-                    list.innerHTML = `
-
-                        <div class="payment-empty">
-                            No payments recorded yet.
-                        </div>
-
-                    `;
-
-                    return;
-
-                }
-
-
-                const payments =
-                    result.data || [];
-
-
-                if (!payments.length) {
-
-                    list.innerHTML = `
-
-                        <div class="payment-empty">
-                            No payments recorded yet.
-                        </div>
-
-                    `;
-
-                    return;
-
-                }
-
-
-                list.innerHTML =
-                    payments
-                        .map(
-                            function (payment) {
-
-                                const planCode =
-                                    payment.plan_code ||
-                                    payment.plan ||
-                                    payment.payment_type ||
-                                    "Subscription";
-
-
-                                const amount =
-                                    payment.amount ??
-                                    "-";
-
-
-                                const currency =
-                                    payment.currency ||
-                                    "USD";
-
-
-                                const status =
-                                    String(
-                                        payment.status ||
-                                        "pending"
-                                    )
-                                        .toLowerCase();
-
-
-                                const safeStatus =
-                                    [
-                                        "pending",
-                                        "paid",
-                                        "rejected"
-                                    ]
-                                        .includes(
-                                            status
-                                        )
-                                    ? status
-                                    : "pending";
-
-
-                                return `
-
-                                    <div class="payment-history-row">
-
-                                        <div>
-                                            ${escapeHtml(
-                                                formatPaymentDate(
-                                                    payment.created_at
-                                                )
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            ${escapeHtml(
-                                                getPlanLabel(
-                                                    planCode
-                                                )
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            ${escapeHtml(
-                                                String(
-                                                    amount
-                                                )
-                                            )}
-                                            ${escapeHtml(
-                                                currency
-                                            )}
-                                        </div>
-
-                                        <div>
-
-                                            <span
-                                                class="payment-status ${safeStatus}"
-                                            >
-                                                ${escapeHtml(
-                                                    safeStatus
-                                                        .toUpperCase()
-                                                )}
-                                            </span>
-
-                                        </div>
-
-                                    </div>
-
-                                `;
-
-                            }
-                        )
-                        .join("");
-
-
-            } catch (error) {
-
-                console.error(
-                    "Load payment history error:",
-                    error
-                );
-
-
-                list.innerHTML = `
-
-                    <div class="payment-empty">
-                        No payments recorded yet.
-                    </div>
-
-                `;
-
-            }
-
-        }
-
-
-        /* =====================================================
-           CHECK DUPLICATE TRANSACTION HASH
-           ===================================================== */
-
-        async function transactionAlreadySubmitted(
-            transactionHash
-        ) {
-
-            const supabase =
-                getSupabaseClient();
-
-
-            if (!supabase) {
-                return false;
-            }
-
-
-            try {
-
-                const result =
-                    await supabase
-                        .from("payments")
-                        .select("id")
-                        .eq(
-                            "transaction_hash",
-                            transactionHash
-                        )
-                        .limit(1);
-
-
-                if (
-                    result.error
-                ) {
-
-                    console.warn(
-                        "Duplicate transaction check error:",
-                        result.error
-                    );
-
-                    return false;
-
-                }
-
-
-                return (
-                    Array.isArray(
-                        result.data
-                    ) &&
-                    result.data.length > 0
-                );
-
-            } catch (error) {
-
-                console.warn(
-                    "Duplicate transaction check failed:",
-                    error
-                );
-
-                return false;
-
-            }
-
-        }
-
-
-        /* =====================================================
-           SUBMIT PAYMENT
-           ===================================================== */
-
-        async function submitCryptoPayment(
-            event
-        ) {
-
-            event.preventDefault();
-
-
-            const paymentPlan =
-                document.getElementById(
-                    "payment-plan"
-                );
-
-
-            const transactionInput =
-                document.getElementById(
-                    "transaction-hash"
-                );
-
-
-            const submitButton =
-                document.getElementById(
-                    "submit-payment-button"
-                );
-
-
-            if (
-                !paymentPlan ||
-                !transactionInput
-            ) {
-
-                return;
-
-            }
-
-
-            const selectedPlan =
-                WEB3JOBS_PAYMENT_CONFIG
-                    .plans[
-                        paymentPlan.value
-                    ];
-
-
-            if (!selectedPlan) {
-
-                showPaymentMessage(
-                    "Please select a valid subscription plan.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            const transactionHash =
-                normalizeTransactionHash(
-                    transactionInput.value
-                );
-
-
-            if (!transactionHash) {
-
-                showPaymentMessage(
-                    "Please enter your transaction hash.",
-                    "error"
-                );
-
-                transactionInput.focus();
-
-                return;
-
-            }
-
-
-            if (
-                !isValidTransactionHash(
-                    transactionHash
-                )
-            ) {
-
-                showPaymentMessage(
-                    "Please enter a valid BNB Smart Chain transaction hash.",
-                    "error"
-                );
-
-                transactionInput.focus();
-
-                return;
-
-            }
-
-
-            const userId =
-                getCurrentUserId();
-
-
-            if (!userId) {
-
-                showPaymentMessage(
-                    "Your account session has expired. Please log in again.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            const supabase =
-                getSupabaseClient();
-
-
-            if (!supabase) {
-
-                showPaymentMessage(
-                    "Supabase is not initialized. Please check js/supabase.js.",
-                    "error"
-                );
-
-                return;
-
-            }
-
-
-            try {
-
-                if (submitButton) {
-
-                    submitButton.disabled =
-                        true;
-
-                    submitButton.textContent =
-                        "Submitting...";
-
-                }
-
-
-                showPaymentMessage(
-                    "Checking your transaction...",
-                    "info"
-                );
-
-
-                const duplicate =
-                    await transactionAlreadySubmitted(
-                        transactionHash
-                    );
-
-
-                if (duplicate) {
-
-                    showPaymentMessage(
-                        "This transaction hash has already been submitted.",
-                        "error"
-                    );
-
-                    return;
-
-                }
-
-
-                /*
-                 * IMPORTANT:
-                 *
-                 * The payment is recorded as PENDING.
-                 *
-                 * It is NOT marked as PAID here.
-                 *
-                 * An administrator/backend verification process
-                 * must verify:
-                 *
-                 * - BNB Smart Chain
-                 * - USDT token contract
-                 * - destination wallet
-                 * - sender
-                 * - amount
-                 * - transaction success
-                 *
-                 * before changing status to PAID.
-                 */
-
-
-                const paymentData = {
-
-                    user_id:
-                        userId,
-
-                    payment_provider:
-                        WEB3JOBS_PAYMENT_CONFIG
-                            .paymentProvider,
-
-                    payment_method:
-                        WEB3JOBS_PAYMENT_CONFIG
-                            .paymentMethod,
-
-                    payment_type:
-                        paymentPlan.value,
-
-                    amount:
-                        selectedPlan.price,
-
-                    currency:
-                        WEB3JOBS_PAYMENT_CONFIG
-                            .currency,
-
-                    status:
-                        "pending",
-
-                    provider_payment_id:
-                        transactionHash,
-
-                    transaction_hash:
-                        transactionHash,
-
-                    blockchain_network:
-                        WEB3JOBS_PAYMENT_CONFIG
-                            .blockchainNetwork
-
-                };
-
-
-                const result =
-                    await supabase
-                        .from("payments")
-                        .insert(
-                            paymentData
-                        )
-                        .select();
-
-
-                if (result.error) {
-
-                    console.error(
-                        "Payment insert error:",
-                        result.error
-                    );
-
-
-                    throw new Error(
-                        result.error.message ||
-                        "Unable to save payment."
-                    );
-
-                }
-
-
-                showPaymentMessage(
-                    "Payment submitted successfully. Your transaction is now pending verification.",
-                    "success"
-                );
-
-
-                transactionInput.value =
-                    "";
-
-
-                await loadPaymentHistory();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Crypto payment submission error:",
-                    error
-                );
-
-
-                showPaymentMessage(
-                    error.message ||
-                    "Unable to submit payment. Please try again.",
-                    "error"
-                );
-
-
-            } finally {
-
-                if (submitButton) {
-
-                    submitButton.disabled =
-                        false;
-
-                    submitButton.textContent =
-                        "Submit Payment for Verification";
-
-                }
-
-            }
-
-        }
-
-
-        /* =====================================================
-           BILLING UI
-           ===================================================== */
 
         document.addEventListener(
             "DOMContentLoaded",
             function () {
 
-
-                const paymentPlan =
+                const loading =
                     document.getElementById(
-                        "payment-plan"
+                        "loading-spinner"
                     );
 
-
-                const copyWalletButton =
+                const dashboard =
                     document.getElementById(
-                        "copy-wallet-button"
+                        "dashboard-content"
                     );
 
+                /*
+                 * company-dashboard.js is responsible for
+                 * authentication and data loading.
+                 *
+                 * This fallback only prevents an endless
+                 * loading screen if initialization does not
+                 * explicitly control the UI.
+                 */
 
-                const walletAddress =
-                    document.getElementById(
-                        "payment-wallet-address"
-                    );
+                setTimeout(
+                    function () {
 
+                        if (
+                            loading &&
+                            dashboard &&
+                            dashboard.style.display === "none"
+                        ) {
 
-                const paymentForm =
-                    document.getElementById(
-                        "crypto-payment-form"
-                    );
-
-
-                /* ---------------------------------------------
-                   PAYMENT PLAN
-                   --------------------------------------------- */
-
-                if (paymentPlan) {
-
-                    paymentPlan.addEventListener(
-                        "change",
-                        updatePaymentAmount
-                    );
-
-
-                    updatePaymentAmount();
-
-                }
-
-
-                /* ---------------------------------------------
-                   COPY WALLET
-                   --------------------------------------------- */
-
-                if (
-                    copyWalletButton &&
-                    walletAddress
-                ) {
-
-                    copyWalletButton.addEventListener(
-                        "click",
-                        async function () {
-
-
-                            const address =
-                                walletAddress
-                                    .textContent
-                                    .trim();
-
-
-                            try {
-
-                                if (
-                                    navigator.clipboard &&
-                                    typeof
-                                    navigator
-                                        .clipboard
-                                        .writeText ===
-                                    "function"
-                                ) {
-
-                                    await navigator
-                                        .clipboard
-                                        .writeText(
-                                            address
-                                        );
-
-                                } else {
-
-                                    const textarea =
-                                        document
-                                            .createElement(
-                                                "textarea"
-                                            );
-
-
-                                    textarea.value =
-                                        address;
-
-
-                                    document.body
-                                        .appendChild(
-                                            textarea
-                                        );
-
-
-                                    textarea
-                                        .select();
-
-
-                                    document.execCommand(
-                                        "copy"
-                                    );
-
-
-                                    textarea.remove();
-
-                                }
-
-
-                                copyWalletButton
-                                    .textContent =
-                                    "Copied!";
-
-
-                                setTimeout(
-                                    function () {
-
-                                        copyWalletButton
-                                            .textContent =
-                                            "Copy";
-
-                                    },
-                                    1800
-                                );
-
-
-                            } catch (error) {
-
-                                console.error(
-                                    "Wallet copy error:",
-                                    error
-                                );
-
-
-                                alert(
-                                    "Please copy the wallet address manually."
-                                );
-
-                            }
+                            /*
+                             * Do not force dashboard access here.
+                             * Authentication must be handled by
+                             * company-dashboard.js.
+                             */
 
                         }
-                    );
 
-                }
-
-
-                /* ---------------------------------------------
-                   PAYMENT FORM
-                   --------------------------------------------- */
-
-                if (paymentForm) {
-
-                    paymentForm.addEventListener(
-                        "submit",
-                        submitCryptoPayment
-                    );
-
-                }
+                    },
+                    8000
+                );
 
             }
         );
 
-
-        /* =====================================================
-           LOGOUT SAFETY HANDLER
-           ===================================================== */
-
-        document.addEventListener(
-            "click",
-            async function (event) {
-
-                const button =
-                    event.target.closest(
-                        '[data-action="logout"]'
-                    );
-
-
-                if (!button) {
-                    return;
-                }
-
-
-                event.preventDefault();
-
-
-                try {
-
-                    if (
-                        window.Web3JobsAuth &&
-                        typeof
-                        window.Web3JobsAuth
-                            .logout ===
-                        "function"
-                    ) {
-
-                        await
-                        window.Web3JobsAuth
-                            .logout();
-
-                    }
-
-                } catch (error) {
-
-                    console.error(
-                        "Logout error:",
-                        error
-                    );
-
-                }
-
-
-                window.location.href =
-                    "login.html";
-
-            }
-        );
-
-
-        /* =====================================================
-           CREATE JOB BUTTON
-           ===================================================== */
-
-        document.addEventListener(
-            "click",
-            function (event) {
-
-                const button =
-                    event.target.closest(
-                        '[data-action="create-job"]'
-                    );
-
-
-                if (!button) {
-                    return;
-                }
-
-
-                const form =
-                    document.getElementById(
-                        "create-job-form"
-                    );
-
-
-                if (!form) {
-                    return;
-                }
-
-
-                form.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-
-                const titleInput =
-                    document.getElementById(
-                        "job-title"
-                    );
-
-
-                if (titleInput) {
-
-                    setTimeout(
-                        function () {
-
-                            titleInput.focus();
-
-                        },
-                        500
-                    );
-
-                }
-
-            }
-        );
 
     </script>
 
 
 </body>
 
-</html>
+    </html>
