@@ -3,11 +3,15 @@
 (() => {
 
     let client = null;
-    let currentUser = null;
     let allUsers = [];
 
-    const $ = id => document.getElementById(id);
+    const $ = id =>
+        document.getElementById(id);
 
+
+    /* =====================================================
+       SUPABASE
+       ===================================================== */
 
     function getSupabase() {
 
@@ -19,7 +23,19 @@
             window.Web3JobsSupabase &&
             typeof window.Web3JobsSupabase.getClient === "function"
         ) {
-            client = window.Web3JobsSupabase.getClient();
+            client =
+                window.Web3JobsSupabase.getClient();
+
+            return client;
+        }
+
+        if (
+            window.Web3JobsSupabase &&
+            typeof window.Web3JobsSupabase.auth === "object"
+        ) {
+            client =
+                window.Web3JobsSupabase;
+
             return client;
         }
 
@@ -27,20 +43,8 @@
             window.supabaseClient &&
             typeof window.supabaseClient.from === "function"
         ) {
-            client = window.supabaseClient;
-            return client;
-        }
-
-        if (
-            window.supabase &&
-            typeof window.supabase.createClient === "function" &&
-            window.SUPABASE_URL &&
-            window.SUPABASE_ANON_KEY
-        ) {
-            client = window.supabase.createClient(
-                window.SUPABASE_URL,
-                window.SUPABASE_ANON_KEY
-            );
+            client =
+                window.supabaseClient;
 
             return client;
         }
@@ -51,43 +55,66 @@
     }
 
 
+    /* =====================================================
+       ERROR
+       ===================================================== */
+
     function showError(message) {
 
-        const element = $("error");
+        const element =
+            $("error");
 
         if (!element) {
             return;
         }
 
-        element.textContent = message;
-        element.style.display = "block";
+        element.textContent =
+            message;
+
+        element.style.display =
+            "block";
     }
 
 
     function hideError() {
 
-        const element = $("error");
+        const element =
+            $("error");
 
         if (element) {
-            element.style.display = "none";
+            element.style.display =
+                "none";
         }
     }
 
+
+    /* =====================================================
+       LOADING
+       ===================================================== */
 
     function hideLoading() {
 
-        const loading = $("admin-loading");
-        const content = $("content");
+        const loading =
+            $("admin-loading");
+
+        const content =
+            $("content");
 
         if (loading) {
-            loading.style.display = "none";
+            loading.style.display =
+                "none";
         }
 
         if (content) {
-            content.style.display = "block";
+            content.style.display =
+                "block";
         }
     }
 
+
+    /* =====================================================
+       ESCAPE HTML
+       ===================================================== */
 
     function escapeHtml(value) {
 
@@ -100,15 +127,24 @@
     }
 
 
+    /* =====================================================
+       DATE
+       ===================================================== */
+
     function formatDate(value) {
 
         if (!value) {
             return "—";
         }
 
-        const date = new Date(value);
+        const date =
+            new Date(value);
 
-        if (Number.isNaN(date.getTime())) {
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
             return "—";
         }
 
@@ -123,24 +159,40 @@
     }
 
 
+    /* =====================================================
+       ROLE
+       ===================================================== */
+
     function getRole(user) {
 
+        const accountType =
+            String(
+                user.account_type || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
         const role =
-            String(user.role || "")
-                .trim()
-                .toLowerCase();
+            String(
+                user.role || ""
+            )
+            .trim()
+            .toLowerCase();
+
 
         if (role === "admin") {
             return "admin";
         }
 
-        if (role === "company") {
+
+        if (
+            accountType === "company" ||
+            role === "company"
+        ) {
             return "company";
         }
 
-        if (role === "individual") {
-            return "individual";
-        }
 
         return "individual";
     }
@@ -153,12 +205,14 @@
                 role
             });
 
+
         const label =
             safeRole === "admin"
                 ? "ADMIN"
                 : safeRole === "company"
                     ? "COMPANY"
                     : "INDIVIDUAL";
+
 
         return `
             <span class="badge ${safeRole}">
@@ -168,64 +222,81 @@
     }
 
 
+    /* =====================================================
+       VERIFY ADMIN
+       ===================================================== */
+
     async function verifyAdmin() {
 
-        const supabase = getSupabase();
+        const supabase =
+            getSupabase();
+
 
         const {
             data,
             error
-        } = await supabase.auth.getUser();
+        } =
+            await supabase.auth.getSession();
+
 
         if (error) {
             throw error;
         }
 
-        currentUser =
-            data?.user || null;
 
-        if (!currentUser) {
+        const session =
+            data?.session;
+
+
+        if (!session) {
 
             location.replace(
-                "login.html"
+                "admin-login.html"
             );
 
             return false;
         }
 
 
+        /*
+         * IMPORTANT:
+         *
+         * Admin access is checked through
+         * public.is_admin().
+         *
+         * We do NOT depend on profiles.role.
+         */
+
         const {
-            data: profile,
-            error: profileError
-        } = await supabase
-            .from("profiles")
-            .select("id,email,role")
-            .eq("id", currentUser.id)
-            .maybeSingle();
+            data: isAdmin,
+            error: adminError
+        } =
+            await supabase.rpc(
+                "is_admin"
+            );
 
 
-        if (profileError) {
-            throw profileError;
+        if (adminError) {
+
+            console.error(
+                "Admin check:",
+                adminError
+            );
+
+            throw new Error(
+                "Unable to verify administrator access."
+            );
         }
 
 
-        if (
-            !profile ||
-            String(profile.role || "")
-                .toLowerCase() !== "admin"
-        ) {
+        if (isAdmin !== true) {
 
-            showError(
-                "Access denied. Administrator privileges are required."
+            await supabase.auth.signOut();
+
+
+            location.replace(
+                "admin-login.html"
             );
-
-            setTimeout(() => {
-
-                location.replace(
-                    "dashboard.html"
-                );
-
-            }, 1500);
 
             return false;
         }
@@ -235,9 +306,14 @@
     }
 
 
+    /* =====================================================
+       LOAD USERS
+       ===================================================== */
+
     async function loadUsers() {
 
         hideError();
+
 
         const supabase =
             getSupabase();
@@ -246,15 +322,18 @@
         const {
             data,
             error
-        } = await supabase
-            .from("profiles")
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
+        } =
+            await supabase
+                .from("profiles")
+                .select(
+                    "id,email,full_name,account_type,avatar_url,bio,location,website,created_at,updated_at,role"
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                );
 
 
         if (error) {
@@ -270,13 +349,19 @@
 
         await addCompanyInformation();
 
+
         updateStatistics();
+
 
         renderUsers(
             allUsers
         );
     }
 
+
+    /* =====================================================
+       COMPANY INFORMATION
+       ===================================================== */
 
     async function addCompanyInformation() {
 
@@ -290,11 +375,12 @@
             const {
                 data,
                 error
-            } = await getSupabase()
-                .from("company_profiles")
-                .select(
-                    "user_id,id,company_name"
-                );
+            } =
+                await getSupabase()
+                    .from("company_profiles")
+                    .select(
+                        "user_id,id,company_name"
+                    );
 
 
             if (error) {
@@ -317,44 +403,71 @@
                 new Map();
 
 
-            data.forEach(company => {
+            data.forEach(
+                company => {
 
-                if (company.user_id) {
+                    if (
+                        company.user_id
+                    ) {
 
-                    companyMap.set(
-                        company.user_id,
-                        company
-                    );
-
-                }
-
-            });
-
-
-            allUsers =
-                allUsers.map(user => {
-
-                    const company =
-                        companyMap.get(
-                            user.id
+                        companyMap.set(
+                            company.user_id,
+                            company
                         );
-
-
-                    if (company) {
-
-                        return {
-                            ...user,
-                            role: "company",
-                            company_name:
-                                company.company_name ||
-                                ""
-                        };
 
                     }
 
-                    return user;
+                }
+            );
 
-                });
+
+            allUsers =
+                allUsers.map(
+                    user => {
+
+                        const company =
+                            companyMap.get(
+                                user.id
+                            );
+
+
+                        if (
+                            company &&
+                            !String(
+                                user.account_type ||
+                                ""
+                            )
+                            .toLowerCase()
+                        ) {
+
+                            return {
+                                ...user,
+
+                                account_type:
+                                    "company",
+
+                                company_name:
+                                    company.company_name ||
+                                    ""
+                            };
+                        }
+
+
+                        if (company) {
+
+                            return {
+                                ...user,
+
+                                company_name:
+                                    company.company_name ||
+                                    ""
+                            };
+                        }
+
+
+                        return user;
+                    }
+                );
 
 
         } catch (error) {
@@ -367,39 +480,46 @@
     }
 
 
+    /* =====================================================
+       STATISTICS
+       ===================================================== */
+
     function updateStatistics() {
-
-        const total =
-            allUsers.length;
-
 
         let companies = 0;
         let individuals = 0;
 
 
-        allUsers.forEach(user => {
+        allUsers.forEach(
+            user => {
 
-            const role =
-                getRole(user);
+                const role =
+                    getRole(user);
 
 
-            if (role === "company") {
-                companies++;
+                if (
+                    role === "company"
+                ) {
+                    companies++;
+                }
+
+
+                if (
+                    role === "individual"
+                ) {
+                    individuals++;
+                }
+
             }
-
-            if (role === "individual") {
-                individuals++;
-            }
-
-        });
+        );
 
 
         if ($("total-users")) {
 
             $("total-users")
                 .textContent =
-                total.toLocaleString();
-
+                allUsers.length
+                    .toLocaleString();
         }
 
 
@@ -407,8 +527,8 @@
 
             $("individual-users")
                 .textContent =
-                individuals.toLocaleString();
-
+                individuals
+                    .toLocaleString();
         }
 
 
@@ -416,11 +536,15 @@
 
             $("company-users")
                 .textContent =
-                companies.toLocaleString();
-
+                companies
+                    .toLocaleString();
         }
     }
 
+
+    /* =====================================================
+       RENDER USERS
+       ===================================================== */
 
     function renderUsers(users) {
 
@@ -446,69 +570,71 @@
 
 
         const rows =
-            users.map(user => {
+            users
+                .map(user => {
 
-                const role =
-                    getRole(user);
-
-
-                const email =
-                    user.email ||
-                    "—";
+                    const role =
+                        getRole(user);
 
 
-                const name =
-                    user.name ||
-                    user.full_name ||
-                    user.company_name ||
-                    "—";
+                    const name =
+                        user.full_name ||
+                        user.company_name ||
+                        "—";
 
 
-                const created =
-                    user.created_at ||
-                    user.createdAt ||
-                    null;
+                    const email =
+                        user.email ||
+                        "—";
 
 
-                const id =
-                    user.id ||
-                    "—";
+                    const created =
+                        formatDate(
+                            user.created_at
+                        );
 
 
-                return `
-                    <tr>
+                    const id =
+                        user.id ||
+                        "";
 
-                        <td>
-                            ${escapeHtml(name)}
-                        </td>
 
-                        <td>
-                            ${escapeHtml(email)}
-                        </td>
+                    return `
+                        <tr>
 
-                        <td>
-                            ${roleBadge(role)}
-                        </td>
+                            <td>
+                                ${escapeHtml(name)}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                formatDate(created)
-                            )}
-                        </td>
+                            <td>
+                                ${escapeHtml(email)}
+                            </td>
 
-                        <td>
-                            ${escapeHtml(
-                                id.slice(0, 8)
-                            )}
-                        </td>
+                            <td>
+                                ${roleBadge(role)}
+                            </td>
 
-                    </tr>
-                `;
+                            <td>
+                                ${escapeHtml(created)}
+                            </td>
 
-            }).join("");
+                            <td>
+                                ${escapeHtml(
+                                    id
+                                        ? id.substring(0, 8) + "..."
+                                        : "—"
+                                )}
+                            </td>
+
+                        </tr>
+                    `;
+
+                })
+                .join("");
 
 
         container.innerHTML = `
+
             <table>
 
                 <thead>
@@ -544,9 +670,14 @@
                 </tbody>
 
             </table>
+
         `;
     }
 
+
+    /* =====================================================
+       SEARCH
+       ===================================================== */
 
     function setupSearch() {
 
@@ -580,79 +711,92 @@
 
 
                 const filtered =
-                    allUsers.filter(user => {
+                    allUsers.filter(
+                        user => {
 
-                        const email =
-                            String(
-                                user.email || ""
-                            )
-                            .toLowerCase();
-
-
-                        const name =
-                            String(
-                                user.name ||
-                                user.full_name ||
-                                user.company_name ||
-                                ""
-                            )
-                            .toLowerCase();
+                            const email =
+                                String(
+                                    user.email ||
+                                    ""
+                                )
+                                .toLowerCase();
 
 
-                        const role =
-                            getRole(user);
+                            const name =
+                                String(
+                                    user.full_name ||
+                                    user.company_name ||
+                                    ""
+                                )
+                                .toLowerCase();
 
 
-                        return (
-                            email.includes(query) ||
-                            name.includes(query) ||
-                            role.includes(query)
-                        );
+                            const role =
+                                getRole(user);
 
-                    });
+
+                            return (
+                                email.includes(
+                                    query
+                                ) ||
+                                name.includes(
+                                    query
+                                ) ||
+                                role.includes(
+                                    query
+                                )
+                            );
+                        }
+                    );
 
 
                 renderUsers(
                     filtered
                 );
-
             }
         );
     }
 
 
+    /* =====================================================
+       NAVIGATION
+       ===================================================== */
+
     function setupNavigation() {
 
-        $("back-dashboard")
-            ?.addEventListener(
+        const back =
+            $("back-dashboard");
+
+
+        if (back) {
+
+            back.addEventListener(
                 "click",
                 () => {
 
                     location.href =
                         "admin-dashboard.html";
-
                 }
             );
+        }
 
 
-        $("logout")
-            ?.addEventListener(
+        const logout =
+            $("logout");
+
+
+        if (logout) {
+
+            logout.addEventListener(
                 "click",
                 async () => {
 
-                    const button =
-                        $("logout");
+                    logout.disabled =
+                        true;
 
 
-                    if (button) {
-
-                        button.disabled =
-                            true;
-
-                        button.textContent =
-                            "Logging out...";
-
-                    }
+                    logout.textContent =
+                        "Logging out...";
 
 
                     try {
@@ -667,18 +811,21 @@
                             "Logout:",
                             error
                         );
-
                     }
 
 
                     location.replace(
-                        "login.html"
+                        "admin-login.html"
                     );
-
                 }
             );
+        }
     }
 
+
+    /* =====================================================
+       INIT
+       ===================================================== */
 
     async function init() {
 
@@ -698,7 +845,9 @@
 
             setupSearch();
 
+
             setupNavigation();
+
 
             hideLoading();
 
@@ -706,7 +855,7 @@
         } catch (error) {
 
             console.error(
-                "Admin users:",
+                "Admin users error:",
                 error
             );
 
