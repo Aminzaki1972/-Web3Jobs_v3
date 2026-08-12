@@ -11,12 +11,13 @@
 
 (() => {
 
-    /* =========================================================
+    /* =====================================================
        CONFIG
-       ========================================================= */
+       ===================================================== */
 
     const CONFIG = {
         bscChainId: "0x38",
+
         paymentWallet:
             "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
 
@@ -61,9 +62,9 @@
     };
 
 
-    /* =========================================================
+    /* =====================================================
        STATE
-       ========================================================= */
+       ===================================================== */
 
     let sb = null;
     let user = null;
@@ -75,12 +76,11 @@
     let paymentBusy = false;
 
 
-    /* =========================================================
+    /* =====================================================
        HELPERS
-       ========================================================= */
+       ===================================================== */
 
-    const $ = id =>
-        document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
 
     function escapeHtml(value) {
@@ -99,10 +99,57 @@
     }
 
 
+    function showDashboard() {
+
+        const loading = $("loading-spinner");
+        const dashboard = $("dashboard-content");
+
+        if (loading) {
+            loading.style.display = "none";
+        }
+
+        if (dashboard) {
+            dashboard.style.display = "block";
+        }
+    }
+
+
+    function showLoading() {
+
+        const loading = $("loading-spinner");
+        const dashboard = $("dashboard-content");
+
+        if (loading) {
+            loading.style.display = "flex";
+        }
+
+        if (dashboard) {
+            dashboard.style.display = "none";
+        }
+    }
+
+
     function notify(message, type = "success") {
 
-        if (typeof window.showAlert === "function") {
-            window.showAlert(message, type);
+        if (
+            typeof window.showDashboardAlert ===
+            "function"
+        ) {
+            window.showDashboardAlert(
+                message,
+                type
+            );
+            return;
+        }
+
+        if (
+            typeof window.showAlert ===
+            "function"
+        ) {
+            window.showAlert(
+                message,
+                type
+            );
             return;
         }
 
@@ -112,7 +159,9 @@
 
     function shortAddress(address) {
 
-        if (!address) return "Not connected";
+        if (!address) {
+            return "Not connected";
+        }
 
         return (
             address.slice(0, 6) +
@@ -166,14 +215,15 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        SUPABASE
-       ========================================================= */
+       ===================================================== */
 
     function getSupabase() {
 
-        if (sb) return sb;
-
+        if (sb) {
+            return sb;
+        }
 
         if (
             window.Web3JobsSupabase &&
@@ -186,7 +236,6 @@
             return sb;
         }
 
-
         if (
             window.supabaseClient &&
             typeof window.supabaseClient.from ===
@@ -197,7 +246,6 @@
 
             return sb;
         }
-
 
         if (
             window.supabase &&
@@ -215,39 +263,17 @@
             return sb;
         }
 
-
         throw new Error(
             "Supabase client is not initialized."
         );
     }
 
 
-    /* =========================================================
-       AUTH / COMPANY ACCESS
-       ========================================================= */
+    /* =====================================================
+       AUTH
+       ===================================================== */
 
     async function verifyCompanyAccess() {
-
-        if (
-            window.Web3JobsAuth &&
-            typeof window.Web3JobsAuth
-                .protectCompanyDashboard ===
-                "function"
-        ) {
-
-            const result =
-                await window.Web3JobsAuth
-                    .protectCompanyDashboard();
-
-            if (!result || result === false) {
-                return false;
-            }
-
-            user = result.user || null;
-
-            return Boolean(user);
-        }
-
 
         const client =
             getSupabase();
@@ -258,23 +284,72 @@
         } =
             await client.auth.getUser();
 
-        if (error) throw error;
+        if (error) {
+            throw error;
+        }
 
         user =
             data?.user || null;
 
         if (!user) {
-            location.replace("login.html");
+
+            location.replace(
+                "login.html"
+            );
+
             return false;
+        }
+
+
+        /*
+         * We do not block the dashboard because
+         * of a missing optional profile record.
+         *
+         * If auth.js provides a company protection
+         * function, use it only when available.
+         */
+
+        if (
+            window.Web3JobsAuth &&
+            typeof window.Web3JobsAuth.getAccountRole ===
+                "function"
+        ) {
+
+            try {
+
+                const role =
+                    await window.Web3JobsAuth
+                        .getAccountRole();
+
+                if (
+                    role &&
+                    String(role).toLowerCase() !==
+                        "company"
+                ) {
+
+                    location.replace(
+                        "dashboard.html"
+                    );
+
+                    return false;
+                }
+
+            } catch (error) {
+
+                console.warn(
+                    "Role check skipped:",
+                    error.message
+                );
+            }
         }
 
         return true;
     }
 
 
-    /* =========================================================
+    /* =====================================================
        COMPANY PROFILE
-       ========================================================= */
+       ===================================================== */
 
     async function loadCompanyProfile() {
 
@@ -298,6 +373,10 @@
                 error.message
             );
 
+            profile = null;
+
+            renderCompanyProfile();
+
             return;
         }
 
@@ -310,9 +389,17 @@
 
     function renderCompanyProfile() {
 
+        const name =
+            companyName();
+
         setText(
             "company-name",
-            companyName()
+            name
+        );
+
+        setText(
+            "sidebar-company-name",
+            name
         );
 
 
@@ -341,8 +428,15 @@
             if (el) {
                 el.value = fields[id];
             }
-
         });
+
+
+        const companyInput =
+            $("job-company");
+
+        if (companyInput) {
+            companyInput.value = name;
+        }
     }
 
 
@@ -359,42 +453,38 @@
             );
 
 
-        const value = selector => {
-
-            const el =
-                form.querySelector(selector);
-
-            return String(
-                el?.value || ""
+        const get = selector =>
+            String(
+                form.querySelector(selector)?.value ||
+                ""
             ).trim();
-        };
 
 
         const record = {
             user_id: user.id,
 
             company_name:
-                value(
+                get(
                     "[name='company_name'],#company-name-input"
                 ),
 
             website:
-                value(
+                get(
                     "[name='website'],#company-website"
                 ),
 
             location:
-                value(
+                get(
                     "[name='location'],#company-location"
                 ),
 
             linkedin:
-                value(
+                get(
                     "[name='linkedin'],#company-linkedin"
                 ),
 
             description:
-                value(
+                get(
                     "[name='description'],#company-description"
                 )
         };
@@ -417,21 +507,23 @@
                     .upsert(
                         record,
                         {
-                            onConflict:
-                                "user_id"
+                            onConflict: "user_id"
                         }
                     )
                     .select()
                     .maybeSingle();
 
 
-            if (error) throw error;
+            if (error) {
+                throw error;
+            }
 
 
             profile =
                 data || record;
 
             renderCompanyProfile();
+
 
             notify(
                 "Company profile saved successfully.",
@@ -440,7 +532,10 @@
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Save company profile:",
+                error
+            );
 
             notify(
                 error.message ||
@@ -459,9 +554,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        JOBS
-       ========================================================= */
+       ===================================================== */
 
     function monthlyJobs() {
 
@@ -471,7 +566,9 @@
         return jobs.filter(job => {
 
             const date =
-                new Date(job.created_at);
+                new Date(
+                    job.created_at
+                );
 
             return (
                 date.getUTCFullYear() ===
@@ -486,6 +583,19 @@
 
     async function loadJobs() {
 
+        const container =
+            $("company-jobs-list");
+
+        if (container) {
+
+            container.innerHTML = `
+                <div class="empty-state">
+                    Loading your jobs...
+                </div>
+            `;
+        }
+
+
         const {
             data,
             error
@@ -493,7 +603,10 @@
             await getSupabase()
                 .from("jobs")
                 .select("*")
-                .eq("user_id", user.id)
+                .eq(
+                    "user_id",
+                    user.id
+                )
                 .order(
                     "created_at",
                     {
@@ -511,7 +624,16 @@
 
             jobs = [];
 
-            renderJobs();
+            if (container) {
+
+                container.innerHTML = `
+                    <div class="empty-state">
+                        Unable to load your jobs.
+                    </div>
+                `;
+            }
+
+            renderSubscription();
 
             return;
         }
@@ -553,43 +675,72 @@
                 return `
                     <div class="job-card">
 
-                        <div class="job-title">
-                            ${escapeHtml(
-                                job.title ||
-                                "Untitled Job"
-                            )}
+                        <div class="job-card-header">
+
+                            <div>
+
+                                <div class="job-title">
+                                    ${escapeHtml(
+                                        job.title ||
+                                        "Untitled Job"
+                                    )}
+                                </div>
+
+                                <div class="job-meta">
+
+                                    <span>
+                                        ${escapeHtml(
+                                            job.company ||
+                                            companyName()
+                                        )}
+                                    </span>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            job.location ||
+                                            "Remote"
+                                        )}
+                                    </span>
+
+                                    <span>
+                                        ${escapeHtml(
+                                            job.type ||
+                                            "Full-time"
+                                        )}
+                                    </span>
+
+                                    <span>
+                                        ${formatDate(
+                                            job.created_at
+                                        )}
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <div class="job-actions">
+
+                                <button
+                                    type="button"
+                                    class="small-button delete"
+                                    data-delete-job="${escapeHtml(
+                                        job.id
+                                    )}"
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
+
                         </div>
 
-                        <div class="job-meta">
+                        <div class="job-description">
                             ${escapeHtml(
-                                job.company ||
-                                companyName()
-                            )}
-                            •
-                            ${escapeHtml(
-                                job.location ||
-                                "Remote"
-                            )}
-                            •
-                            ${escapeHtml(
-                                job.type ||
-                                "Full-time"
-                            )}
-                            •
-                            ${formatDate(
-                                job.created_at
+                                job.description ||
+                                ""
                             )}
                         </div>
-
-                        <button
-                            type="button"
-                            class="small-button delete"
-                            data-delete-job="${escapeHtml(
-                                job.id
-                            )}"
-                        >
-                            Delete
-                        </button>
 
                     </div>
                 `;
@@ -610,7 +761,6 @@
                             button.dataset.deleteJob
                         )
                 );
-
             });
     }
 
@@ -634,11 +784,19 @@
                 await getSupabase()
                     .from("jobs")
                     .delete()
-                    .eq("id", id)
-                    .eq("user_id", user.id);
+                    .eq(
+                        "id",
+                        id
+                    )
+                    .eq(
+                        "user_id",
+                        user.id
+                    );
 
 
-            if (error) throw error;
+            if (error) {
+                throw error;
+            }
 
 
             notify(
@@ -646,11 +804,15 @@
                 "success"
             );
 
+
             await loadJobs();
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Delete job:",
+                error
+            );
 
             notify(
                 error.message ||
@@ -760,7 +922,9 @@
                     });
 
 
-            if (error) throw error;
+            if (error) {
+                throw error;
+            }
 
 
             form.reset();
@@ -785,7 +949,10 @@
 
         } catch (error) {
 
-            console.error(error);
+            console.error(
+                "Publish job:",
+                error
+            );
 
             notify(
                 error.message ||
@@ -804,9 +971,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        SUBSCRIPTION
-       ========================================================= */
+       ===================================================== */
 
     async function loadSubscription() {
 
@@ -901,12 +1068,10 @@
             currentPlan.name
         );
 
-
         setText(
             "current-plan-name",
             currentPlan.name
         );
-
 
         setText(
             "subscription-price",
@@ -915,14 +1080,12 @@
                 : "Free"
         );
 
-
         setText(
             "subscription-jobs-used",
             limit === null
                 ? `${count} jobs this month`
                 : `${count} / ${limit} jobs this month`
         );
-
 
         setText(
             "published-jobs-count",
@@ -936,7 +1099,9 @@
         const old =
             $("subscription-plan-modal");
 
-        if (old) old.remove();
+        if (old) {
+            old.remove();
+        }
 
 
         const modal =
@@ -972,15 +1137,13 @@
 
                 <div class="subscription-plan-list">
 
-                    ${Object.values(
-                        CONFIG.plans
-                    ).map(plan => `
+                    ${Object.values(CONFIG.plans)
+                        .map(plan => `
 
                         <button
                             type="button"
                             class="subscription-plan-choice ${
-                                plan.code ===
-                                currentPlan.code
+                                plan.code === currentPlan.code
                                     ? "current"
                                     : ""
                             }"
@@ -988,6 +1151,7 @@
                         >
 
                             <span>
+
                                 <strong>
                                     ${escapeHtml(
                                         plan.name
@@ -1001,6 +1165,7 @@
                                             : "Free"
                                     }
                                 </small>
+
                             </span>
 
                             <em>
@@ -1016,6 +1181,7 @@
                     `).join("")}
 
                 </div>
+
             </div>
         `;
 
@@ -1065,6 +1231,7 @@
 
                         modal.remove();
 
+
                         if (
                             plan.price === 0
                         ) {
@@ -1082,6 +1249,7 @@
                             return;
                         }
 
+
                         openPaymentModal(plan);
                     }
                 );
@@ -1089,16 +1257,101 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
+       LOAD ETHERS
+       ===================================================== */
+
+    async function loadEthers() {
+
+        if (
+            typeof window.ethers !==
+            "undefined"
+        ) {
+            return true;
+        }
+
+
+        const existing =
+            document.querySelector(
+                'script[data-web3jobs-ethers]'
+            );
+
+
+        if (existing) {
+
+            await new Promise(resolve => {
+
+                const check = () => {
+
+                    if (
+                        typeof window.ethers !==
+                        "undefined"
+                    ) {
+                        resolve();
+                        return;
+                    }
+
+                    setTimeout(
+                        check,
+                        100
+                    );
+                };
+
+                check();
+            });
+
+            return true;
+        }
+
+
+        await new Promise(
+            (resolve, reject) => {
+
+                const script =
+                    document.createElement(
+                        "script"
+                    );
+
+                script.src =
+                    "https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js";
+
+                script.async = true;
+
+                script.dataset.web3jobsEthers =
+                    "true";
+
+                script.onload =
+                    resolve;
+
+                script.onerror =
+                    () =>
+                        reject(
+                            new Error(
+                                "Unable to load Web3 payment library."
+                            )
+                        );
+
+                document.head.appendChild(
+                    script
+                );
+            }
+        );
+
+
+        return true;
+    }
+
+
+    /* =====================================================
        WALLET
-       ========================================================= */
+       ===================================================== */
 
     async function connectWallet() {
 
         if (!window.ethereum) {
 
             throw new Error(
-                "No Web3 wallet detected. Please install MetaMask."
+                "No Web3 wallet detected. Please open the website using MetaMask or another compatible wallet."
             );
         }
 
@@ -1170,9 +1423,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        PAYMENT MODAL
-       ========================================================= */
+       ===================================================== */
 
     function openPaymentModal(plan) {
 
@@ -1183,7 +1436,9 @@
         const old =
             $("web3jobs-payment-modal");
 
-        if (old) old.remove();
+        if (old) {
+            old.remove();
+        }
 
 
         const modal =
@@ -1395,9 +1650,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        USDT PAYMENT
-       ========================================================= */
+       ===================================================== */
 
     const USDT_ABI = [
         "function transfer(address to,uint256 amount) returns (bool)",
@@ -1415,20 +1670,8 @@
         }
 
 
-        if (
-            !CONFIG.paymentWallet
-        ) {
-
-            notify(
-                "Payment wallet is not configured.",
-                "error"
-            );
-
-            return;
-        }
-
-
         paymentBusy = true;
+
         updatePaymentButtons();
 
 
@@ -1441,16 +1684,7 @@
 
             await switchToBSC();
 
-
-            if (
-                typeof ethers ===
-                "undefined"
-            ) {
-
-                throw new Error(
-                    "Ethers.js is not loaded on this page."
-                );
-            }
+            await loadEthers();
 
 
             const provider =
@@ -1596,9 +1830,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        SAVE SUBSCRIPTION
-       ========================================================= */
+       ===================================================== */
 
     async function activateSubscription(
         plan,
@@ -1734,9 +1968,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        APPLICATIONS
-       ========================================================= */
+       ===================================================== */
 
     async function loadApplications() {
 
@@ -1744,7 +1978,9 @@
             $("applications-table-body");
 
 
-        if (!tbody) return;
+        if (!tbody) {
+            return;
+        }
 
 
         if (!jobs.length) {
@@ -1757,7 +1993,10 @@
 
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="4">
+                    <td
+                        colspan="4"
+                        class="empty-state"
+                    >
                         No applications yet.
                     </td>
                 </tr>
@@ -1794,7 +2033,9 @@
                     );
 
 
-            if (error) throw error;
+            if (error) {
+                throw error;
+            }
 
 
             const applications =
@@ -1811,7 +2052,10 @@
 
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="4">
+                        <td
+                            colspan="4"
+                            class="empty-state"
+                        >
                             No applications yet.
                         </td>
                     </tr>
@@ -1832,15 +2076,15 @@
                         );
 
 
+                    const status =
+                        String(
+                            app.status ||
+                            "pending"
+                        ).toLowerCase();
+
+
                     return `
                         <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    job?.title ||
-                                    "Job"
-                                )}
-                            </td>
 
                             <td>
                                 ${escapeHtml(
@@ -1851,9 +2095,18 @@
 
                             <td>
                                 ${escapeHtml(
-                                    app.status ||
-                                    "pending"
+                                    job?.title ||
+                                    "Job"
                                 )}
+                            </td>
+
+                            <td>
+                                <span class="status ${escapeHtml(status)}">
+                                    ${escapeHtml(
+                                        app.status ||
+                                        "pending"
+                                    )}
+                                </span>
                             </td>
 
                             <td>
@@ -1878,7 +2131,10 @@
 
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="4">
+                    <td
+                        colspan="4"
+                        class="empty-state"
+                    >
                         Applications could not be loaded.
                     </td>
                 </tr>
@@ -1887,9 +2143,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        LOGOUT
-       ========================================================= */
+       ===================================================== */
 
     async function logout() {
 
@@ -1903,13 +2159,12 @@
 
                 await window.Web3JobsAuth.logout();
 
-                return;
+            } else {
+
+                await getSupabase()
+                    .auth
+                    .signOut();
             }
-
-
-            await getSupabase()
-                .auth
-                .signOut();
 
         } catch (error) {
 
@@ -1926,9 +2181,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        EVENTS
-       ========================================================= */
+       ===================================================== */
 
     function setupEvents() {
 
@@ -1953,6 +2208,13 @@
             );
 
 
+        $("sidebar-logout-button")
+            ?.addEventListener(
+                "click",
+                logout
+            );
+
+
         document
             .querySelectorAll(
                 "[data-open-plans]"
@@ -1968,7 +2230,6 @@
                         openPlans();
                     }
                 );
-
             });
 
 
@@ -1976,15 +2237,12 @@
             $("job-company");
 
         if (companyInput) {
-
             companyInput.value =
                 companyName();
         }
 
 
-        if (
-            window.ethereum
-        ) {
+        if (window.ethereum) {
 
             window.ethereum.on(
                 "accountsChanged",
@@ -2012,9 +2270,9 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        STYLES
-       ========================================================= */
+       ===================================================== */
 
     function injectStyles() {
 
@@ -2233,11 +2491,14 @@
     }
 
 
-    /* =========================================================
+    /* =====================================================
        INIT
-       ========================================================= */
+       ===================================================== */
 
     async function init() {
+
+        showLoading();
+
 
         try {
 
@@ -2253,23 +2514,70 @@
             }
 
 
-            await loadCompanyProfile();
+            /*
+             * Show the dashboard immediately after
+             * authentication succeeds.
+             *
+             * This is the important fix for the
+             * endless "Loading Your Jobs" screen.
+             */
 
-            await loadSubscription();
+            showDashboard();
 
-            await loadJobs();
+
+            /*
+             * Optional data should not prevent
+             * the dashboard from opening.
+             */
+
+            try {
+                await loadCompanyProfile();
+            } catch (error) {
+
+                console.warn(
+                    "Profile loading skipped:",
+                    error.message
+                );
+            }
+
+
+            try {
+                await loadSubscription();
+            } catch (error) {
+
+                console.warn(
+                    "Subscription loading skipped:",
+                    error.message
+                );
+
+                currentPlan =
+                    CONFIG.plans.free;
+
+                renderSubscription();
+            }
+
+
+            try {
+                await loadJobs();
+            } catch (error) {
+
+                console.error(
+                    "Jobs loading failed:",
+                    error
+                );
+
+                jobs = [];
+
+                renderJobs();
+                renderSubscription();
+            }
+
 
             setupEvents();
 
 
-            const companyInput =
-                $("job-company");
-
-            if (companyInput) {
-
-                companyInput.value =
-                    companyName();
-            }
+            renderCompanyProfile();
+            renderSubscription();
 
 
             console.log(
@@ -2291,18 +2599,39 @@
             );
 
 
+            /*
+             * Never leave the user trapped
+             * behind the loading screen.
+             */
+
+            showDashboard();
+
+
             notify(
                 error.message ||
                 "Unable to load company dashboard.",
                 "error"
             );
+        } finally {
+
+            /*
+             * Final safety net.
+             */
+
+            const loading =
+                $("loading-spinner");
+
+            if (loading) {
+                loading.style.display =
+                    "none";
+            }
         }
     }
 
 
-    /* =========================================================
+    /* =====================================================
        START
-       ========================================================= */
+       ===================================================== */
 
     if (
         document.readyState ===
@@ -2313,7 +2642,7 @@
             "DOMContentLoaded",
             init,
             {
-                once:true
+                once: true
             }
         );
 
