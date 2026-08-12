@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="robots"
+    content="noindex,nofollow,noarchive"
+>
+
+<title>Web3Jobs - Manage Companies</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+:root {
+    --bg: #06101d;
+    --panel: #0b1a2b;
+    --panel2: #0e2135;
+    --border: #1d3852;
+    --text: #f5f9ff;
+    --muted: #8fa5bb;
+    --green: #4ade80;
+    --blue: #60a5fa;
+    --red: #f87171;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(38,102,160,.18),
+            transparent 35%
+        ),
+        var(--bg);
+
+    color: var(--text);
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+button,
+input {
+    font: inherit;
+}
+
+.page {
+    width: min(1400px, 100%);
+    margin: auto;
+    padding: 20px;
+}
+
+/* HEADER */
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    padding: 20px;
+    margin-bottom: 20px;
+
+    background: var(--panel);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 18px;
+}
+
+.header h1 {
+    margin: 0;
+
+    font-size: 22px;
+}
+
+.header p {
+    margin: 5px 0 0;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+.header-actions {
+    display: flex;
+
+    gap: 8px;
+
+    flex-wrap: wrap;
+}
+
+.button {
+    min-height: 40px;
+
+    padding: 0 14px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 9px;
+
+    background:
+        var(--panel2);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+.button:hover {
+    background: #12283e;
+
+    border-color: #356184;
+}
+
+.button.green {
+    border-color:
+        rgba(74,222,128,.3);
+
+    color:
+        var(--green);
+}
+
+.button.red {
+    border-color:
+        rgba(248,113,113,.3);
+
+    color:
+        var(--red);
+}
+
+/* TOP */
+
+.topbar {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+
+    padding: 18px;
+
+    background: var(--panel);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 16px;
+}
+
+.count {
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+.count strong {
+    color: white;
+
+    font-size: 20px;
+
+    margin-right: 5px;
+}
+
+.search {
+    width: min(400px, 100%);
+
+    padding: 11px 13px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 9px;
+
+    outline: none;
+
+    background:
+        #071423;
+
+    color: white;
+
+    font-size: 12px;
+}
+
+.search:focus {
+    border-color:
+        var(--blue);
+}
+
+/* NOTICE */
+
+.notice {
+    display: none;
+
+    padding: 13px 15px;
+
+    margin-bottom: 18px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+}
+
+.notice.error {
+    display: block;
+
+    color: #fecaca;
+
+    background:
+        rgba(248,113,113,.07);
+
+    border:
+        1px solid
+        rgba(248,113,113,.25);
+}
+
+.notice.success {
+    display: block;
+
+    color: #bbf7d0;
+
+    background:
+        rgba(74,222,128,.07);
+
+    border:
+        1px solid
+        rgba(74,222,128,.25);
+}
+
+/* TABLE */
+
+.card {
+    background: var(--panel);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 16px;
+
+    overflow: hidden;
+}
+
+.table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+
+    border-collapse: collapse;
+
+    min-width: 750px;
+}
+
+th {
+    padding: 14px;
+
+    text-align: left;
+
+    color: var(--muted);
+
+    background:
+        rgba(255,255,255,.025);
+
+    font-size: 10px;
+
+    text-transform: uppercase;
+
+    letter-spacing: .4px;
+}
+
+td {
+    padding: 15px 14px;
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.06);
+
+    font-size: 12px;
+}
+
+.company-name {
+    font-weight: 800;
+
+    color: white;
+}
+
+.company-email {
+    color: var(--muted);
+
+    font-size: 11px;
+}
+
+.badge {
+    display: inline-block;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    font-size: 9px;
+
+    font-weight: 800;
+}
+
+.badge.active {
+    color: var(--green);
+
+    background:
+        rgba(74,222,128,.08);
+}
+
+.badge.pending {
+    color: #facc15;
+
+    background:
+        rgba(250,204,21,.08);
+}
+
+.badge.inactive {
+    color: var(--red);
+
+    background:
+        rgba(248,113,113,.08);
+}
+
+.actions {
+    display: flex;
+
+    gap: 6px;
+
+    flex-wrap: wrap;
+}
+
+.small-button {
+    padding: 7px 9px;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 7px;
+
+    background:
+        var(--panel2);
+
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 9px;
+
+    font-weight: 800;
+}
+
+.small-button:hover {
+    background: #12283e;
+}
+
+/* EMPTY */
+
+.empty {
+    padding: 50px 20px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+/* LOADING */
+
+#loading {
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 9999;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        var(--bg);
+}
+
+.loading-box {
+    text-align: center;
+}
+
+.loading-box strong {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-size: 18px;
+}
+
+.loading-box span {
+    color: var(--muted);
+
+    font-size: 12px;
+}
+
+/* MOBILE */
+
+@media(max-width:700px) {
+
+    .page {
+        padding: 10px;
+    }
+
+    .header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .topbar {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .search {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div id="loading">
+
+    <div class="loading-box">
+
+        <strong>
+            Web3Jobs Admin
+        </strong>
+
+        <span>
+            Loading companies...
+        </span>
+
+    </div>
+
+</div>
+
+
+<main id="content" style="display:none;">
+
+<div class="page">
+
+
+<header class="header">
+
+    <div>
+
+        <h1>
+            Manage Companies
+        </h1>
+
+        <p>
+            Web3Jobs company administration
+        </p>
+
+    </div>
+
+
+    <div class="header-actions">
+
+        <button
+            type="button"
+            class="button"
+            id="back-button"
+        >
+            ← Admin Dashboard
+        </button>
+
+
+        <button
+            type="button"
+            class="button green"
+            id="refresh-button"
+        >
+            Refresh
+        </button>
+
+
+        <button
+            type="button"
+            class="button red"
+            id="logout-button"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<div
+    id="notice"
+    class="notice"
+></div>
+
+
+<section class="topbar">
+
+    <div class="count">
+
+        <strong id="company-count">
+            0
+        </strong>
+
+        Companies
+
+    </div>
+
+
+    <input
+        id="search-input"
+        class="search"
+        type="search"
+        placeholder="Search companies..."
+        autocomplete="off"
+    >
+
+</section>
+
+
+<section class="card">
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Company
+</th>
+
+<th>
+Email
+</th>
+
+<th>
+Location
+</th>
+
+<th>
+Status
+</th>
+
+<th>
+Created
+</th>
+
+<th>
+Actions
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="companies-body">
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+</div>
+
+</main>
+
+
+<script src="js/supabase.js?v=20260812"></script>
+
+
+<script>
+
+"use strict";
+
+(() => {
+
+let client = null;
+
+let currentUser = null;
+
+let companies = [];
+
+
+/* =====================================================
+   SUPABASE
+===================================================== */
+
+function getSupabase() {
+
+    if (client) {
+        return client;
+    }
+
+    if (
+        window.Web3JobsSupabase &&
+        typeof
+        window.Web3JobsSupabase.getClient ===
+        "function"
+    ) {
+
+        client =
+            window.Web3JobsSupabase.getClient();
+
+        return client;
+    }
+
+    if (
+        window.supabaseClient &&
+        typeof
+        window.supabaseClient.from ===
+        "function"
+    ) {
+
+        client =
+            window.supabaseClient;
+
+        return client;
+    }
+
+    throw new Error(
+        "Supabase client is not initialized."
+    );
+}
+
+
+/* =====================================================
+   NOTICE
+===================================================== */
+
+function showNotice(
+    message,
+    type = "error"
+) {
+
+    const notice =
+        document.getElementById(
+            "notice"
+        );
+
+    if (!notice) {
+        return;
+    }
+
+    notice.textContent =
+        message;
+
+    notice.className =
+        "notice " + type;
+
+}
+
+
+/* =====================================================
+   ADMIN CHECK
+===================================================== */
+
+async function verifyAdmin() {
+
+    const supabase =
+        getSupabase();
+
+
+    const {
+        data,
+        error
+    } =
+        await supabase.auth.getUser();
+
+
+    if (error) {
+        throw error;
+    }
+
+
+    currentUser =
+        data?.user || null;
+
+
+    if (!currentUser) {
+
+        window.location.replace(
+            "login.html"
+        );
+
+        return false;
+    }
+
+
+    /*
+     * Verify using admin_users.
+     * This matches the is_admin()
+     * function already used by the project.
+     */
+
+    const {
+        data: adminRow,
+        error: adminError
+    } =
+        await supabase
+            .from("admin_users")
+            .select("user_id")
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .maybeSingle();
+
+
+    if (adminError) {
+
+        console.error(
+            "Admin verification error:",
+            adminError
+        );
+
+        throw adminError;
+    }
+
+
+    if (!adminRow) {
+
+        showNotice(
+            "Access denied. Administrator privileges are required."
+        );
+
+        setTimeout(
+            () => {
+
+                window.location.replace(
+                    "dashboard.html"
+                );
+
+            },
+            1200
+        );
+
+        return false;
+    }
+
+
+    return true;
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+        .replace(
+            /&/g,
+            "&amp;"
+        )
+        .replace(
+            /</g,
+            "&lt;"
+        )
+        .replace(
+            />/g,
+            "&gt;"
+        )
+        .replace(
+            /"/g,
+            "&quot;"
+        )
+        .replace(
+            /'/g,
+            "&#039;"
+        );
+
+}
+
+
+/* =====================================================
+   GET COMPANY NAME
+===================================================== */
+
+function getCompanyName(company) {
+
+    return (
+        company.company_name ||
+        company.name ||
+        company.company ||
+        company.title ||
+        "Unnamed Company"
+    );
+
+}
+
+
+/* =====================================================
+   GET EMAIL
+===================================================== */
+
+function getEmail(company) {
+
+    return (
+        company.email ||
+        company.company_email ||
+        company.contact_email ||
+        "—"
+    );
+
+}
+
+
+/* =====================================================
+   GET LOCATION
+===================================================== */
+
+function getLocation(company) {
+
+    return (
+        company.location ||
+        company.country ||
+        company.city ||
+        "—"
+    );
+
+}
+
+
+/* =====================================================
+   GET STATUS
+===================================================== */
+
+function getStatus(company) {
+
+    const value =
+        String(
+            company.status ||
+            company.account_status ||
+            "active"
+        )
+            .trim()
+            .toLowerCase();
+
+
+    if (
+        value === "pending"
+    ) {
+
+        return {
+            text: "Pending",
+            className: "pending"
+        };
+
+    }
+
+
+    if (
+        value === "inactive" ||
+        value === "suspended" ||
+        value === "blocked"
+    ) {
+
+        return {
+            text: value,
+            className: "inactive"
+        };
+
+    }
+
+
+    return {
+        text: "Active",
+        className: "active"
+    };
+
+}
+
+
+/* =====================================================
+   FORMAT DATE
+===================================================== */
+
+function formatDate(value) {
+
+    if (!value) {
+        return "—";
+    }
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "—";
+    }
+
+
+    return date.toLocaleDateString(
+        "en-US",
+        {
+            year: "numeric",
+            month: "short",
+            day: "numeric"
+        }
+    );
+
+}
+
+
+/* =====================================================
+   LOAD COMPANIES
+===================================================== */
+
+async function loadCompanies() {
+
+    const supabase =
+        getSupabase();
+
+
+    showNotice(
+        "Loading companies...",
+        "success"
+    );
+
+
+    const {
+        data,
+        error
+    } =
+        await supabase
+            .from(
+                "company_profiles"
+            )
+            .select("*")
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+    if (error) {
+
+        console.error(
+            "Company loading error:",
+            error
+        );
+
+        throw error;
+    }
+
+
+    companies =
+        Array.isArray(data)
+            ? data
+            : [];
+
+
+    renderCompanies(
+        companies
+    );
+
+
+    showNotice(
+        "Companies loaded successfully.",
+        "success"
+    );
+
+
+    setTimeout(
+        () => {
+
+            const notice =
+                document.getElementById(
+                    "notice"
+                );
+
+            if (notice) {
+                notice.className =
+                    "notice";
+            }
+
+        },
+        1800
+    );
+
+}
+
+
+/* =====================================================
+   RENDER
+===================================================== */
+
+function renderCompanies(
+    list
+) {
+
+    const body =
+        document.getElementById(
+            "companies-body"
+        );
+
+    const count =
+        document.getElementById(
+            "company-count"
+        );
+
+
+    if (!body) {
+        return;
+    }
+
+
+    if (count) {
+
+        count.textContent =
+            list.length.toLocaleString();
+
+    }
+
+
+    if (!list.length) {
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td
+                    colspan="6"
+                >
+
+                    <div class="empty">
+
+                        No companies found.
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    body.innerHTML =
+        list
+            .map(
+                company => {
+
+                    const name =
+                        getCompanyName(
+                            company
+                        );
+
+                    const email =
+                        getEmail(
+                            company
+                        );
+
+                    const location =
+                        getLocation(
+                            company
+                        );
+
+                    const status =
+                        getStatus(
+                            company
+                        );
+
+                    return `
+
+                        <tr>
+
+                            <td>
+
+                                <div class="company-name">
+
+                                    ${escapeHtml(name)}
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="company-email">
+
+                                    ${escapeHtml(email)}
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                ${escapeHtml(location)}
+
+                            </td>
+
+
+                            <td>
+
+                                <span
+                                    class="badge ${status.className}"
+                                >
+
+                                    ${escapeHtml(status.text)}
+
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                ${formatDate(
+                                    company.created_at
+                                )}
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="actions">
+
+                                    <button
+                                        type="button"
+                                        class="small-button"
+                                        data-view="${escapeHtml(company.id || "")}"
+                                    >
+                                        View
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+}
+
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+function searchCompanies() {
+
+    const input =
+        document.getElementById(
+            "search-input"
+        );
+
+
+    const query =
+        String(
+            input?.value || ""
+        )
+            .trim()
+            .toLowerCase();
+
+
+    if (!query) {
+
+        renderCompanies(
+            companies
+        );
+
+        return;
+    }
+
+
+    const filtered =
+        companies.filter(
+            company => {
+
+                const text =
+                    [
+
+                        company.company_name,
+
+                        company.name,
+
+                        company.company,
+
+                        company.email,
+
+                        company.company_email,
+
+                        company.location,
+
+                        company.country,
+
+                        company.city
+
+                    ]
+                        .filter(Boolean)
+                        .join(" ")
+                        .toLowerCase();
+
+
+                return text.includes(
+                    query
+                );
+
+            }
+        );
+
+
+    renderCompanies(
+        filtered
+    );
+
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+function setupButtons() {
+
+
+    const back =
+        document.getElementById(
+            "back-button"
+        );
+
+
+    if (back) {
+
+        back.onclick =
+            () => {
+
+                window.location.href =
+                    "admin-dashboard.html";
+
+            };
+
+    }
+
+
+    const refresh =
+        document.getElementById(
+            "refresh-button"
+        );
+
+
+    if (refresh) {
+
+        refresh.onclick =
+            async () => {
+
+                refresh.disabled =
+                    true;
+
+                refresh.textContent =
+                    "Loading...";
+
+
+                try {
+
+                    await loadCompanies();
+
+                } catch (error) {
+
+                    showNotice(
+                        "تعذر تحميل الشركات: " +
+                        (
+                            error?.message ||
+                            "Unknown error"
+                        ),
+                        "error"
+                    );
+
+                }
+
+
+                refresh.disabled =
+                    false;
+
+                refresh.textContent =
+                    "Refresh";
+
+            };
+
+    }
+
+
+    const logout =
+        document.getElementById(
+            "logout-button"
+        );
+
+
+    if (logout) {
+
+        logout.onclick =
+            async () => {
+
+                logout.disabled =
+                    true;
+
+                logout.textContent =
+                    "Logging out...";
+
+
+                try {
+
+                    await getSupabase()
+                        .auth
+                        .signOut();
+
+                } catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+                }
+
+
+                window.location.replace(
+                    "login.html"
+                );
+
+            };
+
+    }
+
+
+    const search =
+        document.getElementById(
+            "search-input"
+        );
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            searchCompanies
+        );
+
+    }
+
+
+    const body =
+        document.getElementById(
+            "companies-body"
+        );
+
+
+    if (body) {
+
+        body.addEventListener(
+            "click",
+            event => {
+
+                const button =
+                    event.target.closest(
+                        "[data-view]"
+                    );
+
+
+                if (!button) {
+                    return;
+                }
+
+
+                const id =
+                    button.dataset.view;
+
+
+                const company =
+                    companies.find(
+                        item =>
+                            String(
+                                item.id
+                            ) ===
+                            String(id)
+                    );
+
+
+                if (!company) {
+
+                    return;
+                }
+
+
+                alert(
+                    JSON.stringify(
+                        company,
+                        null,
+                        2
+                    )
+                );
+
+            }
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+async function init() {
+
+    try {
+
+        const allowed =
+            await verifyAdmin();
+
+
+        if (!allowed) {
+            return;
+        }
+
+
+        setupButtons();
+
+
+        document
+            .getElementById(
+                "loading"
+            )
+            .style.display =
+            "none";
+
+
+        document
+            .getElementById(
+                "content"
+            )
+            .style.display =
+            "block";
+
+
+        await loadCompanies();
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin companies error:",
+            error
+        );
+
+
+        const loading =
+            document.getElementById(
+                "loading"
+            );
+
+
+        if (loading) {
+
+            loading.innerHTML = `
+
+                <div class="loading-box">
+
+                    <strong>
+                        Unable to Load Companies
+                    </strong>
+
+                    <span>
+                        ${escapeHtml(
+                            error?.message ||
+                            "Unknown error"
+                        )}
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        init
+    );
+
+} else {
+
+    init();
+
+}
+
+})();
+
+</script>
+
+</body>
+
+  </html>
