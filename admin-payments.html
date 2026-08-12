@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="description"
+    content="Web3Jobs Admin Revenue and Payments"
+>
+
+<meta
+    name="robots"
+    content="noindex,nofollow,noarchive"
+>
+
+<meta
+    name="theme-color"
+    content="#06101d"
+>
+
+<title>Web3Jobs - Revenue & Payments</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+:root {
+    --bg:#06101d;
+    --panel:#0b1a2b;
+    --panel2:#0e2135;
+    --border:#1d3852;
+    --text:#f5f9ff;
+    --muted:#8fa5bb;
+    --green:#4ade80;
+    --blue:#60a5fa;
+    --yellow:#facc15;
+    --purple:#c084fc;
+    --red:#f87171;
+}
+
+* {
+    box-sizing:border-box;
+}
+
+body {
+    margin:0;
+    min-height:100vh;
+    background:
+        radial-gradient(
+            circle at top right,
+            rgba(38,102,160,.18),
+            transparent 35%
+        ),
+        var(--bg);
+    color:var(--text);
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+button,
+input,
+select {
+    font:inherit;
+}
+
+.page {
+    width:min(1500px,100%);
+    margin:auto;
+    padding:20px;
+}
+
+/* HEADER */
+
+.header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:18px;
+    margin-bottom:20px;
+    border:1px solid var(--border);
+    border-radius:18px;
+    background:var(--panel);
+}
+
+.brand {
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.logo {
+    width:46px;
+    height:46px;
+    display:grid;
+    place-items:center;
+    border-radius:12px;
+    background:linear-gradient(135deg,#1c765a,#175a47);
+    color:white;
+    font-weight:900;
+}
+
+.brand h1 {
+    margin:0;
+    font-size:20px;
+}
+
+.brand p {
+    margin:4px 0 0;
+    color:var(--muted);
+    font-size:11px;
+}
+
+.header-actions {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.header-button {
+    min-height:40px;
+    padding:0 14px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    background:#091827;
+    color:white;
+    cursor:pointer;
+}
+
+.header-button:hover {
+    background:#12283e;
+}
+
+.admin-badge {
+    display:flex;
+    align-items:center;
+    padding:0 12px;
+    min-height:40px;
+    border:1px solid rgba(74,222,128,.3);
+    border-radius:999px;
+    color:var(--green);
+    background:rgba(74,222,128,.06);
+    font-size:10px;
+    font-weight:800;
+}
+
+/* NOTICE */
+
+.notice {
+    display:none;
+    margin-bottom:18px;
+    padding:13px 15px;
+    border-radius:10px;
+    font-size:12px;
+}
+
+.notice.info {
+    display:block;
+    color:#bfdbfe;
+    border:1px solid rgba(96,165,250,.25);
+    background:rgba(96,165,250,.06);
+}
+
+.notice.error {
+    display:block;
+    color:#fecaca;
+    border:1px solid rgba(248,113,113,.25);
+    background:rgba(248,113,113,.06);
+}
+
+.notice.success {
+    display:block;
+    color:#bbf7d0;
+    border:1px solid rgba(74,222,128,.25);
+    background:rgba(74,222,128,.06);
+}
+
+/* STATS */
+
+.stats {
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+    margin-bottom:20px;
+}
+
+.stat {
+    padding:18px;
+    border:1px solid var(--border);
+    border-radius:15px;
+    background:var(--panel);
+}
+
+.stat-label {
+    color:var(--muted);
+    font-size:10px;
+    font-weight:800;
+    text-transform:uppercase;
+}
+
+.stat-value {
+    margin-top:9px;
+    font-size:26px;
+    font-weight:900;
+}
+
+.stat.green {
+    border-color:rgba(74,222,128,.25);
+}
+
+.stat.purple {
+    border-color:rgba(192,132,252,.25);
+}
+
+.stat.blue {
+    border-color:rgba(96,165,250,.25);
+}
+
+.stat.yellow {
+    border-color:rgba(250,204,21,.25);
+}
+
+/* CONTROL */
+
+.control-panel {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    padding:15px;
+    border:1px solid var(--border);
+    border-radius:15px;
+    background:var(--panel);
+}
+
+.filters {
+    display:flex;
+    gap:8px;
+    flex:1;
+    flex-wrap:wrap;
+}
+
+.search {
+    flex:1;
+    min-width:180px;
+    height:40px;
+    padding:0 12px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    outline:none;
+    background:#071522;
+    color:white;
+}
+
+.search:focus {
+    border-color:#356184;
+}
+
+.filter {
+    height:40px;
+    padding:0 10px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    background:#071522;
+    color:white;
+}
+
+.refresh {
+    height:40px;
+    padding:0 14px;
+    border:1px solid rgba(96,165,250,.35);
+    border-radius:9px;
+    background:#0c2135;
+    color:white;
+    cursor:pointer;
+    font-weight:800;
+}
+
+.refresh:hover {
+    background:#122e48;
+}
+
+/* TABLE */
+
+.table-card {
+    overflow:hidden;
+    border:1px solid var(--border);
+    border-radius:16px;
+    background:var(--panel);
+}
+
+.table-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:16px 18px;
+    border-bottom:1px solid var(--border);
+}
+
+.table-header h2 {
+    margin:0;
+    font-size:16px;
+}
+
+.table-header span {
+    color:var(--muted);
+    font-size:11px;
+}
+
+.table-wrap {
+    width:100%;
+    overflow-x:auto;
+}
+
+table {
+    width:100%;
+    min-width:900px;
+    border-collapse:collapse;
+}
+
+th,
+td {
+    padding:13px 12px;
+    border-bottom:1px solid rgba(255,255,255,.06);
+    text-align:left;
+    font-size:11px;
+    white-space:nowrap;
+}
+
+th {
+    color:var(--muted);
+    font-size:10px;
+    text-transform:uppercase;
+    background:#091827;
+}
+
+td {
+    color:#e8f1fa;
+}
+
+tr:hover td {
+    background:rgba(255,255,255,.018);
+}
+
+.status {
+    display:inline-block;
+    padding:5px 8px;
+    border-radius:999px;
+    font-size:9px;
+    font-weight:800;
+    text-transform:uppercase;
+}
+
+.status.paid,
+.status.completed,
+.status.success {
+    color:#bbf7d0;
+    background:rgba(74,222,128,.09);
+}
+
+.status.pending {
+    color:#fde68a;
+    background:rgba(250,204,21,.09);
+}
+
+.status.failed,
+.status.cancelled,
+.status.canceled {
+    color:#fecaca;
+    background:rgba(248,113,113,.09);
+}
+
+.status.unknown {
+    color:#cbd5e1;
+    background:rgba(148,163,184,.08);
+}
+
+.amount {
+    color:var(--green);
+    font-weight:900;
+}
+
+.wallet {
+    max-width:150px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.tx {
+    max-width:180px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    color:#93c5fd;
+}
+
+.empty {
+    padding:45px 20px;
+    text-align:center;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.empty strong {
+    display:block;
+    margin-bottom:7px;
+    color:white;
+    font-size:14px;
+}
+
+/* LOADING */
+
+#loading {
+    position:fixed;
+    inset:0;
+    z-index:9999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--bg);
+}
+
+.loading-box {
+    padding:30px;
+    text-align:center;
+}
+
+.loading-box strong {
+    display:block;
+    margin-bottom:8px;
+    font-size:18px;
+}
+
+.loading-box span {
+    color:var(--muted);
+    font-size:12px;
+}
+
+/* FOOTER */
+
+.footer {
+    padding:20px 5px;
+    text-align:center;
+    color:var(--muted);
+    font-size:10px;
+}
+
+/* MOBILE */
+
+@media(max-width:900px) {
+
+    .stats {
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .control-panel {
+        align-items:stretch;
+        flex-direction:column;
+    }
+
+    .filters {
+        width:100%;
+    }
+
+}
+
+@media(max-width:600px) {
+
+    .page {
+        padding:10px;
+    }
+
+    .header {
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .stats {
+        grid-template-columns:1fr;
+    }
+
+    .header-actions {
+        width:100%;
+    }
+
+    .header-button,
+    .admin-badge {
+        flex:1;
+        justify-content:center;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<!-- =====================================================
+     LOADING
+===================================================== -->
+
+<div id="loading">
+
+    <div class="loading-box">
+
+        <strong>
+            Web3Jobs Admin
+        </strong>
+
+        <span>
+            Checking administrator access...
+        </span>
+
+    </div>
+
+</div>
+
+
+<main id="content" style="display:none;">
+
+<div class="page">
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="header">
+
+    <div class="brand">
+
+        <div class="logo">
+            W3
+        </div>
+
+        <div>
+
+            <h1>
+                Revenue & Payments
+            </h1>
+
+            <p>
+                Web3Jobs Platform Financial Administration
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="header-actions">
+
+        <span class="admin-badge">
+            ADMIN
+        </span>
+
+        <button
+            class="header-button"
+            id="back-dashboard"
+            type="button"
+        >
+            ← Dashboard
+        </button>
+
+        <button
+            class="header-button"
+            id="logout"
+            type="button"
+        >
+            Logout
+        </button>
+
+    </div>
+
+</header>
+
+
+<!-- =====================================================
+     NOTICE
+===================================================== -->
+
+<div
+    id="notice"
+    class="notice"
+></div>
+
+
+<!-- =====================================================
+     STATS
+===================================================== -->
+
+<section class="stats">
+
+
+<div class="stat green">
+
+    <div class="stat-label">
+        Total Revenue
+    </div>
+
+    <div
+        class="stat-value"
+        id="total-revenue"
+    >
+        0 USDT
+    </div>
+
+</div>
+
+
+<div class="stat purple">
+
+    <div class="stat-label">
+        Successful Payments
+    </div>
+
+    <div
+        class="stat-value"
+        id="successful-payments"
+    >
+        0
+    </div>
+
+</div>
+
+
+<div class="stat blue">
+
+    <div class="stat-label">
+        Pending Payments
+    </div>
+
+    <div
+        class="stat-value"
+        id="pending-payments"
+    >
+        0
+    </div>
+
+</div>
+
+
+<div class="stat yellow">
+
+    <div class="stat-label">
+        Total Transactions
+    </div>
+
+    <div
+        class="stat-value"
+        id="total-transactions"
+    >
+        0
+    </div>
+
+</div>
+
+
+</section>
+
+
+<!-- =====================================================
+     FILTERS
+===================================================== -->
+
+<section class="control-panel">
+
+    <div class="filters">
+
+        <input
+            id="search"
+            class="search"
+            type="search"
+            placeholder="Search company, wallet, transaction..."
+        >
+
+        <select
+            id="status-filter"
+            class="filter"
+        >
+
+            <option value="all">
+                All Statuses
+            </option>
+
+            <option value="paid">
+                Paid
+            </option>
+
+            <option value="completed">
+                Completed
+            </option>
+
+            <option value="success">
+                Success
+            </option>
+
+            <option value="pending">
+                Pending
+            </option>
+
+            <option value="failed">
+                Failed
+            </option>
+
+            <option value="cancelled">
+                Cancelled
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <button
+        id="refresh"
+        class="refresh"
+        type="button"
+    >
+        ↻ Refresh
+    </button>
+
+</section>
+
+
+<!-- =====================================================
+     PAYMENTS TABLE
+===================================================== -->
+
+<section class="table-card">
+
+    <div class="table-header">
+
+        <div>
+
+            <h2>
+                Payment Transactions
+            </h2>
+
+            <span id="table-source">
+                Loading payment data...
+            </span>
+
+        </div>
+
+        <span id="visible-count">
+            0 records
+        </span>
+
+    </div>
+
+
+    <div class="table-wrap">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Company
+                    </th>
+
+                    <th>
+                        Plan
+                    </th>
+
+                    <th>
+                        Amount
+                    </th>
+
+                    <th>
+                        Currency
+                    </th>
+
+                    <th>
+                        Status
+                    </th>
+
+                    <th>
+                        Wallet
+                    </th>
+
+                    <th>
+                        Transaction
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody id="payments-body">
+
+                <tr>
+
+                    <td colspan="8">
+
+                        <div class="empty">
+
+                            <strong>
+                                Loading payments...
+                            </strong>
+
+                            Please wait.
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<div class="footer">
+    Web3Jobs Administration • Revenue & Payments
+</div>
+
+
+</div>
+
+</main>
+
+
+<!-- =====================================================
+     SUPABASE
+===================================================== -->
+
+<script src="js/supabase.js?v=20260812"></script>
+
+
+<script>
+
+"use strict";
+
+(() => {
+
+
+let client = null;
+let currentUser = null;
+
+let payments = [];
+
+let paymentTable = null;
+
+
+/* =====================================================
+   GET SUPABASE
+===================================================== */
+
+function getSupabase() {
+
+    if (client) {
+        return client;
+    }
+
+
+    if (
+        window.Web3JobsSupabase &&
+        typeof window.Web3JobsSupabase.getClient ===
+        "function"
+    ) {
+
+        client =
+            window.Web3JobsSupabase.getClient();
+
+        return client;
+    }
+
+
+    if (
+        window.supabaseClient &&
+        typeof window.supabaseClient.from ===
+        "function"
+    ) {
+
+        client =
+            window.supabaseClient;
+
+        return client;
+    }
+
+
+    throw new Error(
+        "Supabase client is not initialized."
+    );
+}
+
+
+/* =====================================================
+   NOTICE
+===================================================== */
+
+function showNotice(message, type = "info") {
+
+    const element =
+        document.getElementById("notice");
+
+    if (!element) {
+        return;
+    }
+
+    element.textContent = message;
+
+    element.className =
+        "notice " + type;
+}
+
+
+/* =====================================================
+   VERIFY ADMIN
+===================================================== */
+
+async function verifyAdmin() {
+
+    const supabase =
+        getSupabase();
+
+
+    const {
+        data,
+        error
+    } =
+    await supabase.auth.getUser();
+
+
+    if (error) {
+        throw error;
+    }
+
+
+    currentUser =
+        data?.user || null;
+
+
+    if (!currentUser) {
+
+        window.location.replace(
+            "login.html"
+        );
+
+        return false;
+    }
+
+
+    /*
+     * First check admin_users.
+     */
+
+    const {
+        data: adminRow,
+        error: adminError
+    } =
+    await supabase
+        .from("admin_users")
+        .select("user_id")
+        .eq(
+            "user_id",
+            currentUser.id
+        )
+        .maybeSingle();
+
+
+    if (!adminError && adminRow) {
+        return true;
+    }
+
+
+    /*
+     * Fallback to profiles.role.
+     */
+
+    const {
+        data: profile,
+        error: profileError
+    } =
+    await supabase
+        .from("profiles")
+        .select("role")
+        .eq(
+            "id",
+            currentUser.id
+        )
+        .maybeSingle();
+
+
+    if (profileError) {
+
+        console.error(
+            "Profile admin check:",
+            profileError
+        );
+
+        return false;
+    }
+
+
+    if (
+        String(
+            profile?.role || ""
+        ).toLowerCase() === "admin"
+    ) {
+
+        return true;
+    }
+
+
+    return false;
+}
+
+
+/* =====================================================
+   SHOW CONTENT
+===================================================== */
+
+function showContent() {
+
+    const loading =
+        document.getElementById("loading");
+
+    const content =
+        document.getElementById("content");
+
+
+    if (loading) {
+        loading.style.display = "none";
+    }
+
+    if (content) {
+        content.style.display = "block";
+    }
+}
+
+
+/* =====================================================
+   NORMALIZE PAYMENT
+===================================================== */
+
+function normalizePayment(row) {
+
+    const source = row || {};
+
+
+    const amount =
+        firstValue(
+            source,
+            [
+                "amount",
+                "price",
+                "total",
+                "total_amount",
+                "payment_amount",
+                "amount_usdt",
+                "value"
+            ]
+        );
+
+
+    const currency =
+        firstValue(
+            source,
+            [
+                "currency",
+                "token",
+                "payment_currency",
+                "asset"
+            ]
+        ) || "USDT";
+
+
+    const status =
+        String(
+            firstValue(
+                source,
+                [
+                    "status",
+                    "payment_status",
+                    "state"
+                ]
+            ) || "unknown"
+        ).toLowerCase();
+
+
+    const company =
+        firstValue(
+            source,
+            [
+                "company_name",
+                "company",
+                "business_name",
+                "name",
+                "email"
+            ]
+        ) || "—";
+
+
+    const plan =
+        firstValue(
+            source,
+            [
+                "plan",
+                "plan_name",
+                "subscription_plan",
+                "package"
+            ]
+        ) || "—";
+
+
+    const wallet =
+        firstValue(
+            source,
+            [
+                "wallet_address",
+                "wallet",
+                "recipient_wallet",
+                "payer_wallet",
+                "from_wallet",
+                "to_wallet"
+            ]
+        ) || "—";
+
+
+    const transaction =
+        firstValue(
+            source,
+            [
+                "transaction_hash",
+                "tx_hash",
+                "txid",
+                "transaction_id",
+                "hash"
+            ]
+        ) || "—";
+
+
+    const date =
+        firstValue(
+            source,
+            [
+                "created_at",
+                "paid_at",
+                "payment_date",
+                "transaction_date",
+                "date"
+            ]
+        );
+
+
+    return {
+
+        raw:source,
+
+        amount:
+            parseNumber(amount),
+
+        currency:String(currency),
+
+        status,
+
+        company:String(company),
+
+        plan:String(plan),
+
+        wallet:String(wallet),
+
+        transaction:String(transaction),
+
+        date:date || null
+
+    };
+}
+
+
+/* =====================================================
+   FIRST VALUE
+===================================================== */
+
+function firstValue(object, keys) {
+
+    for (const key of keys) {
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                object,
+                key
+            )
+        ) {
+
+            const value =
+                object[key];
+
+            if (
+                value !== null &&
+                value !== undefined &&
+                value !== ""
+            ) {
+
+                return value;
+            }
+        }
+    }
+
+    return null;
+}
+
+
+/* =====================================================
+   NUMBER
+===================================================== */
+
+function parseNumber(value) {
+
+    if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        return 0;
+    }
+
+
+    const number =
+        Number(
+            String(value)
+                .replace(/,/g,"")
+                .replace(/USDT/gi,"")
+                .trim()
+        );
+
+
+    return Number.isFinite(number)
+        ? number
+        : 0;
+}
+
+
+/* =====================================================
+   LOAD PAYMENT TABLE
+===================================================== */
+
+async function loadPayments() {
+
+    const supabase =
+        getSupabase();
+
+
+    /*
+     * We try the most likely payment tables.
+     */
+
+    const tables = [
+
+        "payments",
+
+        "subscription_payments",
+
+        "transactions"
+
+    ];
+
+
+    let lastError = null;
+
+
+    for (const table of tables) {
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+            await supabase
+                .from(table)
+                .select("*")
+                .order(
+                    "created_at",
+                    {
+                        ascending:false
+                    }
+                )
+                .limit(1000);
+
+
+            if (!error) {
+
+                paymentTable =
+                    table;
+
+                payments =
+                    Array.isArray(data)
+                        ? data.map(normalizePayment)
+                        : [];
+
+                document.getElementById(
+                    "table-source"
+                ).textContent =
+                    "Source: " + table;
+
+
+                return;
+            }
+
+
+            lastError = error;
+
+        } catch (error) {
+
+            lastError = error;
+        }
+    }
+
+
+    /*
+     * No payment table was available.
+     */
+
+    paymentTable = null;
+    payments = [];
+
+
+    console.warn(
+        "No payment table found:",
+        lastError
+    );
+
+
+    document.getElementById(
+        "table-source"
+    ).textContent =
+        "No payment table available";
+
+
+    showNotice(
+        "Payment data is not available yet. The dashboard is working, but no compatible payments table was found in Supabase.",
+        "info"
+    );
+}
+
+
+/* =====================================================
+   STATUS CLASS
+===================================================== */
+
+function statusClass(status) {
+
+    const value =
+        String(status || "")
+            .toLowerCase();
+
+
+    if (
+        value === "paid" ||
+        value === "completed" ||
+        value === "success" ||
+        value === "successful"
+    ) {
+
+        return "paid";
+    }
+
+
+    if (value === "pending") {
+        return "pending";
+    }
+
+
+    if (
+        value === "failed" ||
+        value === "cancelled" ||
+        value === "canceled"
+    ) {
+
+        return "failed";
+    }
+
+
+    return "unknown";
+}
+
+
+/* =====================================================
+   FORMAT DATE
+===================================================== */
+
+function formatDate(value) {
+
+    if (!value) {
+        return "—";
+    }
+
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return String(value);
+    }
+
+
+    return date.toLocaleString(
+        undefined,
+        {
+            year:"numeric",
+            month:"short",
+            day:"numeric",
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    );
+}
+
+
+/* =====================================================
+   SHORT TEXT
+===================================================== */
+
+function shortText(value, length = 18) {
+
+    const text =
+        String(value || "");
+
+
+    if (
+        text === "—" ||
+        text.length <= length
+    ) {
+
+        return text;
+    }
+
+
+    return (
+        text.substring(0,7) +
+        "..." +
+        text.substring(
+            text.length - 7
+        )
+    );
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+/* =====================================================
+   FILTER PAYMENTS
+===================================================== */
+
+function getFilteredPayments() {
+
+    const search =
+        String(
+            document.getElementById(
+                "search"
+            )?.value || ""
+        )
+        .trim()
+        .toLowerCase();
+
+
+    const selectedStatus =
+        document.getElementById(
+            "status-filter"
+        )?.value || "all";
+
+
+    return payments.filter(
+        payment => {
+
+            const searchable =
+                (
+                    payment.company +
+                    " " +
+                    payment.plan +
+                    " " +
+                    payment.wallet +
+                    " " +
+                    payment.transaction +
+                    " " +
+                    payment.status
+                ).toLowerCase();
+
+
+            const matchesSearch =
+                !search ||
+                searchable.includes(search);
+
+
+            const matchesStatus =
+                selectedStatus === "all" ||
+                payment.status === selectedStatus;
+
+
+            return (
+                matchesSearch &&
+                matchesStatus
+            );
+        }
+    );
+}
+
+
+/* =====================================================
+   RENDER STATS
+===================================================== */
+
+function renderStats() {
+
+    const successful =
+        payments.filter(
+            payment =>
+                [
+                    "paid",
+                    "completed",
+                    "success",
+                    "successful"
+                ].includes(
+                    payment.status
+                )
+        );
+
+
+    const pending =
+        payments.filter(
+            payment =>
+                payment.status ===
+                "pending"
+        );
+
+
+    const revenue =
+        successful.reduce(
+            (
+                total,
+                payment
+            ) =>
+                total +
+                payment.amount,
+            0
+        );
+
+
+    document.getElementById(
+        "total-revenue"
+    ).textContent =
+        revenue.toLocaleString(
+            undefined,
+            {
+                maximumFractionDigits:2
+            }
+        ) + " USDT";
+
+
+    document.getElementById(
+        "successful-payments"
+    ).textContent =
+        successful.length.toLocaleString();
+
+
+    document.getElementById(
+        "pending-payments"
+    ).textContent =
+        pending.length.toLocaleString();
+
+
+    document.getElementById(
+        "total-transactions"
+    ).textContent =
+        payments.length.toLocaleString();
+}
+
+
+/* =====================================================
+   RENDER TABLE
+===================================================== */
+
+function renderTable() {
+
+    const body =
+        document.getElementById(
+            "payments-body"
+        );
+
+
+    const count =
+        document.getElementById(
+            "visible-count"
+        );
+
+
+    if (!body) {
+        return;
+    }
+
+
+    const filtered =
+        getFilteredPayments();
+
+
+    if (count) {
+
+        count.textContent =
+            filtered.length +
+            (
+                filtered.length === 1
+                    ? " record"
+                    : " records"
+            );
+    }
+
+
+    if (!filtered.length) {
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td colspan="8">
+
+                    <div class="empty">
+
+                        <strong>
+                            No payment records
+                        </strong>
+
+                        ${
+                            paymentTable
+                                ? "No transactions match the current filters."
+                                : "No payment records are available yet."
+                        }
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        `;
+
+        return;
+    }
+
+
+    body.innerHTML =
+        filtered.map(
+            payment => {
+
+                const status =
+                    escapeHtml(
+                        payment.status
+                    );
+
+
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(
+                                formatDate(
+                                    payment.date
+                                )
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.company
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.plan
+                            )}
+                        </td>
+
+                        <td class="amount">
+                            ${payment.amount.toLocaleString(
+                                undefined,
+                                {
+                                    maximumFractionDigits:2
+                                }
+                            )}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                payment.currency
+                            )}
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="status ${statusClass(payment.status)}"
+                            >
+                                ${status}
+                            </span>
+
+                        </td>
+
+                        <td
+                            class="wallet"
+                            title="${escapeHtml(payment.wallet)}"
+                        >
+                            ${escapeHtml(
+                                shortText(
+                                    payment.wallet,
+                                    22
+                                )
+                            )}
+                        </td>
+
+                        <td
+                            class="tx"
+                            title="${escapeHtml(payment.transaction)}"
+                        >
+                            ${escapeHtml(
+                                shortText(
+                                    payment.transaction,
+                                    25
+                                )
+                            )}
+                        </td>
+
+                    </tr>
+
+                `;
+
+            }
+        ).join("");
+}
+
+
+/* =====================================================
+   LOAD EVERYTHING
+===================================================== */
+
+async function loadData() {
+
+    showNotice(
+        "Loading payment data...",
+        "info"
+    );
+
+
+    await loadPayments();
+
+
+    renderStats();
+
+    renderTable();
+
+
+    if (paymentTable) {
+
+        showNotice(
+            "Payment dashboard loaded successfully.",
+            "success"
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+function setupButtons() {
+
+
+    const back =
+        document.getElementById(
+            "back-dashboard"
+        );
+
+
+    const logout =
+        document.getElementById(
+            "logout"
+        );
+
+
+    const refresh =
+        document.getElementById(
+            "refresh"
+        );
+
+
+    const search =
+        document.getElementById(
+            "search"
+        );
+
+
+    const status =
+        document.getElementById(
+            "status-filter"
+        );
+
+
+    if (back) {
+
+        back.addEventListener(
+            "click",
+            () => {
+
+                window.location.href =
+                    "admin-dashboard.html";
+
+            }
+        );
+    }
+
+
+    if (logout) {
+
+        logout.addEventListener(
+            "click",
+            async () => {
+
+                logout.disabled =
+                    true;
+
+                logout.textContent =
+                    "Logging out...";
+
+
+                try {
+
+                    await getSupabase()
+                        .auth
+                        .signOut();
+
+                } catch (error) {
+
+                    console.error(
+                        "Logout:",
+                        error
+                    );
+                }
+
+
+                window.location.replace(
+                    "login.html"
+                );
+            }
+        );
+    }
+
+
+    if (refresh) {
+
+        refresh.addEventListener(
+            "click",
+            async () => {
+
+                refresh.disabled =
+                    true;
+
+                refresh.textContent =
+                    "Loading...";
+
+
+                try {
+
+                    await loadData();
+
+                } catch (error) {
+
+                    console.error(
+                        "Refresh:",
+                        error
+                    );
+
+                    showNotice(
+                        error?.message ||
+                        "Unable to refresh payment data.",
+                        "error"
+                    );
+
+                } finally {
+
+                    refresh.disabled =
+                        false;
+
+                    refresh.textContent =
+                        "↻ Refresh";
+                }
+            }
+        );
+    }
+
+
+    if (search) {
+
+        search.addEventListener(
+            "input",
+            renderTable
+        );
+    }
+
+
+    if (status) {
+
+        status.addEventListener(
+            "change",
+            renderTable
+        );
+    }
+}
+
+
+/* =====================================================
+   INIT
+===================================================== */
+
+async function init() {
+
+    try {
+
+        const allowed =
+            await verifyAdmin();
+
+
+        if (!allowed) {
+
+            const loading =
+                document.getElementById(
+                    "loading"
+                );
+
+
+            if (loading) {
+
+                loading.innerHTML = `
+
+                    <div class="loading-box">
+
+                        <strong>
+                            Access Denied
+                        </strong>
+
+                        <span>
+                            Administrator privileges are required.
+                        </span>
+
+                    </div>
+
+                `;
+            }
+
+
+            setTimeout(
+                () => {
+
+                    window.location.replace(
+                        "login.html"
+                    );
+
+                },
+                1200
+            );
+
+
+            return;
+        }
+
+
+        setupButtons();
+
+        showContent();
+
+        await loadData();
+
+
+        console.log(
+            "Web3Jobs Admin Payments loaded."
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Admin Payments Error:",
+            error
+        );
+
+
+        const loading =
+            document.getElementById(
+                "loading"
+            );
+
+
+        if (loading) {
+
+            loading.innerHTML = `
+
+                <div class="loading-box">
+
+                    <strong>
+                        Admin Payments Error
+                    </strong>
+
+                    <span>
+                        ${escapeHtml(
+                            error?.message ||
+                            "Unable to load payment dashboard."
+                        )}
+                    </span>
+
+                </div>
+
+            `;
+        }
+    }
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+if (
+    document.readyState ===
+    "loading"
+) {
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        init
+    );
+
+} else {
+
+    init();
+}
+
+
+})();
+
+</script>
+
+</body>
+
+  </html>
