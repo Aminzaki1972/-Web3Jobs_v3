@@ -1,21 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <meta
         name="description"
         content="Web3Jobs Platform Administration Dashboard"
     >
 
-    <meta name="theme-color" content="#06101d">
+    <meta
+        name="robots"
+        content="noindex,nofollow,noarchive"
+    >
+
+    <meta
+        name="theme-color"
+        content="#06101d"
+    >
 
     <title>Web3Jobs - Admin Dashboard</title>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+
         :root {
             --bg: #06101d;
             --panel: #0b1a2b;
@@ -36,6 +51,7 @@
         body {
             margin: 0;
             min-height: 100vh;
+
             background:
                 radial-gradient(
                     circle at top right,
@@ -43,7 +59,9 @@
                     transparent 35%
                 ),
                 var(--bg);
+
             color: var(--text);
+
             font-family:
                 Arial,
                 Helvetica,
@@ -65,10 +83,13 @@
             align-items: center;
             justify-content: space-between;
             gap: 20px;
+
             padding: 20px;
             margin-bottom: 24px;
+
             border: 1px solid var(--border);
             border-radius: 18px;
+
             background: var(--panel);
         }
 
@@ -81,10 +102,19 @@
         .logo {
             width: 48px;
             height: 48px;
+
             display: grid;
             place-items: center;
+
             border-radius: 13px;
-            background: linear-gradient(135deg, #1c765a, #175a47);
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #1c765a,
+                    #175a47
+                );
+
             color: white;
             font-weight: 900;
         }
@@ -102,10 +132,17 @@
 
         .admin-badge {
             padding: 8px 12px;
-            border: 1px solid rgba(74, 222, 128, .3);
+
+            border: 1px solid
+                rgba(74, 222, 128, .3);
+
             border-radius: 999px;
+
             color: var(--green);
-            background: rgba(74, 222, 128, .06);
+
+            background:
+                rgba(74, 222, 128, .06);
+
             font-size: 11px;
             font-weight: 800;
         }
@@ -113,10 +150,13 @@
         .logout {
             min-height: 40px;
             padding: 0 16px;
+
             border: 1px solid #3a526b;
             border-radius: 9px;
+
             background: #091827;
             color: white;
+
             cursor: pointer;
         }
 
@@ -126,42 +166,55 @@
 
         .stats {
             display: grid;
+
             grid-template-columns:
                 repeat(4, minmax(0, 1fr));
+
             gap: 16px;
+
             margin-bottom: 24px;
         }
 
         .stat {
             padding: 20px;
+
             border: 1px solid var(--border);
             border-radius: 16px;
+
             background: var(--panel);
         }
 
         .stat-label {
             color: var(--muted);
+
             font-size: 11px;
             font-weight: 700;
+
             text-transform: uppercase;
         }
 
         .stat-value {
             margin-top: 10px;
+
             font-size: 30px;
             font-weight: 900;
         }
 
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+
+            grid-template-columns:
+                1fr 1fr;
+
             gap: 20px;
         }
 
         .card {
             padding: 20px;
+
             border: 1px solid var(--border);
             border-radius: 16px;
+
             background: var(--panel);
         }
 
@@ -172,17 +225,25 @@
 
         .card-description {
             margin: 0 0 18px;
+
             color: var(--muted);
+
             font-size: 11px;
         }
 
         .info-row {
             display: flex;
+
             align-items: center;
             justify-content: space-between;
+
             gap: 15px;
+
             padding: 12px 0;
-            border-bottom: 1px solid rgba(255,255,255,.06);
+
+            border-bottom:
+                1px solid
+                rgba(255,255,255,.06);
         }
 
         .info-row:last-child {
@@ -198,34 +259,50 @@
             color: white;
             font-size: 12px;
             font-weight: 800;
+
+            text-align: right;
+
+            word-break: break-all;
         }
 
         .status {
             display: inline-block;
+
             padding: 5px 9px;
+
             border-radius: 999px;
+
             font-size: 10px;
             font-weight: 800;
         }
 
         .status.admin {
             color: var(--green);
-            background: rgba(74, 222, 128, .08);
+
+            background:
+                rgba(74, 222, 128, .08);
         }
 
         .actions {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+
+            grid-template-columns:
+                repeat(2, 1fr);
+
             gap: 10px;
         }
 
         .action-button {
             min-height: 46px;
+
             border: 1px solid var(--border);
             border-radius: 10px;
+
             background: var(--panel-2);
             color: white;
+
             cursor: pointer;
+
             font-weight: 800;
             font-size: 11px;
         }
@@ -236,15 +313,18 @@
         }
 
         .action-button.green {
-            border-color: rgba(74, 222, 128, .25);
+            border-color:
+                rgba(74, 222, 128, .25);
         }
 
         .action-button.blue {
-            border-color: rgba(96, 165, 250, .25);
+            border-color:
+                rgba(96, 165, 250, .25);
         }
 
         .action-button.yellow {
-            border-color: rgba(250, 204, 21, .25);
+            border-color:
+                rgba(250, 204, 21, .25);
         }
 
         .activity {
@@ -253,18 +333,24 @@
 
         .empty {
             padding: 25px;
+
             text-align: center;
+
             color: var(--muted);
+
             font-size: 12px;
         }
 
         #admin-loading {
             position: fixed;
             inset: 0;
+
             z-index: 9999;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
             background: var(--bg);
         }
 
@@ -275,7 +361,9 @@
 
         .loading-box strong {
             display: block;
+
             margin-bottom: 8px;
+
             font-size: 18px;
         }
 
@@ -290,22 +378,33 @@
 
         .notice {
             display: none;
+
             margin-bottom: 20px;
             padding: 14px 16px;
+
             border-radius: 12px;
+
             font-size: 12px;
         }
 
         .notice.error {
             display: block;
+
             color: #fecaca;
-            border: 1px solid rgba(248,113,113,.25);
-            background: rgba(248,113,113,.06);
+
+            border:
+                1px solid
+                rgba(248,113,113,.25);
+
+            background:
+                rgba(248,113,113,.06);
         }
 
         @media (max-width: 900px) {
+
             .stats {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns:
+                    repeat(2, 1fr);
             }
 
             .dashboard-grid {
@@ -315,9 +414,11 @@
             .activity {
                 grid-column: auto;
             }
+
         }
 
         @media (max-width: 600px) {
+
             .page {
                 padding: 12px;
             }
@@ -333,276 +434,745 @@
             .actions {
                 grid-template-columns: 1fr;
             }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
-    <div id="admin-loading">
-        <div class="loading-box">
-            <strong>Web3Jobs Admin</strong>
-            <span>Checking administrator access...</span>
-        </div>
+
+<div id="admin-loading">
+
+    <div class="loading-box">
+
+        <strong>
+            Web3Jobs Admin
+        </strong>
+
+        <span>
+            Checking administrator access...
+        </span>
+
     </div>
 
-    <main id="admin-content">
+</div>
 
-        <div class="page">
 
-            <header class="header">
+<main id="admin-content">
 
-                <div class="brand">
+    <div class="page">
 
-                    <div class="logo">
-                        W3
-                    </div>
 
-                    <div>
-                        <h1>
-                            Web3Jobs Admin
-                        </h1>
+        <header class="header">
 
-                        <p>
-                            Platform Administration Dashboard
-                        </p>
-                    </div>
+            <div class="brand">
+
+                <div class="logo">
+                    W3
+                </div>
+
+                <div>
+
+                    <h1>
+                        Web3Jobs Admin
+                    </h1>
+
+                    <p>
+                        Platform Administration Dashboard
+                    </p>
 
                 </div>
 
-                <div style="
-                    display:flex;
-                    align-items:center;
-                    gap:12px;
-                    flex-wrap:wrap;
-                ">
+            </div>
 
-                    <span class="admin-badge">
-                        ADMIN
+
+            <div style="
+                display:flex;
+                align-items:center;
+                gap:12px;
+                flex-wrap:wrap;
+            ">
+
+                <span class="admin-badge">
+                    ADMIN
+                </span>
+
+                <button
+                    type="button"
+                    class="logout"
+                    id="admin-logout"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <div
+            id="admin-notice"
+            class="notice"
+        ></div>
+
+
+        <section class="stats">
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Total Users
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="total-users"
+                >
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Companies
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="total-companies"
+                >
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Jobs
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="total-jobs"
+                >
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="stat">
+
+                <div class="stat-label">
+                    Applications
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="total-applications"
+                >
+                    —
+                </div>
+
+            </div>
+
+
+        </section>
+
+
+        <section class="dashboard-grid">
+
+
+            <div class="card">
+
+                <h2>
+                    Administrator
+                </h2>
+
+                <p class="card-description">
+                    Secure administrator account
+                </p>
+
+
+                <div class="info-row">
+
+                    <span class="info-label">
+                        Account
                     </span>
+
+                    <span
+                        class="info-value"
+                        id="admin-email"
+                    >
+                        Protected
+                    </span>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span class="info-label">
+                        Account Role
+                    </span>
+
+                    <span class="status admin">
+                        Administrator
+                    </span>
+
+                </div>
+
+
+                <div class="info-row">
+
+                    <span class="info-label">
+                        User ID
+                    </span>
+
+                    <span
+                        class="info-value"
+                        id="admin-id"
+                    >
+                        —
+                    </span>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>
+                    Platform Controls
+                </h2>
+
+                <p class="card-description">
+                    Administration tools
+                </p>
+
+
+                <div class="actions">
+
 
                     <button
                         type="button"
-                        class="logout"
-                        id="admin-logout"
+                        class="action-button blue"
+                        id="manage-users"
                     >
-                        Logout
+                        Manage Users
                     </button>
 
-                </div>
 
-            </header>
-
-
-            <div
-                id="admin-notice"
-                class="notice"
-            ></div>
-
-
-            <section class="stats">
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Total Users
-                    </div>
-
-                    <div
-                        class="stat-value"
-                        id="total-users"
+                    <button
+                        type="button"
+                        class="action-button green"
+                        id="manage-companies"
                     >
-                        —
-                    </div>
-
-                </div>
+                        Manage Companies
+                    </button>
 
 
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Companies
-                    </div>
-
-                    <div
-                        class="stat-value"
-                        id="total-companies"
+                    <button
+                        type="button"
+                        class="action-button yellow"
+                        id="manage-jobs"
                     >
-                        —
-                    </div>
-
-                </div>
+                        Manage Jobs
+                    </button>
 
 
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Jobs
-                    </div>
-
-                    <div
-                        class="stat-value"
-                        id="total-jobs"
+                    <button
+                        type="button"
+                        class="action-button"
+                        id="manage-payments"
                     >
-                        —
+                        Payments
+                    </button>
+
+
+                </div>
+
+            </div>
+
+
+            <div class="card activity">
+
+                <h2>
+                    Recent Admin Activity
+                </h2>
+
+                <p class="card-description">
+                    Administrator activity
+                </p>
+
+
+                <div id="admin-activity">
+
+                    <div class="empty">
+                        Administrator activity will appear here.
                     </div>
 
                 </div>
 
-
-                <div class="stat">
-
-                    <div class="stat-label">
-                        Applications
-                    </div>
-
-                    <div
-                        class="stat-value"
-                        id="total-applications"
-                    >
-                        —
-                    </div>
-
-                </div>
-
-            </section>
+            </div>
 
 
-            <section class="dashboard-grid">
-
-                <div class="card">
-
-                    <h2>
-                        Administrator
-                    </h2>
-
-                    <p class="card-description">
-                        Current platform owner account
-                    </p>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Email
-                        </span>
-
-                        <span
-                            class="info-value"
-                            id="admin-email"
-                        >
-                            —
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            Account Role
-                        </span>
-
-                        <span class="status admin">
-                            Administrator
-                        </span>
-
-                    </div>
-
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            User ID
-                        </span>
-
-                        <span
-                            class="info-value"
-                            id="admin-id"
-                        >
-                            —
-                        </span>
-
-                    </div>
-
-                </div>
+        </section>
 
 
-                <div class="card">
+    </div>
 
-                    <h2>
-                        Platform Controls
-                    </h2>
-
-                    <p class="card-description">
-                        Administration tools
-                    </p>
-
-                    <div class="actions">
-
-                        <button
-                            type="button"
-                            class="action-button blue"
-                            id="manage-users"
-                        >
-                            Manage Users
-                        </button>
-
-                        <button
-                            type="button"
-                            class="action-button green"
-                            id="manage-companies"
-                        >
-                            Manage Companies
-                        </button>
-
-                        <button
-                            type="button"
-                            class="action-button yellow"
-                            id="manage-jobs"
-                        >
-                            Manage Jobs
-                        </button>
-
-                        <button
-                            type="button"
-                            class="action-button"
-                            id="manage-payments"
-                        >
-                            Payments
-                        </button>
-
-                    </div>
-
-                </div>
+</main>
 
 
-                <div class="card activity">
-
-                    <h2>
-                        Recent Admin Activity
-                    </h2>
-
-                    <p class="card-description">
-                        Actions performed by platform administrators
-                    </p>
-
-                    <div id="admin-activity">
-
-                        <div class="empty">
-                            Loading activity...
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </div>
-
-    </main>
+<script src="js/supabase.js"></script>
 
 
-    <script src="js/supabase.js"></script>
-    <script src="js/admin-dashboard.js"></script>
+<script>
+
+"use strict";
+
+(() => {
+
+    let client = null;
+
+
+    /* =====================================================
+       SUPABASE CLIENT
+       ===================================================== */
+
+    function getSupabase() {
+
+        if (
+            window.Web3JobsSupabase &&
+            typeof window.Web3JobsSupabase.auth === "object"
+        ) {
+
+            client =
+                window.Web3JobsSupabase;
+
+            return client;
+        }
+
+
+        if (
+            window.supabaseClient &&
+            typeof window.supabaseClient.auth === "object"
+        ) {
+
+            client =
+                window.supabaseClient;
+
+            return client;
+        }
+
+
+        throw new Error(
+            "Supabase client was not found."
+        );
+    }
+
+
+    /* =====================================================
+       ADMIN VERIFICATION
+       ===================================================== */
+
+    async function verifyAdmin() {
+
+        const supabase =
+            getSupabase();
+
+
+        const {
+            data: sessionData,
+            error: sessionError
+        } =
+            await supabase.auth.getSession();
+
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+
+        const session =
+            sessionData?.session;
+
+
+        if (!session) {
+
+            window.location.replace(
+                "admin-login.html"
+            );
+
+            return false;
+        }
+
+
+        /*
+         * IMPORTANT:
+         *
+         * The user must be registered as an
+         * administrator in Supabase.
+         */
+        const {
+            data: isAdmin,
+            error: adminError
+        } =
+            await supabase.rpc(
+                "is_admin"
+            );
+
+
+        if (adminError) {
+
+            console.error(
+                "Admin verification error:",
+                adminError
+            );
+
+            window.location.replace(
+                "admin-login.html"
+            );
+
+            return false;
+        }
+
+
+        if (isAdmin !== true) {
+
+            await supabase.auth.signOut();
+
+
+            window.location.replace(
+                "admin-login.html"
+            );
+
+            return false;
+        }
+
+
+        /*
+         * Keep administrator information private.
+         * We show only a protected label and a short
+         * portion of the user ID.
+         */
+        const user =
+            session.user;
+
+
+        const shortId =
+            user?.id
+                ? user.id.substring(0, 8) + "••••"
+                : "Protected";
+
+
+        const adminId =
+            document.getElementById(
+                "admin-id"
+            );
+
+
+        if (adminId) {
+            adminId.textContent =
+                shortId;
+        }
+
+
+        return true;
+    }
+
+
+    /* =====================================================
+       COUNT
+       ===================================================== */
+
+    async function getCount(table) {
+
+        const supabase =
+            getSupabase();
+
+
+        const {
+            count,
+            error
+        } =
+            await supabase
+                .from(table)
+                .select(
+                    "id",
+                    {
+                        count: "exact",
+                        head: true
+                    }
+                );
+
+
+        if (error) {
+
+            console.warn(
+                "Table count failed:",
+                table,
+                error.message
+            );
+
+            return 0;
+        }
+
+
+        return count || 0;
+    }
+
+
+    /* =====================================================
+       LOAD STATISTICS
+       ===================================================== */
+
+    async function loadStats() {
+
+        const users =
+            await getCount(
+                "profiles"
+            );
+
+
+        const jobs =
+            await getCount(
+                "jobs"
+            );
+
+
+        const applications =
+            await getCount(
+                "applications"
+            );
+
+
+        const companies =
+            await getCount(
+                "company_profiles"
+            );
+
+
+        document
+            .getElementById(
+                "total-users"
+            )
+            .textContent =
+            users;
+
+
+        document
+            .getElementById(
+                "total-jobs"
+            )
+            .textContent =
+            jobs;
+
+
+        document
+            .getElementById(
+                "total-applications"
+            )
+            .textContent =
+            applications;
+
+
+        document
+            .getElementById(
+                "total-companies"
+            )
+            .textContent =
+            companies;
+
+    }
+
+
+    /* =====================================================
+       LOGOUT
+       ===================================================== */
+
+    async function logout() {
+
+        try {
+
+            const supabase =
+                getSupabase();
+
+
+            await supabase.auth.signOut();
+
+        } catch (error) {
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+        }
+
+
+        window.location.replace(
+            "admin-login.html"
+        );
+    }
+
+
+    /* =====================================================
+       BUTTONS
+       ===================================================== */
+
+    function setupButtons() {
+
+        document
+            .getElementById(
+                "admin-logout"
+            )
+            .addEventListener(
+                "click",
+                logout
+            );
+
+
+        document
+            .getElementById(
+                "manage-users"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    alert(
+                        "User management will be added in the next step."
+                    );
+
+                }
+            );
+
+
+        document
+            .getElementById(
+                "manage-companies"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    alert(
+                        "Company management will be added in the next step."
+                    );
+
+                }
+            );
+
+
+        document
+            .getElementById(
+                "manage-jobs"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    alert(
+                        "Job management will be added in the next step."
+                    );
+
+                }
+            );
+
+
+        document
+            .getElementById(
+                "manage-payments"
+            )
+            .addEventListener(
+                "click",
+                () => {
+
+                    alert(
+                        "Payment management will be added in the next step."
+                    );
+
+                }
+            );
+
+    }
+
+
+    /* =====================================================
+       INIT
+       ===================================================== */
+
+    async function init() {
+
+        try {
+
+            const isAdmin =
+                await verifyAdmin();
+
+
+            if (!isAdmin) {
+                return;
+            }
+
+
+            await loadStats();
+
+
+            setupButtons();
+
+
+            document
+                .getElementById(
+                    "admin-loading"
+                )
+                .style.display =
+                "none";
+
+
+            document
+                .getElementById(
+                    "admin-content"
+                )
+                .style.display =
+                "block";
+
+
+        } catch (error) {
+
+            console.error(
+                "Admin dashboard error:",
+                error
+            );
+
+
+            window.location.replace(
+                "admin-login.html"
+            );
+        }
+    }
+
+
+    init();
+
+})();
+
+</script>
+
 
 </body>
-  </html>
+
+                </html>
