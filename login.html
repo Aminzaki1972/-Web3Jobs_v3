@@ -96,9 +96,7 @@
         .brand {
 
             display: flex;
-
             flex-direction: column;
-
             align-items: center;
 
             margin-bottom: 24px;
@@ -159,8 +157,7 @@
 
         .login-card h1 {
 
-            margin:
-                0 0 8px;
+            margin: 0 0 8px;
 
             text-align: center;
 
@@ -169,8 +166,7 @@
 
         .subtitle {
 
-            margin:
-                0 0 25px;
+            margin: 0 0 25px;
 
             text-align: center;
 
@@ -184,8 +180,6 @@
             display: none;
 
             margin-bottom: 18px;
-
-            padding: 0;
 
             border-radius: 10px;
 
@@ -306,7 +300,6 @@
             position: absolute;
 
             top: 50%;
-
             right: 10px;
 
             transform:
@@ -714,36 +707,18 @@
 </div>
 
 
-<!-- =========================================================
-     SUPABASE LIBRARY
-========================================================= -->
-
 <script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ></script>
 
-
-<!-- =========================================================
-     CENTRAL SUPABASE
-========================================================= -->
-
 <script
-    src="js/supabase.js?v=20260811"
+    src="js/supabase.js?v=20260812"
 ></script>
 
-
-<!-- =========================================================
-     AUTH SYSTEM
-========================================================= -->
-
 <script
-    src="js/auth.js?v=20260811"
+    src="js/auth.js?v=20260812"
 ></script>
 
-
-<!-- =========================================================
-     LOGIN CONTROLLER
-========================================================= -->
 
 <script>
 
@@ -771,10 +746,6 @@ document.addEventListener(
         const messageElement =
             document.getElementById("auth-message");
 
-
-        /* =====================================================
-           MESSAGE
-        ===================================================== */
 
         function showMessage(
             arabic,
@@ -817,10 +788,6 @@ document.addEventListener(
         }
 
 
-        /* =====================================================
-           PASSWORD TOGGLE
-        ===================================================== */
-
         if (togglePassword) {
 
             togglePassword.addEventListener(
@@ -838,11 +805,6 @@ document.addEventListener(
                         togglePassword.textContent =
                             "🙈";
 
-                        togglePassword.setAttribute(
-                            "aria-label",
-                            "Hide password"
-                        );
-
                     } else {
 
                         passwordInput.type =
@@ -850,44 +812,16 @@ document.addEventListener(
 
                         togglePassword.textContent =
                             "👁";
-
-                        togglePassword.setAttribute(
-                            "aria-label",
-                            "Show password"
-                        );
                     }
                 }
             );
         }
 
 
-        /* =====================================================
-           FORM CHECK
-        ===================================================== */
-
         if (!form) {
-
-            console.error(
-                "Web3Jobs: loginForm not found."
-            );
-
             return;
         }
 
-
-        if (!emailInput || !passwordInput) {
-
-            console.error(
-                "Web3Jobs: Login inputs not found."
-            );
-
-            return;
-        }
-
-
-        /* =====================================================
-           LOGIN
-        ===================================================== */
 
         form.addEventListener(
             "submit",
@@ -913,8 +847,6 @@ document.addEventListener(
                         "error"
                     );
 
-                    emailInput.focus();
-
                     return;
                 }
 
@@ -927,153 +859,73 @@ document.addEventListener(
                         "error"
                     );
 
-                    passwordInput.focus();
-
                     return;
                 }
 
-
-                /* =================================================
-                   CLIENT
-                ================================================= */
 
                 let client = null;
 
 
-                if (
-                    window.Web3JobsSupabase &&
-                    typeof
-                    window.Web3JobsSupabase.getClient ===
-                    "function"
-                ) {
-
-                    client =
-                        window.Web3JobsSupabase.getClient();
-
-                } else if (
-                    window.supabaseClient
-                ) {
-
-                    client =
-                        window.supabaseClient;
-                }
-
-
-                if (
-                    !client ||
-                    !client.auth
-                ) {
-
-                    showMessage(
-                        "تعذر تحميل اتصال قاعدة البيانات.",
-                        "Supabase client could not be loaded.",
-                        "error"
-                    );
-
-                    console.error(
-                        "Web3Jobs: Supabase client unavailable."
-                    );
-
-                    return;
-                }
-
-
-                /* =================================================
-                   BUTTON
-                ================================================= */
-
-                loginButton.disabled =
-                    true;
-
-                loginButton.textContent =
-                    "Signing in...";
-
-
                 try {
 
-                    /* =============================================
-                       SIGN IN
-                    ============================================= */
+                    if (
+                        window.Web3JobsSupabase &&
+                        typeof
+                        window.Web3JobsSupabase.getClient ===
+                        "function"
+                    ) {
+
+                        client =
+                            window.Web3JobsSupabase.getClient();
+
+                    } else if (
+                        window.supabaseClient
+                    ) {
+
+                        client =
+                            window.supabaseClient;
+                    }
+
+
+                    if (
+                        !client ||
+                        !client.auth
+                    ) {
+
+                        throw new Error(
+                            "Supabase client is not available."
+                        );
+                    }
+
+
+                    loginButton.disabled =
+                        true;
+
+                    loginButton.textContent =
+                        "Signing in...";
+
+
+                    /* =========================================
+                       LOGIN
+                    ========================================= */
 
                     const {
                         data,
                         error
                     } =
                         await client.auth.signInWithPassword({
+
                             email: email,
+
                             password: password
+
                         });
 
 
                     if (error) {
-
-                        console.error(
-                            "Web3Jobs Supabase Login Error:",
-                            error
-                        );
-
-                        const errorText =
-                            String(
-                                error.message ||
-                                ""
-                            ).toLowerCase();
-
-
-                        if (
-                            errorText.includes(
-                                "invalid login credentials"
-                            )
-                        ) {
-
-                            showMessage(
-                                "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-                                "Invalid email or password.",
-                                "error"
-                            );
-
-                        } else if (
-                            errorText.includes(
-                                "email not confirmed"
-                            )
-                        ) {
-
-                            showMessage(
-                                "البريد الإلكتروني غير مؤكد. يرجى تأكيد البريد أولاً.",
-                                "Your email is not confirmed. Please confirm it first.",
-                                "error"
-                            );
-
-                        } else {
-
-                            showMessage(
-                                "حدث خطأ أثناء تسجيل الدخول: " +
-                                    (
-                                        error.message ||
-                                        "Unknown error"
-                                    ),
-                                "Login error: " +
-                                    (
-                                        error.message ||
-                                        "Unknown error"
-                                    ),
-                                "error"
-                            );
-                        }
-
-
-                        loginButton.disabled =
-                            false;
-
-                        loginButton.textContent =
-                            "Login";
-
-                        return;
+                        throw error;
                     }
 
-
-                    /* =============================================
-                       USER
-                    ============================================= */
 
                     const user =
                         data?.user;
@@ -1084,25 +936,15 @@ document.addEventListener(
 
                     if (!user || !session) {
 
-                        showMessage(
-                            "تم تسجيل الدخول ولكن لم يتم إنشاء جلسة.",
-                            "Login succeeded but no session was created.",
-                            "error"
+                        throw new Error(
+                            "No authenticated session was created."
                         );
-
-                        loginButton.disabled =
-                            false;
-
-                        loginButton.textContent =
-                            "Login";
-
-                        return;
                     }
 
 
-                    /* =============================================
+                    /* =========================================
                        EMAIL CONFIRMATION
-                    ============================================= */
+                    ========================================= */
 
                     if (
                         !user.email_confirmed_at &&
@@ -1127,17 +969,9 @@ document.addEventListener(
                     }
 
 
-                    /* =============================================
-                       ACCOUNT TYPE
-                    ============================================= */
-
-                    let accountType =
-                        null;
-
-
-                    /* ---------------------------------------------
-                       PROFILE
-                    --------------------------------------------- */
+                    /* =========================================
+                       GET PROFILE
+                    ========================================= */
 
                     const {
                         data: profile,
@@ -1145,44 +979,120 @@ document.addEventListener(
                     } =
                         await client
                             .from("profiles")
-                            .select("id,account_type,role")
-                            .eq("id", user.id)
+                            .select(
+                                "id,email,account_type,role"
+                            )
+                            .eq(
+                                "id",
+                                user.id
+                            )
                             .maybeSingle();
 
 
                     if (profileError) {
 
                         console.error(
-                            "Web3Jobs Profile Error:",
+                            "Profile error:",
                             profileError
                         );
 
-                    } else if (profile) {
-
-                        accountType =
-                            String(
-                                profile.account_type ||
-                                profile.role ||
-                                ""
-                            )
-                                .trim()
-                                .toLowerCase();
+                        throw new Error(
+                            "Unable to load account profile."
+                        );
                     }
 
 
-                    /* =============================================
-                       NORMALIZE
-                    ============================================= */
+                    if (!profile) {
+
+                        throw new Error(
+                            "Account profile was not found."
+                        );
+                    }
+
+
+                    /* =========================================
+                       ADMIN CHECK
+                       IMPORTANT:
+                       ADMIN MUST BE CHECKED FIRST
+                    ========================================= */
+
+                    const role =
+                        String(
+                            profile.role || ""
+                        )
+                            .trim()
+                            .toLowerCase();
+
+
+                    if (role === "admin") {
+
+                        try {
+
+                            localStorage.setItem(
+                                "web3jobs_account_type",
+                                "admin"
+                            );
+
+                            localStorage.setItem(
+                                "web3jobs_user_id",
+                                user.id
+                            );
+
+                        } catch (storageError) {
+
+                            console.warn(
+                                "localStorage:",
+                                storageError
+                            );
+                        }
+
+
+                        showMessage(
+                            "تم تسجيل الدخول كمسؤول. جاري فتح لوحة الإدارة...",
+                            "Administrator login successful. Opening admin dashboard...",
+                            "success"
+                        );
+
+
+                        setTimeout(
+                            function () {
+
+                                window.location.replace(
+                                    "admin-dashboard.html"
+                                );
+
+                            },
+                            400
+                        );
+
+
+                        return;
+                    }
+
+
+                    /* =========================================
+                       ACCOUNT TYPE
+                    ========================================= */
+
+                    let accountType =
+                        String(
+                            profile.account_type ||
+                            ""
+                        )
+                            .trim()
+                            .toLowerCase();
+
+
+                    /* =========================================
+                       NORMALIZE COMPANY
+                    ========================================= */
 
                     if (
-                        accountType ===
-                        "business" ||
-                        accountType ===
-                        "employer" ||
-                        accountType ===
-                        "organization" ||
-                        accountType ===
-                        "companies"
+                        accountType === "business" ||
+                        accountType === "employer" ||
+                        accountType === "organization" ||
+                        accountType === "organizations" ||
+                        accountType === "companies"
                     ) {
 
                         accountType =
@@ -1190,17 +1100,16 @@ document.addEventListener(
                     }
 
 
+                    /* =========================================
+                       NORMALIZE INDIVIDUAL
+                    ========================================= */
+
                     if (
-                        accountType ===
-                        "person" ||
-                        accountType ===
-                        "user" ||
-                        accountType ===
-                        "candidate" ||
-                        accountType ===
-                        "freelancer" ||
-                        accountType ===
-                        "individuals"
+                        accountType === "person" ||
+                        accountType === "user" ||
+                        accountType === "candidate" ||
+                        accountType === "freelancer" ||
+                        accountType === "individuals"
                     ) {
 
                         accountType =
@@ -1208,9 +1117,9 @@ document.addEventListener(
                     }
 
 
-                    /* =============================================
+                    /* =========================================
                        COMPANY PROFILE FALLBACK
-                    ============================================= */
+                    ========================================= */
 
                     if (!accountType) {
 
@@ -1220,8 +1129,13 @@ document.addEventListener(
                         } =
                             await client
                                 .from("company_profiles")
-                                .select("id,user_id")
-                                .eq("user_id", user.id)
+                                .select(
+                                    "id,user_id"
+                                )
+                                .eq(
+                                    "user_id",
+                                    user.id
+                                )
                                 .maybeSingle();
 
 
@@ -1236,15 +1150,16 @@ document.addEventListener(
                     }
 
 
-                    /* =============================================
-                       METADATA FALLBACK
-                    ============================================= */
+                    /* =========================================
+                       USER METADATA FALLBACK
+                    ========================================= */
 
                     if (!accountType) {
 
                         const metadata =
                             user.user_metadata ||
                             {};
+
 
                         accountType =
                             String(
@@ -1258,40 +1173,47 @@ document.addEventListener(
 
 
                         if (
-                            accountType ===
-                            "business" ||
-                            accountType ===
-                            "employer"
+                            accountType === "business" ||
+                            accountType === "employer"
                         ) {
 
                             accountType =
                                 "company";
                         }
+
+
+                        if (
+                            accountType === "person" ||
+                            accountType === "user" ||
+                            accountType === "candidate"
+                        ) {
+
+                            accountType =
+                                "individual";
+                        }
                     }
 
 
-                    /* =============================================
-                       FINAL CHECK
-                    ============================================= */
+                    /* =========================================
+                       UNKNOWN ACCOUNT
+                    ========================================= */
 
                     if (
-                        accountType !==
-                            "company" &&
-                        accountType !==
-                            "individual"
+                        accountType !== "company" &&
+                        accountType !== "individual"
                     ) {
 
                         console.error(
-                            "Web3Jobs: Unknown account type.",
+                            "Unknown account type:",
                             {
-                                user: user,
-                                profile: profile,
-                                accountType: accountType
+                                userId: user.id,
+                                email: user.email,
+                                profile: profile
                             }
                         );
 
                         showMessage(
-                            "تم تسجيل الدخول، ولكن تعذر تحديد نوع الحساب.",
+                            "تم تسجيل الدخول، ولكن نوع الحساب غير محدد.",
                             "Login succeeded, but the account type could not be determined.",
                             "error"
                         );
@@ -1306,9 +1228,9 @@ document.addEventListener(
                     }
 
 
-                    /* =============================================
-                       SAVE ACCOUNT TYPE LOCALLY
-                    ============================================= */
+                    /* =========================================
+                       SAVE LOCAL DATA
+                    ========================================= */
 
                     try {
 
@@ -1325,26 +1247,19 @@ document.addEventListener(
                     } catch (storageError) {
 
                         console.warn(
-                            "Web3Jobs localStorage unavailable:",
+                            "localStorage:",
                             storageError
                         );
                     }
 
 
-                    /* =============================================
-                       SUCCESS
-                    ============================================= */
-
-                    let dashboardUrl;
-
+                    /* =========================================
+                       REDIRECT
+                    ========================================= */
 
                     if (
-                        accountType ===
-                        "company"
+                        accountType === "company"
                     ) {
-
-                        dashboardUrl =
-                            "company-dashboard.html";
 
                         showMessage(
                             "تم تسجيل الدخول بنجاح. جاري فتح لوحة الشركة...",
@@ -1352,46 +1267,97 @@ document.addEventListener(
                             "success"
                         );
 
-                    } else {
 
-                        dashboardUrl =
-                            "dashboard.html";
+                        setTimeout(
+                            function () {
 
-                        showMessage(
-                            "تم تسجيل الدخول بنجاح. جاري فتح لوحة الأفراد...",
-                            "Login successful. Opening individual dashboard...",
-                            "success"
+                                window.location.replace(
+                                    "company-dashboard.html"
+                                );
+
+                            },
+                            400
                         );
+
+
+                        return;
                     }
 
 
-                    /* =============================================
-                       REDIRECT
-                    ============================================= */
+                    showMessage(
+                        "تم تسجيل الدخول بنجاح. جاري فتح لوحة الأفراد...",
+                        "Login successful. Opening individual dashboard...",
+                        "success"
+                    );
+
 
                     setTimeout(
                         function () {
 
                             window.location.replace(
-                                dashboardUrl
+                                "dashboard.html"
                             );
 
                         },
-                        500
+                        400
                     );
 
                 } catch (error) {
 
                     console.error(
-                        "Web3Jobs Login Exception:",
+                        "Web3Jobs Login Error:",
                         error
                     );
 
-                    showMessage(
-                        "حدث خطأ غير متوقع أثناء تسجيل الدخول.",
-                        "An unexpected error occurred during login.",
-                        "error"
-                    );
+
+                    const errorText =
+                        String(
+                            error?.message ||
+                            ""
+                        ).toLowerCase();
+
+
+                    if (
+                        errorText.includes(
+                            "invalid login credentials"
+                        )
+                    ) {
+
+                        showMessage(
+                            "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+                            "Invalid email or password.",
+                            "error"
+                        );
+
+                    } else if (
+                        errorText.includes(
+                            "email not confirmed"
+                        )
+                    ) {
+
+                        showMessage(
+                            "البريد الإلكتروني غير مؤكد.",
+                            "Your email is not confirmed.",
+                            "error"
+                        );
+
+                    } else {
+
+                        showMessage(
+                            "حدث خطأ أثناء تسجيل الدخول: " +
+                            (
+                                error?.message ||
+                                "Unknown error"
+                            ),
+                            "Login error: " +
+                            (
+                                error?.message ||
+                                "Unknown error"
+                            ),
+                            "error"
+                        );
+                    }
+
 
                     loginButton.disabled =
                         false;
