@@ -5,18 +5,6 @@
    Company Dashboard
    Supabase + Jobs + Applications
    USDT BEP-20 / BNB Smart Chain
-
-   Plans:
-   Free         = 2 jobs / month
-   Starter      = $19 USDT / month = 5 jobs
-   Professional = $49 USDT / month = 20 jobs
-   Enterprise   = $99 USDT / month = Unlimited
-
-   Payment wallet:
-   0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36
-
-   BSC USDT:
-   0x55d398326f99059fF775485246999027B3197955
    ========================================================= */
 
 "use strict";
@@ -80,6 +68,7 @@
                 limit: null,
                 days: 30
             }
+
         }
 
     };
@@ -90,26 +79,20 @@
        ===================================================== */
 
     let sb = null;
-
     let user = null;
-
     let profile = null;
-
     let jobs = [];
-
     let applications = [];
 
     let currentPlan = CONFIG.plans.free;
-
     let selectedPlan = null;
 
     let wallet = null;
-
     let paymentBusy = false;
 
 
     /* =====================================================
-       BASIC HELPERS
+       HELPERS
        ===================================================== */
 
     const $ = id =>
@@ -129,11 +112,10 @@
 
     function setText(id, value) {
 
-        const element = $(id);
+        const el = $(id);
 
-        if (element) {
-            element.textContent =
-                value ?? "";
+        if (el) {
+            el.textContent = value ?? "";
         }
     }
 
@@ -144,29 +126,23 @@
             typeof window.showDashboardAlert ===
             "function"
         ) {
-
             window.showDashboardAlert(
                 message,
                 type
             );
-
             return;
         }
-
 
         if (
             typeof window.showAlert ===
             "function"
         ) {
-
             window.showAlert(
                 message,
                 type
             );
-
             return;
         }
-
 
         alert(message);
     }
@@ -192,14 +168,9 @@
             return "—";
         }
 
-        const date =
-            new Date(value);
+        const date = new Date(value);
 
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
+        if (Number.isNaN(date.getTime())) {
             return "—";
         }
 
@@ -217,9 +188,7 @@
     function getPlan(code) {
 
         const key =
-            String(
-                code || "free"
-            ).toLowerCase();
+            String(code || "free").toLowerCase();
 
         return (
             CONFIG.plans[key] ||
@@ -239,46 +208,27 @@
     }
 
 
-    function governorateName() {
-
-        return (
-            profile?.governorate ||
-            user?.user_metadata?.governorate ||
-            ""
-        );
-    }
-
-
     function monthlyJobs() {
 
-        const now =
-            new Date();
+        const now = new Date();
 
-        return jobs.filter(
-            job => {
+        return jobs.filter(job => {
 
-                const date =
-                    new Date(
-                        job.created_at
-                    );
+            const date =
+                new Date(job.created_at);
 
-                if (
-                    Number.isNaN(
-                        date.getTime()
-                    )
-                ) {
-                    return false;
-                }
-
-                return (
-                    date.getUTCFullYear() ===
-                        now.getUTCFullYear() &&
-                    date.getUTCMonth() ===
-                        now.getUTCMonth()
-                );
-
+            if (Number.isNaN(date.getTime())) {
+                return false;
             }
-        ).length;
+
+            return (
+                date.getUTCFullYear() ===
+                    now.getUTCFullYear() &&
+                date.getUTCMonth() ===
+                    now.getUTCMonth()
+            );
+
+        }).length;
     }
 
 
@@ -294,15 +244,12 @@
         const dashboard =
             $("dashboard-content");
 
-
         if (loading) {
-            loading.style.display =
-                "flex";
+            loading.style.display = "flex";
         }
 
         if (dashboard) {
-            dashboard.style.display =
-                "none";
+            dashboard.style.display = "none";
         }
     }
 
@@ -315,15 +262,12 @@
         const dashboard =
             $("dashboard-content");
 
-
         if (loading) {
-            loading.style.display =
-                "none";
+            loading.style.display = "none";
         }
 
         if (dashboard) {
-            dashboard.style.display =
-                "block";
+            dashboard.style.display = "block";
         }
     }
 
@@ -341,14 +285,12 @@
 
         if (
             window.Web3JobsSupabase &&
-            typeof
-                window.Web3JobsSupabase.getClient ===
+            typeof window.Web3JobsSupabase.getClient ===
                 "function"
         ) {
 
             sb =
-                window.Web3JobsSupabase
-                    .getClient();
+                window.Web3JobsSupabase.getClient();
 
             return sb;
         }
@@ -356,13 +298,11 @@
 
         if (
             window.supabaseClient &&
-            typeof
-                window.supabaseClient.from ===
+            typeof window.supabaseClient.from ===
                 "function"
         ) {
 
-            sb =
-                window.supabaseClient;
+            sb = window.supabaseClient;
 
             return sb;
         }
@@ -370,8 +310,7 @@
 
         if (
             window.supabase &&
-            typeof
-                window.supabase.createClient ===
+            typeof window.supabase.createClient ===
                 "function" &&
             window.SUPABASE_URL &&
             window.SUPABASE_ANON_KEY
@@ -399,9 +338,7 @@
 
     async function verifyCompanyAccess() {
 
-        const client =
-            getSupabase();
-
+        const client = getSupabase();
 
         const {
             data,
@@ -409,21 +346,16 @@
         } =
             await client.auth.getUser();
 
-
         if (error) {
             throw error;
         }
 
-
-        user =
-            data?.user || null;
+        user = data?.user || null;
 
 
         if (!user) {
 
-            location.replace(
-                "login.html"
-            );
+            location.replace("login.html");
 
             return false;
         }
@@ -431,8 +363,7 @@
 
         if (
             window.Web3JobsAuth &&
-            typeof
-                window.Web3JobsAuth.getAccountRole ===
+            typeof window.Web3JobsAuth.getAccountRole ===
                 "function"
         ) {
 
@@ -442,12 +373,10 @@
                     await window.Web3JobsAuth
                         .getAccountRole();
 
-
                 if (
                     role &&
-                    String(role)
-                        .toLowerCase() !==
-                    "company"
+                    String(role).toLowerCase() !==
+                        "company"
                 ) {
 
                     location.replace(
@@ -504,9 +433,7 @@
 
             } else {
 
-                profile =
-                    data || null;
-
+                profile = data || null;
             }
 
         } catch (error) {
@@ -533,7 +460,6 @@
                 "#company-governorate, [name='governorate']"
             );
 
-
         if (existing) {
             return;
         }
@@ -544,20 +470,15 @@
                 "#company-profile-form"
             );
 
-
         if (!form) {
             return;
         }
 
 
         const wrapper =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
-
-        wrapper.className =
-            "form-group";
+        wrapper.className = "form-group";
 
 
         wrapper.innerHTML = `
@@ -573,113 +494,39 @@
                     Select Governorate
                 </option>
 
-                <option value="Cairo">
-                    Cairo
-                </option>
-
-                <option value="Giza">
-                    Giza
-                </option>
-
-                <option value="Alexandria">
-                    Alexandria
-                </option>
-
-                <option value="Dakahlia">
-                    Dakahlia
-                </option>
-
-                <option value="Red Sea">
-                    Red Sea
-                </option>
-
-                <option value="Beheira">
-                    Beheira
-                </option>
-
-                <option value="Fayoum">
-                    Fayoum
-                </option>
-
-                <option value="Gharbia">
-                    Gharbia
-                </option>
-
-                <option value="Ismailia">
-                    Ismailia
-                </option>
-
-                <option value="Menofia">
-                    Menofia
-                </option>
-
-                <option value="Minya">
-                    Minya
-                </option>
-
-                <option value="Qalyubia">
-                    Qalyubia
-                </option>
-
-                <option value="New Valley">
-                    New Valley
-                </option>
-
-                <option value="Suez">
-                    Suez
-                </option>
-
-                <option value="Aswan">
-                    Aswan
-                </option>
-
-                <option value="Assiut">
-                    Assiut
-                </option>
-
-                <option value="Beni Suef">
-                    Beni Suef
-                </option>
-
-                <option value="Port Said">
-                    Port Said
-                </option>
-
-                <option value="Damietta">
-                    Damietta
-                </option>
-
-                <option value="Sharkia">
-                    Sharkia
-                </option>
-
-                <option value="South Sinai">
-                    South Sinai
-                </option>
-
+                <option value="Cairo">Cairo</option>
+                <option value="Giza">Giza</option>
+                <option value="Alexandria">Alexandria</option>
+                <option value="Dakahlia">Dakahlia</option>
+                <option value="Red Sea">Red Sea</option>
+                <option value="Beheira">Beheira</option>
+                <option value="Fayoum">Fayoum</option>
+                <option value="Gharbia">Gharbia</option>
+                <option value="Ismailia">Ismailia</option>
+                <option value="Menofia">Menofia</option>
+                <option value="Minya">Minya</option>
+                <option value="Qalyubia">Qalyubia</option>
+                <option value="New Valley">New Valley</option>
+                <option value="Suez">Suez</option>
+                <option value="Aswan">Aswan</option>
+                <option value="Assiut">Assiut</option>
+                <option value="Beni Suef">Beni Suef</option>
+                <option value="Port Said">Port Said</option>
+                <option value="Damietta">Damietta</option>
+                <option value="Sharkia">Sharkia</option>
+                <option value="South Sinai">South Sinai</option>
                 <option value="Kafr El Sheikh">
                     Kafr El Sheikh
                 </option>
-
-                <option value="Matrouh">
-                    Matrouh
-                </option>
-
-                <option value="Luxor">
-                    Luxor
-                </option>
-
-                <option value="Qena">
-                    Qena
-                </option>
+                <option value="Matrouh">Matrouh</option>
+                <option value="Luxor">Luxor</option>
+                <option value="Qena">Qena</option>
             </select>
         `;
 
 
         const groups =
-            form.querySelectorAll(
-                ".form-group"
-            );
+            form.querySelectorAll(".form-group");
 
 
         if (groups.length) {
@@ -700,15 +547,12 @@
 
     function renderCompanyProfile() {
 
-        const name =
-            companyName();
-
+        const name = companyName();
 
         setText(
             "company-name",
             name
         );
-
 
         setText(
             "sidebar-company-name",
@@ -738,30 +582,23 @@
         };
 
 
-        Object.keys(fields)
-            .forEach(
-                id => {
+        Object.entries(fields).forEach(
+            ([id, value]) => {
 
-                    const element =
-                        $(id);
+                const element = $(id);
 
-                    if (element) {
-
-                        element.value =
-                            fields[id];
-                    }
+                if (element) {
+                    element.value = value;
                 }
-            );
+            }
+        );
 
 
         const companyInput =
             $("job-company");
 
-
         if (companyInput) {
-
-            companyInput.value =
-                name;
+            companyInput.value = name;
         }
     }
 
@@ -769,7 +606,6 @@
     async function saveCompanyProfile(event) {
 
         event.preventDefault();
-
 
         if (!user) {
             return;
@@ -779,7 +615,6 @@
         const form =
             event.currentTarget;
 
-
         const button =
             form.querySelector(
                 "button[type='submit']"
@@ -788,16 +623,14 @@
 
         const get = selector =>
             String(
-                form.querySelector(
-                    selector
-                )?.value || ""
+                form.querySelector(selector)
+                    ?.value || ""
             ).trim();
 
 
         const record = {
 
-            user_id:
-                user.id,
+            user_id: user.id,
 
             company_name:
                 get(
@@ -835,11 +668,8 @@
 
             if (button) {
 
-                button.disabled =
-                    true;
-
-                button.textContent =
-                    "Saving...";
+                button.disabled = true;
+                button.textContent = "Saving...";
             }
 
 
@@ -848,9 +678,7 @@
                 error
             } =
                 await getSupabase()
-                    .from(
-                        "company_profiles"
-                    )
+                    .from("company_profiles")
                     .upsert(
                         record,
                         {
@@ -867,9 +695,7 @@
             }
 
 
-            profile =
-                data || record;
-
+            profile = data || record;
 
             renderCompanyProfile();
 
@@ -886,7 +712,6 @@
                 error
             );
 
-
             notify(
                 error.message ||
                 "Unable to save company profile.",
@@ -897,11 +722,8 @@
 
             if (button) {
 
-                button.disabled =
-                    false;
-
-                button.textContent =
-                    "Save Profile";
+                button.disabled = false;
+                button.textContent = "Save Profile";
             }
         }
     }
@@ -943,8 +765,7 @@
                     .order(
                         "created_at",
                         {
-                            ascending:
-                                false
+                            ascending: false
                         }
                     );
 
@@ -954,12 +775,9 @@
             }
 
 
-            jobs =
-                data || [];
-
+            jobs = data || [];
 
             renderJobs();
-
             renderSubscription();
 
             await loadApplications();
@@ -970,7 +788,6 @@
                 "Jobs loading:",
                 error
             );
-
 
             jobs = [];
 
@@ -983,7 +800,6 @@
                     </div>
                 `;
             }
-
 
             renderSubscription();
         }
@@ -1014,8 +830,7 @@
 
 
         container.innerHTML =
-            jobs.map(
-                job => `
+            jobs.map(job => `
 
                 <div class="job-card">
 
@@ -1081,33 +896,29 @@
 
                     <div class="job-description">
                         ${escapeHtml(
-                            job.description ||
-                            ""
+                            job.description || ""
                         )}
                     </div>
 
                 </div>
-            `
-            ).join("");
+
+            `).join("");
 
 
         container
             .querySelectorAll(
                 "[data-delete-job]"
             )
-            .forEach(
-                button => {
+            .forEach(button => {
 
-                    button.addEventListener(
-                        "click",
-                        () =>
-                            deleteJob(
-                                button.dataset
-                                    .deleteJob
-                            )
-                    );
-                }
-            );
+                button.addEventListener(
+                    "click",
+                    () =>
+                        deleteJob(
+                            button.dataset.deleteJob
+                        )
+                );
+            });
     }
 
 
@@ -1130,10 +941,7 @@
                 await getSupabase()
                     .from("jobs")
                     .delete()
-                    .eq(
-                        "id",
-                        id
-                    )
+                    .eq("id", id)
                     .eq(
                         "user_id",
                         user.id
@@ -1159,7 +967,6 @@
                 "Delete job:",
                 error
             );
-
 
             notify(
                 error.message ||
@@ -1201,23 +1008,18 @@
         const title =
             get("title");
 
-
         const company =
             get("company") ||
             companyName();
 
-
         const location =
             get("location");
-
 
         const type =
             get("type");
 
-
         const description =
             get("description");
-
 
         const applyLink =
             get("apply_link");
@@ -1249,7 +1051,6 @@
                 "error"
             );
 
-
             openPlans();
 
             return;
@@ -1266,9 +1067,7 @@
 
             if (button) {
 
-                button.disabled =
-                    true;
-
+                button.disabled = true;
                 button.textContent =
                     "Publishing...";
             }
@@ -1310,9 +1109,7 @@
             const companyInput =
                 $("job-company");
 
-
             if (companyInput) {
-
                 companyInput.value =
                     companyName();
             }
@@ -1333,7 +1130,6 @@
                 error
             );
 
-
             notify(
                 error.message ||
                 "Unable to publish job.",
@@ -1344,9 +1140,7 @@
 
             if (button) {
 
-                button.disabled =
-                    false;
-
+                button.disabled = false;
                 button.textContent =
                     "Publish Job";
             }
@@ -1383,15 +1177,10 @@
 
         try {
 
-            const {
-                data,
-                error
-            } =
+            let result =
                 await getSupabase()
                     .from("applications")
-                    .select(
-                        "*"
-                    )
+                    .select("*")
                     .eq(
                         "company_id",
                         user.id
@@ -1399,26 +1188,23 @@
                     .order(
                         "created_at",
                         {
-                            ascending:
-                                false
+                            ascending: false
                         }
                     );
 
 
-            if (error) {
+            if (result.error) {
 
                 console.warn(
-                    "Applications by company_id failed:",
-                    error.message
+                    "company_id query failed:",
+                    result.error.message
                 );
 
 
-                const fallback =
+                result =
                     await getSupabase()
                         .from("applications")
-                        .select(
-                            "*"
-                        )
+                        .select("*")
                         .eq(
                             "user_id",
                             user.id
@@ -1426,26 +1212,19 @@
                         .order(
                             "created_at",
                             {
-                                ascending:
-                                    false
+                                ascending: false
                             }
                         );
-
-
-                if (fallback.error) {
-
-                    throw fallback.error;
-                }
-
-
-                applications =
-                    fallback.data || [];
-
-            } else {
-
-                applications =
-                    data || [];
             }
+
+
+            if (result.error) {
+                throw result.error;
+            }
+
+
+            applications =
+                result.data || [];
 
 
             renderApplications();
@@ -1477,16 +1256,11 @@
 
     function findJobTitle(application) {
 
-        if (
-            application.job_title
-        ) {
+        if (application.job_title) {
             return application.job_title;
         }
 
-
-        if (
-            application.job?.title
-        ) {
+        if (application.job?.title) {
             return application.job.title;
         }
 
@@ -1501,10 +1275,7 @@
             );
 
 
-        return (
-            job?.title ||
-            "Job"
-        );
+        return job?.title || "Job";
     }
 
 
@@ -1537,77 +1308,70 @@
 
 
         tbody.innerHTML =
-            applications.map(
-                application => {
+            applications.map(application => {
 
-                    const status =
-                        String(
-                            application.status ||
-                            "pending"
-                        ).toLowerCase();
-
-
-                    const safeStatus =
-                        [
-                            "pending",
-                            "approved",
-                            "rejected"
-                        ].includes(
-                            status
-                        )
-                            ? status
-                            : "pending";
+                const status =
+                    String(
+                        application.status ||
+                        "pending"
+                    ).toLowerCase();
 
 
-                    const candidate =
-                        application.candidate_name ||
-                        application.name ||
-                        application.email ||
-                        application.user_email ||
-                        "Candidate";
+                const safeStatus =
+                    [
+                        "pending",
+                        "approved",
+                        "rejected"
+                    ].includes(status)
+                        ? status
+                        : "pending";
 
 
-                    return `
+                const candidate =
+                    application.candidate_name ||
+                    application.name ||
+                    application.email ||
+                    application.user_email ||
+                    "Candidate";
 
-                        <tr>
 
-                            <td>
+                return `
+
+                    <tr>
+
+                        <td>
+                            ${escapeHtml(candidate)}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                findJobTitle(
+                                    application
+                                )
+                            )}
+                        </td>
+
+                        <td>
+                            <span
+                                class="status ${safeStatus}"
+                            >
                                 ${escapeHtml(
-                                    candidate
+                                    safeStatus
                                 )}
-                            </td>
+                            </span>
+                        </td>
 
-                            <td>
-                                ${escapeHtml(
-                                    findJobTitle(
-                                        application
-                                    )
-                                )}
-                            </td>
+                        <td>
+                            ${formatDate(
+                                application.created_at
+                            )}
+                        </td>
 
-                            <td>
+                    </tr>
 
-                                <span
-                                    class="status ${safeStatus}"
-                                >
-                                    ${escapeHtml(
-                                        safeStatus
-                                    )}
-                                </span>
+                `;
 
-                            </td>
-
-                            <td>
-                                ${formatDate(
-                                    application.created_at
-                                )}
-                            </td>
-
-                        </tr>
-
-                    `;
-                }
-            ).join("");
+            }).join("");
     }
 
 
@@ -1622,27 +1386,21 @@
 
 
         document
-            .querySelectorAll(
-                ".plan-button"
-            )
-            .forEach(
-                button => {
+            .querySelectorAll(".plan-button")
+            .forEach(button => {
 
-                    const code =
-                        button.dataset.plan;
-
-
-                    const plan =
-                        getPlan(code);
-
-
-                    button.classList.toggle(
-                        "active",
-                        currentPlan.code ===
-                            plan.code
+                const plan =
+                    getPlan(
+                        button.dataset.plan
                     );
-                }
-            );
+
+
+                button.classList.toggle(
+                    "active",
+                    currentPlan.code ===
+                        plan.code
+                );
+            });
 
 
         const note =
@@ -1652,8 +1410,7 @@
         if (note) {
 
             if (
-                currentPlan.limit ===
-                null
+                currentPlan.limit === null
             ) {
 
                 note.textContent =
@@ -1674,35 +1431,21 @@
     function updatePlanButtons() {
 
         document
-            .querySelectorAll(
-                "[data-pay-plan]"
-            )
-            .forEach(
-                button => {
+            .querySelectorAll("[data-pay-plan]")
+            .forEach(button => {
 
-                    const code =
-                        button.dataset.payPlan;
-
-
-                    const plan =
-                        getPlan(code);
+                const plan =
+                    getPlan(
+                        button.dataset.payPlan
+                    );
 
 
-                    if (
-                        currentPlan.code ===
+                button.textContent =
+                    currentPlan.code ===
                         plan.code
-                    ) {
-
-                        button.textContent =
-                            "Current Plan";
-
-                    } else {
-
-                        button.textContent =
-                            "Choose Plan & Pay";
-                    }
-                }
-            );
+                        ? "Current Plan"
+                        : "Choose Plan & Pay";
+            });
     }
 
 
@@ -1725,7 +1468,7 @@
 
 
     /* =====================================================
-       PAYMENT UI
+       PAYMENT MODAL
        ===================================================== */
 
     function createPaymentModal() {
@@ -1738,9 +1481,7 @@
 
 
         const style =
-            document.createElement(
-                "style"
-            );
+            document.createElement("style");
 
 
         style.id =
@@ -1750,330 +1491,198 @@
         style.textContent = `
 
             #web3jobs-payment-modal {
-
                 position: fixed;
-
                 inset: 0;
-
                 z-index: 100000;
-
                 display: none;
-
                 align-items: center;
-
                 justify-content: center;
-
                 padding: 20px;
-
-                background:
-                    rgba(0,0,0,.72);
-
-                backdrop-filter:
-                    blur(8px);
+                background: rgba(0,0,0,.72);
+                backdrop-filter: blur(8px);
             }
 
             #web3jobs-payment-modal.active {
-
                 display: flex;
             }
 
             .payment-modal-card {
-
-                width: min(
-                    100%,
-                    500px
-                );
-
+                width: min(100%, 500px);
                 max-height: 90vh;
-
                 overflow-y: auto;
-
                 padding: 24px;
-
-                border: 1px solid
-                    #203b59;
-
+                border: 1px solid #203b59;
                 border-radius: 18px;
-
                 background:
                     linear-gradient(
                         145deg,
                         #0d1d31,
                         #071321
                     );
-
                 box-shadow:
                     0 30px 100px
                     rgba(0,0,0,.55);
             }
 
             .payment-modal-header {
-
                 display: flex;
-
                 align-items: center;
-
-                justify-content:
-                    space-between;
-
+                justify-content: space-between;
                 gap: 15px;
-
                 margin-bottom: 20px;
             }
 
             .payment-modal-title {
-
                 font-size: 19px;
-
                 font-weight: 900;
             }
 
             .payment-close {
-
                 width: 34px;
-
                 height: 34px;
-
-                border: 1px solid
-                    #294663;
-
+                border: 1px solid #294663;
                 border-radius: 8px;
-
                 background: #0a1829;
-
                 color: #fff;
-
                 cursor: pointer;
             }
 
             .payment-plan-box {
-
                 padding: 16px;
-
                 margin-bottom: 15px;
-
-                border: 1px solid
-                    #203b59;
-
+                border: 1px solid #203b59;
                 border-radius: 12px;
-
                 background: #091827;
             }
 
             .payment-plan-name {
-
                 font-size: 15px;
-
                 font-weight: 850;
             }
 
             .payment-plan-price {
-
                 margin-top: 4px;
-
                 color: #6ee7b7;
-
                 font-size: 12px;
-
                 font-weight: 800;
             }
 
             .payment-network {
-
                 margin-top: 5px;
-
                 color: #8ea3bc;
-
                 font-size: 9px;
             }
 
             .payment-wallet-box {
-
                 padding: 14px;
-
                 margin-bottom: 15px;
-
                 border:
                     1px solid
                     rgba(110,231,183,.25);
-
                 border-radius: 11px;
-
                 background:
                     rgba(110,231,183,.045);
             }
 
             .payment-wallet-label {
-
                 margin-bottom: 7px;
-
                 color: #8ea3bc;
-
                 font-size: 9px;
-
                 font-weight: 700;
-
-                text-transform:
-                    uppercase;
-
+                text-transform: uppercase;
                 letter-spacing: .5px;
             }
 
             .payment-wallet-address {
-
-                overflow-wrap:
-                    anywhere;
-
+                overflow-wrap: anywhere;
                 color: #6ee7b7;
-
-                font-family:
-                    monospace;
-
+                font-family: monospace;
                 font-size: 10px;
-
                 line-height: 1.6;
             }
 
             .payment-warning {
-
                 padding: 11px;
-
                 margin-bottom: 15px;
-
                 border:
                     1px solid
                     rgba(251,191,36,.2);
-
                 border-radius: 9px;
-
                 background:
                     rgba(251,191,36,.05);
-
                 color: #fcd34d;
-
                 font-size: 9px;
-
                 line-height: 1.6;
             }
 
             .payment-wallet-status {
-
                 padding: 10px;
-
                 margin-bottom: 12px;
-
-                border: 1px solid
-                    #182d47;
-
+                border: 1px solid #182d47;
                 border-radius: 9px;
-
                 background: #071321;
-
                 color: #8ea3bc;
-
                 font-size: 9px;
             }
 
             .payment-main-button {
-
                 width: 100%;
-
                 min-height: 44px;
-
                 border: 0;
-
                 border-radius: 9px;
-
                 background:
                     linear-gradient(
                         135deg,
                         #1c765a,
                         #175a47
                     );
-
                 color: #fff;
-
                 font-size: 10px;
-
                 font-weight: 850;
-
                 cursor: pointer;
             }
 
-            .payment-main-button:hover {
-
-                filter:
-                    brightness(1.1);
-            }
-
             .payment-main-button:disabled {
-
                 opacity: .55;
-
-                cursor:
-                    not-allowed;
+                cursor: not-allowed;
             }
 
             .payment-copy {
-
                 width: 100%;
-
                 min-height: 38px;
-
                 margin-top: 8px;
-
-                border: 1px solid
-                    #294663;
-
+                border: 1px solid #294663;
                 border-radius: 9px;
-
                 background: #0d1d31;
-
                 color: #fff;
-
                 font-size: 9px;
-
                 font-weight: 750;
-
                 cursor: pointer;
             }
 
             .payment-tx {
-
                 margin-top: 15px;
-
                 padding: 12px;
-
                 border-radius: 9px;
-
                 background: #071321;
-
                 color: #8ea3bc;
-
                 font-size: 9px;
-
                 line-height: 1.6;
-
                 word-break: break-word;
             }
 
             .payment-tx a {
-
                 color: #60a5fa;
-
             }
+
         `;
 
 
-        document.head.appendChild(
-            style
-        );
+        document.head.appendChild(style);
 
 
         const modal =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         modal.id =
@@ -2088,13 +1697,9 @@
                 aria-modal="true"
             >
 
-                <div
-                    class="payment-modal-header"
-                >
+                <div class="payment-modal-header">
 
-                    <div
-                        class="payment-modal-title"
-                    >
+                    <div class="payment-modal-title">
                         Complete Subscription
                     </div>
 
@@ -2108,9 +1713,8 @@
 
                 </div>
 
-                <div
-                    class="payment-plan-box"
-                >
+
+                <div class="payment-plan-box">
 
                     <div
                         class="payment-plan-name"
@@ -2126,21 +1730,16 @@
                         $0 USDT
                     </div>
 
-                    <div
-                        class="payment-network"
-                    >
+                    <div class="payment-network">
                         USDT BEP-20 on BNB Smart Chain
                     </div>
 
                 </div>
 
-                <div
-                    class="payment-wallet-box"
-                >
 
-                    <div
-                        class="payment-wallet-label"
-                    >
+                <div class="payment-wallet-box">
+
+                    <div class="payment-wallet-label">
                         Receiving Wallet
                     </div>
 
@@ -2163,14 +1762,14 @@
 
                 </div>
 
-                <div
-                    class="payment-warning"
-                >
+
+                <div class="payment-warning">
                     Send only USDT BEP-20 on BNB Smart Chain
                     to the receiving address above.
                     Sending another token or using another
                     network may permanently lose your funds.
                 </div>
+
 
                 <div
                     class="payment-wallet-status"
@@ -2179,6 +1778,7 @@
                     Wallet not connected.
                 </div>
 
+
                 <button
                     type="button"
                     class="payment-main-button"
@@ -2186,6 +1786,7 @@
                 >
                     Connect Wallet
                 </button>
+
 
                 <div
                     class="payment-tx"
@@ -2197,9 +1798,7 @@
         `;
 
 
-        document.body.appendChild(
-            modal
-        );
+        document.body.appendChild(modal);
 
 
         $("payment-close-button")
@@ -2213,10 +1812,7 @@
             "click",
             event => {
 
-                if (
-                    event.target ===
-                    modal
-                ) {
+                if (event.target === modal) {
                     closePaymentModal();
                 }
             }
@@ -2244,10 +1840,7 @@
             getPlan(planCode);
 
 
-        if (
-            plan.code ===
-            "free"
-        ) {
+        if (plan.code === "free") {
 
             currentPlan =
                 CONFIG.plans.free;
@@ -2263,9 +1856,7 @@
         }
 
 
-        selectedPlan =
-            plan;
-
+        selectedPlan = plan;
 
         createPaymentModal();
 
@@ -2275,12 +1866,10 @@
             plan.name
         );
 
-
         setText(
             "payment-plan-price",
             `$${plan.price} USDT / month`
         );
-
 
         setText(
             "payment-receiving-wallet",
@@ -2294,9 +1883,7 @@
 
         if (tx) {
 
-            tx.style.display =
-                "none";
-
+            tx.style.display = "none";
             tx.innerHTML = "";
         }
 
@@ -2309,10 +1896,7 @@
 
 
         if (modal) {
-
-            modal.classList.add(
-                "active"
-            );
+            modal.classList.add("active");
         }
     }
 
@@ -2322,12 +1906,8 @@
         const modal =
             $("web3jobs-payment-modal");
 
-
         if (modal) {
-
-            modal.classList.remove(
-                "active"
-            );
+            modal.classList.remove("active");
         }
     }
 
@@ -2336,7 +1916,6 @@
 
         const status =
             $("payment-wallet-status");
-
 
         const button =
             $("payment-main-button");
@@ -2351,18 +1930,13 @@
 
             wallet = null;
 
-
             status.textContent =
                 "No Web3 wallet detected. Please install MetaMask or another compatible wallet.";
-
 
             button.textContent =
                 "Wallet Not Available";
 
-
-            button.disabled =
-                true;
-
+            button.disabled = true;
 
             return;
         }
@@ -2373,14 +1947,10 @@
             status.textContent =
                 "Wallet not connected. Click below to connect.";
 
-
             button.textContent =
                 "Connect Wallet";
 
-
-            button.disabled =
-                false;
-
+            button.disabled = false;
 
             return;
         }
@@ -2395,9 +1965,7 @@
         button.textContent =
             `Pay $${selectedPlan?.price || 0} USDT`;
 
-
-        button.disabled =
-            false;
+        button.disabled = false;
     }
 
 
@@ -2441,9 +2009,7 @@
 
             await ensureBscNetwork();
 
-
             updatePaymentModalState();
-
 
             return wallet;
 
@@ -2455,10 +2021,7 @@
             );
 
 
-            if (
-                error?.code ===
-                4001
-            ) {
+            if (error?.code === 4001) {
 
                 notify(
                     "Wallet connection was rejected.",
@@ -2483,6 +2046,7 @@
     async function ensureBscNetwork() {
 
         if (!window.ethereum) {
+
             throw new Error(
                 "Web3 wallet is not available."
             );
@@ -2509,6 +2073,7 @@
             await window.ethereum.request({
                 method:
                     "wallet_switchEthereumChain",
+
                 params: [
                     {
                         chainId:
@@ -2519,14 +2084,12 @@
 
         } catch (error) {
 
-            if (
-                error?.code ===
-                4902
-            ) {
+            if (error?.code === 4902) {
 
                 await window.ethereum.request({
                     method:
                         "wallet_addEthereumChain",
+
                     params: [
                         {
                             chainId:
@@ -2536,12 +2099,9 @@
                                 CONFIG.bscChainName,
 
                             nativeCurrency: {
-                                name:
-                                    "BNB",
-                                symbol:
-                                    "BNB",
-                                decimals:
-                                    18
+                                name: "BNB",
+                                symbol: "BNB",
+                                decimals: 18
                             },
 
                             rpcUrls: [
@@ -2553,7 +2113,7 @@
                             ]
                         }
                     ]
-                );
+                });
 
             } else {
 
@@ -2575,17 +2135,25 @@
         amount
     ) {
 
-        const methodId =
-            "a9059cbb";
+        const methodId = "a9059cbb";
 
 
         const cleanAddress =
             recipient
                 .toLowerCase()
-                .replace(
-                    "0x",
-                    ""
-                );
+                .replace("0x", "");
+
+
+        if (
+            !/^[0-9a-f]{40}$/i.test(
+                cleanAddress
+            )
+        ) {
+
+            throw new Error(
+                "Invalid receiving wallet address."
+            );
+        }
 
 
         const paddedAddress =
@@ -2613,9 +2181,7 @@
     }
 
 
-    function amountToTokenUnits(
-        amount
-    ) {
+    function amountToTokenUnits(amount) {
 
         const value =
             Number(amount);
@@ -2648,8 +2214,7 @@
 
         const decimal =
             (
-                parts[1] ||
-                ""
+                parts[1] || ""
             ).padEnd(
                 CONFIG.usdtDecimals,
                 "0"
@@ -2657,15 +2222,12 @@
 
 
         return BigInt(
-            whole +
-            decimal
+            whole + decimal
         ).toString();
     }
 
 
-    async function sendUsdtPayment(
-        plan
-    ) {
+    async function sendUsdtPayment(plan) {
 
         if (!window.ethereum) {
 
@@ -2679,7 +2241,6 @@
 
             const connected =
                 await connectWallet();
-
 
             if (!connected) {
 
@@ -2701,8 +2262,7 @@
 
 
         wallet =
-            accounts?.[0] ||
-            wallet;
+            accounts?.[0] || wallet;
 
 
         if (!wallet) {
@@ -2726,27 +2286,22 @@
             );
 
 
-        const txHash =
-            await window.ethereum.request({
+        return await window.ethereum.request({
 
-                method:
-                    "eth_sendTransaction",
+            method:
+                "eth_sendTransaction",
 
-                params: [
-                    {
-                        from:
-                            wallet,
+            params: [
+                {
+                    from: wallet,
 
-                        to:
-                            CONFIG.usdtContract,
+                    to: CONFIG.usdtContract,
 
-                        data
-                    }
-                ]
-            });
+                    data
+                }
+            ]
 
-
-        return txHash;
+        });
     }
 
 
@@ -2759,61 +2314,52 @@
         txHash
     ) {
 
-        const client =
-            getSupabase();
-
-
-        const record = {
-
-            user_id:
-                user.id,
-
-            wallet_address:
-                wallet,
-
-            plan:
-                plan.code,
-
-            plan_name:
-                plan.name,
-
-            amount:
-                plan.price,
-
-            currency:
-                "USDT",
-
-            network:
-                "BEP-20",
-
-            chain:
-                "BNB Smart Chain",
-
-            tx_hash:
-                txHash,
-
-            receiving_wallet:
-                CONFIG.paymentWallet,
-
-            status:
-                "pending"
-        };
-
-
         try {
 
             const result =
-                await client
+                await getSupabase()
                     .from("payments")
-                    .insert(record);
+                    .insert({
+
+                        user_id:
+                            user.id,
+
+                        wallet_address:
+                            wallet,
+
+                        plan:
+                            plan.code,
+
+                        plan_name:
+                            plan.name,
+
+                        amount:
+                            plan.price,
+
+                        currency:
+                            "USDT",
+
+                        network:
+                            "BEP-20",
+
+                        chain:
+                            "BNB Smart Chain",
+
+                        tx_hash:
+                            txHash,
+
+                        receiving_wallet:
+                            CONFIG.paymentWallet,
+
+                        status:
+                            "pending"
+                    });
 
 
-            if (
-                result.error
-            ) {
+            if (result.error) {
 
                 console.warn(
-                    "Payment record could not be saved:",
+                    "Payment record:",
                     result.error.message
                 );
 
@@ -2855,65 +2401,61 @@
             );
 
 
-        const record = {
-
-            user_id:
-                user.id,
-
-            plan:
-                plan.code,
-
-            plan_name:
-                plan.name,
-
-            price:
-                plan.price,
-
-            currency:
-                "USDT",
-
-            network:
-                "BEP-20",
-
-            wallet_address:
-                wallet,
-
-            transaction_hash:
-                txHash,
-
-            starts_at:
-                start.toISOString(),
-
-            expires_at:
-                expires.toISOString(),
-
-            status:
-                "active"
-        };
-
-
         try {
 
             const result =
                 await getSupabase()
-                    .from(
-                        "subscriptions"
-                    )
+                    .from("subscriptions")
                     .upsert(
-                        record,
+
+                        {
+
+                            user_id:
+                                user.id,
+
+                            plan:
+                                plan.code,
+
+                            plan_name:
+                                plan.name,
+
+                            price:
+                                plan.price,
+
+                            currency:
+                                "USDT",
+
+                            network:
+                                "BEP-20",
+
+                            wallet_address:
+                                wallet,
+
+                            transaction_hash:
+                                txHash,
+
+                            starts_at:
+                                start.toISOString(),
+
+                            expires_at:
+                                expires.toISOString(),
+
+                            status:
+                                "active"
+                        },
+
                         {
                             onConflict:
                                 "user_id"
                         }
+
                     );
 
 
-            if (
-                result.error
-            ) {
+            if (result.error) {
 
                 console.warn(
-                    "Subscription record could not be saved:",
+                    "Subscription:",
                     result.error.message
                 );
 
@@ -2941,9 +2483,7 @@
 
     async function handlePaymentButton() {
 
-        if (
-            paymentBusy
-        ) {
+        if (paymentBusy) {
             return;
         }
 
@@ -2959,9 +2499,7 @@
         }
 
 
-        if (
-            selectedPlan.price <= 0
-        ) {
+        if (selectedPlan.price <= 0) {
 
             currentPlan =
                 CONFIG.plans.free;
@@ -2974,8 +2512,7 @@
         }
 
 
-        paymentBusy =
-            true;
+        paymentBusy = true;
 
 
         const button =
@@ -2989,7 +2526,6 @@
                 const connected =
                     await connectWallet();
 
-
                 if (!connected) {
                     return;
                 }
@@ -2998,9 +2534,7 @@
 
             if (button) {
 
-                button.disabled =
-                    true;
-
+                button.disabled = true;
                 button.textContent =
                     "Confirm Payment...";
             }
@@ -3021,7 +2555,6 @@
 
 
             if (button) {
-
                 button.textContent =
                     "Payment Sent";
             }
@@ -3052,8 +2585,7 @@
 
             if (txBox) {
 
-                txBox.style.display =
-                    "block";
+                txBox.style.display = "block";
 
 
                 txBox.innerHTML = `
@@ -3067,9 +2599,7 @@
                         rel="noopener noreferrer"
                     >
                         ${escapeHtml(
-                            shortAddress(
-                                txHash
-                            )
+                            shortAddress(txHash)
                         )}
                     </a>
                 `;
@@ -3081,7 +2611,6 @@
                 "success"
             );
 
-
         } catch (error) {
 
             console.error(
@@ -3090,10 +2619,7 @@
             );
 
 
-            if (
-                error?.code ===
-                4001
-            ) {
+            if (error?.code === 4001) {
 
                 notify(
                     "Transaction was rejected in your wallet.",
@@ -3111,14 +2637,12 @@
 
         } finally {
 
-            paymentBusy =
-                false;
+            paymentBusy = false;
 
 
             if (button) {
 
-                button.disabled =
-                    false;
+                button.disabled = false;
 
                 updatePaymentModalState();
             }
@@ -3154,18 +2678,13 @@
        PLAN SELECTION
        ===================================================== */
 
-    function handlePlanSelection(
-        planCode
-    ) {
+    function handlePlanSelection(planCode) {
 
         const plan =
             getPlan(planCode);
 
 
-        if (
-            plan.code ===
-            "free"
-        ) {
+        if (plan.code === "free") {
 
             currentPlan =
                 CONFIG.plans.free;
@@ -3176,33 +2695,21 @@
         }
 
 
-        openPaymentModal(
-            plan.code
-        );
+        openPaymentModal(plan.code);
     }
 
 
-    function selectPlan(
-        planCode
-    ) {
+    function selectPlan(planCode) {
 
-        return handlePlanSelection(
-            planCode
-        );
+        handlePlanSelection(planCode);
     }
 
-
-    /* =====================================================
-       GLOBAL PAYMENT FUNCTIONS
-       ===================================================== */
 
     window.handlePlanSelection =
         handlePlanSelection;
 
-
     window.selectPlan =
         selectPlan;
-
 
     window.connectCompanyWallet =
         connectWallet;
@@ -3255,8 +2762,7 @@
             accounts => {
 
                 wallet =
-                    accounts?.[0] ||
-                    null;
+                    accounts?.[0] || null;
 
 
                 updatePaymentModalState();
@@ -3278,109 +2784,104 @@
             () => {
 
                 updatePaymentModalState();
-
             }
         );
     }
 
 
     /* =====================================================
-       UI EVENTS
+       PLAN BUTTONS
        ===================================================== */
 
     function setupPlanButtons() {
 
         document
-            .querySelectorAll(
-                ".plan-button"
-            )
-            .forEach(
-                button => {
+            .querySelectorAll(".plan-button")
+            .forEach(button => {
 
-                    button.addEventListener(
-                        "click",
-                        () => {
+                button.addEventListener(
+                    "click",
+                    () => {
 
-                            const plan =
-                                button.dataset.plan;
+                        const plan =
+                            button.dataset.plan;
 
 
-                            const details =
-                                document.querySelector(
-                                    `[data-plan-details="${plan}"]`
-                                );
+                        const details =
+                            document.querySelector(
+                                `[data-plan-details="${plan}"]`
+                            );
 
 
-                            const alreadyOpen =
-                                details?.classList.contains(
+                        const alreadyOpen =
+                            details?.classList.contains(
+                                "active"
+                            );
+
+
+                        document
+                            .querySelectorAll(
+                                ".plan-button"
+                            )
+                            .forEach(item =>
+                                item.classList.remove(
                                     "active"
-                                );
-
-
-                            document
-                                .querySelectorAll(
-                                    ".plan-button"
                                 )
-                                .forEach(
-                                    item =>
-                                        item.classList
-                                            .remove(
-                                                "active"
-                                            )
-                                );
+                            );
 
 
-                            document
-                                .querySelectorAll(
-                                    ".plan-details"
+                        document
+                            .querySelectorAll(
+                                ".plan-details"
+                            )
+                            .forEach(item =>
+                                item.classList.remove(
+                                    "active"
                                 )
-                                .forEach(
-                                    item =>
-                                        item.classList
-                                            .remove(
-                                                "active"
-                                            )
-                                );
+                            );
 
 
-                            if (
-                                details &&
-                                !alreadyOpen
-                            ) {
+                        if (
+                            details &&
+                            !alreadyOpen
+                        ) {
 
-                                button.classList.add(
-                                    "active"
-                                );
-
-
-                                details.classList.add(
-                                    "active"
-                                );
+                            button.classList.add(
+                                "active"
+                            );
 
 
-                                setTimeout(
-                                    () => {
+                            details.classList.add(
+                                "active"
+                            );
 
-                                        details.scrollIntoView(
-                                            {
-                                                behavior:
-                                                    "smooth",
 
-                                                block:
-                                                    "nearest"
-                                            }
-                                        );
+                            setTimeout(
+                                () => {
 
-                                    },
-                                    50
-                                );
-                            }
+                                    details.scrollIntoView(
+                                        {
+                                            behavior:
+                                                "smooth",
+
+                                            block:
+                                                "nearest"
+                                        }
+                                    );
+
+                                },
+                                50
+                            );
                         }
-                    );
-                }
-            );
+                    }
+                );
+            });
     }
 
+
+    /* =====================================================
+       PAYMENT BUTTONS
+       ===================================================== */
 
     function setupPaymentButtons() {
 
@@ -3388,24 +2889,25 @@
             .querySelectorAll(
                 "[data-pay-plan]"
             )
-            .forEach(
-                button => {
+            .forEach(button => {
 
-                    button.addEventListener(
-                        "click",
-                        () => {
+                button.addEventListener(
+                    "click",
+                    () => {
 
-                            handlePlanSelection(
-                                button.dataset
-                                    .payPlan
-                            );
-
-                        }
-                    );
-                }
-            );
+                        handlePlanSelection(
+                            button.dataset
+                                .payPlan
+                        );
+                    }
+                );
+            });
     }
 
+
+    /* =====================================================
+       FORMS
+       ===================================================== */
 
     function setupForms() {
 
@@ -3436,19 +2938,20 @@
     }
 
 
+    /* =====================================================
+       SIDEBAR
+       ===================================================== */
+
     function setupSidebar() {
 
         const sidebar =
             $("dashboard-sidebar");
 
-
         const menuButton =
             $("mobile-menu-button");
 
-
         const overlay =
             $("sidebar-overlay");
-
 
         const logoutButton =
             $("sidebar-logout-button");
@@ -3456,25 +2959,17 @@
 
         function openSidebar() {
 
-            sidebar?.classList.add(
-                "open"
-            );
+            sidebar?.classList.add("open");
 
-            overlay?.classList.add(
-                "active"
-            );
+            overlay?.classList.add("active");
         }
 
 
         function closeSidebar() {
 
-            sidebar?.classList.remove(
-                "open"
-            );
+            sidebar?.classList.remove("open");
 
-            overlay?.classList.remove(
-                "active"
-            );
+            overlay?.classList.remove("active");
         }
 
 
@@ -3494,15 +2989,13 @@
             .querySelectorAll(
                 '.sidebar-link[href^="#"]'
             )
-            .forEach(
-                link => {
+            .forEach(link => {
 
-                    link.addEventListener(
-                        "click",
-                        closeSidebar
-                    );
-                }
-            );
+                link.addEventListener(
+                    "click",
+                    closeSidebar
+                );
+            });
 
 
         logoutButton?.addEventListener(
@@ -3568,7 +3061,6 @@
 
             createPaymentModal();
 
-
             setupPlanButtons();
 
             setupPaymentButtons();
@@ -3620,9 +3112,7 @@
                         </h2>
 
                         <p>
-                            ${escapeHtml(
-                                message
-                            )}
+                            ${escapeHtml(message)}
                         </p>
 
                         <button
@@ -3644,14 +3134,12 @@
                         </button>
 
                     </div>
+
                 `;
 
-                loading.style.display =
-                    "flex";
+                loading.style.display = "flex";
             }
-
         }
-
     }
 
 
@@ -3673,6 +3161,5 @@
 
         init();
     }
-
 
 })();
