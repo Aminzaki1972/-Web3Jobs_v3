@@ -68,9 +68,7 @@
                 limit: null,
                 days: 30
             }
-
         }
-
     };
 
 
@@ -81,6 +79,7 @@
     let sb = null;
     let user = null;
     let profile = null;
+
     let jobs = [];
     let applications = [];
 
@@ -170,7 +169,11 @@
 
         const date = new Date(value);
 
-        if (Number.isNaN(date.getTime())) {
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
             return "—";
         }
 
@@ -188,7 +191,9 @@
     function getPlan(code) {
 
         const key =
-            String(code || "free").toLowerCase();
+            String(
+                code || "free"
+            ).toLowerCase().trim();
 
         return (
             CONFIG.plans[key] ||
@@ -215,9 +220,15 @@
         return jobs.filter(job => {
 
             const date =
-                new Date(job.created_at);
+                new Date(
+                    job.created_at
+                );
 
-            if (Number.isNaN(date.getTime())) {
+            if (
+                Number.isNaN(
+                    date.getTime()
+                )
+            ) {
                 return false;
             }
 
@@ -282,7 +293,6 @@
             return sb;
         }
 
-
         if (
             window.Web3JobsSupabase &&
             typeof window.Web3JobsSupabase.getClient ===
@@ -290,11 +300,11 @@
         ) {
 
             sb =
-                window.Web3JobsSupabase.getClient();
+                window.Web3JobsSupabase
+                    .getClient();
 
             return sb;
         }
-
 
         if (
             window.supabaseClient &&
@@ -302,11 +312,11 @@
                 "function"
         ) {
 
-            sb = window.supabaseClient;
+            sb =
+                window.supabaseClient;
 
             return sb;
         }
-
 
         if (
             window.supabase &&
@@ -325,7 +335,6 @@
             return sb;
         }
 
-
         throw new Error(
             "Supabase client is not initialized."
         );
@@ -338,7 +347,8 @@
 
     async function verifyCompanyAccess() {
 
-        const client = getSupabase();
+        const client =
+            getSupabase();
 
         const {
             data,
@@ -350,16 +360,17 @@
             throw error;
         }
 
-        user = data?.user || null;
-
+        user =
+            data?.user || null;
 
         if (!user) {
 
-            location.replace("login.html");
+            location.replace(
+                "login.html"
+            );
 
             return false;
         }
-
 
         if (
             window.Web3JobsAuth &&
@@ -395,7 +406,6 @@
             }
         }
 
-
         return true;
     }
 
@@ -421,7 +431,6 @@
                     )
                     .maybeSingle();
 
-
             if (error) {
 
                 console.warn(
@@ -433,7 +442,8 @@
 
             } else {
 
-                profile = data || null;
+                profile =
+                    data || null;
             }
 
         } catch (error) {
@@ -445,7 +455,6 @@
 
             profile = null;
         }
-
 
         ensureGovernorateField();
 
@@ -464,7 +473,6 @@
             return;
         }
 
-
         const form =
             document.querySelector(
                 "#company-profile-form"
@@ -474,12 +482,13 @@
             return;
         }
 
-
         const wrapper =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        wrapper.className = "form-group";
-
+        wrapper.className =
+            "form-group";
 
         wrapper.innerHTML = `
             <label for="company-governorate">
@@ -494,40 +503,38 @@
                     Select Governorate
                 </option>
 
-                <option value="Cairo">Cairo</option>
-                <option value="Giza">Giza</option>
-                <option value="Alexandria">Alexandria</option>
-                <option value="Dakahlia">Dakahlia</option>
-                <option value="Red Sea">Red Sea</option>
-                <option value="Beheira">Beheira</option>
-                <option value="Fayoum">Fayoum</option>
-                <option value="Gharbia">Gharbia</option>
-                <option value="Ismailia">Ismailia</option>
-                <option value="Menofia">Menofia</option>
-                <option value="Minya">Minya</option>
-                <option value="Qalyubia">Qalyubia</option>
-                <option value="New Valley">New Valley</option>
-                <option value="Suez">Suez</option>
-                <option value="Aswan">Aswan</option>
-                <option value="Assiut">Assiut</option>
-                <option value="Beni Suef">Beni Suef</option>
-                <option value="Port Said">Port Said</option>
-                <option value="Damietta">Damietta</option>
-                <option value="Sharkia">Sharkia</option>
-                <option value="South Sinai">South Sinai</option>
-                <option value="Kafr El Sheikh">
-                    Kafr El Sheikh
-                </option>
-                <option value="Matrouh">Matrouh</option>
-                <option value="Luxor">Luxor</option>
-                <option value="Qena">Qena</option>
+                <option>Cairo</option>
+                <option>Giza</option>
+                <option>Alexandria</option>
+                <option>Dakahlia</option>
+                <option>Red Sea</option>
+                <option>Beheira</option>
+                <option>Fayoum</option>
+                <option>Gharbia</option>
+                <option>Ismailia</option>
+                <option>Menofia</option>
+                <option>Minya</option>
+                <option>Qalyubia</option>
+                <option>New Valley</option>
+                <option>Suez</option>
+                <option>Aswan</option>
+                <option>Assiut</option>
+                <option>Beni Suef</option>
+                <option>Port Said</option>
+                <option>Damietta</option>
+                <option>Sharkia</option>
+                <option>South Sinai</option>
+                <option>Kafr El Sheikh</option>
+                <option>Matrouh</option>
+                <option>Luxor</option>
+                <option>Qena</option>
             </select>
         `;
 
-
         const groups =
-            form.querySelectorAll(".form-group");
-
+            form.querySelectorAll(
+                ".form-group"
+            );
 
         if (groups.length) {
 
@@ -547,7 +554,8 @@
 
     function renderCompanyProfile() {
 
-        const name = companyName();
+        const name =
+            companyName();
 
         setText(
             "company-name",
@@ -558,7 +566,6 @@
             "sidebar-company-name",
             name
         );
-
 
         const fields = {
 
@@ -581,18 +588,14 @@
                 profile?.governorate || ""
         };
 
+        Object.keys(fields).forEach(id => {
 
-        Object.entries(fields).forEach(
-            ([id, value]) => {
+            const element = $(id);
 
-                const element = $(id);
-
-                if (element) {
-                    element.value = value;
-                }
+            if (element) {
+                element.value = fields[id];
             }
-        );
-
+        });
 
         const companyInput =
             $("job-company");
@@ -611,7 +614,6 @@
             return;
         }
 
-
         const form =
             event.currentTarget;
 
@@ -620,17 +622,17 @@
                 "button[type='submit']"
             );
 
-
         const get = selector =>
             String(
-                form.querySelector(selector)
-                    ?.value || ""
+                form.querySelector(
+                    selector
+                )?.value || ""
             ).trim();
-
 
         const record = {
 
-            user_id: user.id,
+            user_id:
+                user.id,
 
             company_name:
                 get(
@@ -663,15 +665,12 @@
                 )
         };
 
-
         try {
 
             if (button) {
-
                 button.disabled = true;
                 button.textContent = "Saving...";
             }
-
 
             const {
                 data,
@@ -689,16 +688,14 @@
                     .select()
                     .maybeSingle();
 
-
             if (error) {
                 throw error;
             }
 
-
-            profile = data || record;
+            profile =
+                data || record;
 
             renderCompanyProfile();
-
 
             notify(
                 "Company profile saved successfully.",
@@ -721,7 +718,6 @@
         } finally {
 
             if (button) {
-
                 button.disabled = false;
                 button.textContent = "Save Profile";
             }
@@ -738,7 +734,6 @@
         const container =
             $("company-jobs-list");
 
-
         if (container) {
 
             container.innerHTML = `
@@ -747,7 +742,6 @@
                 </div>
             `;
         }
-
 
         try {
 
@@ -769,15 +763,15 @@
                         }
                     );
 
-
             if (error) {
                 throw error;
             }
 
-
-            jobs = data || [];
+            jobs =
+                data || [];
 
             renderJobs();
+
             renderSubscription();
 
             await loadApplications();
@@ -790,7 +784,6 @@
             );
 
             jobs = [];
-
 
             if (container) {
 
@@ -811,11 +804,9 @@
         const container =
             $("company-jobs-list");
 
-
         if (!container) {
             return;
         }
-
 
         if (!jobs.length) {
 
@@ -827,7 +818,6 @@
 
             return;
         }
-
 
         container.innerHTML =
             jobs.map(job => `
@@ -904,7 +894,6 @@
 
             `).join("");
 
-
         container
             .querySelectorAll(
                 "[data-delete-job]"
@@ -932,7 +921,6 @@
             return;
         }
 
-
         try {
 
             const {
@@ -947,17 +935,14 @@
                         user.id
                     );
 
-
             if (error) {
                 throw error;
             }
-
 
             notify(
                 "Job deleted successfully.",
                 "success"
             );
-
 
             await loadJobs();
 
@@ -981,7 +966,6 @@
 
         event.preventDefault();
 
-
         if (!user) {
 
             notify(
@@ -992,10 +976,8 @@
             return;
         }
 
-
         const form =
             event.currentTarget;
-
 
         const get = name =>
             String(
@@ -1003,7 +985,6 @@
                     `[name="${name}"]`
                 )?.value || ""
             ).trim();
-
 
         const title =
             get("title");
@@ -1024,7 +1005,6 @@
         const applyLink =
             get("apply_link");
 
-
         if (
             !title ||
             !description ||
@@ -1038,7 +1018,6 @@
 
             return;
         }
-
 
         if (
             currentPlan.limit !== null &&
@@ -1056,12 +1035,10 @@
             return;
         }
 
-
         const button =
             form.querySelector(
                 "button[type='submit']"
             );
-
 
         try {
 
@@ -1071,7 +1048,6 @@
                 button.textContent =
                     "Publishing...";
             }
-
 
             const {
                 error
@@ -1097,14 +1073,11 @@
                             applyLink
                     });
 
-
             if (error) {
                 throw error;
             }
 
-
             form.reset();
-
 
             const companyInput =
                 $("job-company");
@@ -1114,12 +1087,10 @@
                     companyName();
             }
 
-
             notify(
                 "Job published successfully.",
                 "success"
             );
-
 
             await loadJobs();
 
@@ -1157,27 +1128,21 @@
         const tbody =
             $("applications-table-body");
 
-
         if (!tbody) {
             return;
         }
 
-
         tbody.innerHTML = `
             <tr>
-                <td
-                    colspan="4"
-                    class="empty-state"
-                >
+                <td colspan="4" class="empty-state">
                     Loading applications...
                 </td>
             </tr>
         `;
 
-
         try {
 
-            let result =
+            const result =
                 await getSupabase()
                     .from("applications")
                     .select("*")
@@ -1192,16 +1157,9 @@
                         }
                     );
 
-
             if (result.error) {
 
-                console.warn(
-                    "company_id query failed:",
-                    result.error.message
-                );
-
-
-                result =
+                const fallback =
                     await getSupabase()
                         .from("applications")
                         .select("*")
@@ -1215,17 +1173,19 @@
                                 ascending: false
                             }
                         );
+
+                if (fallback.error) {
+                    throw fallback.error;
+                }
+
+                applications =
+                    fallback.data || [];
+
+            } else {
+
+                applications =
+                    result.data || [];
             }
-
-
-            if (result.error) {
-                throw result.error;
-            }
-
-
-            applications =
-                result.data || [];
-
 
             renderApplications();
 
@@ -1236,16 +1196,11 @@
                 error.message
             );
 
-
             applications = [];
-
 
             tbody.innerHTML = `
                 <tr>
-                    <td
-                        colspan="4"
-                        class="empty-state"
-                    >
+                    <td colspan="4" class="empty-state">
                         No applications available.
                     </td>
                 </tr>
@@ -1264,7 +1219,6 @@
             return application.job.title;
         }
 
-
         const job =
             jobs.find(
                 item =>
@@ -1273,7 +1227,6 @@
                         application.job_id
                     )
             );
-
 
         return job?.title || "Job";
     }
@@ -1284,20 +1237,15 @@
         const tbody =
             $("applications-table-body");
 
-
         if (!tbody) {
             return;
         }
-
 
         if (!applications.length) {
 
             tbody.innerHTML = `
                 <tr>
-                    <td
-                        colspan="4"
-                        class="empty-state"
-                    >
+                    <td colspan="4" class="empty-state">
                         No applications yet.
                     </td>
                 </tr>
@@ -1305,7 +1253,6 @@
 
             return;
         }
-
 
         tbody.innerHTML =
             applications.map(application => {
@@ -1316,7 +1263,6 @@
                         "pending"
                     ).toLowerCase();
 
-
                 const safeStatus =
                     [
                         "pending",
@@ -1326,7 +1272,6 @@
                         ? status
                         : "pending";
 
-
                 const candidate =
                     application.candidate_name ||
                     application.name ||
@@ -1334,13 +1279,14 @@
                     application.user_email ||
                     "Candidate";
 
-
                 return `
 
                     <tr>
 
                         <td>
-                            ${escapeHtml(candidate)}
+                            ${escapeHtml(
+                                candidate
+                            )}
                         </td>
 
                         <td>
@@ -1352,9 +1298,7 @@
                         </td>
 
                         <td>
-                            <span
-                                class="status ${safeStatus}"
-                            >
+                            <span class="status ${safeStatus}">
                                 ${escapeHtml(
                                     safeStatus
                                 )}
@@ -1384,16 +1328,17 @@
         const used =
             monthlyJobs();
 
-
         document
-            .querySelectorAll(".plan-button")
+            .querySelectorAll(
+                ".plan-button"
+            )
             .forEach(button => {
 
-                const plan =
-                    getPlan(
-                        button.dataset.plan
-                    );
+                const code =
+                    button.dataset.plan;
 
+                const plan =
+                    getPlan(code);
 
                 button.classList.toggle(
                     "active",
@@ -1402,10 +1347,8 @@
                 );
             });
 
-
         const note =
             $("publish-note");
-
 
         if (note) {
 
@@ -1423,28 +1366,59 @@
             }
         }
 
-
         updatePlanButtons();
     }
 
 
+    /*
+     * IMPORTANT:
+     * Payment buttons are NEVER disabled here.
+     */
+
     function updatePlanButtons() {
 
         document
-            .querySelectorAll("[data-pay-plan]")
+            .querySelectorAll(
+                "[data-pay-plan], [data-plan-pay], .pay-plan-button, .plan-pay-button, .plan-details button"
+            )
             .forEach(button => {
 
-                const plan =
-                    getPlan(
-                        button.dataset.payPlan
+                button.disabled = false;
+                button.removeAttribute(
+                    "disabled"
+                );
+
+                const code =
+                    button.dataset.payPlan ||
+                    button.dataset.planPay ||
+                    button.dataset.plan ||
+                    button.getAttribute(
+                        "data-pay-plan"
+                    ) ||
+                    button.getAttribute(
+                        "data-plan-pay"
                     );
 
+                if (!code) {
+                    return;
+                }
 
-                button.textContent =
+                const plan =
+                    getPlan(code);
+
+                if (
                     currentPlan.code ===
-                        plan.code
-                        ? "Current Plan"
-                        : "Choose Plan & Pay";
+                    plan.code
+                ) {
+
+                    button.textContent =
+                        "Current Plan";
+
+                } else {
+
+                    button.textContent =
+                        `Pay $${plan.price} USDT`;
+                }
             });
     }
 
@@ -1454,11 +1428,9 @@
         const section =
             $("subscription-section");
 
-
         if (!section) {
             return;
         }
-
 
         section.scrollIntoView({
             behavior: "smooth",
@@ -1479,40 +1451,39 @@
             return;
         }
 
-
         const style =
-            document.createElement("style");
-
+            document.createElement(
+                "style"
+            );
 
         style.id =
             "web3jobs-payment-style";
 
-
         style.textContent = `
 
             #web3jobs-payment-modal {
-                position: fixed;
-                inset: 0;
-                z-index: 100000;
-                display: none;
-                align-items: center;
-                justify-content: center;
-                padding: 20px;
-                background: rgba(0,0,0,.72);
-                backdrop-filter: blur(8px);
+                position:fixed;
+                inset:0;
+                z-index:100000;
+                display:none;
+                align-items:center;
+                justify-content:center;
+                padding:20px;
+                background:rgba(0,0,0,.75);
+                backdrop-filter:blur(8px);
             }
 
             #web3jobs-payment-modal.active {
-                display: flex;
+                display:flex;
             }
 
             .payment-modal-card {
-                width: min(100%, 500px);
-                max-height: 90vh;
-                overflow-y: auto;
-                padding: 24px;
-                border: 1px solid #203b59;
-                border-radius: 18px;
+                width:min(100%,500px);
+                max-height:90vh;
+                overflow-y:auto;
+                padding:24px;
+                border:1px solid #203b59;
+                border-radius:18px;
                 background:
                     linear-gradient(
                         145deg,
@@ -1525,169 +1496,170 @@
             }
 
             .payment-modal-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 15px;
-                margin-bottom: 20px;
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:15px;
+                margin-bottom:20px;
             }
 
             .payment-modal-title {
-                font-size: 19px;
-                font-weight: 900;
+                font-size:19px;
+                font-weight:900;
             }
 
             .payment-close {
-                width: 34px;
-                height: 34px;
-                border: 1px solid #294663;
-                border-radius: 8px;
-                background: #0a1829;
-                color: #fff;
-                cursor: pointer;
+                width:34px;
+                height:34px;
+                border:1px solid #294663;
+                border-radius:8px;
+                background:#0a1829;
+                color:#fff;
+                cursor:pointer;
+                font-size:20px;
             }
 
             .payment-plan-box {
-                padding: 16px;
-                margin-bottom: 15px;
-                border: 1px solid #203b59;
-                border-radius: 12px;
-                background: #091827;
+                padding:16px;
+                margin-bottom:15px;
+                border:1px solid #203b59;
+                border-radius:12px;
+                background:#091827;
             }
 
             .payment-plan-name {
-                font-size: 15px;
-                font-weight: 850;
+                font-size:15px;
+                font-weight:850;
             }
 
             .payment-plan-price {
-                margin-top: 4px;
-                color: #6ee7b7;
-                font-size: 12px;
-                font-weight: 800;
+                margin-top:4px;
+                color:#6ee7b7;
+                font-size:14px;
+                font-weight:800;
             }
 
             .payment-network {
-                margin-top: 5px;
-                color: #8ea3bc;
-                font-size: 9px;
+                margin-top:5px;
+                color:#8ea3bc;
+                font-size:10px;
             }
 
             .payment-wallet-box {
-                padding: 14px;
-                margin-bottom: 15px;
-                border:
-                    1px solid
+                padding:14px;
+                margin-bottom:15px;
+                border:1px solid
                     rgba(110,231,183,.25);
-                border-radius: 11px;
+                border-radius:11px;
                 background:
                     rgba(110,231,183,.045);
             }
 
             .payment-wallet-label {
-                margin-bottom: 7px;
-                color: #8ea3bc;
-                font-size: 9px;
-                font-weight: 700;
-                text-transform: uppercase;
-                letter-spacing: .5px;
+                margin-bottom:7px;
+                color:#8ea3bc;
+                font-size:9px;
+                font-weight:700;
+                text-transform:uppercase;
+                letter-spacing:.5px;
             }
 
             .payment-wallet-address {
-                overflow-wrap: anywhere;
-                color: #6ee7b7;
-                font-family: monospace;
-                font-size: 10px;
-                line-height: 1.6;
+                overflow-wrap:anywhere;
+                color:#6ee7b7;
+                font-family:monospace;
+                font-size:10px;
+                line-height:1.6;
             }
 
             .payment-warning {
-                padding: 11px;
-                margin-bottom: 15px;
-                border:
-                    1px solid
+                padding:11px;
+                margin-bottom:15px;
+                border:1px solid
                     rgba(251,191,36,.2);
-                border-radius: 9px;
+                border-radius:9px;
                 background:
                     rgba(251,191,36,.05);
-                color: #fcd34d;
-                font-size: 9px;
-                line-height: 1.6;
+                color:#fcd34d;
+                font-size:9px;
+                line-height:1.6;
             }
 
             .payment-wallet-status {
-                padding: 10px;
-                margin-bottom: 12px;
-                border: 1px solid #182d47;
-                border-radius: 9px;
-                background: #071321;
-                color: #8ea3bc;
-                font-size: 9px;
+                padding:10px;
+                margin-bottom:12px;
+                border:1px solid #182d47;
+                border-radius:9px;
+                background:#071321;
+                color:#8ea3bc;
+                font-size:10px;
             }
 
             .payment-main-button {
-                width: 100%;
-                min-height: 44px;
-                border: 0;
-                border-radius: 9px;
+                width:100%;
+                min-height:46px;
+                border:0;
+                border-radius:9px;
                 background:
                     linear-gradient(
                         135deg,
                         #1c765a,
                         #175a47
                     );
-                color: #fff;
-                font-size: 10px;
-                font-weight: 850;
-                cursor: pointer;
+                color:#fff;
+                font-size:11px;
+                font-weight:850;
+                cursor:pointer;
+            }
+
+            .payment-main-button:hover {
+                filter:brightness(1.1);
             }
 
             .payment-main-button:disabled {
-                opacity: .55;
-                cursor: not-allowed;
+                opacity:.55;
+                cursor:not-allowed;
             }
 
             .payment-copy {
-                width: 100%;
-                min-height: 38px;
-                margin-top: 8px;
-                border: 1px solid #294663;
-                border-radius: 9px;
-                background: #0d1d31;
-                color: #fff;
-                font-size: 9px;
-                font-weight: 750;
-                cursor: pointer;
+                width:100%;
+                min-height:38px;
+                margin-top:8px;
+                border:1px solid #294663;
+                border-radius:9px;
+                background:#0d1d31;
+                color:#fff;
+                font-size:9px;
+                font-weight:750;
+                cursor:pointer;
             }
 
             .payment-tx {
-                margin-top: 15px;
-                padding: 12px;
-                border-radius: 9px;
-                background: #071321;
-                color: #8ea3bc;
-                font-size: 9px;
-                line-height: 1.6;
-                word-break: break-word;
+                margin-top:15px;
+                padding:12px;
+                border-radius:9px;
+                background:#071321;
+                color:#8ea3bc;
+                font-size:9px;
+                line-height:1.6;
+                word-break:break-word;
             }
 
             .payment-tx a {
-                color: #60a5fa;
+                color:#60a5fa;
             }
 
         `;
 
-
         document.head.appendChild(style);
 
-
         const modal =
-            document.createElement("div");
-
+            document.createElement(
+                "div"
+            );
 
         modal.id =
             "web3jobs-payment-modal";
-
 
         modal.innerHTML = `
 
@@ -1713,7 +1685,6 @@
 
                 </div>
 
-
                 <div class="payment-plan-box">
 
                     <div
@@ -1735,7 +1706,6 @@
                     </div>
 
                 </div>
-
 
                 <div class="payment-wallet-box">
 
@@ -1762,14 +1732,17 @@
 
                 </div>
 
-
                 <div class="payment-warning">
-                    Send only USDT BEP-20 on BNB Smart Chain
-                    to the receiving address above.
-                    Sending another token or using another
-                    network may permanently lose your funds.
-                </div>
 
+                    Send only USDT BEP-20 on
+                    BNB Smart Chain to the
+                    receiving address above.
+
+                    Sending another token or
+                    using another network may
+                    permanently lose your funds.
+
+                </div>
 
                 <div
                     class="payment-wallet-status"
@@ -1778,7 +1751,6 @@
                     Wallet not connected.
                 </div>
 
-
                 <button
                     type="button"
                     class="payment-main-button"
@@ -1786,7 +1758,6 @@
                 >
                     Connect Wallet
                 </button>
-
 
                 <div
                     class="payment-tx"
@@ -1797,9 +1768,7 @@
             </div>
         `;
 
-
         document.body.appendChild(modal);
-
 
         $("payment-close-button")
             ?.addEventListener(
@@ -1807,24 +1776,24 @@
                 closePaymentModal
             );
 
-
         modal.addEventListener(
             "click",
             event => {
 
-                if (event.target === modal) {
+                if (
+                    event.target ===
+                    modal
+                ) {
                     closePaymentModal();
                 }
             }
         );
-
 
         $("payment-copy-wallet")
             ?.addEventListener(
                 "click",
                 copyReceivingWallet
             );
-
 
         $("payment-main-button")
             ?.addEventListener(
@@ -1839,8 +1808,9 @@
         const plan =
             getPlan(planCode);
 
-
-        if (plan.code === "free") {
+        if (
+            plan.code === "free"
+        ) {
 
             currentPlan =
                 CONFIG.plans.free;
@@ -1855,11 +1825,10 @@
             return;
         }
 
-
-        selectedPlan = plan;
+        selectedPlan =
+            plan;
 
         createPaymentModal();
-
 
         setText(
             "payment-plan-name",
@@ -1876,24 +1845,18 @@
             CONFIG.paymentWallet
         );
 
-
         const tx =
             $("payment-tx");
 
-
         if (tx) {
-
             tx.style.display = "none";
             tx.innerHTML = "";
         }
 
-
         updatePaymentModalState();
-
 
         const modal =
             $("web3jobs-payment-modal");
-
 
         if (modal) {
             modal.classList.add("active");
@@ -1907,7 +1870,9 @@
             $("web3jobs-payment-modal");
 
         if (modal) {
-            modal.classList.remove("active");
+            modal.classList.remove(
+                "active"
+            );
         }
     }
 
@@ -1920,11 +1885,9 @@
         const button =
             $("payment-main-button");
 
-
         if (!status || !button) {
             return;
         }
-
 
         if (!window.ethereum) {
 
@@ -1936,11 +1899,15 @@
             button.textContent =
                 "Wallet Not Available";
 
-            button.disabled = true;
+            button.disabled = false;
+
+            /*
+             * We intentionally keep the button enabled.
+             * Clicking it gives the user the wallet message.
+             */
 
             return;
         }
-
 
         if (!wallet) {
 
@@ -1955,12 +1922,10 @@
             return;
         }
 
-
         status.innerHTML =
             `Connected wallet: <strong>${escapeHtml(
                 shortAddress(wallet)
             )}</strong>`;
-
 
         button.textContent =
             `Pay $${selectedPlan?.price || 0} USDT`;
@@ -1978,13 +1943,12 @@
         if (!window.ethereum) {
 
             notify(
-                "Please install MetaMask or a compatible Web3 wallet.",
+                "Please install MetaMask or another compatible Web3 wallet.",
                 "error"
             );
 
             return null;
         }
-
 
         try {
 
@@ -1994,10 +1958,8 @@
                         "eth_requestAccounts"
                 });
 
-
             wallet =
                 accounts?.[0] || null;
-
 
             if (!wallet) {
 
@@ -2005,7 +1967,6 @@
                     "No wallet account was returned."
                 );
             }
-
 
             await ensureBscNetwork();
 
@@ -2020,8 +1981,9 @@
                 error
             );
 
-
-            if (error?.code === 4001) {
+            if (
+                error?.code === 4001
+            ) {
 
                 notify(
                     "Wallet connection was rejected.",
@@ -2037,7 +1999,6 @@
                 );
             }
 
-
             return null;
         }
     }
@@ -2052,13 +2013,11 @@
             );
         }
 
-
         const chainId =
             await window.ethereum.request({
                 method:
                     "eth_chainId"
             });
-
 
         if (
             String(chainId).toLowerCase() ===
@@ -2066,7 +2025,6 @@
         ) {
             return true;
         }
-
 
         try {
 
@@ -2084,14 +2042,19 @@
 
         } catch (error) {
 
-            if (error?.code === 4902) {
+            if (
+                error?.code === 4902
+            ) {
 
                 await window.ethereum.request({
+
                     method:
                         "wallet_addEthereumChain",
 
                     params: [
+
                         {
+
                             chainId:
                                 CONFIG.bscChainId,
 
@@ -2099,9 +2062,15 @@
                                 CONFIG.bscChainName,
 
                             nativeCurrency: {
-                                name: "BNB",
-                                symbol: "BNB",
-                                decimals: 18
+
+                                name:
+                                    "BNB",
+
+                                symbol:
+                                    "BNB",
+
+                                decimals:
+                                    18
                             },
 
                             rpcUrls: [
@@ -2112,6 +2081,7 @@
                                 "https://bscscan.com"
                             ]
                         }
+
                     ]
                 });
 
@@ -2121,13 +2091,12 @@
             }
         }
 
-
         return true;
     }
 
 
     /* =====================================================
-       USDT PAYMENT
+       USDT
        ===================================================== */
 
     function encodeUsdtTransfer(
@@ -2135,33 +2104,22 @@
         amount
     ) {
 
-        const methodId = "a9059cbb";
-
+        const methodId =
+            "a9059cbb";
 
         const cleanAddress =
             recipient
                 .toLowerCase()
-                .replace("0x", "");
-
-
-        if (
-            !/^[0-9a-f]{40}$/i.test(
-                cleanAddress
-            )
-        ) {
-
-            throw new Error(
-                "Invalid receiving wallet address."
-            );
-        }
-
+                .replace(
+                    "0x",
+                    ""
+                );
 
         const paddedAddress =
             cleanAddress.padStart(
                 64,
                 "0"
             );
-
 
         const amountHex =
             BigInt(amount)
@@ -2170,7 +2128,6 @@
                     64,
                     "0"
                 );
-
 
         return (
             "0x" +
@@ -2181,15 +2138,24 @@
     }
 
 
-    function amountToTokenUnits(amount) {
+    /*
+     * Convert USDT amount to 18-decimal token units.
+     *
+     * We do NOT use floating point arithmetic for
+     * the actual blockchain transaction.
+     */
+
+    function amountToTokenUnits(
+        amount
+    ) {
 
         const value =
-            Number(amount);
-
+            String(amount);
 
         if (
-            !Number.isFinite(value) ||
-            value <= 0
+            !/^\d+(\.\d+)?$/.test(
+                value
+            )
         ) {
 
             throw new Error(
@@ -2197,32 +2163,35 @@
             );
         }
 
-
-        const fixed =
-            value.toFixed(
-                CONFIG.usdtDecimals
-            );
-
-
         const parts =
-            fixed.split(".");
-
+            value.split(".");
 
         const whole =
             parts[0] || "0";
 
+        let decimals =
+            parts[1] || "";
 
-        const decimal =
-            (
-                parts[1] || ""
-            ).padEnd(
+        if (
+            decimals.length >
+            CONFIG.usdtDecimals
+        ) {
+
+            decimals =
+                decimals.slice(
+                    0,
+                    CONFIG.usdtDecimals
+                );
+        }
+
+        decimals =
+            decimals.padEnd(
                 CONFIG.usdtDecimals,
                 "0"
             );
 
-
         return BigInt(
-            whole + decimal
+            whole + decimals
         ).toString();
     }
 
@@ -2235,7 +2204,6 @@
                 "No compatible Web3 wallet was found."
             );
         }
-
 
         if (!wallet) {
 
@@ -2250,9 +2218,7 @@
             }
         }
 
-
         await ensureBscNetwork();
-
 
         const accounts =
             await window.ethereum.request({
@@ -2260,10 +2226,9 @@
                     "eth_accounts"
             });
 
-
         wallet =
-            accounts?.[0] || wallet;
-
+            accounts?.[0] ||
+            wallet;
 
         if (!wallet) {
 
@@ -2272,12 +2237,10 @@
             );
         }
 
-
         const amount =
             amountToTokenUnits(
                 plan.price
             );
-
 
         const data =
             encodeUsdtTransfer(
@@ -2285,23 +2248,28 @@
                 amount
             );
 
+        const txHash =
+            await window.ethereum.request({
 
-        return await window.ethereum.request({
+                method:
+                    "eth_sendTransaction",
 
-            method:
-                "eth_sendTransaction",
+                params: [
+                    {
 
-            params: [
-                {
-                    from: wallet,
+                        from:
+                            wallet,
 
-                    to: CONFIG.usdtContract,
+                        to:
+                            CONFIG.usdtContract,
 
-                    data
-                }
-            ]
+                        data:
+                            data
+                    }
+                ]
+            });
 
-        });
+        return txHash;
     }
 
 
@@ -2314,47 +2282,48 @@
         txHash
     ) {
 
+        const record = {
+
+            user_id:
+                user.id,
+
+            wallet_address:
+                wallet,
+
+            plan:
+                plan.code,
+
+            plan_name:
+                plan.name,
+
+            amount:
+                plan.price,
+
+            currency:
+                "USDT",
+
+            network:
+                "BEP-20",
+
+            chain:
+                "BNB Smart Chain",
+
+            tx_hash:
+                txHash,
+
+            receiving_wallet:
+                CONFIG.paymentWallet,
+
+            status:
+                "pending"
+        };
+
         try {
 
             const result =
                 await getSupabase()
                     .from("payments")
-                    .insert({
-
-                        user_id:
-                            user.id,
-
-                        wallet_address:
-                            wallet,
-
-                        plan:
-                            plan.code,
-
-                        plan_name:
-                            plan.name,
-
-                        amount:
-                            plan.price,
-
-                        currency:
-                            "USDT",
-
-                        network:
-                            "BEP-20",
-
-                        chain:
-                            "BNB Smart Chain",
-
-                        tx_hash:
-                            txHash,
-
-                        receiving_wallet:
-                            CONFIG.paymentWallet,
-
-                        status:
-                            "pending"
-                    });
-
+                    .insert(record);
 
             if (result.error) {
 
@@ -2365,7 +2334,6 @@
 
                 return false;
             }
-
 
             return true;
 
@@ -2389,7 +2357,6 @@
         const start =
             new Date();
 
-
         const expires =
             new Date(
                 start.getTime() +
@@ -2400,6 +2367,41 @@
                 1000
             );
 
+        const record = {
+
+            user_id:
+                user.id,
+
+            plan:
+                plan.code,
+
+            plan_name:
+                plan.name,
+
+            price:
+                plan.price,
+
+            currency:
+                "USDT",
+
+            network:
+                "BEP-20",
+
+            wallet_address:
+                wallet,
+
+            transaction_hash:
+                txHash,
+
+            starts_at:
+                start.toISOString(),
+
+            expires_at:
+                expires.toISOString(),
+
+            status:
+                "active"
+        };
 
         try {
 
@@ -2407,61 +2409,22 @@
                 await getSupabase()
                     .from("subscriptions")
                     .upsert(
-
-                        {
-
-                            user_id:
-                                user.id,
-
-                            plan:
-                                plan.code,
-
-                            plan_name:
-                                plan.name,
-
-                            price:
-                                plan.price,
-
-                            currency:
-                                "USDT",
-
-                            network:
-                                "BEP-20",
-
-                            wallet_address:
-                                wallet,
-
-                            transaction_hash:
-                                txHash,
-
-                            starts_at:
-                                start.toISOString(),
-
-                            expires_at:
-                                expires.toISOString(),
-
-                            status:
-                                "active"
-                        },
-
+                        record,
                         {
                             onConflict:
                                 "user_id"
                         }
-
                     );
-
 
             if (result.error) {
 
                 console.warn(
-                    "Subscription:",
+                    "Subscription record:",
                     result.error.message
                 );
 
                 return false;
             }
-
 
             return true;
 
@@ -2487,7 +2450,6 @@
             return;
         }
 
-
         if (!selectedPlan) {
 
             notify(
@@ -2498,8 +2460,9 @@
             return;
         }
 
-
-        if (selectedPlan.price <= 0) {
+        if (
+            selectedPlan.price <= 0
+        ) {
 
             currentPlan =
                 CONFIG.plans.free;
@@ -2511,17 +2474,20 @@
             return;
         }
 
-
         paymentBusy = true;
-
 
         const button =
             $("payment-main-button");
 
-
         try {
 
             if (!wallet) {
+
+                if (button) {
+                    button.disabled = true;
+                    button.textContent =
+                        "Connecting Wallet...";
+                }
 
                 const connected =
                     await connectWallet();
@@ -2531,20 +2497,18 @@
                 }
             }
 
-
             if (button) {
 
                 button.disabled = true;
-                button.textContent =
-                    "Confirm Payment...";
-            }
 
+                button.textContent =
+                    `Pay $${selectedPlan.price} USDT`;
+            }
 
             const txHash =
                 await sendUsdtPayment(
                     selectedPlan
                 );
-
 
             if (!txHash) {
 
@@ -2553,43 +2517,39 @@
                 );
             }
 
-
             if (button) {
                 button.textContent =
                     "Payment Sent";
             }
-
 
             await savePaymentRecord(
                 selectedPlan,
                 txHash
             );
 
-
             await saveSubscription(
                 selectedPlan,
                 txHash
             );
 
-
             currentPlan =
                 selectedPlan;
 
-
             renderSubscription();
-
 
             const txBox =
                 $("payment-tx");
 
-
             if (txBox) {
 
-                txBox.style.display = "block";
-
+                txBox.style.display =
+                    "block";
 
                 txBox.innerHTML = `
-                    Payment transaction submitted successfully.<br>
+
+                    Payment transaction
+                    submitted successfully.<br><br>
+
                     Transaction:
                     <a
                         href="${CONFIG.bscExplorer}${encodeURIComponent(
@@ -2599,12 +2559,14 @@
                         rel="noopener noreferrer"
                     >
                         ${escapeHtml(
-                            shortAddress(txHash)
+                            shortAddress(
+                                txHash
+                            )
                         )}
                     </a>
+
                 `;
             }
-
 
             notify(
                 `Payment submitted successfully. Your ${selectedPlan.name} plan is now selected.`,
@@ -2618,8 +2580,9 @@
                 error
             );
 
-
-            if (error?.code === 4001) {
+            if (
+                error?.code === 4001
+            ) {
 
                 notify(
                     "Transaction was rejected in your wallet.",
@@ -2639,7 +2602,6 @@
 
             paymentBusy = false;
 
-
             if (button) {
 
                 button.disabled = false;
@@ -2657,7 +2619,6 @@
             await navigator.clipboard.writeText(
                 CONFIG.paymentWallet
             );
-
 
             notify(
                 "Receiving wallet address copied.",
@@ -2678,13 +2639,16 @@
        PLAN SELECTION
        ===================================================== */
 
-    function handlePlanSelection(planCode) {
+    function handlePlanSelection(
+        planCode
+    ) {
 
         const plan =
             getPlan(planCode);
 
-
-        if (plan.code === "free") {
+        if (
+            plan.code === "free"
+        ) {
 
             currentPlan =
                 CONFIG.plans.free;
@@ -2694,14 +2658,17 @@
             return;
         }
 
-
-        openPaymentModal(plan.code);
+        openPaymentModal(
+            plan.code
+        );
     }
 
 
     function selectPlan(planCode) {
 
-        handlePlanSelection(planCode);
+        return handlePlanSelection(
+            planCode
+        );
     }
 
 
@@ -2756,17 +2723,15 @@
             return;
         }
 
-
         window.ethereum.on(
             "accountsChanged",
             accounts => {
 
                 wallet =
-                    accounts?.[0] || null;
-
+                    accounts?.[0] ||
+                    null;
 
                 updatePaymentModalState();
-
 
                 if (!wallet) {
 
@@ -2777,7 +2742,6 @@
                 }
             }
         );
-
 
         window.ethereum.on(
             "chainChanged",
@@ -2796,28 +2760,39 @@
     function setupPlanButtons() {
 
         document
-            .querySelectorAll(".plan-button")
+            .querySelectorAll(
+                ".plan-button"
+            )
             .forEach(button => {
+
+                if (
+                    button.dataset.planReady ===
+                    "true"
+                ) {
+                    return;
+                }
+
+                button.dataset.planReady =
+                    "true";
 
                 button.addEventListener(
                     "click",
-                    () => {
+                    event => {
+
+                        event.preventDefault();
 
                         const plan =
                             button.dataset.plan;
-
 
                         const details =
                             document.querySelector(
                                 `[data-plan-details="${plan}"]`
                             );
 
-
                         const alreadyOpen =
                             details?.classList.contains(
                                 "active"
                             );
-
 
                         document
                             .querySelectorAll(
@@ -2829,7 +2804,6 @@
                                 )
                             );
 
-
                         document
                             .querySelectorAll(
                                 ".plan-details"
@@ -2840,7 +2814,6 @@
                                 )
                             );
 
-
                         if (
                             details &&
                             !alreadyOpen
@@ -2850,11 +2823,9 @@
                                 "active"
                             );
 
-
                             details.classList.add(
                                 "active"
                             );
-
 
                             setTimeout(
                                 () => {
@@ -2885,23 +2856,136 @@
 
     function setupPaymentButtons() {
 
+        /*
+         * Support all common payment button formats.
+         */
+
+        const buttons =
+            document.querySelectorAll(
+                [
+                    "[data-pay-plan]",
+                    "[data-plan-pay]",
+                    ".pay-plan-button",
+                    ".plan-pay-button",
+                    ".payment-button"
+                ].join(",")
+            );
+
+        buttons.forEach(button => {
+
+            button.disabled = false;
+
+            button.removeAttribute(
+                "disabled"
+            );
+
+            if (
+                button.dataset.paymentReady ===
+                "true"
+            ) {
+                return;
+            }
+
+            const planCode =
+                button.dataset.payPlan ||
+                button.dataset.planPay ||
+                button.dataset.plan ||
+                button.getAttribute(
+                    "data-pay-plan"
+                ) ||
+                button.getAttribute(
+                    "data-plan-pay"
+                );
+
+            if (!planCode) {
+                return;
+            }
+
+            button.dataset.paymentReady =
+                "true";
+
+            button.addEventListener(
+                "click",
+                event => {
+
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    handlePlanSelection(
+                        planCode
+                    );
+                }
+            );
+        });
+
+
+        /*
+         * Support buttons placed inside
+         * .plan-details.
+         */
+
         document
             .querySelectorAll(
-                "[data-pay-plan]"
+                ".plan-details button"
             )
             .forEach(button => {
 
+                if (
+                    button.dataset.paymentReady ===
+                    "true"
+                ) {
+                    return;
+                }
+
+                const container =
+                    button.closest(
+                        ".plan-details"
+                    );
+
+                if (!container) {
+                    return;
+                }
+
+                const planCode =
+                    container.dataset.planDetails ||
+                    container.getAttribute(
+                        "data-plan-details"
+                    );
+
+                if (!planCode) {
+                    return;
+                }
+
+                button.disabled = false;
+
+                button.removeAttribute(
+                    "disabled"
+                );
+
+                button.dataset.paymentReady =
+                    "true";
+
                 button.addEventListener(
                     "click",
-                    () => {
+                    event => {
+
+                        event.preventDefault();
+                        event.stopPropagation();
 
                         handlePlanSelection(
-                            button.dataset
-                                .payPlan
+                            planCode
                         );
                     }
                 );
             });
+
+
+        /*
+         * Make sure all payment buttons are
+         * enabled after initialization.
+         */
+
+        updatePlanButtons();
     }
 
 
@@ -2914,7 +2998,6 @@
         const postForm =
             $("post-job-form");
 
-
         if (postForm) {
 
             postForm.addEventListener(
@@ -2923,10 +3006,8 @@
             );
         }
 
-
         const profileForm =
             $("company-profile-form");
-
 
         if (profileForm) {
 
@@ -2956,34 +3037,37 @@
         const logoutButton =
             $("sidebar-logout-button");
 
-
         function openSidebar() {
 
-            sidebar?.classList.add("open");
+            sidebar?.classList.add(
+                "open"
+            );
 
-            overlay?.classList.add("active");
+            overlay?.classList.add(
+                "active"
+            );
         }
-
 
         function closeSidebar() {
 
-            sidebar?.classList.remove("open");
+            sidebar?.classList.remove(
+                "open"
+            );
 
-            overlay?.classList.remove("active");
+            overlay?.classList.remove(
+                "active"
+            );
         }
-
 
         menuButton?.addEventListener(
             "click",
             openSidebar
         );
 
-
         overlay?.addEventListener(
             "click",
             closeSidebar
         );
-
 
         document
             .querySelectorAll(
@@ -2996,7 +3080,6 @@
                     closeSidebar
                 );
             });
-
 
         logoutButton?.addEventListener(
             "click",
@@ -3044,20 +3127,16 @@
 
         showLoading();
 
-
         try {
 
             const allowed =
                 await verifyCompanyAccess();
 
-
             if (!allowed) {
                 return;
             }
 
-
             await loadCompanyProfile();
-
 
             createPaymentModal();
 
@@ -3071,12 +3150,16 @@
 
             setupWalletListeners();
 
-
             await loadJobs();
-
 
             renderSubscription();
 
+            /*
+             * Run again after all dashboard
+             * elements have been rendered.
+             */
+
+            setupPaymentButtons();
 
             showDashboard();
 
@@ -3087,15 +3170,12 @@
                 error
             );
 
-
             const message =
                 error?.message ||
                 "Unable to load the company dashboard.";
 
-
             const loading =
                 $("loading-spinner");
-
 
             if (loading) {
 
@@ -3112,7 +3192,9 @@
                         </h2>
 
                         <p>
-                            ${escapeHtml(message)}
+                            ${escapeHtml(
+                                message
+                            )}
                         </p>
 
                         <button
@@ -3134,10 +3216,10 @@
                         </button>
 
                     </div>
-
                 `;
 
-                loading.style.display = "flex";
+                loading.style.display =
+                    "flex";
             }
         }
     }
