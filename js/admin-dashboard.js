@@ -7,6 +7,11 @@
 
     const $ = id => document.getElementById(id);
 
+
+    /* =========================================================
+       SUPABASE
+       ========================================================= */
+
     function getSupabase() {
 
         if (supabaseClient) {
@@ -27,7 +32,9 @@
             window.supabaseClient &&
             typeof window.supabaseClient.from === "function"
         ) {
-            supabaseClient = window.supabaseClient;
+            supabaseClient =
+                window.supabaseClient;
+
             return supabaseClient;
         }
 
@@ -52,37 +59,52 @@
     }
 
 
+    /* =========================================================
+       HELPERS
+       ========================================================= */
+
     function showError(message) {
 
-        const notice = $("admin-notice");
+        const notice =
+            $("admin-notice");
 
         if (!notice) {
             return;
         }
 
-        notice.textContent = message;
-        notice.className = "notice error";
+        notice.textContent =
+            message;
+
+        notice.className =
+            "notice error";
     }
 
 
     function hideLoading() {
 
-        const loading = $("admin-loading");
-        const content = $("admin-content");
+        const loading =
+            $("admin-loading");
+
+        const content =
+            $("admin-content");
 
         if (loading) {
-            loading.style.display = "none";
+            loading.style.display =
+                "none";
         }
 
         if (content) {
-            content.style.display = "block";
+            content.style.display =
+                "block";
         }
     }
 
 
     function formatNumber(value) {
 
-        return Number(value || 0).toLocaleString();
+        return Number(
+            value || 0
+        ).toLocaleString();
     }
 
 
@@ -92,261 +114,18 @@
             return "—";
         }
 
+        const text =
+            String(value);
+
+        if (text.length <= 16) {
+            return text;
+        }
+
         return (
-            value.slice(0, 8) +
+            text.slice(0, 8) +
             "..." +
-            value.slice(-6)
+            text.slice(-6)
         );
-    }
-
-
-    async function verifyAdmin() {
-
-        const client = getSupabase();
-
-        const {
-            data,
-            error
-        } = await client.auth.getUser();
-
-        if (error) {
-            throw error;
-        }
-
-        currentUser = data?.user || null;
-
-        if (!currentUser) {
-
-            location.replace("login.html");
-
-            return false;
-        }
-
-
-        const {
-            data: profile,
-            error: profileError
-        } = await client
-            .from("profiles")
-            .select("id,email,role")
-            .eq("id", currentUser.id)
-            .maybeSingle();
-
-
-        if (profileError) {
-            throw profileError;
-        }
-
-
-        if (
-            !profile ||
-            String(profile.role || "").toLowerCase() !== "admin"
-        ) {
-
-            showError(
-                "Access denied. Administrator privileges are required."
-            );
-
-            setTimeout(() => {
-                location.replace("dashboard.html");
-            }, 1800);
-
-            return false;
-        }
-
-
-        return true;
-    }
-
-
-    function renderAdminInfo() {
-
-        if (!currentUser) {
-            return;
-        }
-
-        const email =
-            currentUser.email || "—";
-
-        const id =
-            currentUser.id || "—";
-
-        if ($("admin-email")) {
-            $("admin-email").textContent = email;
-        }
-
-        if ($("admin-id")) {
-            $("admin-id").textContent = shortId(id);
-            $("admin-id").title = id;
-        }
-    }
-
-
-    async function countRows(table) {
-
-        const {
-            count,
-            error
-        } = await getSupabase()
-            .from(table)
-            .select("*", {
-                count: "exact",
-                head: true
-            });
-
-        if (error) {
-            console.warn(
-                `${table} count:`,
-                error.message
-            );
-
-            return 0;
-        }
-
-        return count || 0;
-    }
-
-
-    async function loadStatistics() {
-
-        const [
-            users,
-            companies,
-            jobs,
-            applications
-        ] = await Promise.all([
-
-            countRows("profiles"),
-
-            countRows("company_profiles"),
-
-            countRows("jobs"),
-
-            countRows("applications")
-
-        ]);
-
-
-        if ($("total-users")) {
-            $("total-users").textContent =
-                formatNumber(users);
-        }
-
-        if ($("total-companies")) {
-            $("total-companies").textContent =
-                formatNumber(companies);
-        }
-
-        if ($("total-jobs")) {
-            $("total-jobs").textContent =
-                formatNumber(jobs);
-        }
-
-        if ($("total-applications")) {
-            $("total-applications").textContent =
-                formatNumber(applications);
-        }
-    }
-
-
-    function formatDate(value) {
-
-        if (!value) {
-            return "—";
-        }
-
-        const date = new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return "—";
-        }
-
-        return date.toLocaleString();
-    }
-
-
-    async function loadAdminActivity() {
-
-        const container =
-            $("admin-activity");
-
-        if (!container) {
-            return;
-        }
-
-
-        const {
-            data,
-            error
-        } = await getSupabase()
-            .from("admin_actions")
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            )
-            .limit(10);
-
-
-        if (error) {
-
-            console.warn(
-                "Admin activity:",
-                error.message
-            );
-
-            container.innerHTML = `
-                <div class="empty">
-                    No admin activity available.
-                </div>
-            `;
-
-            return;
-        }
-
-
-        if (!data || !data.length) {
-
-            container.innerHTML = `
-                <div class="empty">
-                    No admin actions recorded yet.
-                </div>
-            `;
-
-            return;
-        }
-
-
-        container.innerHTML =
-            data.map(item => {
-
-                const action =
-                    String(
-                        item.action || "Admin action"
-                    );
-
-
-                return `
-                    <div class="info-row">
-
-                        <span class="info-label">
-                            ${escapeHtml(action)}
-                        </span>
-
-                        <span class="info-value">
-                            ${escapeHtml(
-                                formatDate(
-                                    item.created_at
-                                )
-                            )}
-                        </span>
-
-                    </div>
-                `;
-
-            }).join("");
     }
 
 
@@ -361,6 +140,399 @@
     }
 
 
+    /* =========================================================
+       VERIFY ADMIN
+       ========================================================= */
+
+    async function verifyAdmin() {
+
+        const client =
+            getSupabase();
+
+
+        const {
+            data,
+            error
+        } =
+            await client.auth.getUser();
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        currentUser =
+            data?.user || null;
+
+
+        if (!currentUser) {
+
+            window.location.replace(
+                "login.html"
+            );
+
+            return false;
+        }
+
+
+        const {
+            data: profile,
+            error: profileError
+        } =
+            await client
+                .from("profiles")
+                .select("id,email,role")
+                .eq(
+                    "id",
+                    currentUser.id
+                )
+                .maybeSingle();
+
+
+        if (profileError) {
+            throw profileError;
+        }
+
+
+        const role =
+            String(
+                profile?.role || ""
+            )
+            .trim()
+            .toLowerCase();
+
+
+        if (
+            !profile ||
+            role !== "admin"
+        ) {
+
+            showError(
+                "Access denied. Administrator privileges are required."
+            );
+
+
+            setTimeout(() => {
+
+                window.location.replace(
+                    "dashboard.html"
+                );
+
+            }, 1800);
+
+
+            return false;
+        }
+
+
+        return true;
+    }
+
+
+    /* =========================================================
+       ADMIN INFORMATION
+       ========================================================= */
+
+    function renderAdminInfo() {
+
+        if (!currentUser) {
+            return;
+        }
+
+
+        const email =
+            currentUser.email ||
+            "—";
+
+
+        const id =
+            currentUser.id ||
+            "—";
+
+
+        if ($("admin-email")) {
+
+            $("admin-email")
+                .textContent =
+                email;
+        }
+
+
+        if ($("admin-id")) {
+
+            $("admin-id")
+                .textContent =
+                shortId(id);
+
+            $("admin-id").title =
+                id;
+        }
+    }
+
+
+    /* =========================================================
+       COUNT TABLE ROWS
+       ========================================================= */
+
+    async function countRows(table) {
+
+        try {
+
+            const {
+                count,
+                error
+            } =
+                await getSupabase()
+                    .from(table)
+                    .select(
+                        "*",
+                        {
+                            count: "exact",
+                            head: true
+                        }
+                    );
+
+
+            if (error) {
+
+                console.warn(
+                    `${table} count:`,
+                    error.message
+                );
+
+                return 0;
+            }
+
+
+            return count || 0;
+
+        } catch (error) {
+
+            console.warn(
+                `${table} count:`,
+                error
+            );
+
+            return 0;
+        }
+    }
+
+
+    /* =========================================================
+       STATISTICS
+       ========================================================= */
+
+    async function loadStatistics() {
+
+        const [
+            users,
+            companies,
+            jobs,
+            applications
+        ] =
+            await Promise.all([
+
+                countRows(
+                    "profiles"
+                ),
+
+                countRows(
+                    "company_profiles"
+                ),
+
+                countRows(
+                    "jobs"
+                ),
+
+                countRows(
+                    "applications"
+                )
+
+            ]);
+
+
+        if ($("total-users")) {
+
+            $("total-users")
+                .textContent =
+                formatNumber(users);
+        }
+
+
+        if ($("total-companies")) {
+
+            $("total-companies")
+                .textContent =
+                formatNumber(companies);
+        }
+
+
+        if ($("total-jobs")) {
+
+            $("total-jobs")
+                .textContent =
+                formatNumber(jobs);
+        }
+
+
+        if ($("total-applications")) {
+
+            $("total-applications")
+                .textContent =
+                formatNumber(applications);
+        }
+    }
+
+
+    /* =========================================================
+       DATE
+       ========================================================= */
+
+    function formatDate(value) {
+
+        if (!value) {
+            return "—";
+        }
+
+
+        const date =
+            new Date(value);
+
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return "—";
+        }
+
+
+        return date.toLocaleString();
+    }
+
+
+    /* =========================================================
+       ADMIN ACTIVITY
+       ========================================================= */
+
+    async function loadAdminActivity() {
+
+        const container =
+            $("admin-activity");
+
+
+        if (!container) {
+            return;
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await getSupabase()
+                    .from("admin_actions")
+                    .select("*")
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(10);
+
+
+            if (error) {
+
+                console.warn(
+                    "Admin activity:",
+                    error.message
+                );
+
+
+                container.innerHTML = `
+                    <div class="empty">
+                        No admin activity available.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            if (
+                !data ||
+                !data.length
+            ) {
+
+                container.innerHTML = `
+                    <div class="empty">
+                        No admin actions recorded yet.
+                    </div>
+                `;
+
+                return;
+            }
+
+
+            container.innerHTML =
+                data
+                    .map(item => {
+
+                        const action =
+                            String(
+                                item.action ||
+                                "Admin action"
+                            );
+
+
+                        return `
+                            <div class="info-row">
+
+                                <span class="info-label">
+                                    ${escapeHtml(action)}
+                                </span>
+
+                                <span class="info-value">
+                                    ${escapeHtml(
+                                        formatDate(
+                                            item.created_at
+                                        )
+                                    )}
+                                </span>
+
+                            </div>
+                        `;
+
+                    })
+                    .join("");
+
+
+        } catch (error) {
+
+            console.warn(
+                "Admin activity:",
+                error
+            );
+
+
+            container.innerHTML = `
+                <div class="empty">
+                    No admin activity available.
+                </div>
+            `;
+        }
+    }
+
+
+    /* =========================================================
+       LOG ADMIN ACTION
+       ========================================================= */
+
     async function logAdminAction(
         action,
         targetId = null,
@@ -371,26 +543,33 @@
             return;
         }
 
+
         try {
 
             const {
                 error
-            } = await getSupabase()
-                .from("admin_actions")
-                .insert({
-                    admin_id:
-                        currentUser.id,
+            } =
+                await getSupabase()
+                    .from("admin_actions")
+                    .insert({
 
-                    action,
+                        admin_id:
+                            currentUser.id,
 
-                    target_id:
-                        targetId,
+                        action:
+                            action,
 
-                    details
-                });
+                        target_id:
+                            targetId,
+
+                        details:
+                            details
+
+                    });
 
 
             if (error) {
+
                 console.warn(
                     "Admin action log:",
                     error.message
@@ -407,7 +586,16 @@
     }
 
 
+    /* =========================================================
+       NAVIGATION
+       ========================================================= */
+
     function setupNavigation() {
+
+
+        /* -----------------------------------------------------
+           USERS
+           ----------------------------------------------------- */
 
         $("manage-users")
             ?.addEventListener(
@@ -418,12 +606,16 @@
                         "Opened user management"
                     );
 
-                    alert(
-                        "User management will be added in the next step."
-                    );
+
+                    window.location.href =
+                        "admin-users.html";
                 }
             );
 
+
+        /* -----------------------------------------------------
+           COMPANIES
+           ----------------------------------------------------- */
 
         $("manage-companies")
             ?.addEventListener(
@@ -434,12 +626,16 @@
                         "Opened company management"
                     );
 
-                    alert(
-                        "Company management will be added in the next step."
-                    );
+
+                    window.location.href =
+                        "admin-companies.html";
                 }
             );
 
+
+        /* -----------------------------------------------------
+           JOBS
+           ----------------------------------------------------- */
 
         $("manage-jobs")
             ?.addEventListener(
@@ -450,12 +646,16 @@
                         "Opened job management"
                     );
 
-                    alert(
-                        "Job management will be added in the next step."
-                    );
+
+                    window.location.href =
+                        "admin-jobs.html";
                 }
             );
 
+
+        /* -----------------------------------------------------
+           PAYMENTS
+           ----------------------------------------------------- */
 
         $("manage-payments")
             ?.addEventListener(
@@ -466,13 +666,17 @@
                         "Opened payment management"
                     );
 
-                    alert(
-                        "Payment management will be added in the next step."
-                    );
+
+                    window.location.href =
+                        "admin-payments.html";
                 }
             );
     }
 
+
+    /* =========================================================
+       LOGOUT
+       ========================================================= */
 
     function setupLogout() {
 
@@ -484,11 +688,16 @@
                     const button =
                         $("admin-logout");
 
+
                     if (button) {
-                        button.disabled = true;
+
+                        button.disabled =
+                            true;
+
                         button.textContent =
                             "Logging out...";
                     }
+
 
                     try {
 
@@ -502,17 +711,32 @@
                             "Logout:",
                             error
                         );
-
-                    } finally {
-
-                        location.replace(
-                            "login.html"
-                        );
                     }
+
+
+                    window.location.replace(
+                        "login.html"
+                    );
                 }
             );
     }
 
+
+    /* =========================================================
+       REFRESH
+       ========================================================= */
+
+    async function refreshDashboard() {
+
+        await loadStatistics();
+
+        await loadAdminActivity();
+    }
+
+
+    /* =========================================================
+       INITIALIZE
+       ========================================================= */
 
     async function init() {
 
@@ -545,6 +769,11 @@
             hideLoading();
 
 
+            console.log(
+                "Web3Jobs Admin Dashboard loaded successfully."
+            );
+
+
         } catch (error) {
 
             console.error(
@@ -558,15 +787,15 @@
                 "Unable to load admin dashboard."
             );
 
-            const loading =
-                $("admin-loading");
 
-            if (loading) {
-                loading.style.display = "none";
-            }
+            hideLoading();
         }
     }
 
+
+    /* =========================================================
+       GLOBAL API
+       ========================================================= */
 
     window.Web3JobsAdmin = {
 
@@ -574,21 +803,24 @@
             () => currentUser,
 
         refresh:
-            async () => {
-
-                await loadStatistics();
-                await loadAdminActivity();
-
-            },
+            refreshDashboard,
 
         logAction:
-            logAdminAction
+            logAdminAction,
+
+        verify:
+            verifyAdmin
 
     };
 
 
+    /* =========================================================
+       START
+       ========================================================= */
+
     if (
-        document.readyState === "loading"
+        document.readyState ===
+        "loading"
     ) {
 
         document.addEventListener(
@@ -599,7 +831,6 @@
     } else {
 
         init();
-
     }
 
 })();
