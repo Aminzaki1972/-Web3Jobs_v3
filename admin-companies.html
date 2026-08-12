@@ -3,633 +3,385 @@
 
 <head>
 
-<meta charset="UTF-8">
-
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
-
-<meta
-    name="robots"
-    content="noindex,nofollow,noarchive"
->
-
-<title>Web3Jobs - Manage Companies</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-
-:root {
-    --bg: #06101d;
-    --panel: #0b1a2b;
-    --panel2: #0e2135;
-    --border: #1d3852;
-    --text: #f5f9ff;
-    --muted: #8fa5bb;
-    --green: #4ade80;
-    --blue: #60a5fa;
-    --red: #f87171;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    min-height: 100vh;
-
-    background:
-        radial-gradient(
-            circle at top right,
-            rgba(38,102,160,.18),
-            transparent 35%
-        ),
-        var(--bg);
-
-    color: var(--text);
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-}
-
-button,
-input {
-    font: inherit;
-}
-
-.page {
-    width: min(1400px, 100%);
-    margin: auto;
-    padding: 20px;
-}
-
-/* HEADER */
-
-.header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 15px;
-
-    padding: 20px;
-    margin-bottom: 20px;
-
-    background: var(--panel);
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: 18px;
-}
-
-.header h1 {
-    margin: 0;
-
-    font-size: 22px;
-}
-
-.header p {
-    margin: 5px 0 0;
-
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-.header-actions {
-    display: flex;
-
-    gap: 8px;
-
-    flex-wrap: wrap;
-}
-
-.button {
-    min-height: 40px;
-
-    padding: 0 14px;
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: 9px;
-
-    background:
-        var(--panel2);
-
-    color: white;
-
-    cursor: pointer;
-
-    font-size: 11px;
-
-    font-weight: 800;
-}
-
-.button:hover {
-    background: #12283e;
-
-    border-color: #356184;
-}
-
-.button.green {
-    border-color:
-        rgba(74,222,128,.3);
-
-    color:
-        var(--green);
-}
-
-.button.red {
-    border-color:
-        rgba(248,113,113,.3);
-
-    color:
-        var(--red);
-}
-
-/* TOP */
-
-.topbar {
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    gap: 15px;
-
-    margin-bottom: 20px;
-
-    padding: 18px;
-
-    background: var(--panel);
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: 16px;
-}
-
-.count {
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-.count strong {
-    color: white;
-
-    font-size: 20px;
-
-    margin-right: 5px;
-}
-
-.search {
-    width: min(400px, 100%);
-
-    padding: 11px 13px;
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: 9px;
-
-    outline: none;
-
-    background:
-        #071423;
-
-    color: white;
-
-    font-size: 12px;
-}
-
-.search:focus {
-    border-color:
-        var(--blue);
-}
-
-/* NOTICE */
-
-.notice {
-    display: none;
-
-    padding: 13px 15px;
-
-    margin-bottom: 18px;
-
-    border-radius: 10px;
-
-    font-size: 12px;
-}
-
-.notice.error {
-    display: block;
-
-    color: #fecaca;
-
-    background:
-        rgba(248,113,113,.07);
-
-    border:
-        1px solid
-        rgba(248,113,113,.25);
-}
-
-.notice.success {
-    display: block;
-
-    color: #bbf7d0;
-
-    background:
-        rgba(74,222,128,.07);
-
-    border:
-        1px solid
-        rgba(74,222,128,.25);
-}
-
-/* TABLE */
-
-.card {
-    background: var(--panel);
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: 16px;
-
-    overflow: hidden;
-}
-
-.table-wrapper {
-    width: 100%;
-
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-
-    border-collapse: collapse;
-
-    min-width: 750px;
-}
-
-th {
-    padding: 14px;
-
-    text-align: left;
-
-    color: var(--muted);
-
-    background:
-        rgba(255,255,255,.025);
-
-    font-size: 10px;
-
-    text-transform: uppercase;
-
-    letter-spacing: .4px;
-}
-
-td {
-    padding: 15px 14px;
-
-    border-top:
-        1px solid
-        rgba(255,255,255,.06);
-
-    font-size: 12px;
-}
-
-.company-name {
-    font-weight: 800;
-
-    color: white;
-}
-
-.company-email {
-    color: var(--muted);
-
-    font-size: 11px;
-}
-
-.badge {
-    display: inline-block;
-
-    padding: 5px 9px;
-
-    border-radius: 999px;
-
-    font-size: 9px;
-
-    font-weight: 800;
-}
-
-.badge.active {
-    color: var(--green);
-
-    background:
-        rgba(74,222,128,.08);
-}
-
-.badge.pending {
-    color: #facc15;
-
-    background:
-        rgba(250,204,21,.08);
-}
-
-.badge.inactive {
-    color: var(--red);
-
-    background:
-        rgba(248,113,113,.08);
-}
-
-.actions {
-    display: flex;
-
-    gap: 6px;
-
-    flex-wrap: wrap;
-}
-
-.small-button {
-    padding: 7px 9px;
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: 7px;
-
-    background:
-        var(--panel2);
-
-    color: white;
-
-    cursor: pointer;
-
-    font-size: 9px;
-
-    font-weight: 800;
-}
-
-.small-button:hover {
-    background: #12283e;
-}
-
-/* EMPTY */
-
-.empty {
-    padding: 50px 20px;
-
-    text-align: center;
-
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-/* LOADING */
-
-#loading {
-    position: fixed;
-
-    inset: 0;
-
-    z-index: 9999;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    background:
-        var(--bg);
-}
-
-.loading-box {
-    text-align: center;
-}
-
-.loading-box strong {
-    display: block;
-
-    margin-bottom: 8px;
-
-    font-size: 18px;
-}
-
-.loading-box span {
-    color: var(--muted);
-
-    font-size: 12px;
-}
-
-/* MOBILE */
-
-@media(max-width:700px) {
-
-    .page {
-        padding: 10px;
-    }
-
-    .header {
-        align-items: flex-start;
-
-        flex-direction: column;
-    }
-
-    .topbar {
-        align-items: stretch;
-
-        flex-direction: column;
-    }
-
-    .search {
-        width: 100%;
-    }
-
-}
-
-</style>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="robots"
+        content="noindex,nofollow"
+    >
+
+    <title>Web3Jobs - Manage Companies</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+
+        :root {
+            --bg:#06101d;
+            --panel:#0b1a2b;
+            --panel2:#0e2135;
+            --border:#1d3852;
+            --text:#f5f9ff;
+            --muted:#8fa5bb;
+            --green:#4ade80;
+            --blue:#60a5fa;
+            --red:#f87171;
+        }
+
+        * {
+            box-sizing:border-box;
+        }
+
+        body {
+            margin:0;
+            min-height:100vh;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(38,102,160,.18),
+                    transparent 35%
+                ),
+                var(--bg);
+            color:var(--text);
+            font-family:Arial,Helvetica,sans-serif;
+        }
+
+        .page {
+            width:min(1400px,100%);
+            margin:auto;
+            padding:20px;
+        }
+
+        .header {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:15px;
+            margin-bottom:20px;
+            padding:18px;
+            border:1px solid var(--border);
+            border-radius:16px;
+            background:var(--panel);
+        }
+
+        .title {
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        .logo {
+            width:45px;
+            height:45px;
+            display:grid;
+            place-items:center;
+            border-radius:12px;
+            background:linear-gradient(135deg,#1c765a,#175a47);
+            font-weight:900;
+        }
+
+        h1 {
+            margin:0;
+            font-size:20px;
+        }
+
+        .subtitle {
+            margin-top:4px;
+            color:var(--muted);
+            font-size:11px;
+        }
+
+        button {
+            font:inherit;
+        }
+
+        .back,
+        .refresh {
+            min-height:42px;
+            padding:0 15px;
+            border:1px solid var(--border);
+            border-radius:9px;
+            background:var(--panel2);
+            color:white;
+            cursor:pointer;
+            font-weight:700;
+        }
+
+        .back:hover,
+        .refresh:hover {
+            background:#12283e;
+        }
+
+        .toolbar {
+            display:flex;
+            gap:10px;
+            margin-bottom:18px;
+        }
+
+        .search {
+            flex:1;
+            min-height:44px;
+            padding:0 14px;
+            border:1px solid var(--border);
+            border-radius:10px;
+            outline:none;
+            background:var(--panel);
+            color:white;
+        }
+
+        .search:focus {
+            border-color:var(--blue);
+        }
+
+        .card {
+            border:1px solid var(--border);
+            border-radius:16px;
+            overflow:hidden;
+            background:var(--panel);
+        }
+
+        .table-wrap {
+            width:100%;
+            overflow-x:auto;
+        }
+
+        table {
+            width:100%;
+            min-width:850px;
+            border-collapse:collapse;
+        }
+
+        th {
+            padding:14px;
+            text-align:left;
+            color:var(--muted);
+            font-size:10px;
+            text-transform:uppercase;
+            background:var(--panel2);
+        }
+
+        td {
+            padding:14px;
+            border-top:1px solid rgba(255,255,255,.06);
+            font-size:12px;
+        }
+
+        tr:hover td {
+            background:rgba(255,255,255,.025);
+        }
+
+        .company-name {
+            font-weight:800;
+        }
+
+        .wallet {
+            max-width:150px;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            white-space:nowrap;
+        }
+
+        .delete {
+            padding:7px 10px;
+            border:1px solid rgba(248,113,113,.3);
+            border-radius:7px;
+            background:rgba(248,113,113,.06);
+            color:var(--red);
+            cursor:pointer;
+            font-size:10px;
+            font-weight:800;
+        }
+
+        .empty {
+            padding:40px 20px;
+            text-align:center;
+            color:var(--muted);
+        }
+
+        .message {
+            display:none;
+            margin-bottom:18px;
+            padding:14px;
+            border-radius:10px;
+            font-size:12px;
+        }
+
+        .error {
+            display:block;
+            border:1px solid rgba(248,113,113,.3);
+            background:rgba(248,113,113,.06);
+            color:#fecaca;
+        }
+
+        #loading {
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:var(--muted);
+        }
+
+        #app {
+            display:none;
+        }
+
+        @media(max-width:600px) {
+
+            .page {
+                padding:12px;
+            }
+
+            .header {
+                align-items:flex-start;
+                flex-direction:column;
+            }
+
+            .toolbar {
+                flex-direction:column;
+            }
+
+        }
+
+    </style>
 
 </head>
-
 
 <body>
 
 
 <div id="loading">
-
-    <div class="loading-box">
-
-        <strong>
-            Web3Jobs Admin
-        </strong>
-
-        <span>
-            Loading companies...
-        </span>
-
-    </div>
-
+    Checking administrator access...
 </div>
 
 
-<main id="content" style="display:none;">
+<main id="app">
 
-<div class="page">
+    <div class="page">
+
+        <header class="header">
+
+            <div class="title">
+
+                <div class="logo">
+                    W3
+                </div>
+
+                <div>
+
+                    <h1>
+                        Manage Companies
+                    </h1>
+
+                    <div class="subtitle">
+                        Web3Jobs Administrator
+                    </div>
+
+                </div>
+
+            </div>
 
 
-<header class="header">
+            <button
+                type="button"
+                class="back"
+                id="back-button"
+            >
+                ← Admin Dashboard
+            </button>
 
-    <div>
+        </header>
 
-        <h1>
-            Manage Companies
-        </h1>
 
-        <p>
-            Web3Jobs company administration
-        </p>
+        <div
+            id="message"
+            class="message"
+        ></div>
+
+
+        <div class="toolbar">
+
+            <input
+                id="search"
+                class="search"
+                type="search"
+                placeholder="Search companies..."
+            >
+
+            <button
+                type="button"
+                id="refresh"
+                class="refresh"
+            >
+                Refresh
+            </button>
+
+        </div>
+
+
+        <section class="card">
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Company</th>
+
+                            <th>Industry</th>
+
+                            <th>Location</th>
+
+                            <th>Website</th>
+
+                            <th>Wallet</th>
+
+                            <th>Created</th>
+
+                            <th>Action</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="companies-body">
+
+                        <tr>
+
+                            <td
+                                colspan="7"
+                                class="empty"
+                            >
+                                Loading companies...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
 
     </div>
-
-
-    <div class="header-actions">
-
-        <button
-            type="button"
-            class="button"
-            id="back-button"
-        >
-            ← Admin Dashboard
-        </button>
-
-
-        <button
-            type="button"
-            class="button green"
-            id="refresh-button"
-        >
-            Refresh
-        </button>
-
-
-        <button
-            type="button"
-            class="button red"
-            id="logout-button"
-        >
-            Logout
-        </button>
-
-    </div>
-
-</header>
-
-
-<div
-    id="notice"
-    class="notice"
-></div>
-
-
-<section class="topbar">
-
-    <div class="count">
-
-        <strong id="company-count">
-            0
-        </strong>
-
-        Companies
-
-    </div>
-
-
-    <input
-        id="search-input"
-        class="search"
-        type="search"
-        placeholder="Search companies..."
-        autocomplete="off"
-    >
-
-</section>
-
-
-<section class="card">
-
-<div class="table-wrapper">
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>
-Company
-</th>
-
-<th>
-Email
-</th>
-
-<th>
-Location
-</th>
-
-<th>
-Status
-</th>
-
-<th>
-Created
-</th>
-
-<th>
-Actions
-</th>
-
-</tr>
-
-</thead>
-
-
-<tbody id="companies-body">
-
-</tbody>
-
-</table>
-
-</div>
-
-</section>
-
-
-</div>
 
 </main>
 
+
+<!-- =====================================================
+     IMPORTANT:
+     This file MUST load the same Supabase client
+     used by the rest of Web3Jobs.
+===================================================== -->
 
 <script src="js/supabase.js?v=20260812"></script>
 
@@ -640,183 +392,529 @@ Actions
 
 (() => {
 
-let client = null;
-
-let currentUser = null;
-
-let companies = [];
+    let supabase = null;
+    let currentUser = null;
+    let companies = [];
 
 
-/* =====================================================
-   SUPABASE
-===================================================== */
+    /* =====================================================
+       GET THE EXISTING WEB3JOBS CLIENT
+    ===================================================== */
 
-function getSupabase() {
+    function getClient() {
 
-    if (client) {
-        return client;
+        if (
+            window.Web3JobsSupabase &&
+            typeof
+            window.Web3JobsSupabase.getClient ===
+            "function"
+        ) {
+
+            const client =
+                window.Web3JobsSupabase.getClient();
+
+            if (client) {
+                return client;
+            }
+        }
+
+
+        if (
+            window.supabaseClient &&
+            typeof
+            window.supabaseClient.from ===
+            "function"
+        ) {
+
+            return window.supabaseClient;
+        }
+
+
+        throw new Error(
+            "Supabase client is not initialized."
+        );
     }
 
-    if (
-        window.Web3JobsSupabase &&
-        typeof
-        window.Web3JobsSupabase.getClient ===
-        "function"
-    ) {
 
-        client =
-            window.Web3JobsSupabase.getClient();
+    /* =====================================================
+       VERIFY LOGIN
+    ===================================================== */
 
-        return client;
-    }
+    async function verifyAdmin() {
 
-    if (
-        window.supabaseClient &&
-        typeof
-        window.supabaseClient.from ===
-        "function"
-    ) {
-
-        client =
-            window.supabaseClient;
-
-        return client;
-    }
-
-    throw new Error(
-        "Supabase client is not initialized."
-    );
-}
+        supabase =
+            getClient();
 
 
-/* =====================================================
-   NOTICE
-===================================================== */
+        /*
+         * IMPORTANT:
+         * We use the existing Web3Jobs session.
+         */
 
-function showNotice(
-    message,
-    type = "error"
-) {
+        const {
+            data,
+            error
+        } =
+            await supabase.auth.getUser();
 
-    const notice =
-        document.getElementById(
-            "notice"
+
+        if (error) {
+
+            console.error(
+                "Authentication error:",
+                error
+            );
+
+            throw new Error(
+                "Authentication failed."
+            );
+        }
+
+
+        currentUser =
+            data?.user || null;
+
+
+        if (!currentUser) {
+
+            throw new Error(
+                "Authentication session is missing."
+            );
+        }
+
+
+        console.log(
+            "Authenticated user:",
+            currentUser.id
         );
 
-    if (!notice) {
-        return;
-    }
 
-    notice.textContent =
-        message;
+        /* =================================================
+           VERIFY ADMIN FROM PROFILES
+        ================================================= */
 
-    notice.className =
-        "notice " + type;
-
-}
-
-
-/* =====================================================
-   ADMIN CHECK
-===================================================== */
-
-async function verifyAdmin() {
-
-    const supabase =
-        getSupabase();
+        const {
+            data: profile,
+            error: profileError
+        } =
+            await supabase
+                .from("profiles")
+                .select(
+                    "id,role"
+                )
+                .eq(
+                    "id",
+                    currentUser.id
+                )
+                .maybeSingle();
 
 
-    const {
-        data,
-        error
-    } =
-        await supabase.auth.getUser();
+        if (profileError) {
+
+            throw new Error(
+                "Unable to verify administrator account: " +
+                profileError.message
+            );
+        }
 
 
-    if (error) {
-        throw error;
-    }
-
-
-    currentUser =
-        data?.user || null;
-
-
-    if (!currentUser) {
-
-        window.location.replace(
-            "login.html"
-        );
-
-        return false;
-    }
-
-
-    /*
-     * Verify using admin_users.
-     * This matches the is_admin()
-     * function already used by the project.
-     */
-
-    const {
-        data: adminRow,
-        error: adminError
-    } =
-        await supabase
-            .from("admin_users")
-            .select("user_id")
-            .eq(
-                "user_id",
-                currentUser.id
+        const role =
+            String(
+                profile?.role || ""
             )
-            .maybeSingle();
+            .trim()
+            .toLowerCase();
 
 
-    if (adminError) {
-
-        console.error(
-            "Admin verification error:",
-            adminError
+        console.log(
+            "Admin role:",
+            role
         );
 
-        throw adminError;
+
+        if (role !== "admin") {
+
+            throw new Error(
+                "Administrator privileges are required."
+            );
+        }
+
+
+        return true;
     }
 
 
-    if (!adminRow) {
+    /* =====================================================
+       LOAD COMPANIES
+    ===================================================== */
 
-        showNotice(
-            "Access denied. Administrator privileges are required."
-        );
+    async function loadCompanies() {
 
-        setTimeout(
-            () => {
+        const body =
+            document.getElementById(
+                "companies-body"
+            );
 
-                window.location.replace(
-                    "dashboard.html"
+
+        body.innerHTML = `
+            <tr>
+                <td
+                    colspan="7"
+                    class="empty"
+                >
+                    Loading companies...
+                </td>
+            </tr>
+        `;
+
+
+        const {
+            data,
+            error
+        } =
+            await supabase
+                .from("company_profiles")
+                .select(
+                    `
+                    id,
+                    user_id,
+                    company_name,
+                    website,
+                    industry,
+                    location,
+                    wallet_address,
+                    created_at
+                    `
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending:false
+                    }
                 );
 
-            },
-            1200
-        );
 
-        return false;
+        if (error) {
+
+            console.error(
+                "Company query error:",
+                error
+            );
+
+            throw new Error(
+                error.message
+            );
+        }
+
+
+        companies =
+            data || [];
+
+
+        renderCompanies(
+            companies
+        );
     }
 
 
-    return true;
-}
+    /* =====================================================
+       RENDER
+    ===================================================== */
+
+    function renderCompanies(
+        list
+    ) {
+
+        const body =
+            document.getElementById(
+                "companies-body"
+            );
 
 
-/* =====================================================
-   ESCAPE HTML
-===================================================== */
+        if (!list.length) {
 
-function escapeHtml(value) {
+            body.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        class="empty"
+                    >
+                        No companies found.
+                    </td>
+                </tr>
+            `;
 
-    return String(
-        value ?? ""
-    )
+            return;
+        }
+
+
+        body.innerHTML =
+            list.map(
+                company => {
+
+                    const name =
+                        escapeHtml(
+                            company.company_name ||
+                            "Unnamed Company"
+                        );
+
+
+                    const industry =
+                        escapeHtml(
+                            company.industry ||
+                            "—"
+                        );
+
+
+                    const location =
+                        escapeHtml(
+                            company.location ||
+                            "—"
+                        );
+
+
+                    const wallet =
+                        escapeHtml(
+                            company.wallet_address ||
+                            "—"
+                        );
+
+
+                    const created =
+                        company.created_at
+                            ? new Date(
+                                company.created_at
+                            ).toLocaleDateString()
+                            : "—";
+
+
+                    return `
+                        <tr>
+
+                            <td>
+                                <div class="company-name">
+                                    ${name}
+                                </div>
+                            </td>
+
+                            <td>
+                                ${industry}
+                            </td>
+
+                            <td>
+                                ${location}
+                            </td>
+
+                            <td>
+
+                                ${
+                                    company.website
+                                        ? `
+                                            <a
+                                                href="${escapeAttribute(company.website)}"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style="color:#60a5fa"
+                                            >
+                                                Visit
+                                            </a>
+                                        `
+                                        : "—"
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <div class="wallet">
+                                    ${wallet}
+                                </div>
+
+                            </td>
+
+                            <td>
+                                ${created}
+                            </td>
+
+                            <td>
+
+                                <button
+                                    type="button"
+                                    class="delete"
+                                    data-id="${escapeAttribute(company.id)}"
+                                >
+                                    Delete
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    `;
+
+                }
+            )
+            .join("");
+
+
+        document
+            .querySelectorAll(".delete")
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        () => {
+
+                            deleteCompany(
+                                button.dataset.id
+                            );
+
+                        }
+                    );
+
+                }
+            );
+    }
+
+
+    /* =====================================================
+       DELETE COMPANY
+    ===================================================== */
+
+    async function deleteCompany(
+        id
+    ) {
+
+        const company =
+            companies.find(
+                item =>
+                    item.id === id
+            );
+
+
+        if (!company) {
+            return;
+        }
+
+
+        const name =
+            company.company_name ||
+            "this company";
+
+
+        if (
+            !window.confirm(
+                `Delete ${name}?\n\nThis action cannot be undone.`
+            )
+        ) {
+
+            return;
+        }
+
+
+        const {
+            error
+        } =
+            await supabase
+                .from("company_profiles")
+                .delete()
+                .eq(
+                    "id",
+                    id
+                );
+
+
+        if (error) {
+
+            showError(
+                error.message
+            );
+
+            return;
+        }
+
+
+        await loadCompanies();
+    }
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    function setupSearch() {
+
+        const input =
+            document.getElementById(
+                "search"
+            );
+
+
+        input.addEventListener(
+            "input",
+            () => {
+
+                const query =
+                    input.value
+                        .trim()
+                        .toLowerCase();
+
+
+                if (!query) {
+
+                    renderCompanies(
+                        companies
+                    );
+
+                    return;
+                }
+
+
+                const filtered =
+                    companies.filter(
+                        company => {
+
+                            return [
+
+                                company.company_name,
+
+                                company.industry,
+
+                                company.location,
+
+                                company.website,
+
+                                company.wallet_address
+
+                            ]
+                            .filter(Boolean)
+                            .join(" ")
+                            .toLowerCase()
+                            .includes(query);
+
+                        }
+                    );
+
+
+                renderCompanies(
+                    filtered
+                );
+            }
+        );
+    }
+
+
+    /* =====================================================
+       HELPERS
+    ===================================================== */
+
+    function escapeHtml(
+        value
+    ) {
+
+        return String(
+            value ?? ""
+        )
         .replace(
             /&/g,
             "&amp;"
@@ -837,756 +935,192 @@ function escapeHtml(value) {
             /'/g,
             "&#039;"
         );
-
-}
-
-
-/* =====================================================
-   GET COMPANY NAME
-===================================================== */
-
-function getCompanyName(company) {
-
-    return (
-        company.company_name ||
-        company.name ||
-        company.company ||
-        company.title ||
-        "Unnamed Company"
-    );
-
-}
+    }
 
 
-/* =====================================================
-   GET EMAIL
-===================================================== */
-
-function getEmail(company) {
-
-    return (
-        company.email ||
-        company.company_email ||
-        company.contact_email ||
-        "—"
-    );
-
-}
-
-
-/* =====================================================
-   GET LOCATION
-===================================================== */
-
-function getLocation(company) {
-
-    return (
-        company.location ||
-        company.country ||
-        company.city ||
-        "—"
-    );
-
-}
-
-
-/* =====================================================
-   GET STATUS
-===================================================== */
-
-function getStatus(company) {
-
-    const value =
-        String(
-            company.status ||
-            company.account_status ||
-            "active"
-        )
-            .trim()
-            .toLowerCase();
-
-
-    if (
-        value === "pending"
+    function escapeAttribute(
+        value
     ) {
 
-        return {
-            text: "Pending",
-            className: "pending"
-        };
-
+        return escapeHtml(
+            value
+        );
     }
 
 
-    if (
-        value === "inactive" ||
-        value === "suspended" ||
-        value === "blocked"
+    function showError(
+        message
     ) {
 
-        return {
-            text: value,
-            className: "inactive"
-        };
-
-    }
-
-
-    return {
-        text: "Active",
-        className: "active"
-    };
-
-}
-
-
-/* =====================================================
-   FORMAT DATE
-===================================================== */
-
-function formatDate(value) {
-
-    if (!value) {
-        return "—";
-    }
-
-    const date =
-        new Date(value);
-
-
-    if (
-        Number.isNaN(
-            date.getTime()
-        )
-    ) {
-
-        return "—";
-    }
-
-
-    return date.toLocaleDateString(
-        "en-US",
-        {
-            year: "numeric",
-            month: "short",
-            day: "numeric"
-        }
-    );
-
-}
-
-
-/* =====================================================
-   LOAD COMPANIES
-===================================================== */
-
-async function loadCompanies() {
-
-    const supabase =
-        getSupabase();
-
-
-    showNotice(
-        "Loading companies...",
-        "success"
-    );
-
-
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from(
-                "company_profiles"
-            )
-            .select("*")
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
+        const box =
+            document.getElementById(
+                "message"
             );
 
 
-    if (error) {
+        box.textContent =
+            "Error: " +
+            message;
 
-        console.error(
-            "Company loading error:",
-            error
-        );
 
-        throw error;
+        box.className =
+            "message error";
+
+
+        box.style.display =
+            "block";
     }
 
 
-    companies =
-        Array.isArray(data)
-            ? data
-            : [];
+    /* =====================================================
+       INIT
+    ===================================================== */
 
+    async function init() {
 
-    renderCompanies(
-        companies
-    );
+        try {
 
-
-    showNotice(
-        "Companies loaded successfully.",
-        "success"
-    );
-
-
-    setTimeout(
-        () => {
-
-            const notice =
-                document.getElementById(
-                    "notice"
-                );
-
-            if (notice) {
-                notice.className =
-                    "notice";
-            }
-
-        },
-        1800
-    );
-
-}
-
-
-/* =====================================================
-   RENDER
-===================================================== */
-
-function renderCompanies(
-    list
-) {
-
-    const body =
-        document.getElementById(
-            "companies-body"
-        );
-
-    const count =
-        document.getElementById(
-            "company-count"
-        );
-
-
-    if (!body) {
-        return;
-    }
-
-
-    if (count) {
-
-        count.textContent =
-            list.length.toLocaleString();
-
-    }
-
-
-    if (!list.length) {
-
-        body.innerHTML = `
-
-            <tr>
-
-                <td
-                    colspan="6"
-                >
-
-                    <div class="empty">
-
-                        No companies found.
-
-                    </div>
-
-                </td>
-
-            </tr>
-
-        `;
-
-        return;
-    }
-
-
-    body.innerHTML =
-        list
-            .map(
-                company => {
-
-                    const name =
-                        getCompanyName(
-                            company
-                        );
-
-                    const email =
-                        getEmail(
-                            company
-                        );
-
-                    const location =
-                        getLocation(
-                            company
-                        );
-
-                    const status =
-                        getStatus(
-                            company
-                        );
-
-                    return `
-
-                        <tr>
-
-                            <td>
-
-                                <div class="company-name">
-
-                                    ${escapeHtml(name)}
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="company-email">
-
-                                    ${escapeHtml(email)}
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                ${escapeHtml(location)}
-
-                            </td>
-
-
-                            <td>
-
-                                <span
-                                    class="badge ${status.className}"
-                                >
-
-                                    ${escapeHtml(status.text)}
-
-                                </span>
-
-                            </td>
-
-
-                            <td>
-
-                                ${formatDate(
-                                    company.created_at
-                                )}
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="actions">
-
-                                    <button
-                                        type="button"
-                                        class="small-button"
-                                        data-view="${escapeHtml(company.id || "")}"
-                                    >
-                                        View
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    `;
-
-                }
-            )
-            .join("");
-
-}
-
-
-/* =====================================================
-   SEARCH
-===================================================== */
-
-function searchCompanies() {
-
-    const input =
-        document.getElementById(
-            "search-input"
-        );
-
-
-    const query =
-        String(
-            input?.value || ""
-        )
-            .trim()
-            .toLowerCase();
-
-
-    if (!query) {
-
-        renderCompanies(
-            companies
-        );
-
-        return;
-    }
-
-
-    const filtered =
-        companies.filter(
-            company => {
-
-                const text =
-                    [
-
-                        company.company_name,
-
-                        company.name,
-
-                        company.company,
-
-                        company.email,
-
-                        company.company_email,
-
-                        company.location,
-
-                        company.country,
-
-                        company.city
-
-                    ]
-                        .filter(Boolean)
-                        .join(" ")
-                        .toLowerCase();
-
-
-                return text.includes(
-                    query
-                );
-
-            }
-        );
-
-
-    renderCompanies(
-        filtered
-    );
-
-}
-
-
-/* =====================================================
-   BUTTONS
-===================================================== */
-
-function setupButtons() {
-
-
-    const back =
-        document.getElementById(
-            "back-button"
-        );
-
-
-    if (back) {
-
-        back.onclick =
-            () => {
-
-                window.location.href =
-                    "admin-dashboard.html";
-
-            };
-
-    }
-
-
-    const refresh =
-        document.getElementById(
-            "refresh-button"
-        );
-
-
-    if (refresh) {
-
-        refresh.onclick =
-            async () => {
-
-                refresh.disabled =
-                    true;
-
-                refresh.textContent =
-                    "Loading...";
-
-
-                try {
-
-                    await loadCompanies();
-
-                } catch (error) {
-
-                    showNotice(
-                        "تعذر تحميل الشركات: " +
-                        (
-                            error?.message ||
-                            "Unknown error"
-                        ),
-                        "error"
-                    );
-
-                }
-
-
-                refresh.disabled =
-                    false;
-
-                refresh.textContent =
-                    "Refresh";
-
-            };
-
-    }
-
-
-    const logout =
-        document.getElementById(
-            "logout-button"
-        );
-
-
-    if (logout) {
-
-        logout.onclick =
-            async () => {
-
-                logout.disabled =
-                    true;
-
-                logout.textContent =
-                    "Logging out...";
-
-
-                try {
-
-                    await getSupabase()
-                        .auth
-                        .signOut();
-
-                } catch (error) {
-
-                    console.error(
-                        "Logout error:",
-                        error
-                    );
-
-                }
-
-
-                window.location.replace(
-                    "login.html"
-                );
-
-            };
-
-    }
-
-
-    const search =
-        document.getElementById(
-            "search-input"
-        );
-
-
-    if (search) {
-
-        search.addEventListener(
-            "input",
-            searchCompanies
-        );
-
-    }
-
-
-    const body =
-        document.getElementById(
-            "companies-body"
-        );
-
-
-    if (body) {
-
-        body.addEventListener(
-            "click",
-            event => {
-
-                const button =
-                    event.target.closest(
-                        "[data-view]"
-                    );
-
-
-                if (!button) {
-                    return;
-                }
-
-
-                const id =
-                    button.dataset.view;
-
-
-                const company =
-                    companies.find(
-                        item =>
-                            String(
-                                item.id
-                            ) ===
-                            String(id)
-                    );
-
-
-                if (!company) {
-
-                    return;
-                }
-
-
-                alert(
-                    JSON.stringify(
-                        company,
-                        null,
-                        2
-                    )
-                );
-
-            }
-        );
-
-    }
-
-}
-
-
-/* =====================================================
-   INIT
-===================================================== */
-
-async function init() {
-
-    try {
-
-        const allowed =
             await verifyAdmin();
 
 
-        if (!allowed) {
-            return;
-        }
+            document
+                .getElementById(
+                    "loading"
+                )
+                .style.display =
+                "none";
 
 
-        setupButtons();
+            document
+                .getElementById(
+                    "app"
+                )
+                .style.display =
+                "block";
 
 
-        document
-            .getElementById(
-                "loading"
-            )
-            .style.display =
-            "none";
+            document
+                .getElementById(
+                    "back-button"
+                )
+                .addEventListener(
+                    "click",
+                    () => {
+
+                        window.location.href =
+                            "admin-dashboard.html";
+
+                    }
+                );
 
 
-        document
-            .getElementById(
-                "content"
-            )
-            .style.display =
-            "block";
+            document
+                .getElementById(
+                    "refresh"
+                )
+                .addEventListener(
+                    "click",
+                    async () => {
+
+                        try {
+
+                            await loadCompanies();
+
+                        } catch (error) {
+
+                            showError(
+                                error.message
+                            );
+
+                        }
+
+                    }
+                );
 
 
-        await loadCompanies();
+            setupSearch();
 
 
-    } catch (error) {
-
-        console.error(
-            "Admin companies error:",
-            error
-        );
+            await loadCompanies();
 
 
-        const loading =
-            document.getElementById(
-                "loading"
+        } catch (error) {
+
+            console.error(
+                "Admin Companies Error:",
+                error
             );
 
 
-        if (loading) {
+            const loading =
+                document.getElementById(
+                    "loading"
+                );
+
 
             loading.innerHTML = `
+                <div style="
+                    max-width:500px;
+                    padding:30px;
+                    text-align:center;
+                ">
 
-                <div class="loading-box">
-
-                    <strong>
-                        Unable to Load Companies
+                    <strong style="
+                        display:block;
+                        margin-bottom:12px;
+                        color:#f87171;
+                    ">
+                        Unable to load companies
                     </strong>
 
-                    <span>
-                        ${escapeHtml(
-                            error?.message ||
-                            "Unknown error"
-                        )}
+                    <span style="
+                        color:#8fa5bb;
+                        font-size:12px;
+                    ">
+                        ${escapeHtml(error.message)}
                     </span>
 
+                    <br><br>
+
+                    <button
+                        onclick="window.location.href='admin-dashboard.html'"
+                        style="
+                            padding:10px 16px;
+                            border:1px solid #1d3852;
+                            border-radius:8px;
+                            background:#0e2135;
+                            color:white;
+                            cursor:pointer;
+                        "
+                    >
+                        Back to Admin Dashboard
+                    </button>
+
                 </div>
-
             `;
-
         }
-
     }
 
-}
 
+    /* =====================================================
+       START
+    ===================================================== */
 
-/* =====================================================
-   START
-===================================================== */
+    if (
+        document.readyState ===
+        "loading"
+    ) {
 
-if (
-    document.readyState ===
-    "loading"
-) {
+        document.addEventListener(
+            "DOMContentLoaded",
+            init
+        );
 
-    document.addEventListener(
-        "DOMContentLoaded",
-        init
-    );
+    } else {
 
-} else {
+        init();
 
-    init();
-
-}
+    }
 
 })();
 
@@ -1594,4 +1128,4 @@ if (
 
 </body>
 
-  </html>
+                </html>
