@@ -5,6 +5,7 @@
     let client = null;
     let currentUser = null;
     let allJobs = [];
+    let filteredJobs = [];
 
     const $ = id => document.getElementById(id);
 
@@ -98,18 +99,21 @@
 
     function showNotice(message, type = "error") {
 
-        const notice = $("notice");
+        const notice =
+            $("admin-notice");
 
         if (!notice) {
             return;
         }
 
-        notice.textContent = message;
+        notice.textContent =
+            message;
 
         notice.className =
             "notice " + type;
 
-        notice.style.display = "block";
+        notice.style.display =
+            "block";
 
         clearTimeout(
             showNotice.timer
@@ -127,16 +131,29 @@
 
     function hideLoading() {
 
-        const loading = $("loading");
-        const content = $("content");
+        const loading =
+            $("admin-loading");
+
+        const content =
+            $("admin-content");
 
         if (loading) {
-            loading.style.display = "none";
+            loading.style.display =
+                "none";
         }
 
         if (content) {
-            content.style.display = "block";
+            content.style.display =
+                "block";
         }
+    }
+
+
+    function formatNumber(value) {
+
+        return Number(
+            value || 0
+        ).toLocaleString();
     }
 
 
@@ -162,7 +179,6 @@
         currentUser =
             data?.user || null;
 
-
         if (!currentUser) {
 
             location.replace(
@@ -179,8 +195,13 @@
         } =
             await supabase
                 .from("profiles")
-                .select("id,email,role")
-                .eq("id", currentUser.id)
+                .select(
+                    "id,email,role"
+                )
+                .eq(
+                    "id",
+                    currentUser.id
+                )
                 .maybeSingle();
 
 
@@ -221,16 +242,127 @@
 
 
     /* =========================================================
+       ADMIN ACTION LOG
+       ========================================================= */
+
+    async function logAdminAction(
+        action,
+        targetId = null,
+        details = null
+    ) {
+
+        if (!currentUser) {
+            return;
+        }
+
+        try {
+
+            const {
+                error
+            } =
+                await getSupabase()
+                    .from("admin_actions")
+                    .insert({
+                        admin_id:
+                            currentUser.id,
+
+                        action,
+
+                        target_id:
+                            targetId,
+
+                        details
+                    });
+
+
+            if (error) {
+
+                console.warn(
+                    "Admin action log:",
+                    error.message
+                );
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Admin action log:",
+                error
+            );
+        }
+    }
+
+
+    /* =========================================================
+       JOB STATUS
+       ========================================================= */
+
+    function getJobStatus(job) {
+
+        if (
+            typeof job.is_active ===
+            "boolean"
+        ) {
+            return job.is_active;
+        }
+
+
+        if (
+            typeof job.active ===
+            "boolean"
+        ) {
+            return job.active;
+        }
+
+
+        if (
+            typeof job.status ===
+            "string"
+        ) {
+
+            const status =
+                job.status
+                    .trim()
+                    .toLowerCase();
+
+
+            if (
+                [
+                    "inactive",
+                    "disabled",
+                    "closed",
+                    "draft",
+                    "hidden"
+                ].includes(status)
+            ) {
+                return false;
+            }
+
+
+            if (
+                [
+                    "active",
+                    "published",
+                    "open"
+                ].includes(status)
+            ) {
+                return true;
+            }
+        }
+
+
+        return true;
+    }
+
+
+    /* =========================================================
        LOAD JOBS
        ========================================================= */
 
     async function loadJobs() {
 
-        const supabase =
-            getSupabase();
-
         const tbody =
-            $("jobs-table");
+            $("jobs-table-body");
 
 
         if (tbody) {
@@ -251,7 +383,7 @@
             data,
             error
         } =
-            await supabase
+            await getSupabase()
                 .from("jobs")
                 .select("*")
                 .order(
@@ -269,6 +401,7 @@
                 error
             );
 
+
             if (tbody) {
 
                 tbody.innerHTML = `
@@ -281,6 +414,7 @@
                     </tr>
                 `;
             }
+
 
             showNotice(
                 error.message ||
@@ -298,8 +432,158 @@
                 : [];
 
 
+        updateStatistics();
+
+
+        applyFilters();
+    }
+
+
+    /* =========================================================
+       STATISTICS
+       ========================================================= */
+
+    function updateStatistics() {
+
+        const total =
+            allJobs.length;
+
+
+        const active =
+            allJobs.filter(
+                job =>
+                    getJobStatus(job)
+            ).length;
+
+
+        const hidden =
+            total - active;
+
+
+        const totalElement =
+            $("total-jobs");
+
+        const activeElement =
+            $("active-jobs");
+
+        const hiddenElement =
+            $("hidden-jobs");
+
+
+        if (totalElement) {
+            totalElement.textContent =
+                formatNumber(total);
+        }
+
+
+        if (activeElement) {
+            activeElement.textContent =
+                formatNumber(active);
+        }
+
+
+        if (hiddenElement) {
+            hiddenElement.textContent =
+                formatNumber(hidden);
+        }
+    }
+
+
+    /* =========================================================
+       FILTER + SEARCH
+       ========================================================= */
+
+    function applyFilters() {
+
+        const searchInput =
+            $("job-search");
+
+        const statusFilter =
+            $("job-status-filter");
+
+
+        const query =
+            String(
+                searchInput?.value || ""
+            )
+                .trim()
+                .toLowerCase();
+
+
+        const status =
+            statusFilter?.value ||
+            "all";
+
+
+        filteredJobs =
+            allJobs.filter(job => {
+
+                const searchableText =
+                    [
+                        job.title,
+                        job.company,
+                        job.company_name,
+                        job.location,
+                        job.type,
+                        job.job_type,
+                        job.description
+                    ]
+                        .map(value =>
+                            String(
+                                value || ""
+                            ).toLowerCase()
+                        )
+                        .join(" ");
+
+
+                if (
+                    query &&
+                    !searchableText.includes(
+                        query
+                    )
+                ) {
+                    return false;
+                }
+
+
+                const active =
+                    getJobStatus(job);
+
+
+                if (
+                    status === "active" &&
+                    !active
+                ) {
+                    return false;
+                }
+
+
+                if (
+                    status === "hidden" &&
+                    active
+                ) {
+                    return false;
+                }
+
+
+                return true;
+            });
+
+
+        const results =
+            $("search-results");
+
+
+        if (results) {
+            results.textContent =
+                formatNumber(
+                    filteredJobs.length
+                );
+        }
+
+
         renderJobs(
-            allJobs
+            filteredJobs
         );
     }
 
@@ -311,17 +595,7 @@
     function renderJobs(jobs) {
 
         const tbody =
-            $("jobs-table");
-
-        const count =
-            $("job-count");
-
-
-        if (count) {
-
-            count.textContent =
-                `${jobs.length} job${jobs.length === 1 ? "" : "s"}`;
-        }
+            $("jobs-table-body");
 
 
         if (!tbody) {
@@ -372,7 +646,6 @@
 
                 const created =
                     job.created_at ||
-                    job.createdAt ||
                     null;
 
 
@@ -383,17 +656,19 @@
                 const statusClass =
                     active
                         ? "active"
-                        : "inactive";
+                        : "hidden";
 
 
                 const statusText =
                     active
                         ? "Active"
-                        : "Inactive";
+                        : "Hidden";
 
 
                 const id =
-                    job.id;
+                    String(
+                        job.id
+                    );
 
 
                 return `
@@ -412,7 +687,9 @@
                         </td>
 
                         <td>
-                            ${escapeHtml(location)}
+                            <span class="muted">
+                                ${escapeHtml(location)}
+                            </span>
                         </td>
 
                         <td>
@@ -426,18 +703,22 @@
                         </td>
 
                         <td>
-                            ${escapeHtml(
-                                formatDate(created)
-                            )}
+                            <span class="muted">
+                                ${escapeHtml(
+                                    formatDate(
+                                        created
+                                    )
+                                )}
+                            </span>
                         </td>
 
                         <td>
 
-                            <div class="row-actions">
+                            <div class="actions">
 
                                 <button
                                     type="button"
-                                    class="small-button"
+                                    class="small-btn"
                                     data-action="view"
                                     data-id="${escapeHtml(id)}"
                                 >
@@ -446,16 +727,25 @@
 
                                 <button
                                     type="button"
-                                    class="small-button"
-                                    data-action="toggle"
+                                    class="small-btn edit"
+                                    data-action="edit"
                                     data-id="${escapeHtml(id)}"
                                 >
-                                    ${active ? "Disable" : "Activate"}
+                                    Edit
                                 </button>
 
                                 <button
                                     type="button"
-                                    class="small-button delete"
+                                    class="small-btn toggle"
+                                    data-action="toggle"
+                                    data-id="${escapeHtml(id)}"
+                                >
+                                    ${active ? "Hide" : "Activate"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    class="small-btn delete"
                                     data-action="delete"
                                     data-id="${escapeHtml(id)}"
                                 >
@@ -474,126 +764,15 @@
 
 
     /* =========================================================
-       JOB STATUS
+       FIND JOB
        ========================================================= */
 
-    function getJobStatus(job) {
+    function findJob(id) {
 
-        if (
-            typeof job.is_active === "boolean"
-        ) {
-            return job.is_active;
-        }
-
-
-        if (
-            typeof job.active === "boolean"
-        ) {
-            return job.active;
-        }
-
-
-        if (
-            typeof job.status === "string"
-        ) {
-
-            const status =
-                job.status
-                    .trim()
-                    .toLowerCase();
-
-
-            if (
-                [
-                    "inactive",
-                    "disabled",
-                    "closed",
-                    "draft",
-                    "hidden"
-                ].includes(status)
-            ) {
-                return false;
-            }
-
-
-            if (
-                [
-                    "active",
-                    "published",
-                    "open"
-                ].includes(status)
-            ) {
-                return true;
-            }
-        }
-
-
-        return true;
-    }
-
-
-    /* =========================================================
-       SEARCH
-       ========================================================= */
-
-    function searchJobs() {
-
-        const input =
-            $("job-search");
-
-        if (!input) {
-            return;
-        }
-
-
-        const query =
-            input.value
-                .trim()
-                .toLowerCase();
-
-
-        if (!query) {
-
-            renderJobs(
-                allJobs
-            );
-
-            return;
-        }
-
-
-        const filtered =
-            allJobs.filter(job => {
-
-                const values = [
-
-                    job.title,
-
-                    job.company,
-
-                    job.company_name,
-
-                    job.location,
-
-                    job.type,
-
-                    job.job_type,
-
-                    job.description
-
-                ];
-
-
-                return values.some(value =>
-                    String(value || "")
-                        .toLowerCase()
-                        .includes(query)
-                );
-            });
-
-
-        renderJobs(
-            filtered
+        return allJobs.find(
+            job =>
+                String(job.id) ===
+                String(id)
         );
     }
 
@@ -605,11 +784,7 @@
     function viewJob(id) {
 
         const job =
-            allJobs.find(
-                item =>
-                    String(item.id) ===
-                    String(id)
-            );
+            findJob(id);
 
 
         if (!job) {
@@ -644,7 +819,14 @@
             "No description available.";
 
 
-        alert(
+        const applyLink =
+            job.apply_link ||
+            job.apply_url ||
+            job.application_url ||
+            "";
+
+
+        let message =
             "Job: " +
             title +
             "\n\n" +
@@ -657,8 +839,326 @@
             "Type: " +
             type +
             "\n\n" +
-            description
+            description;
+
+
+        if (applyLink) {
+
+            message +=
+                "\n\nApplication Link:\n" +
+                applyLink;
+        }
+
+
+        alert(message);
+
+
+        logAdminAction(
+            "Viewed job",
+            id
         );
+    }
+
+
+    /* =========================================================
+       OPEN EDIT MODAL
+       ========================================================= */
+
+    function openEditModal(id) {
+
+        const job =
+            findJob(id);
+
+
+        if (!job) {
+            return;
+        }
+
+
+        if ($("edit-job-id")) {
+            $("edit-job-id").value =
+                job.id || "";
+        }
+
+
+        if ($("edit-title")) {
+            $("edit-title").value =
+                job.title || "";
+        }
+
+
+        if ($("edit-company")) {
+            $("edit-company").value =
+                job.company ||
+                job.company_name ||
+                "";
+        }
+
+
+        if ($("edit-location")) {
+            $("edit-location").value =
+                job.location || "";
+        }
+
+
+        if ($("edit-type")) {
+            $("edit-type").value =
+                job.type ||
+                job.job_type ||
+                "";
+        }
+
+
+        if ($("edit-description")) {
+            $("edit-description").value =
+                job.description || "";
+        }
+
+
+        if ($("edit-apply-link")) {
+            $("edit-apply-link").value =
+                job.apply_link ||
+                job.apply_url ||
+                job.application_url ||
+                "";
+        }
+
+
+        if ($("edit-status")) {
+            $("edit-status").value =
+                getJobStatus(job)
+                    ? "active"
+                    : "hidden";
+        }
+
+
+        const modal =
+            $("edit-job-modal");
+
+
+        if (modal) {
+            modal.classList.add(
+                "show"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       CLOSE EDIT MODAL
+       ========================================================= */
+
+    function closeEditModal() {
+
+        const modal =
+            $("edit-job-modal");
+
+
+        if (modal) {
+            modal.classList.remove(
+                "show"
+            );
+        }
+    }
+
+
+    /* =========================================================
+       SAVE JOB
+       ========================================================= */
+
+    async function saveJob(event) {
+
+        event.preventDefault();
+
+
+        const id =
+            $("edit-job-id")?.value;
+
+
+        if (!id) {
+
+            showNotice(
+                "Job ID is missing.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const title =
+            $("edit-title")?.value
+                .trim() || "";
+
+
+        const company =
+            $("edit-company")?.value
+                .trim() || "";
+
+
+        const location =
+            $("edit-location")?.value
+                .trim() || "";
+
+
+        const type =
+            $("edit-type")?.value
+                .trim() || "";
+
+
+        const description =
+            $("edit-description")?.value
+                .trim() || "";
+
+
+        const applyLink =
+            $("edit-apply-link")?.value
+                .trim() || "";
+
+
+        const status =
+            $("edit-status")?.value ||
+            "active";
+
+
+        if (!title) {
+
+            showNotice(
+                "Job title is required.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        const updateData = {
+            title,
+            company,
+            location,
+            type,
+            description
+        };
+
+
+        /*
+         * Only update apply_link if the
+         * column is likely part of the table.
+         */
+
+        if (
+            Object.prototype.hasOwnProperty.call(
+                findJob(id) || {},
+                "apply_link"
+            )
+        ) {
+            updateData.apply_link =
+                applyLink;
+        }
+
+
+        /*
+         * Only update is_active when
+         * the existing row contains it.
+         */
+
+        const existingJob =
+            findJob(id);
+
+
+        if (
+            existingJob &&
+            Object.prototype.hasOwnProperty.call(
+                existingJob,
+                "is_active"
+            )
+        ) {
+
+            updateData.is_active =
+                status === "active";
+        }
+
+
+        const saveButton =
+            $("save-job");
+
+
+        if (saveButton) {
+
+            saveButton.disabled =
+                true;
+
+            saveButton.textContent =
+                "Saving...";
+        }
+
+
+        try {
+
+            const {
+                error
+            } =
+                await getSupabase()
+                    .from("jobs")
+                    .update(updateData)
+                    .eq(
+                        "id",
+                        id
+                    );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            await logAdminAction(
+                "Edited job",
+                id,
+                {
+                    title,
+                    company
+                }
+            );
+
+
+            closeEditModal();
+
+
+            showNotice(
+                "Job updated successfully.",
+                "success"
+            );
+
+
+            await loadJobs();
+
+
+        } catch (error) {
+
+            console.error(
+                "Save job:",
+                error
+            );
+
+
+            showNotice(
+                error.message ||
+                "Could not update the job.",
+                "error"
+            );
+
+        } finally {
+
+            if (saveButton) {
+
+                saveButton.disabled =
+                    false;
+
+                saveButton.textContent =
+                    "Save Changes";
+            }
+        }
     }
 
 
@@ -669,11 +1169,7 @@
     async function toggleJob(id) {
 
         const job =
-            allJobs.find(
-                item =>
-                    String(item.id) ===
-                    String(id)
-            );
+            findJob(id);
 
 
         if (!job) {
@@ -694,10 +1190,10 @@
 
 
         /*
-         * Prefer is_active when the column exists.
+         * First try is_active.
          */
 
-        const {
+        let {
             error
         } =
             await supabase
@@ -712,6 +1208,33 @@
                 );
 
 
+        /*
+         * If is_active does not exist,
+         * try status.
+         */
+
+        if (error) {
+
+            const result =
+                await supabase
+                    .from("jobs")
+                    .update({
+                        status:
+                            newStatus
+                                ? "active"
+                                : "hidden"
+                    })
+                    .eq(
+                        "id",
+                        id
+                    );
+
+
+            error =
+                result.error;
+        }
+
+
         if (error) {
 
             console.error(
@@ -721,7 +1244,8 @@
 
 
             showNotice(
-                "Could not change job status. Make sure the jobs table contains an is_active column.",
+                error.message ||
+                "Could not change job status.",
                 "error"
             );
 
@@ -729,10 +1253,18 @@
         }
 
 
+        await logAdminAction(
+            newStatus
+                ? "Activated job"
+                : "Hidden job",
+            id
+        );
+
+
         showNotice(
             newStatus
                 ? "Job activated successfully."
-                : "Job disabled successfully.",
+                : "Job hidden successfully.",
             "success"
         );
 
@@ -748,11 +1280,7 @@
     async function deleteJob(id) {
 
         const job =
-            allJobs.find(
-                item =>
-                    String(item.id) ===
-                    String(id)
-            );
+            findJob(id);
 
 
         if (!job) {
@@ -767,7 +1295,7 @@
 
         const confirmed =
             window.confirm(
-                `Are you sure you want to delete "${title}"?`
+                `Are you sure you want to permanently delete "${title}"?`
             );
 
 
@@ -776,14 +1304,10 @@
         }
 
 
-        const supabase =
-            getSupabase();
-
-
         const {
             error
         } =
-            await supabase
+            await getSupabase()
                 .from("jobs")
                 .delete()
                 .eq(
@@ -810,6 +1334,15 @@
         }
 
 
+        await logAdminAction(
+            "Deleted job",
+            id,
+            {
+                title
+            }
+        );
+
+
         showNotice(
             "Job deleted successfully.",
             "success"
@@ -827,7 +1360,7 @@
     function setupTableActions() {
 
         const tbody =
-            $("jobs-table");
+            $("jobs-table-body");
 
 
         if (!tbody) {
@@ -870,39 +1403,132 @@
                 try {
 
                     if (
-                        action === "view"
+                        action ===
+                        "view"
                     ) {
 
                         viewJob(id);
 
-                    }
+                    } else if (
+                        action ===
+                        "edit"
+                    ) {
 
+                        openEditModal(id);
 
-                    if (
-                        action === "toggle"
+                    } else if (
+                        action ===
+                        "toggle"
                     ) {
 
                         await toggleJob(id);
 
-                    }
-
-
-                    if (
-                        action === "delete"
+                    } else if (
+                        action ===
+                        "delete"
                     ) {
 
                         await deleteJob(id);
-
                     }
+
+                } catch (error) {
+
+                    console.error(
+                        "Job action:",
+                        error
+                    );
+
+
+                    showNotice(
+                        error.message ||
+                        "Action failed.",
+                        "error"
+                    );
 
                 } finally {
 
                     button.disabled =
                         false;
                 }
-
             }
         );
+    }
+
+
+    /* =========================================================
+       SEARCH EVENTS
+       ========================================================= */
+
+    function setupSearch() {
+
+        const input =
+            $("job-search");
+
+
+        if (input) {
+
+            input.addEventListener(
+                "input",
+                applyFilters
+            );
+        }
+
+
+        const filter =
+            $("job-status-filter");
+
+
+        if (filter) {
+
+            filter.addEventListener(
+                "change",
+                applyFilters
+            );
+        }
+    }
+
+
+    /* =========================================================
+       MODAL EVENTS
+       ========================================================= */
+
+    function setupModal() {
+
+        $("edit-job-form")
+            ?.addEventListener(
+                "submit",
+                saveJob
+            );
+
+
+        $("close-edit-modal")
+            ?.addEventListener(
+                "click",
+                closeEditModal
+            );
+
+
+        $("cancel-edit")
+            ?.addEventListener(
+                "click",
+                closeEditModal
+            );
+
+
+        $("edit-job-modal")
+            ?.addEventListener(
+                "click",
+                event => {
+
+                    if (
+                        event.target.id ===
+                        "edit-job-modal"
+                    ) {
+
+                        closeEditModal();
+                    }
+                }
+            );
     }
 
 
@@ -915,30 +1541,25 @@
         $("back-dashboard")
             ?.addEventListener(
                 "click",
-                () => {
+                async () => {
+
+                    await logAdminAction(
+                        "Returned to admin dashboard"
+                    );
 
                     location.href =
                         "admin-dashboard.html";
-
                 }
             );
 
 
-        $("refresh")
+        $("refresh-jobs")
             ?.addEventListener(
                 "click",
                 async () => {
 
                     await loadJobs();
-
                 }
-            );
-
-
-        $("job-search")
-            ?.addEventListener(
-                "input",
-                searchJobs
             );
     }
 
@@ -949,13 +1570,13 @@
 
     function setupLogout() {
 
-        $("logout")
+        $("admin-logout")
             ?.addEventListener(
                 "click",
                 async () => {
 
                     const button =
-                        $("logout");
+                        $("admin-logout");
 
 
                     if (button) {
@@ -1009,13 +1630,19 @@
             }
 
 
+            setupTableActions();
+
+            setupSearch();
+
+            setupModal();
+
             setupNavigation();
 
             setupLogout();
 
-            setupTableActions();
 
             await loadJobs();
+
 
             hideLoading();
 
@@ -1023,33 +1650,25 @@
         } catch (error) {
 
             console.error(
-                "Admin Jobs:",
+                "Admin jobs dashboard:",
                 error
             );
 
 
+            showNotice(
+                error?.message ||
+                "Unable to load job management.",
+                "error"
+            );
+
+
             const loading =
-                $("loading");
+                $("admin-loading");
 
 
             if (loading) {
-
-                loading.innerHTML = `
-                    <div class="loading-box">
-
-                        <strong>
-                            Admin Access Error
-                        </strong>
-
-                        <span>
-                            ${escapeHtml(
-                                error?.message ||
-                                "Unable to load job management."
-                            )}
-                        </span>
-
-                    </div>
-                `;
+                loading.style.display =
+                    "none";
             }
         }
     }
@@ -1061,19 +1680,36 @@
 
     window.Web3JobsAdminJobs = {
 
+        getJobs:
+            () => allJobs,
+
         refresh:
             loadJobs,
 
         search:
-            searchJobs,
+            applyFilters,
 
-        getJobs:
-            () => allJobs,
+        view:
+            viewJob,
+
+        edit:
+            openEditModal,
+
+        toggle:
+            toggleJob,
+
+        delete:
+            deleteJob,
 
         getCurrentUser:
             () => currentUser
+
     };
 
+
+    /* =========================================================
+       START
+       ========================================================= */
 
     if (
         document.readyState ===
@@ -1088,7 +1724,6 @@
     } else {
 
         init();
-
     }
 
 })();
