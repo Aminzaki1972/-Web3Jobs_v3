@@ -27,37 +27,61 @@
 
     <title>Web3Jobs - Admin Dashboard</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- =====================================================
+         SUPABASE
+    ====================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
 
     <style>
 
         :root {
+
             --bg: #06101d;
+
             --panel: #0b1a2b;
+
             --panel-2: #0e2135;
+
             --border: #1d3852;
+
             --text: #f5f9ff;
+
             --muted: #8fa5bb;
+
             --green: #4ade80;
+
             --blue: #60a5fa;
+
             --red: #f87171;
+
             --yellow: #facc15;
         }
+
 
         * {
             box-sizing: border-box;
         }
 
+
         body {
+
             margin: 0;
+
             min-height: 100vh;
 
             background:
+
                 radial-gradient(
                     circle at top right,
                     rgba(38, 102, 160, .18),
                     transparent 35%
                 ),
+
                 var(--bg);
 
             color: var(--text);
@@ -68,42 +92,72 @@
                 sans-serif;
         }
 
+
         button {
             font: inherit;
         }
 
+
         .page {
-            width: min(1400px, 100%);
+
+            width: min(
+                1400px,
+                100%
+            );
+
             margin: auto;
+
             padding: 24px;
         }
 
+
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
         .header {
+
             display: flex;
+
             align-items: center;
+
             justify-content: space-between;
+
             gap: 20px;
 
             padding: 20px;
+
             margin-bottom: 24px;
 
-            border: 1px solid var(--border);
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 18px;
 
-            background: var(--panel);
+            background:
+                var(--panel);
         }
 
+
         .brand {
+
             display: flex;
+
             align-items: center;
+
             gap: 14px;
         }
 
+
         .logo {
+
             width: 48px;
+
             height: 48px;
 
             display: grid;
+
             place-items: center;
 
             border-radius: 13px;
@@ -116,91 +170,169 @@
                 );
 
             color: white;
+
             font-weight: 900;
         }
 
+
         .brand h1 {
+
             margin: 0;
+
             font-size: 21px;
         }
 
+
         .brand p {
+
             margin: 4px 0 0;
-            color: var(--muted);
+
+            color:
+                var(--muted);
+
             font-size: 12px;
         }
 
-        .admin-badge {
-            padding: 8px 12px;
 
-            border: 1px solid
-                rgba(74, 222, 128, .3);
+        .admin-badge {
+
+            padding:
+                8px 12px;
+
+            border:
+                1px solid
+                rgba(
+                    74,
+                    222,
+                    128,
+                    .3
+                );
 
             border-radius: 999px;
 
-            color: var(--green);
+            color:
+                var(--green);
 
             background:
-                rgba(74, 222, 128, .06);
+                rgba(
+                    74,
+                    222,
+                    128,
+                    .06
+                );
 
             font-size: 11px;
+
             font-weight: 800;
         }
 
-        .logout {
-            min-height: 40px;
-            padding: 0 16px;
 
-            border: 1px solid #3a526b;
+        .logout {
+
+            min-height: 40px;
+
+            padding:
+                0 16px;
+
+            border:
+                1px solid
+                #3a526b;
+
             border-radius: 9px;
 
-            background: #091827;
+            background:
+                #091827;
+
             color: white;
 
             cursor: pointer;
         }
 
+
         .logout:hover {
-            background: #12283e;
+
+            background:
+                #12283e;
         }
 
+
+        .logout:disabled {
+
+            opacity: .55;
+
+            cursor:
+                not-allowed;
+        }
+
+
+        /* =====================================================
+           STATS
+        ====================================================== */
+
         .stats {
+
             display: grid;
 
             grid-template-columns:
-                repeat(4, minmax(0, 1fr));
+                repeat(
+                    4,
+                    minmax(
+                        0,
+                        1fr
+                    )
+                );
 
             gap: 16px;
 
             margin-bottom: 24px;
         }
 
+
         .stat {
+
             padding: 20px;
 
-            border: 1px solid var(--border);
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 16px;
 
-            background: var(--panel);
+            background:
+                var(--panel);
         }
+
 
         .stat-label {
-            color: var(--muted);
+
+            color:
+                var(--muted);
 
             font-size: 11px;
+
             font-weight: 700;
 
-            text-transform: uppercase;
+            text-transform:
+                uppercase;
         }
 
+
         .stat-value {
+
             margin-top: 10px;
 
             font-size: 30px;
+
             font-weight: 900;
         }
 
+
+        /* =====================================================
+           GRID
+        ====================================================== */
+
         .dashboard-grid {
+
             display: grid;
 
             grid-template-columns:
@@ -209,157 +341,289 @@
             gap: 20px;
         }
 
+
         .card {
+
             padding: 20px;
 
-            border: 1px solid var(--border);
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 16px;
 
-            background: var(--panel);
+            background:
+                var(--panel);
         }
 
+
         .card h2 {
-            margin: 0 0 6px;
+
+            margin:
+                0 0 6px;
+
             font-size: 17px;
         }
 
-        .card-description {
-            margin: 0 0 18px;
 
-            color: var(--muted);
+        .card-description {
+
+            margin:
+                0 0 18px;
+
+            color:
+                var(--muted);
 
             font-size: 11px;
         }
 
+
+        /* =====================================================
+           INFO
+        ====================================================== */
+
         .info-row {
+
             display: flex;
 
             align-items: center;
+
             justify-content: space-between;
 
             gap: 15px;
 
-            padding: 12px 0;
+            padding:
+                12px 0;
 
             border-bottom:
                 1px solid
-                rgba(255,255,255,.06);
+                rgba(
+                    255,
+                    255,
+                    255,
+                    .06
+                );
         }
 
+
         .info-row:last-child {
+
             border-bottom: 0;
         }
 
+
         .info-label {
-            color: var(--muted);
+
+            color:
+                var(--muted);
+
             font-size: 11px;
         }
 
+
         .info-value {
+
             color: white;
+
             font-size: 12px;
+
             font-weight: 800;
 
             text-align: right;
 
-            word-break: break-all;
+            word-break:
+                break-all;
         }
 
+
         .status {
+
             display: inline-block;
 
-            padding: 5px 9px;
+            padding:
+                5px 9px;
 
-            border-radius: 999px;
+            border-radius:
+                999px;
 
             font-size: 10px;
+
             font-weight: 800;
         }
 
+
         .status.admin {
-            color: var(--green);
+
+            color:
+                var(--green);
 
             background:
-                rgba(74, 222, 128, .08);
+                rgba(
+                    74,
+                    222,
+                    128,
+                    .08
+                );
         }
 
+
+        /* =====================================================
+           ACTIONS
+        ====================================================== */
+
         .actions {
+
             display: grid;
 
             grid-template-columns:
-                repeat(2, 1fr);
+                repeat(
+                    2,
+                    1fr
+                );
 
             gap: 10px;
         }
 
+
         .action-button {
+
             min-height: 46px;
 
-            border: 1px solid var(--border);
+            border:
+                1px solid
+                var(--border);
+
             border-radius: 10px;
 
-            background: var(--panel-2);
+            background:
+                var(--panel-2);
+
             color: white;
 
             cursor: pointer;
 
             font-weight: 800;
+
             font-size: 11px;
+
+            transition:
+                .2s;
         }
+
 
         .action-button:hover {
-            border-color: #356184;
-            background: #12283e;
+
+            border-color:
+                #356184;
+
+            background:
+                #12283e;
+
+            transform:
+                translateY(-1px);
         }
+
+
+        .action-button:active {
+
+            transform:
+                translateY(0);
+        }
+
 
         .action-button.green {
+
             border-color:
-                rgba(74, 222, 128, .25);
+                rgba(
+                    74,
+                    222,
+                    128,
+                    .25
+                );
         }
+
 
         .action-button.blue {
+
             border-color:
-                rgba(96, 165, 250, .25);
+                rgba(
+                    96,
+                    165,
+                    250,
+                    .25
+                );
         }
+
 
         .action-button.yellow {
+
             border-color:
-                rgba(250, 204, 21, .25);
+                rgba(
+                    250,
+                    204,
+                    21,
+                    .25
+                );
         }
+
+
+        /* =====================================================
+           ACTIVITY
+        ====================================================== */
 
         .activity {
-            grid-column: 1 / -1;
+
+            grid-column:
+                1 / -1;
         }
 
+
         .empty {
+
             padding: 25px;
 
             text-align: center;
 
-            color: var(--muted);
+            color:
+                var(--muted);
 
             font-size: 12px;
         }
 
+
+        /* =====================================================
+           LOADING
+        ====================================================== */
+
         #admin-loading {
+
             position: fixed;
+
             inset: 0;
 
             z-index: 9999;
 
             display: flex;
+
             align-items: center;
+
             justify-content: center;
 
-            background: var(--bg);
+            background:
+                var(--bg);
         }
 
+
         .loading-box {
+
             text-align: center;
+
             padding: 30px;
         }
 
+
         .loading-box strong {
+
             display: block;
 
             margin-bottom: 8px;
@@ -367,74 +631,124 @@
             font-size: 18px;
         }
 
+
         .loading-box span {
-            color: var(--muted);
+
+            color:
+                var(--muted);
+
             font-size: 12px;
         }
 
+
         #admin-content {
+
             display: none;
         }
 
+
+        /* =====================================================
+           NOTICE
+        ====================================================== */
+
         .notice {
+
             display: none;
 
             margin-bottom: 20px;
-            padding: 14px 16px;
+
+            padding:
+                14px 16px;
 
             border-radius: 12px;
 
             font-size: 12px;
         }
 
+
         .notice.error {
+
             display: block;
 
-            color: #fecaca;
+            color:
+                #fecaca;
 
             border:
                 1px solid
-                rgba(248,113,113,.25);
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .25
+                );
 
             background:
-                rgba(248,113,113,.06);
+                rgba(
+                    248,
+                    113,
+                    113,
+                    .06
+                );
         }
+
+
+        /* =====================================================
+           MOBILE
+        ====================================================== */
 
         @media (max-width: 900px) {
 
             .stats {
+
                 grid-template-columns:
-                    repeat(2, 1fr);
+                    repeat(
+                        2,
+                        1fr
+                    );
             }
+
 
             .dashboard-grid {
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
+
 
             .activity {
-                grid-column: auto;
-            }
 
+                grid-column:
+                    auto;
+            }
         }
+
 
         @media (max-width: 600px) {
 
             .page {
+
                 padding: 12px;
             }
 
+
             .header {
+
                 flex-wrap: wrap;
             }
 
+
             .stats {
-                grid-template-columns: 1fr;
+
+                grid-template-columns:
+                    1fr;
             }
+
 
             .actions {
-                grid-template-columns: 1fr;
-            }
 
+                grid-template-columns:
+                    1fr;
+            }
         }
 
     </style>
@@ -444,6 +758,10 @@
 
 <body>
 
+
+<!-- =========================================================
+     LOADING
+========================================================== -->
 
 <div id="admin-loading">
 
@@ -462,18 +780,29 @@
 </div>
 
 
+<!-- =========================================================
+     CONTENT
+========================================================== -->
+
 <main id="admin-content">
 
     <div class="page">
 
 
+        <!-- =================================================
+             HEADER
+        ================================================== -->
+
         <header class="header">
 
+
             <div class="brand">
+
 
                 <div class="logo">
                     W3
                 </div>
+
 
                 <div>
 
@@ -487,19 +816,23 @@
 
                 </div>
 
+
             </div>
 
 
-            <div style="
-                display:flex;
-                align-items:center;
-                gap:12px;
-                flex-wrap:wrap;
-            ">
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    gap:12px;
+                    flex-wrap:wrap;
+                "
+            >
 
                 <span class="admin-badge">
                     ADMIN
                 </span>
+
 
                 <button
                     type="button"
@@ -511,14 +844,23 @@
 
             </div>
 
+
         </header>
 
+
+        <!-- =================================================
+             NOTICE
+        ================================================== -->
 
         <div
             id="admin-notice"
             class="notice"
         ></div>
 
+
+        <!-- =================================================
+             STATISTICS
+        ================================================== -->
 
         <section class="stats">
 
@@ -590,14 +932,24 @@
         </section>
 
 
+        <!-- =================================================
+             DASHBOARD
+        ================================================== -->
+
         <section class="dashboard-grid">
 
 
+            <!-- =============================================
+                 ADMINISTRATOR
+            ============================================== -->
+
             <div class="card">
+
 
                 <h2>
                     Administrator
                 </h2>
+
 
                 <p class="card-description">
                     Secure administrator account
@@ -652,11 +1004,17 @@
             </div>
 
 
+            <!-- =============================================
+                 CONTROLS
+            ============================================== -->
+
             <div class="card">
+
 
                 <h2>
                     Platform Controls
                 </h2>
+
 
                 <p class="card-description">
                     Administration tools
@@ -704,14 +1062,21 @@
 
                 </div>
 
+
             </div>
 
 
+            <!-- =============================================
+                 ACTIVITY
+            ============================================== -->
+
             <div class="card activity">
+
 
                 <h2>
                     Recent Admin Activity
                 </h2>
+
 
                 <p class="card-description">
                     Administrator activity
@@ -726,6 +1091,7 @@
 
                 </div>
 
+
             </div>
 
 
@@ -737,8 +1103,18 @@
 </main>
 
 
-<script src="js/supabase.js"></script>
+<!-- =========================================================
+     SUPABASE CONFIGURATION
+========================================================== -->
 
+<script
+    src="js/supabase.js?v=20260812"
+></script>
+
+
+<!-- =========================================================
+     ADMIN CONTROLLER
+========================================================== -->
 
 <script>
 
@@ -748,28 +1124,47 @@
 
     let client = null;
 
+    let currentUser = null;
+
 
     /* =====================================================
        SUPABASE CLIENT
-       ===================================================== */
+    ===================================================== */
 
     function getSupabase() {
 
-        if (
-            window.Web3JobsSupabase &&
-            typeof window.Web3JobsSupabase.auth === "object"
-        ) {
 
-            client =
-                window.Web3JobsSupabase;
+        if (client) {
 
             return client;
         }
 
 
         if (
+
+            window.Web3JobsSupabase &&
+
+            typeof
+            window.Web3JobsSupabase.getClient ===
+            "function"
+
+        ) {
+
+            client =
+                window.Web3JobsSupabase.getClient();
+
+            return client;
+        }
+
+
+        if (
+
             window.supabaseClient &&
-            typeof window.supabaseClient.auth === "object"
+
+            typeof
+            window.supabaseClient.from ===
+            "function"
+
         ) {
 
             client =
@@ -779,115 +1174,183 @@
         }
 
 
+        if (
+
+            window.supabase &&
+
+            typeof
+            window.supabase.createClient ===
+            "function" &&
+
+            window.SUPABASE_URL &&
+
+            window.SUPABASE_ANON_KEY
+
+        ) {
+
+            client =
+                window.supabase.createClient(
+
+                    window.SUPABASE_URL,
+
+                    window.SUPABASE_ANON_KEY
+
+                );
+
+            return client;
+        }
+
+
         throw new Error(
-            "Supabase client was not found."
+            "Supabase client is not initialized."
         );
     }
 
 
     /* =====================================================
-       ADMIN VERIFICATION
-       ===================================================== */
+       VERIFY ADMIN
+    ===================================================== */
 
     async function verifyAdmin() {
+
 
         const supabase =
             getSupabase();
 
 
         const {
-            data: sessionData,
-            error: sessionError
+
+            data,
+
+            error
+
         } =
-            await supabase.auth.getSession();
+            await supabase.auth.getUser();
 
 
-        if (sessionError) {
-            throw sessionError;
+        if (error) {
+
+            throw error;
         }
 
 
-        const session =
-            sessionData?.session;
+        currentUser =
+            data?.user || null;
 
 
-        if (!session) {
+        if (!currentUser) {
+
 
             window.location.replace(
-                "admin-login.html"
+                "login.html"
             );
+
 
             return false;
         }
 
 
-        /*
-         * IMPORTANT:
-         *
-         * The user must be registered as an
-         * administrator in Supabase.
-         */
+        /* =================================================
+           LOAD PROFILE
+        ================================================= */
+
         const {
-            data: isAdmin,
-            error: adminError
+
+            data: profile,
+
+            error: profileError
+
         } =
-            await supabase.rpc(
-                "is_admin"
-            );
+            await supabase
+
+                .from("profiles")
+
+                .select(
+                    "id,email,account_type,role"
+                )
+
+                .eq(
+                    "id",
+                    currentUser.id
+                )
+
+                .maybeSingle();
 
 
-        if (adminError) {
+        if (profileError) {
 
-            console.error(
-                "Admin verification error:",
-                adminError
-            );
-
-            window.location.replace(
-                "admin-login.html"
-            );
-
-            return false;
+            throw profileError;
         }
 
 
-        if (isAdmin !== true) {
+        const role =
 
-            await supabase.auth.signOut();
+            String(
+                profile?.role || ""
+            )
+
+                .trim()
+
+                .toLowerCase();
 
 
-            window.location.replace(
-                "admin-login.html"
+        console.log(
+            "Web3Jobs Admin Verification:",
+            {
+                userId:
+                    currentUser.id,
+
+                email:
+                    currentUser.email,
+
+                role:
+                    role
+            }
+        );
+
+
+        /* =================================================
+           ADMIN
+        ================================================= */
+
+        if (
+
+            !profile ||
+
+            role !== "admin"
+
+        ) {
+
+
+            const notice =
+                document.getElementById(
+                    "admin-notice"
+                );
+
+
+            if (notice) {
+
+                notice.textContent =
+                    "Access denied. Administrator privileges are required.";
+
+                notice.className =
+                    "notice error";
+            }
+
+
+            setTimeout(
+                () => {
+
+                    window.location.replace(
+                        "dashboard.html"
+                    );
+
+                },
+                1200
             );
+
 
             return false;
-        }
-
-
-        /*
-         * Keep administrator information private.
-         * We show only a protected label and a short
-         * portion of the user ID.
-         */
-        const user =
-            session.user;
-
-
-        const shortId =
-            user?.id
-                ? user.id.substring(0, 8) + "••••"
-                : "Protected";
-
-
-        const adminId =
-            document.getElementById(
-                "admin-id"
-            );
-
-
-        if (adminId) {
-            adminId.textContent =
-                shortId;
         }
 
 
@@ -896,277 +1359,599 @@
 
 
     /* =====================================================
-       COUNT
-       ===================================================== */
+       ADMIN INFO
+    ===================================================== */
 
-    async function getCount(table) {
-
-        const supabase =
-            getSupabase();
+    function renderAdminInfo() {
 
 
-        const {
-            count,
-            error
-        } =
-            await supabase
-                .from(table)
-                .select(
-                    "id",
-                    {
-                        count: "exact",
-                        head: true
-                    }
-                );
+        if (!currentUser) {
 
-
-        if (error) {
-
-            console.warn(
-                "Table count failed:",
-                table,
-                error.message
-            );
-
-            return 0;
+            return;
         }
 
 
-        return count || 0;
+        const emailElement =
+            document.getElementById(
+                "admin-email"
+            );
+
+
+        const idElement =
+            document.getElementById(
+                "admin-id"
+            );
+
+
+        if (emailElement) {
+
+            emailElement.textContent =
+
+                currentUser.email ||
+
+                "Protected";
+        }
+
+
+        if (idElement) {
+
+
+            const id =
+                currentUser.id || "";
+
+
+            if (id.length > 12) {
+
+                idElement.textContent =
+                    id.substring(
+                        0,
+                        8
+                    ) +
+                    "••••";
+
+            } else {
+
+                idElement.textContent =
+                    id ||
+                    "Protected";
+            }
+        }
+    }
+
+
+    /* =====================================================
+       COUNT TABLE
+    ===================================================== */
+
+    async function getCount(
+        table
+    ) {
+
+
+        try {
+
+
+            const {
+
+                count,
+
+                error
+
+            } =
+
+                await getSupabase()
+
+                    .from(table)
+
+                    .select(
+
+                        "*",
+
+                        {
+
+                            count:
+                                "exact",
+
+                            head:
+                                true
+
+                        }
+
+                    );
+
+
+            if (error) {
+
+
+                console.warn(
+
+                    "Count error:",
+
+                    table,
+
+                    error.message
+
+                );
+
+
+                return 0;
+            }
+
+
+            return count || 0;
+
+
+        } catch (error) {
+
+
+            console.warn(
+
+                "Count exception:",
+
+                table,
+
+                error
+
+            );
+
+
+            return 0;
+        }
     }
 
 
     /* =====================================================
        LOAD STATISTICS
-       ===================================================== */
+    ===================================================== */
 
     async function loadStats() {
 
+
+        const results =
+
+            await Promise.all([
+
+                getCount(
+                    "profiles"
+                ),
+
+                getCount(
+                    "company_profiles"
+                ),
+
+                getCount(
+                    "jobs"
+                ),
+
+                getCount(
+                    "applications"
+                )
+
+            ]);
+
+
         const users =
-            await getCount(
-                "profiles"
-            );
-
-
-        const jobs =
-            await getCount(
-                "jobs"
-            );
-
-
-        const applications =
-            await getCount(
-                "applications"
+            document.getElementById(
+                "total-users"
             );
 
 
         const companies =
-            await getCount(
-                "company_profiles"
-            );
-
-
-        document
-            .getElementById(
-                "total-users"
-            )
-            .textContent =
-            users;
-
-
-        document
-            .getElementById(
-                "total-jobs"
-            )
-            .textContent =
-            jobs;
-
-
-        document
-            .getElementById(
-                "total-applications"
-            )
-            .textContent =
-            applications;
-
-
-        document
-            .getElementById(
+            document.getElementById(
                 "total-companies"
-            )
-            .textContent =
-            companies;
-
-    }
-
-
-    /* =====================================================
-       LOGOUT
-       ===================================================== */
-
-    async function logout() {
-
-        try {
-
-            const supabase =
-                getSupabase();
-
-
-            await supabase.auth.signOut();
-
-        } catch (error) {
-
-            console.error(
-                "Logout error:",
-                error
             );
 
+
+        const jobs =
+            document.getElementById(
+                "total-jobs"
+            );
+
+
+        const applications =
+            document.getElementById(
+                "total-applications"
+            );
+
+
+        if (users) {
+
+            users.textContent =
+                Number(
+                    results[0]
+                ).toLocaleString();
         }
 
 
-        window.location.replace(
-            "admin-login.html"
-        );
+        if (companies) {
+
+            companies.textContent =
+                Number(
+                    results[1]
+                ).toLocaleString();
+        }
+
+
+        if (jobs) {
+
+            jobs.textContent =
+                Number(
+                    results[2]
+                ).toLocaleString();
+        }
+
+
+        if (applications) {
+
+            applications.textContent =
+                Number(
+                    results[3]
+                ).toLocaleString();
+        }
     }
 
 
     /* =====================================================
        BUTTONS
-       ===================================================== */
+    ===================================================== */
 
     function setupButtons() {
 
-        document
-            .getElementById(
-                "admin-logout"
-            )
-            .addEventListener(
-                "click",
-                logout
-            );
 
-
-        document
-            .getElementById(
+        const users =
+            document.getElementById(
                 "manage-users"
-            )
-            .addEventListener(
-                "click",
-                () => {
-
-                    alert(
-                        "User management will be added in the next step."
-                    );
-
-                }
             );
 
 
-        document
-            .getElementById(
+        const companies =
+            document.getElementById(
                 "manage-companies"
-            )
-            .addEventListener(
-                "click",
-                () => {
-
-                    alert(
-                        "Company management will be added in the next step."
-                    );
-
-                }
             );
 
 
-        document
-            .getElementById(
+        const jobs =
+            document.getElementById(
                 "manage-jobs"
-            )
-            .addEventListener(
-                "click",
-                () => {
-
-                    alert(
-                        "Job management will be added in the next step."
-                    );
-
-                }
             );
 
 
-        document
-            .getElementById(
+        const payments =
+            document.getElementById(
                 "manage-payments"
-            )
-            .addEventListener(
-                "click",
-                () => {
-
-                    alert(
-                        "Payment management will be added in the next step."
-                    );
-
-                }
             );
 
+
+        const logout =
+            document.getElementById(
+                "admin-logout"
+            );
+
+
+        console.log(
+            "Web3Jobs Admin Buttons:",
+            {
+                users:
+                    !!users,
+
+                companies:
+                    !!companies,
+
+                jobs:
+                    !!jobs,
+
+                payments:
+                    !!payments,
+
+                logout:
+                    !!logout
+            }
+        );
+
+
+        /* =================================================
+           USERS
+        ================================================= */
+
+        if (users) {
+
+
+            users.onclick =
+                function () {
+
+
+                    window.location.href =
+                        "admin-users.html";
+
+                };
+        }
+
+
+        /* =================================================
+           COMPANIES
+        ================================================= */
+
+        if (companies) {
+
+
+            companies.onclick =
+                function () {
+
+
+                    window.location.href =
+                        "admin-companies.html";
+
+                };
+        }
+
+
+        /* =================================================
+           JOBS
+        ================================================= */
+
+        if (jobs) {
+
+
+            jobs.onclick =
+                function () {
+
+
+                    window.location.href =
+                        "admin-jobs.html";
+
+                };
+        }
+
+
+        /* =================================================
+           PAYMENTS
+        ================================================= */
+
+        if (payments) {
+
+
+            payments.onclick =
+                function () {
+
+
+                    window.location.href =
+                        "admin-payments.html";
+
+                };
+        }
+
+
+        /* =================================================
+           LOGOUT
+        ================================================= */
+
+        if (logout) {
+
+
+            logout.onclick =
+                async function () {
+
+
+                    logout.disabled =
+                        true;
+
+
+                    logout.textContent =
+                        "Logging out...";
+
+
+                    try {
+
+
+                        await getSupabase()
+
+                            .auth
+
+                            .signOut();
+
+
+                    } catch (error) {
+
+
+                        console.error(
+
+                            "Logout error:",
+
+                            error
+
+                        );
+                    }
+
+
+                    window.location.replace(
+                        "login.html"
+                    );
+                };
+        }
+    }
+
+
+    /* =====================================================
+       SHOW DASHBOARD
+    ===================================================== */
+
+    function showDashboard() {
+
+
+        const loading =
+            document.getElementById(
+                "admin-loading"
+            );
+
+
+        const content =
+            document.getElementById(
+                "admin-content"
+            );
+
+
+        if (loading) {
+
+
+            loading.style.display =
+                "none";
+        }
+
+
+        if (content) {
+
+
+            content.style.display =
+                "block";
+        }
     }
 
 
     /* =====================================================
        INIT
-       ===================================================== */
+    ===================================================== */
 
     async function init() {
 
+
         try {
 
-            const isAdmin =
+
+            /* =============================================
+               VERIFY ADMIN FIRST
+            ============================================== */
+
+            const allowed =
                 await verifyAdmin();
 
 
-            if (!isAdmin) {
+            if (!allowed) {
+
                 return;
             }
 
 
-            await loadStats();
+            /* =============================================
+               ADMIN INFORMATION
+            ============================================== */
 
+            renderAdminInfo();
+
+
+            /* =============================================
+               IMPORTANT
+               BUTTONS ARE INITIALIZED BEFORE STATISTICS
+            ============================================== */
 
             setupButtons();
 
 
-            document
-                .getElementById(
-                    "admin-loading"
-                )
-                .style.display =
-                "none";
+            /* =============================================
+               SHOW DASHBOARD IMMEDIATELY
+            ============================================== */
+
+            showDashboard();
 
 
-            document
-                .getElementById(
-                    "admin-content"
-                )
-                .style.display =
-                "block";
+            /* =============================================
+               STATISTICS ARE OPTIONAL
+            ============================================== */
+
+            loadStats()
+
+                .catch(
+
+                    error => {
+
+                        console.warn(
+
+                            "Statistics failed:",
+
+                            error
+
+                        );
+
+                    }
+
+                );
+
+
+            console.log(
+                "Web3Jobs Admin Dashboard loaded successfully."
+            );
 
 
         } catch (error) {
 
+
             console.error(
-                "Admin dashboard error:",
+
+                "Admin Dashboard Error:",
+
                 error
+
             );
 
 
-            window.location.replace(
-                "admin-login.html"
-            );
+            const loading =
+                document.getElementById(
+                    "admin-loading"
+                );
+
+
+            if (loading) {
+
+
+                loading.innerHTML = `
+
+                    <div class="loading-box">
+
+                        <strong>
+                            Admin Dashboard Error
+                        </strong>
+
+                        <span>
+                            ${String(
+                                error?.message ||
+                                "Unable to load dashboard."
+                            )}
+                        </span>
+
+                    </div>
+
+                `;
+            }
         }
     }
 
 
-    init();
+    /* =====================================================
+       START
+    ===================================================== */
+
+    if (
+
+        document.readyState ===
+        "loading"
+
+    ) {
+
+
+        document.addEventListener(
+
+            "DOMContentLoaded",
+
+            init
+
+        );
+
+
+    } else {
+
+
+        init();
+    }
+
 
 })();
 
@@ -1175,4 +1960,4 @@
 
 </body>
 
-                </html>
+    </html>
