@@ -1,7 +1,6 @@
 /* =========================================================
    Web3Jobs v3
    File: js/company-dashboard.js
-
    Company Dashboard
    Supabase + Jobs + Applications
    USDT BEP-20 / BNB Smart Chain
@@ -10,10 +9,6 @@
 "use strict";
 
 (() => {
-
-    /* =====================================================
-       CONFIG
-       ===================================================== */
 
     const CONFIG = {
 
@@ -79,21 +74,15 @@
        ===================================================== */
 
     let sb = null;
-
     let user = null;
-
     let profile = null;
-
     let jobs = [];
-
     let applications = [];
 
     let currentPlan = CONFIG.plans.free;
-
     let selectedPlan = null;
 
     let wallet = null;
-
     let paymentBusy = false;
 
 
@@ -118,10 +107,10 @@
 
     function setText(id, value) {
 
-        const el = $(id);
+        const element = $(id);
 
-        if (el) {
-            el.textContent = value ?? "";
+        if (element) {
+            element.textContent = value ?? "";
         }
     }
 
@@ -182,11 +171,7 @@
 
         const date = new Date(value);
 
-        if (
-            Number.isNaN(
-                date.getTime()
-            )
-        ) {
+        if (Number.isNaN(date.getTime())) {
             return "—";
         }
 
@@ -204,9 +189,9 @@
     function getPlan(code) {
 
         const key =
-            String(
-                code || "free"
-            ).toLowerCase();
+            String(code || "free")
+                .toLowerCase()
+                .trim();
 
         return (
             CONFIG.plans[key] ||
@@ -233,15 +218,9 @@
         return jobs.filter(job => {
 
             const date =
-                new Date(
-                    job.created_at
-                );
+                new Date(job.created_at);
 
-            if (
-                Number.isNaN(
-                    date.getTime()
-                )
-            ) {
+            if (Number.isNaN(date.getTime())) {
                 return false;
             }
 
@@ -515,9 +494,7 @@
 
 
         const wrapper =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         wrapper.className =
@@ -674,9 +651,8 @@
 
         const get = selector =>
             String(
-                form.querySelector(
-                    selector
-                )?.value || ""
+                form.querySelector(selector)
+                    ?.value || ""
             ).trim();
 
 
@@ -1075,23 +1051,18 @@
         const title =
             get("title");
 
-
         const company =
             get("company") ||
             companyName();
 
-
         const location =
             get("location");
-
 
         const type =
             get("type");
 
-
         const description =
             get("description");
-
 
         const applyLink =
             get("apply_link");
@@ -1326,16 +1297,12 @@
 
     function findJobTitle(application) {
 
-        if (
-            application.job_title
-        ) {
+        if (application.job_title) {
             return application.job_title;
         }
 
 
-        if (
-            application.job?.title
-        ) {
+        if (application.job?.title) {
             return application.job.title;
         }
 
@@ -1492,8 +1459,7 @@
         if (note) {
 
             if (
-                currentPlan.limit ===
-                null
+                currentPlan.limit === null
             ) {
 
                 note.textContent =
@@ -1515,32 +1481,55 @@
 
         document
             .querySelectorAll(
-                "[data-pay-plan]"
+                "[data-pay-plan], [data-plan]"
             )
             .forEach(button => {
 
+                const code =
+                    button.dataset.payPlan ||
+                    button.dataset.plan;
+
+
                 const plan =
-                    getPlan(
-                        button.dataset.payPlan
-                    );
+                    getPlan(code);
 
 
                 if (
-                    currentPlan.code ===
-                    plan.code
+                    plan.code === "free"
                 ) {
 
-                    button.disabled = false;
+                    if (
+                        currentPlan.code ===
+                        "free"
+                    ) {
+
+                        button.disabled = false;
+
+                        if (
+                            button.dataset.payPlan
+                        ) {
+                            button.textContent =
+                                "Current Plan";
+                        }
+
+                    }
+
+                    return;
+                }
+
+
+                button.disabled = false;
+
+
+                if (
+                    button.dataset.payPlan
+                ) {
 
                     button.textContent =
-                        "Current Plan";
-
-                } else {
-
-                    button.disabled = false;
-
-                    button.textContent =
-                        `Choose ${plan.name} & Pay`;
+                        currentPlan.code ===
+                            plan.code
+                            ? "Current Plan"
+                            : `Choose ${plan.name} & Pay`;
                 }
 
             });
@@ -1571,17 +1560,13 @@
 
     function createPaymentStyles() {
 
-        if (
-            $("web3jobs-payment-style")
-        ) {
+        if ($("web3jobs-payment-style")) {
             return;
         }
 
 
         const style =
-            document.createElement(
-                "style"
-            );
+            document.createElement("style");
 
 
         style.id =
@@ -1591,397 +1576,238 @@
         style.textContent = `
 
             #web3jobs-wallet-bar {
-
                 margin: 0 0 20px;
-
                 padding: 14px 16px;
-
                 border: 1px solid #21405f;
-
                 border-radius: 14px;
-
                 background:
                     linear-gradient(
                         135deg,
                         #0c1d30,
                         #071321
                     );
-
                 display: flex;
-
                 align-items: center;
-
                 justify-content: space-between;
-
                 gap: 15px;
-
                 flex-wrap: wrap;
             }
 
             .w3-wallet-info {
-
                 display: flex;
-
                 flex-direction: column;
-
                 gap: 4px;
             }
 
             .w3-wallet-title {
-
                 color: #fff;
-
                 font-weight: 850;
-
                 font-size: 13px;
             }
 
             .w3-wallet-address {
-
                 color: #6ee7b7;
-
                 font-family: monospace;
-
                 font-size: 11px;
             }
 
             .w3-wallet-button {
-
                 min-height: 40px;
-
                 padding: 0 16px;
-
                 border: 0;
-
                 border-radius: 9px;
-
                 background:
                     linear-gradient(
                         135deg,
                         #1c765a,
                         #175a47
                     );
-
                 color: #fff;
-
                 font-weight: 850;
-
                 cursor: pointer;
             }
 
-            .w3-wallet-button:disabled {
-
-                opacity: .55;
-
-                cursor: not-allowed;
-            }
-
             #web3jobs-payment-modal {
-
                 position: fixed;
-
                 inset: 0;
-
                 z-index: 999999;
-
                 display: none;
-
                 align-items: center;
-
                 justify-content: center;
-
                 padding: 20px;
-
-                background:
-                    rgba(0,0,0,.78);
-
-                backdrop-filter:
-                    blur(8px);
+                background: rgba(0,0,0,.78);
+                backdrop-filter: blur(8px);
             }
 
             #web3jobs-payment-modal.active {
-
                 display: flex;
             }
 
             .payment-modal-card {
-
-                width: min(
-                    100%,
-                    500px
-                );
-
+                width: min(100%, 500px);
                 max-height: 90vh;
-
                 overflow-y: auto;
-
                 padding: 24px;
-
-                border:
-                    1px solid #24415e;
-
+                border: 1px solid #24415e;
                 border-radius: 18px;
-
                 background:
                     linear-gradient(
                         145deg,
                         #0d1d31,
                         #071321
                     );
-
                 box-shadow:
                     0 30px 100px
                     rgba(0,0,0,.6);
             }
 
             .payment-modal-header {
-
                 display: flex;
-
                 justify-content: space-between;
-
                 align-items: center;
-
                 gap: 15px;
-
                 margin-bottom: 20px;
             }
 
             .payment-modal-title {
-
                 color: #fff;
-
                 font-size: 19px;
-
                 font-weight: 900;
             }
 
             .payment-close {
-
                 width: 35px;
-
                 height: 35px;
-
-                border:
-                    1px solid #294663;
-
+                border: 1px solid #294663;
                 border-radius: 8px;
-
                 background: #0a1829;
-
                 color: #fff;
-
                 font-size: 20px;
-
                 cursor: pointer;
             }
 
             .payment-plan-box {
-
                 padding: 16px;
-
                 margin-bottom: 15px;
-
-                border:
-                    1px solid #203b59;
-
+                border: 1px solid #203b59;
                 border-radius: 12px;
-
                 background: #091827;
             }
 
             .payment-plan-name {
-
                 color: #fff;
-
                 font-size: 16px;
-
                 font-weight: 900;
             }
 
             .payment-plan-price {
-
                 margin-top: 5px;
-
                 color: #6ee7b7;
-
                 font-size: 13px;
-
                 font-weight: 850;
             }
 
             .payment-network {
-
                 margin-top: 5px;
-
                 color: #8ea3bc;
-
                 font-size: 10px;
             }
 
             .payment-wallet-box {
-
                 padding: 14px;
-
                 margin-bottom: 15px;
-
-                border:
-                    1px solid
-                    rgba(110,231,183,.25);
-
+                border: 1px solid rgba(110,231,183,.25);
                 border-radius: 11px;
-
-                background:
-                    rgba(110,231,183,.04);
+                background: rgba(110,231,183,.04);
             }
 
             .payment-wallet-label {
-
                 margin-bottom: 7px;
-
                 color: #8ea3bc;
-
                 font-size: 9px;
-
                 font-weight: 800;
-
                 text-transform: uppercase;
             }
 
             .payment-wallet-address {
-
                 color: #6ee7b7;
-
                 font-family: monospace;
-
                 font-size: 11px;
-
                 line-height: 1.6;
-
                 overflow-wrap: anywhere;
             }
 
             .payment-copy {
-
                 width: 100%;
-
                 min-height: 38px;
-
                 margin-top: 9px;
-
-                border:
-                    1px solid #294663;
-
+                border: 1px solid #294663;
                 border-radius: 9px;
-
                 background: #0d1d31;
-
                 color: #fff;
-
                 font-size: 10px;
-
                 font-weight: 800;
-
                 cursor: pointer;
             }
 
             .payment-warning {
-
                 padding: 11px;
-
                 margin-bottom: 15px;
-
-                border:
-                    1px solid
-                    rgba(251,191,36,.25);
-
+                border: 1px solid rgba(251,191,36,.25);
                 border-radius: 9px;
-
-                background:
-                    rgba(251,191,36,.05);
-
+                background: rgba(251,191,36,.05);
                 color: #fcd34d;
-
                 font-size: 10px;
-
                 line-height: 1.6;
             }
 
             .payment-wallet-status {
-
                 padding: 11px;
-
                 margin-bottom: 12px;
-
-                border:
-                    1px solid #1c344f;
-
+                border: 1px solid #1c344f;
                 border-radius: 9px;
-
                 background: #071321;
-
                 color: #9ab0c8;
-
                 font-size: 10px;
             }
 
             .payment-main-button {
-
                 width: 100%;
-
                 min-height: 46px;
-
                 border: 0;
-
                 border-radius: 9px;
-
                 background:
                     linear-gradient(
                         135deg,
                         #1c765a,
                         #175a47
                     );
-
                 color: #fff;
-
                 font-size: 11px;
-
                 font-weight: 900;
-
                 cursor: pointer;
             }
 
             .payment-main-button:disabled {
-
                 opacity: .55;
-
                 cursor: not-allowed;
             }
 
             .payment-tx {
-
                 margin-top: 15px;
-
                 padding: 12px;
-
                 border-radius: 9px;
-
                 background: #071321;
-
                 color: #9ab0c8;
-
                 font-size: 10px;
-
                 line-height: 1.7;
-
                 word-break: break-word;
             }
 
             .payment-tx a {
-
                 color: #60a5fa;
-
             }
+
         `;
 
 
@@ -1998,17 +1824,13 @@
         createPaymentStyles();
 
 
-        if (
-            $("web3jobs-wallet-bar")
-        ) {
+        if ($("web3jobs-wallet-bar")) {
             return;
         }
 
 
         const bar =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         bar.id =
@@ -2046,17 +1868,12 @@
         const target =
             $("subscription-section") ||
             $("dashboard-content") ||
-            document.querySelector(
-                "main"
-            );
+            document.querySelector("main");
 
 
         if (target) {
-
             target.prepend(bar);
-
         } else {
-
             document.body.prepend(bar);
         }
 
@@ -2064,11 +1881,7 @@
         $("w3-connect-wallet")
             ?.addEventListener(
                 "click",
-                async () => {
-
-                    await connectWallet();
-
-                }
+                connectWallet
             );
     }
 
@@ -2095,9 +1908,6 @@
             button.textContent =
                 "Wallet Connected";
 
-            button.disabled =
-                false;
-
         } else {
 
             address.textContent =
@@ -2105,10 +1915,9 @@
 
             button.textContent =
                 "Connect Wallet";
-
-            button.disabled =
-                false;
         }
+
+        button.disabled = false;
     }
 
 
@@ -2121,17 +1930,13 @@
         createPaymentStyles();
 
 
-        if (
-            $("web3jobs-payment-modal")
-        ) {
+        if ($("web3jobs-payment-modal")) {
             return;
         }
 
 
         const modal =
-            document.createElement(
-                "div"
-            );
+            document.createElement("div");
 
 
         modal.id =
@@ -2146,13 +1951,9 @@
                 aria-modal="true"
             >
 
-                <div
-                    class="payment-modal-header"
-                >
+                <div class="payment-modal-header">
 
-                    <div
-                        class="payment-modal-title"
-                    >
+                    <div class="payment-modal-title">
                         Complete Subscription
                     </div>
 
@@ -2166,10 +1967,7 @@
 
                 </div>
 
-
-                <div
-                    class="payment-plan-box"
-                >
+                <div class="payment-plan-box">
 
                     <div
                         class="payment-plan-name"
@@ -2185,22 +1983,15 @@
                         $0 USDT
                     </div>
 
-                    <div
-                        class="payment-network"
-                    >
+                    <div class="payment-network">
                         USDT BEP-20 on BNB Smart Chain
                     </div>
 
                 </div>
 
+                <div class="payment-wallet-box">
 
-                <div
-                    class="payment-wallet-box"
-                >
-
-                    <div
-                        class="payment-wallet-label"
-                    >
+                    <div class="payment-wallet-label">
                         Receiving Wallet
                     </div>
 
@@ -2223,15 +2014,11 @@
 
                 </div>
 
-
-                <div
-                    class="payment-warning"
-                >
+                <div class="payment-warning">
                     Send only USDT BEP-20 on BNB Smart Chain
                     to the receiving address above.
                     Never send another token or another network.
                 </div>
-
 
                 <div
                     class="payment-wallet-status"
@@ -2240,7 +2027,6 @@
                     Wallet not connected.
                 </div>
 
-
                 <button
                     type="button"
                     class="payment-main-button"
@@ -2248,7 +2034,6 @@
                 >
                     Connect Wallet
                 </button>
-
 
                 <div
                     class="payment-tx"
@@ -2289,11 +2074,7 @@
             "click",
             event => {
 
-                if (
-                    event.target ===
-                    modal
-                ) {
-
+                if (event.target === modal) {
                     closePaymentModal();
                 }
 
@@ -2308,9 +2089,18 @@
             getPlan(planCode);
 
 
-        if (
-            plan.code === "free"
-        ) {
+        if (!plan || !plan.code) {
+
+            notify(
+                "Invalid subscription plan.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (plan.code === "free") {
 
             currentPlan =
                 CONFIG.plans.free;
@@ -2358,7 +2148,6 @@
         if (tx) {
 
             tx.style.display = "none";
-
             tx.innerHTML = "";
         }
 
@@ -2372,9 +2161,10 @@
 
         if (modal) {
 
-            modal.classList.add(
-                "active"
-            );
+            modal.classList.add("active");
+
+            document.body.style.overflow =
+                "hidden";
         }
     }
 
@@ -2387,9 +2177,10 @@
 
         if (modal) {
 
-            modal.classList.remove(
-                "active"
-            );
+            modal.classList.remove("active");
+
+            document.body.style.overflow =
+                "";
         }
     }
 
@@ -2416,7 +2207,7 @@
                 "No Web3 wallet detected.";
 
             button.textContent =
-                "Install / Open Web3 Wallet";
+                "No Wallet Detected";
 
             button.disabled = true;
 
@@ -2454,10 +2245,7 @@
         button.textContent =
             `Pay $${selectedPlan?.price || 0} USDT`;
 
-
-        button.disabled =
-            false;
-
+        button.disabled = false;
 
         updateWalletBar();
     }
@@ -2504,9 +2292,9 @@
             await ensureBscNetwork();
 
 
-            updatePaymentModalState();
-
             updateWalletBar();
+
+            updatePaymentModalState();
 
 
             notify(
@@ -2525,9 +2313,7 @@
             );
 
 
-            if (
-                error?.code === 4001
-            ) {
+            if (error?.code === 4001) {
 
                 notify(
                     "Wallet connection was rejected.",
@@ -2593,9 +2379,7 @@
 
         } catch (error) {
 
-            if (
-                error?.code === 4902
-            ) {
+            if (error?.code === 4902) {
 
                 await window.ethereum.request({
 
@@ -2654,13 +2438,10 @@
     function amountToTokenUnits(value) {
 
         const text =
-            String(value)
-                .trim();
+            String(value).trim();
 
 
-        if (
-            !/^\d+(\.\d+)?$/.test(text)
-        ) {
+        if (!/^\d+(\.\d+)?$/.test(text)) {
 
             throw new Error(
                 "Invalid payment amount."
@@ -2677,17 +2458,15 @@
 
 
         const decimals =
-            (
-                parts[1] || ""
-            )
-            .padEnd(
-                CONFIG.usdtDecimals,
-                "0"
-            )
-            .slice(
-                0,
-                CONFIG.usdtDecimals
-            );
+            (parts[1] || "")
+                .padEnd(
+                    CONFIG.usdtDecimals,
+                    "0"
+                )
+                .slice(
+                    0,
+                    CONFIG.usdtDecimals
+                );
 
 
         return BigInt(
@@ -2704,15 +2483,10 @@
         const clean =
             recipient
                 .toLowerCase()
-                .replace(
-                    /^0x/,
-                    ""
-                );
+                .replace(/^0x/, "");
 
 
-        if (
-            clean.length !== 40
-        ) {
+        if (clean.length !== 40) {
 
             throw new Error(
                 "Invalid receiving wallet address."
@@ -2779,12 +2553,8 @@
             });
 
 
-        if (
-            accounts?.length
-        ) {
-
-            wallet =
-                accounts[0];
+        if (accounts?.length) {
+            wallet = accounts[0];
         }
 
 
@@ -2808,15 +2578,6 @@
                 amount
             );
 
-
-        /*
-         * IMPORTANT:
-         *
-         * "to" = USDT CONTRACT
-         *
-         * recipient is encoded
-         * inside transaction data.
-         */
 
         const txHash =
             await window.ethereum.request({
@@ -3044,9 +2805,7 @@
         }
 
 
-        if (
-            selectedPlan.price <= 0
-        ) {
+        if (selectedPlan.price <= 0) {
 
             closePaymentModal();
 
@@ -3062,11 +2821,6 @@
 
 
         try {
-
-            /*
-             * If wallet is not connected,
-             * connect it first.
-             */
 
             if (!wallet) {
 
@@ -3089,10 +2843,6 @@
             }
 
 
-            /*
-             * Send USDT.
-             */
-
             const txHash =
                 await sendUsdtPayment(
                     selectedPlan
@@ -3114,10 +2864,6 @@
             }
 
 
-            /*
-             * Save payment information.
-             */
-
             await savePaymentRecord(
                 selectedPlan,
                 txHash
@@ -3129,10 +2875,6 @@
                 txHash
             );
 
-
-            /*
-             * Update UI.
-             */
 
             currentPlan =
                 selectedPlan;
@@ -3168,9 +2910,7 @@
                         rel="noopener noreferrer"
                     >
                         ${escapeHtml(
-                            shortAddress(
-                                txHash
-                            )
+                            shortAddress(txHash)
                         )}
                     </a>
 
@@ -3187,7 +2927,6 @@
                 "success"
             );
 
-
         } catch (error) {
 
             console.error(
@@ -3196,9 +2935,7 @@
             );
 
 
-            if (
-                error?.code === 4001
-            ) {
+            if (error?.code === 4001) {
 
                 notify(
                     "Transaction was rejected in your wallet.",
@@ -3217,7 +2954,6 @@
         } finally {
 
             paymentBusy = false;
-
 
             updatePaymentModalState();
         }
@@ -3252,78 +2988,69 @@
        PLAN SELECTION
        ===================================================== */
 
-    function handlePlanSelection(
-        planCode
-    ) {
+    function handlePlanSelection(planCode) {
 
         const plan =
             getPlan(planCode);
 
 
-        if (
-            !plan ||
-            !plan.code
-        ) {
+        if (!plan || !plan.code) {
 
             notify(
                 "Invalid subscription plan.",
                 "error"
             );
 
-            return;
+            return false;
         }
 
 
-        if (
-            plan.code === "free"
-        ) {
+        if (plan.code === "free") {
 
             currentPlan =
                 CONFIG.plans.free;
 
             renderSubscription();
 
-            return;
+            return true;
         }
 
 
-        /*
-         * THIS IS THE IMPORTANT PART:
-         *
-         * Clicking a subscription button
-         * ALWAYS opens the payment modal.
-         */
+        selectedPlan =
+            plan;
+
 
         openPaymentModal(
             plan.code
         );
+
+
+        return true;
     }
 
 
     function selectPlan(planCode) {
 
-        handlePlanSelection(
+        return handlePlanSelection(
             planCode
         );
     }
 
 
     /* =====================================================
-       CRITICAL PAYMENT EVENT DELEGATION
+       PAYMENT BUTTONS
        ===================================================== */
 
     function setupPaymentDelegation() {
 
-        /*
-         * We do NOT depend only on individual
-         * addEventListener calls.
-         *
-         * Any button containing:
-         *
-         * data-pay-plan="starter"
-         *
-         * will work.
-         */
+        if (window.__web3jobsPaymentDelegation) {
+            return;
+        }
+
+
+        window.__web3jobsPaymentDelegation =
+            true;
+
 
         document.addEventListener(
             "click",
@@ -3331,7 +3058,7 @@
 
                 const button =
                     event.target.closest(
-                        "[data-pay-plan]"
+                        "[data-pay-plan], [data-plan]"
                     );
 
 
@@ -3340,28 +3067,25 @@
                 }
 
 
-                event.preventDefault();
-
-                event.stopPropagation();
-
-
-                const plan =
-                    button.dataset.payPlan;
+                const planCode =
+                    button.dataset.payPlan ||
+                    button.dataset.plan;
 
 
-                if (!plan) {
-
-                    notify(
-                        "Subscription plan is missing.",
-                        "error"
-                    );
-
+                if (!planCode) {
                     return;
                 }
 
 
+                event.preventDefault();
+
+                event.stopPropagation();
+
+                event.stopImmediatePropagation();
+
+
                 handlePlanSelection(
-                    plan
+                    planCode
                 );
 
             },
@@ -3369,10 +3093,6 @@
         );
     }
 
-
-    /* =====================================================
-       PLAN UI
-       ===================================================== */
 
     function setupPlanButtons() {
 
@@ -3382,14 +3102,33 @@
             )
             .forEach(button => {
 
+                if (
+                    button.dataset.w3PlanListener
+                ) {
+                    return;
+                }
+
+
+                button.dataset.w3PlanListener =
+                    "true";
+
+
                 button.addEventListener(
                     "click",
                     event => {
 
                         event.preventDefault();
 
+                        event.stopPropagation();
+
                         const plan =
-                            button.dataset.plan;
+                            button.dataset.plan ||
+                            button.dataset.payPlan;
+
+
+                        if (!plan) {
+                            return;
+                        }
 
 
                         const details =
@@ -3439,7 +3178,6 @@
                                 "active"
                             );
 
-
                             details.classList.add(
                                 "active"
                             );
@@ -3462,7 +3200,13 @@
             $("post-job-form");
 
 
-        if (postForm) {
+        if (
+            postForm &&
+            !postForm.dataset.w3Ready
+        ) {
+
+            postForm.dataset.w3Ready =
+                "true";
 
             postForm.addEventListener(
                 "submit",
@@ -3475,7 +3219,13 @@
             $("company-profile-form");
 
 
-        if (profileForm) {
+        if (
+            profileForm &&
+            !profileForm.dataset.w3Ready
+        ) {
+
+            profileForm.dataset.w3Ready =
+                "true";
 
             profileForm.addEventListener(
                 "submit",
@@ -3506,25 +3256,17 @@
 
         function openSidebar() {
 
-            sidebar?.classList.add(
-                "open"
-            );
+            sidebar?.classList.add("open");
 
-            overlay?.classList.add(
-                "active"
-            );
+            overlay?.classList.add("active");
         }
 
 
         function closeSidebar() {
 
-            sidebar?.classList.remove(
-                "open"
-            );
+            sidebar?.classList.remove("open");
 
-            overlay?.classList.remove(
-                "active"
-            );
+            overlay?.classList.remove("active");
         }
 
 
@@ -3603,9 +3345,7 @@
         }
 
 
-        if (
-            window.__web3jobsWalletListeners
-        ) {
+        if (window.__web3jobsWalletListeners) {
             return;
         }
 
@@ -3619,8 +3359,7 @@
             accounts => {
 
                 wallet =
-                    accounts?.[0] ||
-                    null;
+                    accounts?.[0] || null;
 
 
                 updatePaymentModalState();
@@ -3666,9 +3405,7 @@
                 });
 
 
-            if (
-                accounts?.length
-            ) {
+            if (accounts?.length) {
 
                 wallet =
                     accounts[0];
@@ -3769,29 +3506,15 @@
             await loadCompanyProfile();
 
 
-            /*
-             * Payment UI
-             */
-
             createWalletBar();
 
             createPaymentModal();
 
 
-            /*
-             * Restore previously connected wallet
-             */
-
             await restoreWalletConnection();
 
 
-            /*
-             * Critical:
-             * global subscription click handler
-             */
-
             setupPaymentDelegation();
-
 
             setupPlanButtons();
 
@@ -3809,7 +3532,6 @@
 
 
             showDashboard();
-
 
         } catch (error) {
 
@@ -3867,6 +3589,7 @@
                         </button>
 
                     </div>
+
                 `;
 
                 loading.style.display =
