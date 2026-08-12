@@ -2,6 +2,7 @@
    Web3Jobs v3
    File: js/auth.js
    Unified Authentication System
+   Company + Individual Accounts
    ========================================================= */
 
 "use strict";
@@ -9,7 +10,7 @@
 (function () {
 
     /* =========================================================
-       SUPABASE CLIENT
+       SUPABASE
        ========================================================= */
 
     function getAuthSupabase() {
@@ -28,10 +29,7 @@
             return window.supabaseClient;
         }
 
-        console.error(
-            "Web3Jobs Auth: Supabase client unavailable."
-        );
-
+        console.error("Web3Jobs: Supabase client unavailable.");
         return null;
     }
 
@@ -44,21 +42,17 @@
 
         const client = getAuthSupabase();
 
-        if (!client) {
-            return null;
-        }
+        if (!client) return null;
 
         try {
 
-            const {
-                data,
-                error
-            } = await client.auth.getUser();
+            const { data, error } =
+                await client.auth.getUser();
 
             if (error) {
                 console.error(
-                    "Web3Jobs getUser error:",
-                    error
+                    "Web3Jobs getUser:",
+                    error.message
                 );
                 return null;
             }
@@ -68,7 +62,7 @@
         } catch (error) {
 
             console.error(
-                "Web3Jobs getCurrentUser error:",
+                "Web3Jobs current user:",
                 error
             );
 
@@ -85,21 +79,17 @@
 
         const client = getAuthSupabase();
 
-        if (!client) {
-            return null;
-        }
+        if (!client) return null;
 
         try {
 
-            const {
-                data,
-                error
-            } = await client.auth.getSession();
+            const { data, error } =
+                await client.auth.getSession();
 
             if (error) {
                 console.error(
-                    "Web3Jobs getSession error:",
-                    error
+                    "Web3Jobs getSession:",
+                    error.message
                 );
                 return null;
             }
@@ -109,7 +99,7 @@
         } catch (error) {
 
             console.error(
-                "Web3Jobs getCurrentSession error:",
+                "Web3Jobs session:",
                 error
             );
 
@@ -124,9 +114,7 @@
 
     function isEmailConfirmed(user) {
 
-        if (!user) {
-            return false;
-        }
+        if (!user) return false;
 
         return Boolean(
             user.email_confirmed_at ||
@@ -153,30 +141,36 @@
                 .trim()
                 .toLowerCase();
 
-        if (
-            type === "company" ||
-            type === "companies" ||
-            type === "business" ||
-            type === "employer" ||
-            type === "organization" ||
-            type === "company_account" ||
-            type === "شركة"
-        ) {
+        const companyTypes = [
+            "company",
+            "companies",
+            "business",
+            "employer",
+            "organization",
+            "company_account",
+            "company-account",
+            "شركة"
+        ];
+
+        const individualTypes = [
+            "individual",
+            "person",
+            "user",
+            "candidate",
+            "freelancer",
+            "individuals",
+            "individual_account",
+            "individual-account",
+            "فرد",
+            "فردي",
+            "فردى"
+        ];
+
+        if (companyTypes.includes(type)) {
             return "company";
         }
 
-        if (
-            type === "individual" ||
-            type === "person" ||
-            type === "user" ||
-            type === "candidate" ||
-            type === "freelancer" ||
-            type === "individuals" ||
-            type === "individual_account" ||
-            type === "فرد" ||
-            type === "فردي" ||
-            type === "فردى"
-        ) {
+        if (individualTypes.includes(type)) {
             return "individual";
         }
 
@@ -192,32 +186,19 @@
 
         const client = getAuthSupabase();
 
-        if (!client) {
-            return null;
-        }
+        if (!client) return null;
 
-        let user = null;
-
-        try {
-            user = await getCurrentUser();
-        } catch (error) {
-            console.warn(
-                "Web3Jobs: Could not load current user.",
-                error
-            );
-        }
+        const user = await getCurrentUser();
 
         const id =
             userId ||
             user?.id;
 
-        if (!id) {
-            return null;
-        }
+        if (!id) return null;
 
 
         /* =====================================================
-           AUTH METADATA FIRST
+           1. AUTH USER METADATA
            ===================================================== */
 
         if (user) {
@@ -225,7 +206,7 @@
             const metadata =
                 user.user_metadata || {};
 
-            const metadataValues = [
+            const values = [
                 metadata.account_type,
                 metadata.accountType,
                 metadata.role,
@@ -234,7 +215,7 @@
                 metadata.type
             ];
 
-            for (const value of metadataValues) {
+            for (const value of values) {
 
                 const type =
                     normalizeAccountType(value);
@@ -247,194 +228,132 @@
 
 
         /* =====================================================
-           PROFILE ROLE
-           ===================================================== */
-
-        let profileExists = false;
-
-        try {
-
-            const {
-                data,
-                error
-            } = await client
-                .from("profiles")
-                .select("id,role")
-                .eq("id", id)
-                .maybeSingle();
-
-            if (!error && data) {
-
-                profileExists = true;
-
-                const type =
-                    normalizeAccountType(
-                        data.role
-                    );
-
-                if (type) {
-                    return type;
-                }
-            }
-
-            if (error) {
-
-                console.warn(
-                    "Web3Jobs profiles role lookup:",
-                    error.message
-                );
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs profiles role exception:",
-                error
-            );
-        }
-
-
-        /* =====================================================
-           PROFILE ACCOUNT TYPE
+           2. PROFILES TABLE
            ===================================================== */
 
         try {
 
-            const {
-                data,
-                error
-            } = await client
-                .from("profiles")
-                .select("id,account_type")
-                .eq("id", id)
-                .maybeSingle();
+            const { data, error } =
+                await client
+                    .from("profiles")
+                    .select("*")
+                    .eq("id", id)
+                    .maybeSingle();
 
             if (!error && data) {
 
-                profileExists = true;
+                const values = [
+                    data.role,
+                    data.account_type,
+                    data.accountType,
+                    data.user_type,
+                    data.userType,
+                    data.type
+                ];
 
-                const type =
-                    normalizeAccountType(
-                        data.account_type
-                    );
+                for (const value of values) {
 
-                if (type) {
-                    return type;
+                    const type =
+                        normalizeAccountType(value);
+
+                    if (type) {
+                        return type;
+                    }
                 }
             }
 
         } catch (error) {
 
             console.warn(
-                "Web3Jobs account_type lookup unavailable."
+                "Web3Jobs profiles lookup:",
+                error.message
             );
         }
 
 
         /* =====================================================
-           COMPANY PROFILE BY USER ID
+           3. COMPANY PROFILE
            ===================================================== */
 
         try {
 
-            const {
-                data,
-                error
-            } = await client
-                .from("company_profiles")
-                .select("id,user_id")
-                .eq("user_id", id)
-                .maybeSingle();
+            const { data, error } =
+                await client
+                    .from("company_profiles")
+                    .select("*")
+                    .eq("user_id", id)
+                    .maybeSingle();
 
-            if (
-                !error &&
-                data
-            ) {
+            if (!error && data) {
                 return "company";
             }
 
         } catch (error) {
 
             console.warn(
-                "Web3Jobs company profile lookup failed:",
-                error
+                "Web3Jobs company profile lookup:",
+                error.message
             );
         }
 
 
         /* =====================================================
-           COMPANY PROFILE BY ID
+           4. COMPANY PROFILE USING ID
            ===================================================== */
 
         try {
 
-            const {
-                data,
-                error
-            } = await client
-                .from("company_profiles")
-                .select("id")
-                .eq("id", id)
-                .maybeSingle();
+            const { data, error } =
+                await client
+                    .from("company_profiles")
+                    .select("*")
+                    .eq("id", id)
+                    .maybeSingle();
 
-            if (
-                !error &&
-                data
-            ) {
+            if (!error && data) {
                 return "company";
             }
 
         } catch (error) {
 
             console.warn(
-                "Web3Jobs company ID lookup failed:",
-                error
+                "Web3Jobs company ID lookup:",
+                error.message
             );
         }
 
 
         /* =====================================================
-           INDIVIDUAL FALLBACK
+           5. COMPANY JOBS FALLBACK
            ===================================================== */
 
-        if (profileExists) {
-            return "individual";
+        try {
+
+            const { data, error } =
+                await client
+                    .from("jobs")
+                    .select("id")
+                    .eq("user_id", id)
+                    .limit(1);
+
+            if (!error && data && data.length > 0) {
+                return "company";
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Web3Jobs jobs account detection:",
+                error.message
+            );
         }
 
 
         /* =====================================================
-           METADATA FINAL CHECK
+           6. INDIVIDUAL FALLBACK
            ===================================================== */
 
-        if (user) {
-
-            const metadata =
-                user.user_metadata || {};
-
-            const possibleValues = [
-                metadata.account_type,
-                metadata.accountType,
-                metadata.role,
-                metadata.user_type,
-                metadata.userType,
-                metadata.type
-            ];
-
-            for (
-                const value of possibleValues
-            ) {
-
-                const type =
-                    normalizeAccountType(value);
-
-                if (type) {
-                    return type;
-                }
-            }
-        }
-
-
-        return null;
+        return "individual";
     }
 
 
@@ -447,15 +366,12 @@
         const path =
             window.location.pathname;
 
-        const lastSlash =
+        const index =
             path.lastIndexOf("/");
 
         const directory =
-            lastSlash >= 0
-                ? path.substring(
-                    0,
-                    lastSlash + 1
-                )
+            index >= 0
+                ? path.substring(0, index + 1)
                 : "/";
 
         return (
@@ -485,9 +401,7 @@
     function getDashboardUrl(accountType) {
 
         const type =
-            normalizeAccountType(
-                accountType
-            );
+            normalizeAccountType(accountType);
 
         if (type === "company") {
 
@@ -516,13 +430,9 @@
        LOGIN
        ========================================================= */
 
-    async function loginUser(
-        email,
-        password
-    ) {
+    async function loginUser(email, password) {
 
-        const client =
-            getAuthSupabase();
+        const client = getAuthSupabase();
 
         if (!client) {
 
@@ -545,10 +455,7 @@
         password =
             String(password || "");
 
-        if (
-            !email ||
-            !password
-        ) {
+        if (!email || !password) {
 
             showAuthMessage(
                 "يرجى إدخال البريد الإلكتروني وكلمة المرور.",
@@ -561,29 +468,15 @@
             };
         }
 
-
         try {
 
-            /* =================================================
-               SUPABASE LOGIN
-               ================================================= */
-
-            const {
-                data,
-                error
-            } =
+            const { data, error } =
                 await client.auth.signInWithPassword({
                     email,
                     password
                 });
 
-
             if (error) {
-
-                console.error(
-                    "Web3Jobs login error:",
-                    error
-                );
 
                 showAuthError(error);
 
@@ -593,13 +486,11 @@
                 };
             }
 
-
             const user =
                 data?.user;
 
             const session =
                 data?.session;
-
 
             if (!user || !session) {
 
@@ -641,21 +532,13 @@
                ================================================= */
 
             const accountType =
-                await getAccountType(
-                    user.id
-                );
-
+                await getAccountType(user.id);
 
             if (!accountType) {
 
-                console.error(
-                    "Web3Jobs: Unable to determine account type.",
-                    user
-                );
-
                 showAuthMessage(
-                    "تم تسجيل الدخول بنجاح، ولكن لم يتم العثور على ملف الحساب.",
-                    "Login succeeded, but your account profile could not be found.",
+                    "تم تسجيل الدخول ولكن تعذر تحديد نوع الحساب.",
+                    "Login succeeded but account type could not be determined.",
                     "error"
                 );
 
@@ -668,18 +551,11 @@
             }
 
 
-            /* =================================================
-               DASHBOARD
-               ================================================= */
-
             const dashboardUrl =
-                getDashboardUrl(
-                    accountType
-                );
-
+                getDashboardUrl(accountType);
 
             console.log(
-                "Web3Jobs Login Success:",
+                "Web3Jobs Login:",
                 {
                     userId: user.id,
                     email: user.email,
@@ -687,7 +563,6 @@
                     dashboardUrl
                 }
             );
-
 
             return {
                 success: true,
@@ -700,7 +575,7 @@
         } catch (error) {
 
             console.error(
-                "Web3Jobs login exception:",
+                "Web3Jobs login:",
                 error
             );
 
@@ -718,12 +593,9 @@
        PROTECT DASHBOARD
        ========================================================= */
 
-    async function protectDashboard(
-        requiredAccountType = null
-    ) {
+    async function protectDashboard(requiredAccountType = null) {
 
-        const client =
-            getAuthSupabase();
+        const client = getAuthSupabase();
 
         if (!client) {
 
@@ -733,7 +605,6 @@
 
             return false;
         }
-
 
         try {
 
@@ -749,10 +620,13 @@
                 return false;
             }
 
-
             const user =
                 session.user;
 
+
+            /* =================================================
+               EMAIL CONFIRMATION
+               ================================================= */
 
             if (!isEmailConfirmed(user)) {
 
@@ -766,23 +640,24 @@
             }
 
 
-            const accountType =
-                await getAccountType(
-                    user.id
-                );
+            /* =================================================
+               ACCOUNT TYPE
+               ================================================= */
 
+            const accountType =
+                await getAccountType(user.id);
 
             if (!accountType) {
-
-                console.error(
-                    "Web3Jobs: Account type could not be determined."
-                );
 
                 showDashboardAccessError();
 
                 return false;
             }
 
+
+            /* =================================================
+               ACCOUNT TYPE CHECK
+               ================================================= */
 
             if (requiredAccountType) {
 
@@ -817,7 +692,7 @@
         } catch (error) {
 
             console.error(
-                "Web3Jobs protectDashboard error:",
+                "Web3Jobs dashboard protection:",
                 error
             );
 
@@ -829,26 +704,22 @@
 
 
     /* =========================================================
-       COMPANY DASHBOARD PROTECTION
+       COMPANY DASHBOARD
        ========================================================= */
 
     async function protectCompanyDashboard() {
 
-        return await protectDashboard(
-            "company"
-        );
+        return await protectDashboard("company");
     }
 
 
     /* =========================================================
-       INDIVIDUAL DASHBOARD PROTECTION
+       INDIVIDUAL DASHBOARD
        ========================================================= */
 
     async function protectIndividualDashboard() {
 
-        return await protectDashboard(
-            "individual"
-        );
+        return await protectDashboard("individual");
     }
 
 
@@ -861,28 +732,17 @@
         const client =
             getAuthSupabase();
 
-        if (!client) {
+        if (client) {
 
-            window.location.replace(
-                getLoginUrl()
-            );
-
-            return false;
+            try {
+                await client.auth.signOut();
+            } catch (error) {
+                console.error(
+                    "Web3Jobs logout:",
+                    error
+                );
+            }
         }
-
-
-        try {
-
-            await client.auth.signOut();
-
-        } catch (error) {
-
-            console.error(
-                "Web3Jobs logout error:",
-                error
-            );
-        }
-
 
         window.location.replace(
             getLoginUrl()
@@ -896,52 +756,37 @@
        RESEND CONFIRMATION
        ========================================================= */
 
-    async function resendConfirmationEmail(
-        email
-    ) {
+    async function resendConfirmationEmail(email) {
 
         const client =
             getAuthSupabase();
 
-        if (!client) {
-            return false;
-        }
+        if (!client) return false;
 
         email =
             String(email || "")
                 .trim()
                 .toLowerCase();
 
-        if (!email) {
-            return false;
-        }
-
+        if (!email) return false;
 
         try {
 
-            const {
-                error
-            } =
+            const { error } =
                 await client.auth.resend({
-
                     type: "signup",
-
                     email,
-
                     options: {
                         emailRedirectTo:
                             getLoginUrl()
                     }
                 });
 
-
             if (error) {
 
                 showAuthError(error);
-
                 return false;
             }
-
 
             showAuthMessage(
                 "تم إرسال رسالة تأكيد جديدة إلى بريدك الإلكتروني.",
@@ -954,7 +799,6 @@
         } catch (error) {
 
             showAuthError(error);
-
             return false;
         }
     }
@@ -964,16 +808,12 @@
        PASSWORD RESET
        ========================================================= */
 
-    async function resetPassword(
-        email
-    ) {
+    async function resetPassword(email) {
 
         const client =
             getAuthSupabase();
 
-        if (!client) {
-            return false;
-        }
+        if (!client) return false;
 
         email =
             String(email || "")
@@ -991,12 +831,9 @@
             return false;
         }
 
-
         try {
 
-            const {
-                error
-            } =
+            const { error } =
                 await client.auth.resetPasswordForEmail(
                     email,
                     {
@@ -1005,14 +842,11 @@
                     }
                 );
 
-
             if (error) {
 
                 showAuthError(error);
-
                 return false;
             }
-
 
             showAuthMessage(
                 "تم إرسال رابط إعادة تعيين كلمة المرور.",
@@ -1025,14 +859,13 @@
         } catch (error) {
 
             showAuthError(error);
-
             return false;
         }
     }
 
 
     /* =========================================================
-       AUTH ERROR
+       ERROR HANDLER
        ========================================================= */
 
     function showAuthError(error) {
@@ -1087,12 +920,8 @@
 
 
         if (
-            message.includes(
-                "too many requests"
-            ) ||
-            message.includes(
-                "rate limit"
-            )
+            message.includes("too many") ||
+            message.includes("rate limit")
         ) {
 
             showAuthMessage(
@@ -1106,20 +935,14 @@
 
 
         if (
-            message.includes(
-                "failed to fetch"
-            ) ||
-            message.includes(
-                "network"
-            ) ||
-            message.includes(
-                "fetch"
-            )
+            message.includes("failed to fetch") ||
+            message.includes("network") ||
+            message.includes("fetch")
         ) {
 
             showAuthMessage(
-                "تعذر الاتصال بخادم تسجيل الدخول. تحقق من اتصال الإنترنت وإعدادات Supabase.",
-                "Could not connect to the authentication server. Check your internet connection and Supabase configuration.",
+                "تعذر الاتصال بخادم تسجيل الدخول. تحقق من إعدادات Supabase.",
+                "Could not connect to Supabase. Please check your configuration.",
                 "error"
             );
 
@@ -1136,7 +959,7 @@
 
 
     /* =========================================================
-       AUTH MESSAGE
+       MESSAGE
        ========================================================= */
 
     function showAuthMessage(
@@ -1150,30 +973,29 @@
                 "auth-message"
             );
 
-        if (element) {
+        if (!element) {
 
-            element.innerHTML = `
-                <div class="auth-message-${type}">
-                    <div>${escapeAuthHtml(messageAr)}</div>
-                    <div>${escapeAuthHtml(messageEn)}</div>
-                </div>
-            `;
-
-            element.style.display =
-                "block";
+            console.log(
+                messageAr,
+                messageEn
+            );
 
             return;
         }
 
-        console.log(
-            messageAr,
-            messageEn
-        );
+        element.innerHTML = `
+            <div class="auth-message-${type}">
+                <div>${escapeHtml(messageAr)}</div>
+                <div>${escapeHtml(messageEn)}</div>
+            </div>
+        `;
+
+        element.style.display = "block";
     }
 
 
     /* =========================================================
-       DASHBOARD ACCESS ERROR
+       DASHBOARD ERROR
        ========================================================= */
 
     function showDashboardAccessError() {
@@ -1193,10 +1015,12 @@
             loading.innerHTML = `
                 <div class="loading-card">
                     <h2>Dashboard Access Error</h2>
+
                     <p>
                         We could not verify your account.
                         Please return to login and try again.
                     </p>
+
                     <a
                         href="login.html"
                         style="
@@ -1215,14 +1039,11 @@
                 </div>
             `;
 
-            loading.style.display =
-                "flex";
+            loading.style.display = "flex";
         }
 
         if (dashboard) {
-
-            dashboard.style.display =
-                "none";
+            dashboard.style.display = "none";
         }
     }
 
@@ -1231,9 +1052,9 @@
        HTML ESCAPE
        ========================================================= */
 
-    function escapeAuthHtml(value) {
+    function escapeHtml(value) {
 
-        return String(value || "")
+        return String(value ?? "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
@@ -1243,51 +1064,14 @@
 
 
     /* =========================================================
-       PAGE INITIALIZATION
-       ========================================================= */
-
-    async function initializeAuthPage() {
-
-        const page =
-            window.location.pathname
-                .split("/")
-                .pop()
-                .toLowerCase();
-
-        if (
-            page ===
-            "company-dashboard.html"
-        ) {
-
-            return;
-        }
-
-
-        if (
-            page ===
-            "dashboard.html"
-        ) {
-
-            await protectIndividualDashboard();
-
-            return;
-        }
-    }
-
-
-    /* =========================================================
        GLOBAL API
        ========================================================= */
 
     window.Web3JobsAuth = {
 
-        initialize:
-            function () {
-                return getAuthSupabase();
-            },
+        initialize: getAuthSupabase,
 
-        getClient:
-            getAuthSupabase,
+        getClient: getAuthSupabase,
 
         getCurrentUser,
 
@@ -1295,13 +1079,11 @@
 
         getAccountType,
 
-        login:
-            loginUser,
+        login: loginUser,
 
         loginUser,
 
-        logout:
-            logoutUser,
+        logout: logoutUser,
 
         logoutUser,
 
@@ -1356,25 +1138,9 @@
 
 
     /* =========================================================
-       START
+       IMPORTANT:
+       DO NOT AUTO-PROTECT COMPANY PAGE HERE.
+       company-dashboard.js handles its own initialization.
        ========================================================= */
-
-    if (
-        document.readyState ===
-        "loading"
-    ) {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            initializeAuthPage,
-            {
-                once: true
-            }
-        );
-
-    } else {
-
-        initializeAuthPage();
-    }
 
 })();
