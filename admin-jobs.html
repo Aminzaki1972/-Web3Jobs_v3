@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Web3Jobs Administrator - Job Management"
+    >
+
+    <title>Web3Jobs - Job Management</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg: #06101d;
+            --panel: #0b1a2b;
+            --panel2: #0e2135;
+            --border: #1d3852;
+            --text: #f5f9ff;
+            --muted: #8fa5bb;
+            --green: #4ade80;
+            --red: #f87171;
+            --blue: #60a5fa;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(38,102,160,.18),
+                    transparent 35%
+                ),
+                var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        .page {
+            width: min(1450px, 100%);
+            margin: auto;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            background: var(--panel);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .logo {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            border-radius: 13px;
+            background: linear-gradient(135deg,#1c765a,#175a47);
+            font-weight: 900;
+        }
+
+        h1,
+        h2,
+        p {
+            margin-top: 0;
+        }
+
+        h1 {
+            margin-bottom: 4px;
+            font-size: 21px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            min-height: 40px;
+            padding: 0 15px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--panel2);
+            color: white;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 11px;
+        }
+
+        .button:hover {
+            background: #12283e;
+        }
+
+        .button.green {
+            border-color: rgba(74,222,128,.3);
+        }
+
+        .button.red {
+            border-color: rgba(248,113,113,.3);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            background: var(--panel);
+        }
+
+        .search-box input {
+            flex: 1;
+            min-height: 44px;
+            padding: 0 14px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            outline: none;
+            background: #081625;
+            color: white;
+        }
+
+        .search-box input:focus {
+            border-color: var(--blue);
+        }
+
+        .table-card {
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--panel);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 18px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-header h2 {
+            margin-bottom: 4px;
+            font-size: 16px;
+        }
+
+        .count {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th,
+        td {
+            padding: 14px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+            font-size: 11px;
+        }
+
+        th {
+            color: var(--muted);
+            background: #091827;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        td {
+            color: #e8f0f8;
+        }
+
+        .job-title {
+            font-weight: 800;
+            color: white;
+        }
+
+        .company {
+            color: var(--blue);
+            font-weight: 700;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .status.active {
+            color: var(--green);
+            background: rgba(74,222,128,.08);
+        }
+
+        .status.inactive {
+            color: var(--red);
+            background: rgba(248,113,113,.08);
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+        }
+
+        .small-button {
+            padding: 7px 9px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: #0a1928;
+            color: white;
+            cursor: pointer;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .small-button:hover {
+            background: #12283e;
+        }
+
+        .small-button.delete {
+            color: #fecaca;
+            border-color: rgba(248,113,113,.25);
+        }
+
+        .empty {
+            padding: 40px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        #loading {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+        }
+
+        .loading-box {
+            text-align: center;
+        }
+
+        .loading-box strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .loading-box span {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        #content {
+            display: none;
+        }
+
+        .notice {
+            display: none;
+            margin-bottom: 20px;
+            padding: 13px 15px;
+            border-radius: 10px;
+            font-size: 11px;
+        }
+
+        .notice.error {
+            display: block;
+            color: #fecaca;
+            border: 1px solid rgba(248,113,113,.25);
+            background: rgba(248,113,113,.06);
+        }
+
+        .notice.success {
+            display: block;
+            color: #bbf7d0;
+            border: 1px solid rgba(74,222,128,.25);
+            background: rgba(74,222,128,.06);
+        }
+
+        @media (max-width: 700px) {
+
+            .page {
+                padding: 12px;
+            }
+
+            .header {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .search-box {
+                flex-direction: column;
+            }
+
+            .search-box .button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="loading">
+    <div class="loading-box">
+        <strong>Web3Jobs Admin</strong>
+        <span>Checking administrator access...</span>
+    </div>
+</div>
+
+
+<main id="content">
+
+    <div class="page">
+
+        <header class="header">
+
+            <div class="brand">
+
+                <div class="logo">
+                    W3
+                </div>
+
+                <div>
+                    <h1>
+                        Job Management
+                    </h1>
+
+                    <div class="subtitle">
+                        Manage all jobs published on Web3Jobs
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="header-actions">
+
+                <button
+                    type="button"
+                    class="button"
+                    id="back-dashboard"
+                >
+                    Admin Dashboard
+                </button>
+
+                <button
+                    type="button"
+                    class="button"
+                    id="logout"
+                >
+                    Logout
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <div
+            id="notice"
+            class="notice"
+        ></div>
+
+
+        <section class="search-box">
+
+            <input
+                type="search"
+                id="job-search"
+                placeholder="Search by job title, company, location..."
+                autocomplete="off"
+            >
+
+            <button
+                type="button"
+                class="button green"
+                id="refresh"
+            >
+                Refresh
+            </button>
+
+        </section>
+
+
+        <section class="table-card">
+
+            <div class="table-header">
+
+                <div>
+                    <h2>
+                        Published Jobs
+                    </h2>
+
+                    <div
+                        class="count"
+                        id="job-count"
+                    >
+                        Loading...
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+                            <th>Job</th>
+                            <th>Company</th>
+                            <th>Location</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody id="jobs-table">
+
+                        <tr>
+                            <td colspan="7">
+                                <div class="empty">
+                                    Loading jobs...
+                                </div>
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </div>
+
+</main>
+
+
+<script src="js/supabase.js"></script>
+<script src="js/admin-jobs.js"></script>
+
+</body>
+  </html>
