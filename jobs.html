@@ -53,10 +53,6 @@
 
     <style>
 
-        /* =====================================================
-           PAGE
-           ===================================================== */
-
         .jobs-page {
             min-height: 100vh;
         }
@@ -142,7 +138,6 @@
         .jobs-filters {
             width: min(1150px, calc(100% - 40px));
             margin: 0 auto 35px;
-
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
@@ -446,7 +441,6 @@
         }
 
         #jobs-detail-modal .jobs-modal-close:hover {
-
             background:
                 rgba(255,255,255,.15);
         }
@@ -543,7 +537,6 @@
         }
 
         .job-apply-button:hover {
-
             filter:
                 brightness(1.1);
         }
@@ -563,7 +556,6 @@
            ===================================================== */
 
         #jobs-message {
-
             z-index:
                 100000;
         }
@@ -845,14 +837,6 @@
             </div>
 
 
-            <!--
-                IMPORTANT:
-
-                js/jobs.js uses #jobs-list.
-
-                Do NOT change this ID.
-            -->
-
             <div id="jobs-list">
 
                 <div class="jobs-loading">
@@ -984,16 +968,12 @@
                         function () {
 
                             if (typeFilter) {
-
-                                typeFilter.value =
-                                    "";
+                                typeFilter.value = "";
                             }
 
 
                             if (locationFilter) {
-
-                                locationFilter.value =
-                                    "";
+                                locationFilter.value = "";
                             }
 
 
@@ -1004,9 +984,7 @@
 
 
                             if (searchInput) {
-
-                                searchInput.value =
-                                    "";
+                                searchInput.value = "";
                             }
 
 
@@ -1036,21 +1014,38 @@
          UNIFIED SUPABASE CLIENT
          ===================================================== -->
 
-    <!--
-        IMPORTANT:
-        supabase.js MUST be loaded before jobs.js.
-    -->
-
-    <script src="js/supabase.js"></script>
+    <script
+        src="js/supabase.js"
+    ></script>
 
 
     <!-- =====================================================
          JOBS SYSTEM
          ===================================================== -->
 
-    <script src="js/jobs.js"></script>
+    <script
+        src="js/jobs.js"
+    ></script>
+
+
+    <!-- =====================================================
+         GREENHOUSE SYNC
+         ===================================================== -->
+
+    <!--
+        IMPORTANT:
+
+        This file is responsible for the external
+        Greenhouse job synchronization.
+
+        It is loaded AFTER Supabase and jobs.js.
+    -->
+
+    <script
+        src="js/greenhouse-sync.js"
+    ></script>
 
 
 </body>
 
-            </html>
+    </html>
