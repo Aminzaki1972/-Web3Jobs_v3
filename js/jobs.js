@@ -1,8 +1,16 @@
 /* =========================================================
    Web3Jobs v3
    File: js/jobs.js
+
    Jobs Management System
    Unified Session-Safe Version
+   ---------------------------------------------------------
+   IMPORTANT:
+   - Uses ONLY the unified Supabase client.
+   - NEVER creates another Supabase client.
+   - NEVER redirects users to login.
+   - NEVER logs users out while browsing jobs.
+   - External application links open in a new tab.
    ========================================================= */
 
 "use strict";
@@ -31,15 +39,14 @@
 
 
     /* =========================================================
-       SUPABASE
-       IMPORTANT:
-       Use ONLY the existing unified Web3Jobs client.
-       NEVER create another auth client here.
+       SUPABASE CLIENT
        ========================================================= */
 
     function getJobsSupabase() {
 
-        /* Main unified client */
+        /*
+         * Always use the unified Web3Jobs client.
+         */
 
         if (
             window.Web3JobsSupabase &&
@@ -54,12 +61,15 @@
                 client.auth &&
                 typeof client.from === "function"
             ) {
+
                 return client;
             }
         }
 
 
-        /* Compatibility */
+        /*
+         * Compatibility with older files.
+         */
 
         if (
             window.supabaseClient &&
@@ -81,15 +91,13 @@
 
     /* =========================================================
        CURRENT SESSION
-       IMPORTANT:
-       Read the existing session.
-       NEVER redirect.
        ========================================================= */
 
     async function getCurrentSession() {
 
         const client =
             getJobsSupabase();
+
 
         if (!client) {
             return null;
@@ -98,29 +106,23 @@
 
         try {
 
+            const result =
+                await client.auth.getSession();
+
+
             if (
-                client.auth &&
-                typeof client.auth.getSession === "function"
+                result &&
+                result.data &&
+                result.data.session
             ) {
 
-                const result =
-                    await client.auth.getSession();
-
-
-                if (
-                    result &&
-                    result.data &&
-                    result.data.session
-                ) {
-
-                    return result.data.session;
-                }
+                return result.data.session;
             }
 
         } catch (error) {
 
             console.warn(
-                "Web3Jobs Jobs: Unable to read session:",
+                "Web3Jobs: Unable to read session:",
                 error
             );
         }
@@ -154,6 +156,7 @@
 
         JobsSystem.currentUser =
             null;
+
 
         return null;
     }
@@ -205,14 +208,12 @@
 
     function escapeAttribute(value) {
 
-        return escapeHTML(
-            value
-        );
+        return escapeHTML(value);
     }
 
 
     /* =========================================================
-       VALUE
+       VALUE HELPER
        ========================================================= */
 
     function valueOf(
@@ -230,8 +231,7 @@
 
 
         const result =
-            String(value)
-                .trim();
+            String(value).trim();
 
 
         return result ||
@@ -276,7 +276,7 @@
 
 
     /* =========================================================
-       JOBS CONTAINER
+       JOB CONTAINER
        ========================================================= */
 
     function findJobsContainer() {
@@ -303,6 +303,7 @@
 
 
             if (element) {
+
                 return element;
             }
         }
@@ -342,7 +343,7 @@
 
 
     /* =========================================================
-       ERROR
+       SUPABASE ERROR
        ========================================================= */
 
     function buildSupabaseError(
@@ -373,12 +374,8 @@
 
         if (
             code === "42501" ||
-            lower.includes(
-                "row-level security"
-            ) ||
-            lower.includes(
-                "permission denied"
-            )
+            lower.includes("row-level security") ||
+            lower.includes("permission denied")
         ) {
 
             return "Database access is restricted.";
@@ -386,12 +383,8 @@
 
 
         if (
-            lower.includes(
-                "failed to fetch"
-            ) ||
-            lower.includes(
-                "network"
-            )
+            lower.includes("failed to fetch") ||
+            lower.includes("network")
         ) {
 
             return "Unable to connect to the database.";
@@ -399,12 +392,8 @@
 
 
         if (
-            lower.includes(
-                "relation"
-            ) &&
-            lower.includes(
-                "does not exist"
-            )
+            lower.includes("relation") &&
+            lower.includes("does not exist")
         ) {
 
             return "The jobs table was not found.";
@@ -453,9 +442,7 @@
                     .select("*");
 
 
-            if (
-                response.error
-            ) {
+            if (response.error) {
 
                 console.error(
                     "Web3Jobs Jobs error:",
@@ -470,9 +457,7 @@
                     [];
 
 
-                renderAllJobs(
-                    []
-                );
+                renderAllJobs([]);
 
 
                 showError(
@@ -487,18 +472,13 @@
 
 
             const data =
-                Array.isArray(
-                    response.data
-                )
+                Array.isArray(response.data)
                     ? response.data
                     : [];
 
 
             data.sort(
-                (
-                    a,
-                    b
-                ) => {
+                (a, b) => {
 
                     const dateA =
                         a &&
@@ -553,9 +533,7 @@
                 [];
 
 
-            renderAllJobs(
-                []
-            );
+            renderAllJobs([]);
 
 
             showError(
@@ -578,9 +556,7 @@
        JOB CARD
        ========================================================= */
 
-    function createJobCard(
-        job
-    ) {
+    function createJobCard(job) {
 
         if (!job) {
             return "";
@@ -589,9 +565,7 @@
 
         const id =
             escapeAttribute(
-                valueOf(
-                    job.id
-                )
+                valueOf(job.id)
             );
 
 
@@ -691,18 +665,18 @@
 
                 <div class="job-meta">
 
-                    <span class="job-location">
+                    <span>
                         📍 ${location}
                     </span>
 
-                    <span class="job-type">
+                    <span>
                         💼 ${type}
                     </span>
 
                     ${
                         salary
                             ? `
-                                <span class="job-salary">
+                                <span>
                                     💰 ${salary}
                                 </span>
                             `
@@ -712,7 +686,7 @@
                     ${
                         date
                             ? `
-                                <span class="job-date">
+                                <span>
                                     📅 ${escapeHTML(date)}
                                 </span>
                             `
@@ -757,7 +731,7 @@
 
 
     /* =========================================================
-       RENDER
+       RENDER JOBS
        ========================================================= */
 
     function renderAllJobs(
@@ -805,9 +779,7 @@
 
         container.innerHTML =
             jobs
-                .map(
-                    createJobCard
-                )
+                .map(createJobCard)
                 .join("");
     }
 
@@ -819,19 +791,14 @@
     function applyFilters() {
 
         let result =
-            Array.isArray(
-                JobsSystem.jobs
-            )
-                ? [
-                    ...JobsSystem.jobs
-                ]
+            Array.isArray(JobsSystem.jobs)
+                ? [...JobsSystem.jobs]
                 : [];
 
 
         const keyword =
             String(
-                JobsSystem.searchQuery ||
-                ""
+                JobsSystem.searchQuery || ""
             )
                 .trim()
                 .toLowerCase();
@@ -839,8 +806,7 @@
 
         const type =
             String(
-                JobsSystem.typeFilter ||
-                ""
+                JobsSystem.typeFilter || ""
             )
                 .trim()
                 .toLowerCase();
@@ -848,8 +814,7 @@
 
         const location =
             String(
-                JobsSystem.locationFilter ||
-                ""
+                JobsSystem.locationFilter || ""
             )
                 .trim()
                 .toLowerCase();
@@ -882,7 +847,6 @@
                             )
 
                             .join(" ")
-
                             .toLowerCase();
 
 
@@ -907,9 +871,7 @@
                                 : ""
                         )
                             .toLowerCase()
-                            .includes(
-                                type
-                            );
+                            .includes(type);
                     }
                 );
         }
@@ -928,9 +890,7 @@
                                 : ""
                         )
                             .toLowerCase()
-                            .includes(
-                                location
-                            );
+                            .includes(location);
                     }
                 );
         }
@@ -940,9 +900,7 @@
             result;
 
 
-        renderAllJobs(
-            result
-        );
+        renderAllJobs(result);
 
 
         return result;
@@ -954,9 +912,7 @@
     ) {
 
         JobsSystem.searchQuery =
-            String(
-                query || ""
-            );
+            String(query || "");
 
 
         return applyFilters();
@@ -968,9 +924,7 @@
     ) {
 
         JobsSystem.typeFilter =
-            String(
-                type || ""
-            );
+            String(type || "");
 
 
         return applyFilters();
@@ -982,9 +936,7 @@
     ) {
 
         JobsSystem.locationFilter =
-            String(
-                location || ""
-            );
+            String(location || "");
 
 
         return applyFilters();
@@ -1008,12 +960,10 @@
 
 
     /* =========================================================
-       GET JOB
+       GET JOB BY ID
        ========================================================= */
 
-    function getJobById(
-        jobId
-    ) {
+    function getJobById(jobId) {
 
         if (
             jobId === null ||
@@ -1029,12 +979,8 @@
             JobsSystem.jobs.find(
                 job =>
                     job &&
-                    String(
-                        job.id
-                    ) ===
-                    String(
-                        jobId
-                    )
+                    String(job.id) ===
+                    String(jobId)
             ) ||
             null
         );
@@ -1045,9 +991,7 @@
        LOAD SINGLE JOB
        ========================================================= */
 
-    async function loadJobById(
-        jobId
-    ) {
+    async function loadJobById(jobId) {
 
         if (
             jobId === null ||
@@ -1074,16 +1018,11 @@
                 await client
                     .from("jobs")
                     .select("*")
-                    .eq(
-                        "id",
-                        jobId
-                    )
+                    .eq("id", jobId)
                     .maybeSingle();
 
 
-            if (
-                response.error
-            ) {
+            if (response.error) {
 
                 console.error(
                     "Web3Jobs load job error:",
@@ -1103,8 +1042,7 @@
 
 
             JobsSystem.currentJob =
-                response.data ||
-                null;
+                response.data || null;
 
 
             return JobsSystem.currentJob;
@@ -1124,6 +1062,69 @@
 
 
             return null;
+        }
+    }
+
+
+    /* =========================================================
+       SAFE APPLICATION URL
+       ========================================================= */
+
+    function getApplicationURL(job) {
+
+        if (!job) {
+            return "";
+        }
+
+
+        const rawURL =
+            valueOf(
+                job.application_url ||
+                job.apply_link ||
+                job.application_link ||
+                job.apply_url,
+                ""
+            );
+
+
+        if (!rawURL) {
+            return "";
+        }
+
+
+        try {
+
+            const url =
+                new URL(
+                    rawURL,
+                    window.location.href
+                );
+
+
+            /*
+             * Only HTTP/HTTPS URLs are allowed.
+             */
+
+            if (
+                url.protocol !== "http:" &&
+                url.protocol !== "https:"
+            ) {
+
+                return "";
+            }
+
+
+            return url.href;
+
+        } catch (error) {
+
+            console.warn(
+                "Web3Jobs: Invalid application URL:",
+                error
+            );
+
+
+            return "";
         }
     }
 
@@ -1163,6 +1164,7 @@
                 class="jobs-modal"
                 role="dialog"
                 aria-modal="true"
+                aria-labelledby="jobs-modal-title"
             >
 
                 <button
@@ -1184,29 +1186,14 @@
             modal.style,
             {
 
-                position:
-                    "fixed",
-
-                inset:
-                    "0",
-
-                zIndex:
-                    "99999",
-
-                display:
-                    "none",
-
-                alignItems:
-                    "center",
-
-                justifyContent:
-                    "center",
-
-                padding:
-                    "20px",
-
-                background:
-                    "rgba(0,0,0,.65)"
+                position: "fixed",
+                inset: "0",
+                zIndex: "99999",
+                display: "none",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "20px",
+                background: "rgba(0,0,0,.65)"
 
             }
         );
@@ -1255,9 +1242,7 @@
        SHOW JOB DETAILS
        ========================================================= */
 
-    function showJobDetails(
-        job
-    ) {
+    function showJobDetails(job) {
 
         if (!job) {
 
@@ -1352,23 +1337,19 @@
             );
 
 
-        const applicationURL =
-            valueOf(
-                job.application_url ||
-                job.apply_link,
-                ""
-            );
-
-
         const date =
             formatDate(
                 job.created_at
             );
 
 
+        const applicationURL =
+            getApplicationURL(job);
+
+
         body.innerHTML = `
 
-            <h2>
+            <h2 id="jobs-modal-title">
                 ${title}
             </h2>
 
@@ -1376,28 +1357,19 @@
             <div class="job-details-meta">
 
                 <p>
-                    <strong>
-                        Company:
-                    </strong>
-
+                    <strong>Company:</strong>
                     ${company}
                 </p>
 
 
                 <p>
-                    <strong>
-                        Location:
-                    </strong>
-
+                    <strong>Location:</strong>
                     ${location}
                 </p>
 
 
                 <p>
-                    <strong>
-                        Job Type:
-                    </strong>
-
+                    <strong>Job Type:</strong>
                     ${type}
                 </p>
 
@@ -1406,10 +1378,7 @@
                     salary
                         ? `
                             <p>
-                                <strong>
-                                    Salary:
-                                </strong>
-
+                                <strong>Salary:</strong>
                                 ${salary}
                             </p>
                         `
@@ -1421,10 +1390,7 @@
                     skills
                         ? `
                             <p>
-                                <strong>
-                                    Skills:
-                                </strong>
-
+                                <strong>Skills:</strong>
                                 ${skills}
                             </p>
                         `
@@ -1436,13 +1402,8 @@
                     date
                         ? `
                             <p>
-                                <strong>
-                                    Posted:
-                                </strong>
-
-                                ${escapeHTML(
-                                    date
-                                )}
+                                <strong>Posted:</strong>
+                                ${escapeHTML(date)}
                             </p>
                         `
                         : ""
@@ -1471,7 +1432,11 @@
                     id="job-apply-button"
                     class="job-apply-button"
                 >
-                    Apply Now
+                    ${
+                        applicationURL
+                            ? "Apply Now"
+                            : "Submit Application"
+                    }
                 </button>
 
             </div>
@@ -1492,52 +1457,57 @@
                 async function () {
 
                     /*
-                     * If the company provided an external
-                     * application URL, open it.
+                     * =================================================
+                     * EXTERNAL APPLICATION
+                     * =================================================
+                     *
+                     * If the company provided a valid external
+                     * application URL, open it directly.
+                     *
+                     * Example:
+                     * Coinbase application page.
                      */
 
-                    if (
-                        applicationURL
-                    ) {
+                    if (applicationURL) {
 
                         try {
 
-                            const safeURL =
-                                new URL(
-                                    applicationURL,
-                                    window.location.href
-                                );
+                            window.open(
+                                applicationURL,
+                                "_blank",
+                                "noopener,noreferrer"
+                            );
 
 
-                            if (
-                                safeURL.protocol ===
-                                    "http:" ||
-                                safeURL.protocol ===
-                                    "https:"
-                            ) {
-
-                                window.open(
-                                    safeURL.href,
-                                    "_blank",
-                                    "noopener,noreferrer"
-                                );
+                            showMessage(
+                                "Application page opened in a new tab.",
+                                "success"
+                            );
 
 
-                                return;
-                            }
+                            return;
 
                         } catch (error) {
 
-                            console.warn(
-                                "Invalid application URL:",
+                            console.error(
+                                "Unable to open application URL:",
                                 error
                             );
+
+                            showError(
+                                "Unable to open the application page."
+                            );
+
+
+                            return;
                         }
                     }
 
 
                     /*
-                     * Internal application.
+                     * =================================================
+                     * INTERNAL APPLICATION
+                     * =================================================
                      */
 
                     applyButton.disabled =
@@ -1561,7 +1531,7 @@
 
 
                         applyButton.textContent =
-                            "Apply Now";
+                            "Submit Application";
                     }
 
                 }
@@ -1603,14 +1573,10 @@
 
 
     /* =========================================================
-       APPLY
-       IMPORTANT:
-       NO REDIRECT TO LOGIN.
+       INTERNAL APPLICATION
        ========================================================= */
 
-    async function applyForJob(
-        jobId
-    ) {
+    async function applyForJob(jobId) {
 
         if (
             jobId === null ||
@@ -1621,6 +1587,7 @@
             showError(
                 "Invalid job."
             );
+
 
             return false;
         }
@@ -1636,13 +1603,18 @@
                 "Database connection is unavailable."
             );
 
+
             return false;
         }
 
 
         /*
+         * IMPORTANT:
+         *
          * Read the existing session.
-         * Never redirect.
+         *
+         * Do NOT redirect.
+         * Do NOT logout.
          */
 
         const user =
@@ -1658,40 +1630,26 @@
             );
 
 
-            /*
-             * VERY IMPORTANT:
-             *
-             * No window.location
-             * No replace()
-             * No href
-             *
-             * The user remains on the page.
-             */
-
             return false;
         }
 
 
         try {
 
+            /*
+             * Check duplicate application.
+             */
+
             const existing =
                 await client
                     .from("applications")
                     .select("id")
-                    .eq(
-                        "job_id",
-                        jobId
-                    )
-                    .eq(
-                        "user_id",
-                        user.id
-                    )
+                    .eq("job_id", jobId)
+                    .eq("user_id", user.id)
                     .limit(1);
 
 
-            if (
-                existing.error
-            ) {
+            if (existing.error) {
 
                 console.error(
                     "Application check error:",
@@ -1710,9 +1668,7 @@
 
 
             if (
-                Array.isArray(
-                    existing.data
-                ) &&
+                Array.isArray(existing.data) &&
                 existing.data.length > 0
             ) {
 
@@ -1725,6 +1681,10 @@
                 return false;
             }
 
+
+            /*
+             * Insert application.
+             */
 
             const response =
                 await client
@@ -1743,9 +1703,7 @@
                     });
 
 
-            if (
-                response.error
-            ) {
+            if (response.error) {
 
                 console.error(
                     "Application insert error:",
@@ -1755,8 +1713,7 @@
 
                 if (
                     String(
-                        response.error.code ||
-                        ""
+                        response.error.code || ""
                     ) === "23505"
                 ) {
 
@@ -1859,8 +1816,10 @@
                         searchJobs(
                             input.value
                         );
+
                     }
                 );
+
             }
         );
 
@@ -1897,6 +1856,7 @@
 
                     }
                 );
+
             }
         );
     }
@@ -1947,33 +1907,24 @@
 
 
                 const job =
-                    getJobById(
-                        jobId
-                    );
+                    getJobById(jobId);
 
 
                 if (job) {
 
-                    showJobDetails(
-                        job
-                    );
-
+                    showJobDetails(job);
 
                     return;
                 }
 
 
                 const loaded =
-                    await loadJobById(
-                        jobId
-                    );
+                    await loadJobById(jobId);
 
 
                 if (loaded) {
 
-                    showJobDetails(
-                        loaded
-                    );
+                    showJobDetails(loaded);
 
                 } else {
 
@@ -2011,8 +1962,7 @@
             event => {
 
                 if (
-                    event.key ===
-                    "Escape"
+                    event.key === "Escape"
                 ) {
 
                     closeJobDetails();
@@ -2054,38 +2004,18 @@
                 box.style,
                 {
 
-                    position:
-                        "fixed",
-
-                    top:
-                        "20px",
-
-                    right:
-                        "20px",
-
-                    zIndex:
-                        "100000",
-
-                    maxWidth:
-                        "360px",
-
-                    padding:
-                        "14px 18px",
-
-                    borderRadius:
-                        "10px",
-
+                    position: "fixed",
+                    top: "20px",
+                    right: "20px",
+                    zIndex: "100000",
+                    maxWidth: "360px",
+                    padding: "14px 18px",
+                    borderRadius: "10px",
                     boxShadow:
                         "0 8px 25px rgba(0,0,0,.2)",
-
-                    fontSize:
-                        "14px",
-
-                    lineHeight:
-                        "1.5",
-
-                    fontFamily:
-                        "inherit"
+                    fontSize: "14px",
+                    lineHeight: "1.5",
+                    fontFamily: "inherit"
 
                 }
             );
@@ -2098,15 +2028,10 @@
 
 
         box.textContent =
-            String(
-                message || ""
-            );
+            String(message || "");
 
 
-        if (
-            type ===
-            "success"
-        ) {
+        if (type === "success") {
 
             box.style.background =
                 "#198754";
@@ -2114,10 +2039,7 @@
             box.style.color =
                 "#ffffff";
 
-        } else if (
-            type ===
-            "error"
-        ) {
+        } else if (type === "error") {
 
             box.style.background =
                 "#dc3545";
@@ -2125,10 +2047,7 @@
             box.style.color =
                 "#ffffff";
 
-        } else if (
-            type ===
-            "warning"
-        ) {
+        } else if (type === "warning") {
 
             box.style.background =
                 "#ffc107";
@@ -2168,9 +2087,7 @@
     }
 
 
-    function showError(
-        message
-    ) {
+    function showError(message) {
 
         showMessage(
             message,
@@ -2222,8 +2139,11 @@
 
 
         /*
-         * Read session only.
-         * NEVER redirect.
+         * IMPORTANT:
+         *
+         * Read the current authentication session.
+         *
+         * There is NO redirect here.
          */
 
         await getCurrentUser();
@@ -2384,16 +2304,12 @@
             const response =
                 await client
                     .from("jobs")
-                    .insert(
-                        insertData
-                    )
+                    .insert(insertData)
                     .select("*")
                     .maybeSingle();
 
 
-            if (
-                response.error
-            ) {
+            if (response.error) {
 
                 console.error(
                     "Create job error:",
@@ -2411,9 +2327,7 @@
             }
 
 
-            if (
-                response.data
-            ) {
+            if (response.data) {
 
                 JobsSystem.jobs.unshift(
                     response.data
@@ -2467,9 +2381,7 @@
        DELETE JOB
        ========================================================= */
 
-    async function deleteJob(
-        jobId
-    ) {
+    async function deleteJob(jobId) {
 
         if (!jobId) {
             return false;
@@ -2518,15 +2430,10 @@
                 await client
                     .from("jobs")
                     .delete()
-                    .eq(
-                        "id",
-                        jobId
-                    );
+                    .eq("id", jobId);
 
 
-            if (
-                response.error
-            ) {
+            if (response.error) {
 
                 console.error(
                     "Delete job error:",
@@ -2547,12 +2454,8 @@
             JobsSystem.jobs =
                 JobsSystem.jobs.filter(
                     job =>
-                        String(
-                            job.id
-                        ) !==
-                        String(
-                            jobId
-                        )
+                        String(job.id) !==
+                        String(jobId)
                 );
 
 
@@ -2655,8 +2558,7 @@
        ========================================================= */
 
     if (
-        document.readyState ===
-        "loading"
+        document.readyState === "loading"
     ) {
 
         document.addEventListener(
