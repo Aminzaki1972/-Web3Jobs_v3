@@ -22,6 +22,7 @@
 
     <title>Web3Jobs - Explore Web3 Jobs</title>
 
+
     <!-- =====================================================
          MAIN CSS
          ===================================================== -->
@@ -36,13 +37,15 @@
         href="css/responsive.css"
     >
 
+
     <!-- =====================================================
-         SUPABASE
+         SUPABASE LIBRARY
          ===================================================== -->
 
     <script
         src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
     ></script>
+
 
     <style>
 
@@ -72,6 +75,7 @@
             line-height: 1.7;
             opacity: .8;
         }
+
 
         /* =====================================================
            SEARCH
@@ -120,6 +124,7 @@
             color: #fff;
         }
 
+
         /* =====================================================
            FILTERS
            ===================================================== */
@@ -156,6 +161,7 @@
             font-weight: 700;
         }
 
+
         /* =====================================================
            JOBS CONTAINER
            ===================================================== */
@@ -183,6 +189,7 @@
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 20px;
         }
+
 
         /* =====================================================
            JOB CARD
@@ -283,6 +290,7 @@
             filter: brightness(1.1);
         }
 
+
         /* =====================================================
            LOADING
            ===================================================== */
@@ -301,6 +309,7 @@
         .no-jobs p {
             opacity: .7;
         }
+
 
         /* =====================================================
            MODAL
@@ -384,6 +393,7 @@
             cursor: wait;
         }
 
+
         /* =====================================================
            MOBILE
            ===================================================== */
@@ -417,6 +427,7 @@
 
         }
 
+
         @media (max-width: 500px) {
 
             .jobs-search-section,
@@ -448,6 +459,7 @@
 
 <body>
 
+
     <!-- =====================================================
          HEADER
          ===================================================== -->
@@ -462,6 +474,7 @@
             >
                 Web3Jobs
             </a>
+
 
             <nav class="main-nav">
 
@@ -689,10 +702,12 @@
                         "job-type-filter"
                     );
 
+
                 const locationFilter =
                     document.getElementById(
                         "location-filter"
                     );
+
 
                 const clearButton =
                     document.getElementById(
@@ -755,20 +770,32 @@
                         function () {
 
                             if (typeFilter) {
-                                typeFilter.value = "";
+
+                                typeFilter.value =
+                                    "";
+
                             }
 
+
                             if (locationFilter) {
-                                locationFilter.value = "";
+
+                                locationFilter.value =
+                                    "";
+
                             }
+
 
                             const searchInput =
                                 document.getElementById(
                                     "job-search"
                                 );
 
+
                             if (searchInput) {
-                                searchInput.value = "";
+
+                                searchInput.value =
+                                    "";
+
                             }
 
 
@@ -794,6 +821,24 @@
 
 
     <!-- =====================================================
+         WEB3JOBS UNIFIED SUPABASE CLIENT
+         ===================================================== -->
+
+    <script
+        src="js/supabase.js"
+    ></script>
+
+
+    <!-- =====================================================
+         EXTERNAL JOBS SYSTEM
+         ===================================================== -->
+
+    <script
+        src="js/external-jobs.js"
+    ></script>
+
+
+    <!-- =====================================================
          JOBS SYSTEM
          ===================================================== -->
 
@@ -804,4 +849,4 @@
 
 </body>
 
-                  </html>
+                    </html>
