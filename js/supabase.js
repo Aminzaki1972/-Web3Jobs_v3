@@ -2,9 +2,15 @@
    Web3Jobs v3
    File: js/supabase.js
    Unified Supabase Client
+   Single Session / Single Client
    ========================================================= */
 
 "use strict";
+
+
+/* =========================================================
+   SUPABASE CONFIGURATION
+   ========================================================= */
 
 const SUPABASE_URL =
     "https://jqhemwskrnlycximjpag.supabase.co";
@@ -12,27 +18,53 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
 
+
+/*
+ * IMPORTANT
+ *
+ * This storage key must remain identical on every page.
+ * It prevents different pages from creating different
+ * authentication sessions.
+ */
+
 const SUPABASE_STORAGE_KEY =
     "web3jobs-auth";
+
+
+/* =========================================================
+   INTERNAL CLIENT
+   ========================================================= */
 
 let web3jobsSupabase = null;
 
 
 /* =========================================================
-   INITIALIZE
+   INITIALIZE SUPABASE
    ========================================================= */
 
 function initializeSupabase() {
 
+    /*
+     * If the central client already exists,
+     * always return the same client.
+     */
+
     if (web3jobsSupabase) {
+
         return web3jobsSupabase;
     }
+
+
+    /*
+     * Make sure Supabase library exists.
+     */
 
     if (
         typeof window === "undefined" ||
         !window.supabase ||
         typeof window.supabase.createClient !== "function"
     ) {
+
         console.error(
             "Web3Jobs: Supabase library is not loaded."
         );
@@ -40,7 +72,12 @@ function initializeSupabase() {
         return null;
     }
 
+
     try {
+
+        /*
+         * Create ONE Supabase client only.
+         */
 
         web3jobsSupabase =
             window.supabase.createClient(
@@ -48,19 +85,57 @@ function initializeSupabase() {
                 SUPABASE_PUBLISHABLE_KEY,
                 {
                     auth: {
-                        persistSession: true,
-                        autoRefreshToken: true,
-                        detectSessionInUrl: true,
+
+                        /*
+                         * Keep authentication session.
+                         */
+
+                        persistSession:
+                            true,
+
+
+                        /*
+                         * Automatically refresh
+                         * expired access tokens.
+                         */
+
+                        autoRefreshToken:
+                            true,
+
+
+                        /*
+                         * IMPORTANT:
+                         *
+                         * Do not allow pages to interpret
+                         * URL parameters as a new session.
+                         */
+
+                        detectSessionInUrl:
+                            false,
+
+
+                        /*
+                         * Same storage key everywhere.
+                         */
+
                         storageKey:
                             SUPABASE_STORAGE_KEY
+
                     }
                 }
             );
 
+
+        /*
+         * Global compatibility.
+         */
+
         window.supabaseClient =
             web3jobsSupabase;
 
+
         return web3jobsSupabase;
+
 
     } catch (error) {
 
@@ -69,8 +144,14 @@ function initializeSupabase() {
             error
         );
 
-        web3jobsSupabase = null;
-        window.supabaseClient = null;
+
+        web3jobsSupabase =
+            null;
+
+
+        window.supabaseClient =
+            null;
+
 
         return null;
     }
@@ -78,24 +159,40 @@ function initializeSupabase() {
 
 
 /* =========================================================
-   GET CLIENT
+   GET CENTRAL CLIENT
    ========================================================= */
 
 function getSupabaseClient() {
 
+    /*
+     * Always return the existing central client.
+     */
+
     if (web3jobsSupabase) {
+
         return web3jobsSupabase;
     }
+
+
+    /*
+     * Backward compatibility.
+     */
 
     if (
         window.supabaseClient &&
         typeof window.supabaseClient.from === "function"
     ) {
+
         web3jobsSupabase =
             window.supabaseClient;
 
         return web3jobsSupabase;
     }
+
+
+    /*
+     * Initialize only once.
+     */
 
     return initializeSupabase();
 }
@@ -106,12 +203,13 @@ function getSupabaseClient() {
    ========================================================= */
 
 function getClient() {
+
     return getSupabaseClient();
 }
 
 
 /* =========================================================
-   SESSION
+   GET SESSION
    ========================================================= */
 
 async function getSupabaseSession() {
@@ -119,9 +217,12 @@ async function getSupabaseSession() {
     const client =
         getSupabaseClient();
 
+
     if (!client) {
+
         return null;
     }
+
 
     try {
 
@@ -130,6 +231,7 @@ async function getSupabaseSession() {
             error
         } =
             await client.auth.getSession();
+
 
         if (error) {
 
@@ -141,7 +243,14 @@ async function getSupabaseSession() {
             return null;
         }
 
-        return data?.session || null;
+
+        return (
+            data &&
+            data.session
+                ? data.session
+                : null
+        );
+
 
     } catch (error) {
 
@@ -156,7 +265,7 @@ async function getSupabaseSession() {
 
 
 /* =========================================================
-   CURRENT USER
+   GET CURRENT USER
    ========================================================= */
 
 async function getSupabaseUser() {
@@ -164,9 +273,12 @@ async function getSupabaseUser() {
     const client =
         getSupabaseClient();
 
+
     if (!client) {
+
         return null;
     }
+
 
     try {
 
@@ -176,9 +288,14 @@ async function getSupabaseUser() {
         } =
             await client.auth.getUser();
 
+
         if (error) {
 
-            console.error(
+            /*
+             * No automatic redirect here.
+             */
+
+            console.warn(
                 "Web3Jobs: getUser error:",
                 error
             );
@@ -186,11 +303,18 @@ async function getSupabaseUser() {
             return null;
         }
 
-        return data?.user || null;
+
+        return (
+            data &&
+            data.user
+                ? data.user
+                : null
+        );
+
 
     } catch (error) {
 
-        console.error(
+        console.warn(
             "Web3Jobs: getUser exception:",
             error
         );
@@ -201,7 +325,7 @@ async function getSupabaseUser() {
 
 
 /* =========================================================
-   AUTH STATE
+   AUTH STATE CHANGE
    ========================================================= */
 
 function onAuthStateChange(callback) {
@@ -209,16 +333,31 @@ function onAuthStateChange(callback) {
     const client =
         getSupabaseClient();
 
+
     if (
         !client ||
         typeof callback !== "function"
     ) {
+
         return null;
     }
 
-    return client.auth.onAuthStateChange(
-        callback
-    );
+
+    try {
+
+        return client.auth.onAuthStateChange(
+            callback
+        );
+
+    } catch (error) {
+
+        console.error(
+            "Web3Jobs: auth state listener error:",
+            error
+        );
+
+        return null;
+    }
 }
 
 
@@ -231,9 +370,12 @@ async function signOutSupabase() {
     const client =
         getSupabaseClient();
 
+
     if (!client) {
+
         return false;
     }
+
 
     try {
 
@@ -241,6 +383,7 @@ async function signOutSupabase() {
             error
         } =
             await client.auth.signOut();
+
 
         if (error) {
 
@@ -252,7 +395,9 @@ async function signOutSupabase() {
             return false;
         }
 
+
         return true;
+
 
     } catch (error) {
 
@@ -267,10 +412,31 @@ async function signOutSupabase() {
 
 
 /* =========================================================
+   AUTH SESSION HELPER
+   ========================================================= */
+
+async function hasSupabaseSession() {
+
+    const session =
+        await getSupabaseSession();
+
+
+    return Boolean(
+        session &&
+        session.user
+    );
+}
+
+
+/* =========================================================
    GLOBAL API
    ========================================================= */
 
 window.Web3JobsSupabase = {
+
+    /*
+     * Configuration
+     */
 
     url:
         SUPABASE_URL,
@@ -281,6 +447,11 @@ window.Web3JobsSupabase = {
     storageKey:
         SUPABASE_STORAGE_KEY,
 
+
+    /*
+     * Client
+     */
+
     initialize:
         initializeSupabase,
 
@@ -290,22 +461,50 @@ window.Web3JobsSupabase = {
     getSupabaseClient:
         getSupabaseClient,
 
+
+    /*
+     * Authentication
+     */
+
     getSession:
         getSupabaseSession,
 
     getUser:
         getSupabaseUser,
 
+    hasSession:
+        hasSupabaseSession,
+
     onAuthStateChange:
         onAuthStateChange,
 
     signOut:
         signOutSupabase
+
 };
 
 
 /* =========================================================
-   START
+   GLOBAL COMPATIBILITY
+   ========================================================= */
+
+window.getSupabaseClient =
+    getSupabaseClient;
+
+window.getSupabaseSession =
+    getSupabaseSession;
+
+window.getSupabaseUser =
+    getSupabaseUser;
+
+
+/* =========================================================
+   INITIAL START
    ========================================================= */
 
 initializeSupabase();
+
+
+console.log(
+    "Web3Jobs: Unified Supabase Client loaded."
+);
