@@ -47,15 +47,24 @@
     ></script>
 
 
+    <!-- =====================================================
+         JOBS PAGE STYLE
+         ===================================================== -->
+
     <style>
 
         /* =====================================================
-           JOBS PAGE
+           PAGE
            ===================================================== */
 
         .jobs-page {
             min-height: 100vh;
         }
+
+
+        /* =====================================================
+           HERO
+           ===================================================== */
 
         .jobs-hero {
             padding: 90px 20px 50px;
@@ -107,6 +116,7 @@
             color: inherit;
             outline: none;
             font-size: 16px;
+            box-sizing: border-box;
         }
 
         .job-search-form input:focus {
@@ -146,6 +156,7 @@
             background: rgba(255,255,255,.05);
             color: inherit;
             cursor: pointer;
+            box-sizing: border-box;
         }
 
         .jobs-filter:focus {
@@ -163,7 +174,7 @@
 
 
         /* =====================================================
-           JOBS CONTAINER
+           JOBS SECTION
            ===================================================== */
 
         .jobs-section {
@@ -184,9 +195,20 @@
             font-size: 28px;
         }
 
+        .jobs-section-header p {
+            margin-top: 8px;
+            opacity: .7;
+        }
+
+
+        /* =====================================================
+           JOBS LIST
+           ===================================================== */
+
         #jobs-list {
             display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-template-columns:
+                repeat(2, minmax(0, 1fr));
             gap: 20px;
         }
 
@@ -200,6 +222,7 @@
             border-radius: 18px;
             background: rgba(255,255,255,.05);
             border: 1px solid rgba(255,255,255,.10);
+
             transition:
                 transform .2s ease,
                 border-color .2s ease,
@@ -209,7 +232,8 @@
         .job-card:hover {
             transform: translateY(-4px);
             border-color: rgba(99,102,241,.6);
-            box-shadow: 0 15px 40px rgba(0,0,0,.18);
+            box-shadow:
+                0 15px 40px rgba(0,0,0,.18);
         }
 
         .job-card-header {
@@ -231,6 +255,11 @@
             font-weight: 600;
         }
 
+
+        /* =====================================================
+           JOB META
+           ===================================================== */
+
         .job-meta {
             display: flex;
             flex-wrap: wrap;
@@ -242,24 +271,44 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+
             padding: 6px 9px;
+
             border-radius: 8px;
-            background: rgba(255,255,255,.06);
+
+            background:
+                rgba(255,255,255,.06);
+
             font-size: 12px;
             opacity: .85;
         }
 
+
+        /* =====================================================
+           SKILLS
+           ===================================================== */
+
         .job-skills {
             margin-bottom: 15px;
             padding: 9px 12px;
+
             border-radius: 9px;
-            background: rgba(99,102,241,.10);
+
+            background:
+                rgba(99,102,241,.10);
+
             font-size: 13px;
             line-height: 1.5;
         }
 
+
+        /* =====================================================
+           DESCRIPTION
+           ===================================================== */
+
         .job-description {
             margin: 0 0 20px;
+
             line-height: 1.7;
             font-size: 14px;
             opacity: .75;
@@ -267,8 +316,14 @@
             display: -webkit-box;
             -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
+
             overflow: hidden;
         }
+
+
+        /* =====================================================
+           BUTTON
+           ===================================================== */
 
         .job-card-actions {
             display: flex;
@@ -278,11 +333,15 @@
         .job-view-button {
             width: 100%;
             min-height: 45px;
+
             border: 0;
             border-radius: 10px;
+
             cursor: pointer;
+
             background: #6366f1;
             color: #fff;
+
             font-weight: 700;
         }
 
@@ -292,17 +351,24 @@
 
 
         /* =====================================================
-           LOADING
+           LOADING / EMPTY
            ===================================================== */
 
         .jobs-loading,
         .no-jobs {
             grid-column: 1 / -1;
+
             text-align: center;
+
             padding: 70px 20px;
+
             border-radius: 18px;
-            background: rgba(255,255,255,.04);
-            border: 1px solid rgba(255,255,255,.08);
+
+            background:
+                rgba(255,255,255,.04);
+
+            border:
+                1px solid rgba(255,255,255,.08);
         }
 
         .jobs-loading p,
@@ -312,7 +378,7 @@
 
 
         /* =====================================================
-           MODAL
+           JOB DETAILS MODAL
            ===================================================== */
 
         #jobs-detail-modal {
@@ -326,71 +392,180 @@
 
         #jobs-detail-modal .jobs-modal {
             position: relative;
-            width: min(720px, 100%);
-            max-height: 90vh;
-            overflow-y: auto;
-            padding: 35px;
-            border-radius: 20px;
-            background: #111827;
-            color: #fff;
-            box-shadow: 0 30px 80px rgba(0,0,0,.5);
+
+            width:
+                min(720px, 100%);
+
+            max-height:
+                90vh;
+
+            overflow-y:
+                auto;
+
+            padding:
+                35px;
+
+            border-radius:
+                20px;
+
+            background:
+                #111827;
+
+            color:
+                #ffffff;
+
+            box-shadow:
+                0 30px 80px rgba(0,0,0,.5);
+
+            box-sizing:
+                border-box;
         }
 
         #jobs-detail-modal .jobs-modal-close {
+
             position: absolute;
+
             top: 12px;
             right: 15px;
+
             width: 40px;
             height: 40px;
+
             border: 0;
+
             border-radius: 50%;
-            background: rgba(255,255,255,.08);
-            color: #fff;
+
+            background:
+                rgba(255,255,255,.08);
+
+            color: #ffffff;
+
             font-size: 26px;
+
             cursor: pointer;
+        }
+
+        #jobs-detail-modal .jobs-modal-close:hover {
+
+            background:
+                rgba(255,255,255,.15);
         }
 
         #jobs-detail-modal .jobs-modal-body h2 {
-            margin: 0 45px 25px 0;
-            font-size: 30px;
-            line-height: 1.3;
+
+            margin:
+                0 45px 25px 0;
+
+            font-size:
+                30px;
+
+            line-height:
+                1.3;
         }
 
+
+        /* =====================================================
+           DETAILS
+           ===================================================== */
+
         .job-details-meta {
-            display: grid;
-            gap: 8px;
+
+            display:
+                grid;
+
+            gap:
+                10px;
+
+            margin-bottom:
+                20px;
         }
 
         .job-details-meta p {
-            margin: 0;
-            line-height: 1.6;
+
+            margin:
+                0;
+
+            line-height:
+                1.6;
         }
 
         .job-full-description {
-            white-space: pre-line;
-            line-height: 1.8;
-            opacity: .85;
+
+            white-space:
+                pre-line;
+
+            line-height:
+                1.8;
+
+            opacity:
+                .85;
         }
 
+
+        /* =====================================================
+           APPLY
+           ===================================================== */
+
         .job-application-area {
-            margin-top: 30px;
+
+            margin-top:
+                30px;
         }
 
         .job-apply-button {
-            width: 100%;
-            min-height: 52px;
-            border: 0;
-            border-radius: 12px;
-            background: #6366f1;
-            color: #fff;
-            font-weight: 800;
-            font-size: 16px;
-            cursor: pointer;
+
+            width:
+                100%;
+
+            min-height:
+                52px;
+
+            border:
+                0;
+
+            border-radius:
+                12px;
+
+            background:
+                #6366f1;
+
+            color:
+                #ffffff;
+
+            font-weight:
+                800;
+
+            font-size:
+                16px;
+
+            cursor:
+                pointer;
+        }
+
+        .job-apply-button:hover {
+
+            filter:
+                brightness(1.1);
         }
 
         .job-apply-button:disabled {
-            opacity: .6;
-            cursor: wait;
+
+            opacity:
+                .6;
+
+            cursor:
+                wait;
+        }
+
+
+        /* =====================================================
+           MESSAGE
+           ===================================================== */
+
+        #jobs-message {
+
+            z-index:
+                100000;
         }
 
 
@@ -413,16 +588,24 @@
             }
 
             .jobs-section-header {
-                align-items: flex-start;
-                flex-direction: column;
+
+                align-items:
+                    flex-start;
+
+                flex-direction:
+                    column;
             }
 
             .clear-filters {
-                margin-left: 0;
+
+                margin-left:
+                    0;
             }
 
             #jobs-detail-modal .jobs-modal {
-                padding: 25px;
+
+                padding:
+                    25px;
             }
 
         }
@@ -433,21 +616,36 @@
             .jobs-search-section,
             .jobs-filters,
             .jobs-section {
-                width: min(100% - 24px, 1150px);
+
+                width:
+                    min(
+                        calc(100% - 24px),
+                        1150px
+                    );
             }
 
             .jobs-hero {
-                padding-left: 12px;
-                padding-right: 12px;
+
+                padding-left:
+                    12px;
+
+                padding-right:
+                    12px;
             }
 
             .job-card {
-                padding: 20px;
+
+                padding:
+                    20px;
             }
 
             .job-meta {
-                flex-direction: column;
-                align-items: flex-start;
+
+                flex-direction:
+                    column;
+
+                align-items:
+                    flex-start;
             }
 
         }
@@ -552,9 +750,7 @@
                     autocomplete="off"
                 >
 
-                <button
-                    type="submit"
-                >
+                <button type="submit">
                     Search Jobs
                 </button>
 
@@ -649,8 +845,12 @@
             </div>
 
 
-            <!-- IMPORTANT:
-                 js/jobs.js searches for #jobs-list
+            <!--
+                IMPORTANT:
+
+                js/jobs.js uses #jobs-list.
+
+                Do NOT change this ID.
             -->
 
             <div id="jobs-list">
@@ -688,7 +888,7 @@
 
 
     <!-- =====================================================
-         FILTER SCRIPT
+         FILTER CONTROLLER
          ===================================================== -->
 
     <script>
@@ -715,6 +915,10 @@
                     );
 
 
+                /*
+                 * Job type filter
+                 */
+
                 if (typeFilter) {
 
                     typeFilter.addEventListener(
@@ -723,14 +927,15 @@
 
                             if (
                                 window.Web3JobsJobs &&
-                                typeof window.Web3JobsJobs.filterJobsByType ===
-                                    "function"
+                                typeof
+                                window.Web3JobsJobs.filterJobsByType ===
+                                "function"
                             ) {
 
-                                window.Web3JobsJobs.filterJobsByType(
-                                    this.value
-                                );
-
+                                window.Web3JobsJobs
+                                    .filterJobsByType(
+                                        this.value
+                                    );
                             }
 
                         }
@@ -738,6 +943,10 @@
 
                 }
 
+
+                /*
+                 * Location filter
+                 */
 
                 if (locationFilter) {
 
@@ -747,14 +956,15 @@
 
                             if (
                                 window.Web3JobsJobs &&
-                                typeof window.Web3JobsJobs.filterJobsByLocation ===
-                                    "function"
+                                typeof
+                                window.Web3JobsJobs.filterJobsByLocation ===
+                                "function"
                             ) {
 
-                                window.Web3JobsJobs.filterJobsByLocation(
-                                    this.value
-                                );
-
+                                window.Web3JobsJobs
+                                    .filterJobsByLocation(
+                                        this.value
+                                    );
                             }
 
                         }
@@ -762,6 +972,10 @@
 
                 }
 
+
+                /*
+                 * Clear filters
+                 */
 
                 if (clearButton) {
 
@@ -773,7 +987,6 @@
 
                                 typeFilter.value =
                                     "";
-
                             }
 
 
@@ -781,7 +994,6 @@
 
                                 locationFilter.value =
                                     "";
-
                             }
 
 
@@ -795,18 +1007,18 @@
 
                                 searchInput.value =
                                     "";
-
                             }
 
 
                             if (
                                 window.Web3JobsJobs &&
-                                typeof window.Web3JobsJobs.clearJobFilters ===
-                                    "function"
+                                typeof
+                                window.Web3JobsJobs.clearJobFilters ===
+                                "function"
                             ) {
 
-                                window.Web3JobsJobs.clearJobFilters();
-
+                                window.Web3JobsJobs
+                                    .clearJobFilters();
                             }
 
                         }
@@ -821,32 +1033,24 @@
 
 
     <!-- =====================================================
-         WEB3JOBS UNIFIED SUPABASE CLIENT
+         UNIFIED SUPABASE CLIENT
          ===================================================== -->
 
-    <script
-        src="js/supabase.js"
-    ></script>
+    <!--
+        IMPORTANT:
+        supabase.js MUST be loaded before jobs.js.
+    -->
 
-
-    <!-- =====================================================
-         EXTERNAL JOBS SYSTEM
-         ===================================================== -->
-
-    <script
-        src="js/external-jobs.js"
-    ></script>
+    <script src="js/supabase.js"></script>
 
 
     <!-- =====================================================
          JOBS SYSTEM
          ===================================================== -->
 
-    <script
-        src="js/jobs.js"
-    ></script>
+    <script src="js/jobs.js"></script>
 
 
 </body>
 
-                    </html>
+            </html>
