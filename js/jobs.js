@@ -11,6 +11,8 @@
    - NEVER redirects users to login.
    - NEVER logs users out while browsing jobs.
    - External application links open in a new tab.
+   - application_url is preferred over apply_link.
+   - source_url is NOT used as an application URL.
    ========================================================= */
 
 "use strict";
@@ -45,7 +47,7 @@
     function getJobsSupabase() {
 
         /*
-         * Always use the unified Web3Jobs client.
+         * Always use the unified Web3Jobs Supabase client.
          */
 
         if (
@@ -68,7 +70,7 @@
 
 
         /*
-         * Compatibility with older files.
+         * Compatibility with older Web3Jobs files.
          */
 
         if (
@@ -477,6 +479,10 @@
                     : [];
 
 
+            /*
+             * Newest jobs first.
+             */
+
             data.sort(
                 (a, b) => {
 
@@ -548,6 +554,89 @@
 
             JobsSystem.loading =
                 false;
+        }
+    }
+
+
+    /* =========================================================
+       SAFE APPLICATION URL
+       ========================================================= */
+
+    function getApplicationURL(job) {
+
+        if (!job) {
+            return "";
+        }
+
+
+        /*
+         * IMPORTANT:
+         *
+         * Priority:
+         *
+         * 1. application_url
+         * 2. apply_link
+         * 3. application_link
+         * 4. apply_url
+         *
+         * source_url is intentionally NOT included.
+         *
+         * source_url for Anchorage is:
+         * https://jobs.lever.co/anchorage
+         *
+         * It is the company jobs page, not the specific
+         * application page.
+         */
+
+        const rawURL =
+            valueOf(
+                job.application_url ||
+                job.apply_link ||
+                job.application_link ||
+                job.apply_url,
+                ""
+            );
+
+
+        if (!rawURL) {
+            return "";
+        }
+
+
+        try {
+
+            const url =
+                new URL(
+                    rawURL,
+                    window.location.href
+                );
+
+
+            /*
+             * Only HTTP and HTTPS URLs are allowed.
+             */
+
+            if (
+                url.protocol !== "http:" &&
+                url.protocol !== "https:"
+            ) {
+
+                return "";
+            }
+
+
+            return url.href;
+
+        } catch (error) {
+
+            console.warn(
+                "Web3Jobs: Invalid application URL:",
+                rawURL,
+                error
+            );
+
+
+            return "";
         }
     }
 
@@ -639,6 +728,14 @@
             );
 
 
+        /*
+         * Get the REAL application URL.
+         */
+
+        const applicationURL =
+            getApplicationURL(job);
+
+
         return `
 
             <article
@@ -721,6 +818,30 @@
                     >
                         View Job
                     </button>
+
+
+                    ${
+                        applicationURL
+                            ? `
+                                <a
+                                    href="${escapeAttribute(applicationURL)}"
+                                    class="job-apply-button"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Apply Now
+                                </a>
+                            `
+                            : `
+                                <button
+                                    type="button"
+                                    class="job-apply-button"
+                                    data-job-id="${id}"
+                                >
+                                    Apply
+                                </button>
+                            `
+                    }
 
                 </div>
 
@@ -1067,69 +1188,6 @@
 
 
     /* =========================================================
-       SAFE APPLICATION URL
-       ========================================================= */
-
-    function getApplicationURL(job) {
-
-        if (!job) {
-            return "";
-        }
-
-
-        const rawURL =
-            valueOf(
-                job.application_url ||
-                job.apply_link ||
-                job.application_link ||
-                job.apply_url,
-                ""
-            );
-
-
-        if (!rawURL) {
-            return "";
-        }
-
-
-        try {
-
-            const url =
-                new URL(
-                    rawURL,
-                    window.location.href
-                );
-
-
-            /*
-             * Only HTTP/HTTPS URLs are allowed.
-             */
-
-            if (
-                url.protocol !== "http:" &&
-                url.protocol !== "https:"
-            ) {
-
-                return "";
-            }
-
-
-            return url.href;
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs: Invalid application URL:",
-                error
-            );
-
-
-            return "";
-        }
-    }
-
-
-    /* =========================================================
        MODAL
        ========================================================= */
 
@@ -1343,6 +1401,10 @@
             );
 
 
+        /*
+         * Get the specific external application URL.
+         */
+
         const applicationURL =
             getApplicationURL(job);
 
@@ -1427,22 +1489,41 @@
 
             <div class="job-application-area">
 
-                <button
-                    type="button"
-                    id="job-apply-button"
-                    class="job-apply-button"
-                >
-                    ${
-                        applicationURL
-                            ? "Apply Now"
-                            : "Submit Application"
-                    }
-                </button>
+                ${
+                    applicationURL
+                        ? `
+                            <a
+                                href="${escapeAttribute(applicationURL)}"
+                                id="job-apply-link"
+                                class="job-apply-button"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                Apply Now
+                            </a>
+                        `
+                        : `
+                            <button
+                                type="button"
+                                id="job-apply-button"
+                                class="job-apply-button"
+                            >
+                                Submit Application
+                            </button>
+                        `
+                }
 
             </div>
 
         `;
 
+
+        /*
+         * Internal application only.
+         *
+         * External applications use a normal anchor link and
+         * NEVER require authentication.
+         */
 
         const applyButton =
             body.querySelector(
@@ -1455,60 +1536,6 @@
             applyButton.addEventListener(
                 "click",
                 async function () {
-
-                    /*
-                     * =================================================
-                     * EXTERNAL APPLICATION
-                     * =================================================
-                     *
-                     * If the company provided a valid external
-                     * application URL, open it directly.
-                     *
-                     * Example:
-                     * Coinbase application page.
-                     */
-
-                    if (applicationURL) {
-
-                        try {
-
-                            window.open(
-                                applicationURL,
-                                "_blank",
-                                "noopener,noreferrer"
-                            );
-
-
-                            showMessage(
-                                "Application page opened in a new tab.",
-                                "success"
-                            );
-
-
-                            return;
-
-                        } catch (error) {
-
-                            console.error(
-                                "Unable to open application URL:",
-                                error
-                            );
-
-                            showError(
-                                "Unable to open the application page."
-                            );
-
-
-                            return;
-                        }
-                    }
-
-
-                    /*
-                     * =================================================
-                     * INTERNAL APPLICATION
-                     * =================================================
-                     */
 
                     applyButton.disabled =
                         true;
@@ -1609,12 +1636,10 @@
 
 
         /*
-         * IMPORTANT:
-         *
          * Read the existing session.
          *
-         * Do NOT redirect.
-         * Do NOT logout.
+         * NEVER redirect.
+         * NEVER sign out.
          */
 
         const user =
@@ -1885,6 +1910,24 @@
             "click",
             async event => {
 
+                /*
+                 * Ignore external application links.
+                 *
+                 * They must work normally without any
+                 * JavaScript interception.
+                 */
+
+                const externalApplyLink =
+                    event.target.closest(
+                        ".job-apply-button[href]"
+                    );
+
+
+                if (externalApplyLink) {
+                    return;
+                }
+
+
                 const button =
                     event.target.closest(
                         ".job-view-button, [data-view-job]"
@@ -2139,8 +2182,6 @@
 
 
         /*
-         * IMPORTANT:
-         *
          * Read the current authentication session.
          *
          * There is NO redirect here.
