@@ -1,39 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<meta
+    name="description"
+    content="Web3Jobs Individual Dashboard"
+>
+
+<title>Individual Dashboard - Web3Jobs</title>
+
 <style>
 
 /* =========================================================
    Web3Jobs - Individual Dashboard
-   Unified Dashboard Design
    ========================================================= */
 
 :root {
     --bg: #050c16;
-    --bg-2: #07111f;
+    --bg2: #07111f;
 
     --card: #0b1727;
-    --card-2: #0d1b2e;
-    --card-hover: #102139;
+    --card2: #0d1b2e;
+    --hover: #102139;
 
     --border: #182d47;
     --border-light: #294663;
 
     --text: #f5f8ff;
     --muted: #8ea3bc;
-    --muted-2: #6f849d;
 
     --green: #6ee7b7;
-    --green-dark: #175a47;
-
     --blue: #60a5fa;
+    --purple: #a78bfa;
+    --orange: #fbbf24;
     --red: #f87171;
-    --yellow: #fbbf24;
 
     --radius: 16px;
 }
-
-
-/* =========================================================
-   GLOBAL
-   ========================================================= */
 
 * {
     box-sizing: border-box;
@@ -55,57 +66,31 @@ body {
         Arial,
         sans-serif;
 
+    color: var(--text);
+
     background:
         radial-gradient(
             circle at 80% 0%,
-            rgba(35, 80, 125, .12),
+            rgba(35,80,125,.15),
             transparent 32%
         ),
         linear-gradient(
             180deg,
             var(--bg),
-            var(--bg-2)
+            var(--bg2)
         );
-
-    color: var(--text);
 
     line-height: 1.5;
 }
 
-button,
-input,
-select,
-textarea {
-    font: inherit;
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
 button {
+    font: inherit;
     cursor: pointer;
-}
-
-a {
-    color: inherit;
-}
-
-
-/* =========================================================
-   PAGE
-   ========================================================= */
-
-.dashboard-page {
-    min-height: 100vh;
-
-    background:
-        radial-gradient(
-            circle at 80% 0%,
-            rgba(35, 80, 125, .12),
-            transparent 32%
-        ),
-        linear-gradient(
-            180deg,
-            var(--bg),
-            var(--bg-2)
-        );
 }
 
 
@@ -114,16 +99,15 @@ a {
    ========================================================= */
 
 .dashboard-header {
+
     position: sticky;
 
     top: 0;
 
     z-index: 1000;
 
-    padding: 15px 24px;
-
     background:
-        rgba(7, 17, 30, .97);
+        rgba(5,12,22,.96);
 
     border-bottom:
         1px solid
@@ -134,15 +118,17 @@ a {
 
     box-shadow:
         0 10px 35px
-        rgba(0, 0, 0, .18);
+        rgba(0,0,0,.25);
 }
 
+.header-inner {
 
-.dashboard-header-inner {
     width:
-        min(100%, 1500px);
+        min(100% - 32px, 1500px);
 
     margin: auto;
+
+    min-height: 70px;
 
     display: flex;
 
@@ -154,63 +140,75 @@ a {
 }
 
 
-/* =========================================================
-   LOGO
-   ========================================================= */
+/* LOGO */
 
-.dashboard-logo {
+.logo {
+
     display: flex;
 
     align-items: center;
 
     gap: 10px;
 
-    color: var(--text);
-
     font-size: 18px;
 
     font-weight: 900;
-
-    letter-spacing: -.3px;
 }
 
-.dashboard-logo::before {
-    content: "W3";
+.logo-box {
 
-    width: 40px;
+    width: 42px;
 
-    height: 40px;
+    height: 42px;
 
     display: grid;
 
     place-items: center;
 
+    border-radius: 11px;
+
     border:
         1px solid
-        var(--border-light);
-
-    border-radius: 11px;
+        rgba(110,231,183,.25);
 
     background:
         linear-gradient(
             135deg,
             #0f2b42,
-            #0a1728
+            #091827
         );
 
     color: var(--green);
 
     font-size: 12px;
 
-    font-weight: 900;
+    box-shadow:
+        0 0 20px
+        rgba(110,231,183,.08);
+}
+
+.logo-text span {
+    color: var(--green);
+}
+
+.logo-subtitle {
+
+    display: block;
+
+    margin-top: -3px;
+
+    color: var(--muted);
+
+    font-size: 8px;
+
+    font-weight: 600;
 }
 
 
-/* =========================================================
-   NAVIGATION
-   ========================================================= */
+/* NAV */
 
 .dashboard-nav {
+
     display: flex;
 
     align-items: center;
@@ -220,21 +218,14 @@ a {
     flex-wrap: wrap;
 }
 
-.dashboard-nav a,
-.dashboard-nav button {
-    padding: 9px 12px;
+.dashboard-nav a {
 
-    border:
-        1px solid
-        transparent;
+    padding:
+        9px 11px;
 
     border-radius: 9px;
 
-    background: transparent;
-
     color: #9cafc5;
-
-    text-decoration: none;
 
     font-size: 10px;
 
@@ -243,28 +234,28 @@ a {
     transition: .2s ease;
 }
 
-.dashboard-nav a:hover,
-.dashboard-nav button:hover {
-    background: #0d1d31;
-
-    border-color:
-        var(--border);
+.dashboard-nav a:hover {
 
     color: var(--text);
+
+    background: #0d1d31;
+
+    border:
+        1px solid
+        var(--border);
 }
 
-.dashboard-nav button {
-    color: #fca5a5;
-}
+.logout-btn {
 
-.dashboard-nav button:hover {
+    border:
+        1px solid
+        rgba(248,113,113,.2);
+
     background:
-        rgba(248, 113, 113, .06);
+        rgba(248,113,113,.05);
 
-    border-color:
-        rgba(248, 113, 113, .3);
-
-    color: #fecaca;
+    color:
+        #fca5a5 !important;
 }
 
 
@@ -273,13 +264,14 @@ a {
    ========================================================= */
 
 .dashboard-main {
+
     width:
-        min(100%, 1500px);
+        min(100% - 32px, 1500px);
 
     margin: auto;
 
     padding:
-        34px 38px 70px;
+        32px 0 60px;
 }
 
 
@@ -287,10 +279,19 @@ a {
    WELCOME
    ========================================================= */
 
-.welcome-card {
+.welcome {
+
     position: relative;
 
     overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 30px;
 
     margin-bottom: 22px;
 
@@ -300,7 +301,7 @@ a {
         1px solid
         var(--border);
 
-    border-radius: 18px;
+    border-radius: 20px;
 
     background:
         linear-gradient(
@@ -311,17 +312,18 @@ a {
 
     box-shadow:
         0 20px 60px
-        rgba(0, 0, 0, .18);
+        rgba(0,0,0,.2);
 }
 
-.welcome-card::before {
+.welcome::after {
+
     content: "";
 
     position: absolute;
 
-    width: 320px;
+    width: 330px;
 
-    height: 320px;
+    height: 330px;
 
     right: -150px;
 
@@ -332,29 +334,72 @@ a {
     background:
         radial-gradient(
             circle,
-            rgba(110, 231, 183, .12),
+            rgba(110,231,183,.13),
             transparent 68%
         );
 }
 
-.welcome-card h1 {
+.welcome-left {
+
     position: relative;
 
-    margin:
-        0 0 8px;
+    z-index: 2;
 
-    color: var(--text);
+    display: flex;
 
-    font-size:
-        clamp(25px, 4vw, 34px);
+    align-items: center;
 
-    font-weight: 900;
-
-    letter-spacing: -.6px;
+    gap: 18px;
 }
 
-.welcome-card p {
-    position: relative;
+.avatar {
+
+    width: 68px;
+
+    height: 68px;
+
+    display: grid;
+
+    place-items: center;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #123a3a,
+            #10283c
+        );
+
+    border:
+        1px solid
+        rgba(110,231,183,.35);
+
+    font-size: 28px;
+
+    box-shadow:
+        0 0 30px
+        rgba(110,231,183,.08);
+}
+
+.welcome h1 {
+
+    margin: 0 0 6px;
+
+    font-size:
+        clamp(24px,4vw,34px);
+
+    font-weight: 900;
+}
+
+#welcome-name {
+
+    color: var(--green);
+}
+
+.welcome p {
 
     margin: 0;
 
@@ -363,8 +408,23 @@ a {
     font-size: 11px;
 }
 
-#dashboard-user-name {
-    color: var(--green);
+.status-dot {
+
+    display: inline-block;
+
+    width: 8px;
+
+    height: 8px;
+
+    margin-right: 5px;
+
+    border-radius: 50%;
+
+    background: var(--green);
+
+    box-shadow:
+        0 0 10px
+        rgba(110,231,183,.7);
 }
 
 
@@ -372,21 +432,19 @@ a {
    STATISTICS
    ========================================================= */
 
-.dashboard-grid {
+.stats-grid {
+
     display: grid;
 
     grid-template-columns:
-        repeat(4, minmax(0, 1fr));
+        repeat(4, minmax(0,1fr));
 
     gap: 12px;
 
-    margin-bottom: 22px;
+    margin-bottom: 24px;
 }
 
-.dashboard-card {
-    position: relative;
-
-    overflow: hidden;
+.stat-card {
 
     padding: 20px;
 
@@ -394,7 +452,7 @@ a {
         1px solid
         var(--border);
 
-    border-radius: 14px;
+    border-radius: 15px;
 
     background:
         linear-gradient(
@@ -403,17 +461,11 @@ a {
             #091625
         );
 
-    box-shadow:
-        0 12px 35px
-        rgba(0, 0, 0, .15);
-
-    transition:
-        border-color .2s ease,
-        background .2s ease,
-        transform .2s ease;
+    transition: .2s ease;
 }
 
-.dashboard-card:hover {
+.stat-card:hover {
+
     transform:
         translateY(-2px);
 
@@ -421,36 +473,79 @@ a {
         var(--border-light);
 
     background:
-        var(--card-hover);
+        var(--hover);
 }
 
-.dashboard-card h3 {
-    margin:
-        0 0 9px;
+.stat-icon {
 
-    color: #c5d2e2;
+    width: 40px;
 
-    font-size: 10px;
+    height: 40px;
 
-    font-weight: 750;
+    display: grid;
 
-    text-transform: uppercase;
+    place-items: center;
 
-    letter-spacing: .5px;
+    margin-bottom: 13px;
+
+    border-radius: 11px;
+
+    font-size: 18px;
 }
 
-.dashboard-number {
-    margin-bottom: 5px;
+.blue-icon {
+
+    background:
+        rgba(96,165,250,.1);
+
+    color: var(--blue);
+}
+
+.green-icon {
+
+    background:
+        rgba(110,231,183,.1);
 
     color: var(--green);
+}
 
-    font-size: 28px;
+.purple-icon {
+
+    background:
+        rgba(167,139,250,.1);
+
+    color: var(--purple);
+}
+
+.orange-icon {
+
+    background:
+        rgba(251,191,36,.1);
+
+    color: var(--orange);
+}
+
+.stat-number {
+
+    margin-bottom: 3px;
+
+    font-size: 27px;
 
     font-weight: 900;
 }
 
-.dashboard-card p {
-    margin: 0;
+.stat-title {
+
+    color: var(--text);
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+.stat-description {
+
+    margin-top: 3px;
 
     color: var(--muted);
 
@@ -459,13 +554,14 @@ a {
 
 
 /* =========================================================
-   SECTIONS
+   SECTION
    ========================================================= */
 
-.dashboard-section {
+.section {
+
     margin-bottom: 22px;
 
-    padding: 24px;
+    padding: 23px;
 
     border:
         1px solid
@@ -479,10 +575,11 @@ a {
 
     box-shadow:
         0 15px 45px
-        rgba(0, 0, 0, .14);
+        rgba(0,0,0,.14);
 }
 
-.dashboard-section-header {
+.section-header {
+
     display: flex;
 
     align-items: center;
@@ -491,109 +588,57 @@ a {
 
     gap: 15px;
 
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 
-    padding-bottom: 15px;
+    padding-bottom: 14px;
 
     border-bottom:
         1px solid
         var(--border);
 }
 
-.dashboard-section-header h2 {
-    margin: 0;
+.section-header h2 {
 
-    color: var(--text);
+    margin: 0;
 
     font-size: 18px;
 
     font-weight: 850;
 }
 
+.view-link {
 
-/* =========================================================
-   BUTTONS
-   ========================================================= */
-
-.dashboard-button {
-    display: inline-block;
-
-    min-height: 40px;
-
-    padding:
-        10px 16px;
-
-    border: 0;
-
-    border-radius: 9px;
-
-    background:
-        linear-gradient(
-            135deg,
-            #1c765a,
-            #175a47
-        );
-
-    color: #fff;
-
-    text-decoration: none;
+    color: var(--blue);
 
     font-size: 10px;
 
-    font-weight: 850;
-
-    transition: .2s ease;
-}
-
-.dashboard-button:hover {
-    filter:
-        brightness(1.1);
-
-    transform:
-        translateY(-1px);
-}
-
-.dashboard-button.secondary {
-    background:
-        #10233a;
-
-    color: var(--text);
-
-    border:
-        1px solid
-        var(--border-light);
-}
-
-.dashboard-button.secondary:hover {
-    background:
-        #122943;
-
-    border-color:
-        var(--blue);
+    font-weight: 800;
 }
 
 
 /* =========================================================
-   INDIVIDUAL QUICK ACTIONS
+   QUICK ACTIONS
    ========================================================= */
 
-.dashboard-actions {
+.actions-grid {
+
     display: grid;
 
     grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+        repeat(3, minmax(0,1fr));
 
     gap: 12px;
 }
 
-.action-box {
-    padding: 20px;
+.action-card {
+
+    padding: 21px;
 
     border:
         1px solid
         var(--border);
 
-    border-radius: 12px;
+    border-radius: 13px;
 
     background:
         #091625;
@@ -601,26 +646,39 @@ a {
     transition: .2s ease;
 }
 
-.action-box:hover {
-    background:
-        #0c1a2c;
+.action-card:hover {
+
+    transform:
+        translateY(-2px);
 
     border-color:
         var(--border-light);
+
+    background:
+        #0c1a2c;
 }
 
-.action-box h3 {
-    margin-top: 0;
+.action-icon {
 
-    color: var(--text);
+    font-size: 25px;
 
-    font-size: 13px;
-
-    font-weight: 850;
+    margin-bottom: 12px;
 }
 
-.action-box p {
-    margin-bottom: 16px;
+.action-card h3 {
+
+    margin:
+        0 0 7px;
+
+    font-size: 14px;
+}
+
+.action-card p {
+
+    min-height: 38px;
+
+    margin:
+        0 0 17px;
 
     color: var(--muted);
 
@@ -629,67 +687,252 @@ a {
     line-height: 1.7;
 }
 
+.action-button {
 
-/* =========================================================
-   APPLICATIONS
-   ========================================================= */
+    display: inline-block;
 
-.application-card {
-    margin-bottom: 10px;
+    padding:
+        9px 14px;
 
-    padding: 18px;
+    border-radius: 8px;
+
+    font-size: 9px;
+
+    font-weight: 850;
 
     border:
         1px solid
-        var(--border);
-
-    border-radius: 12px;
+        var(--border-light);
 
     background:
-        #091625;
-
-    transition: .2s ease;
+        #10233a;
 }
 
-.application-card:hover {
-    background:
-        #0c1a2c;
+.action-button.green {
+
+    color: var(--green);
 
     border-color:
-        var(--border-light);
+        rgba(110,231,183,.25);
 }
 
-.application-card h3 {
-    margin-top: 0;
+.action-button.blue {
 
-    color: var(--text);
+    color: var(--blue);
 
-    font-size: 13px;
+    border-color:
+        rgba(96,165,250,.25);
 }
 
-.application-card p {
-    color: var(--muted);
+.action-button.purple {
 
-    font-size: 10px;
-}
+    color: var(--purple);
 
-.application-card strong {
-    color: #c5d2e2;
+    border-color:
+        rgba(167,139,250,.25);
 }
 
 
 /* =========================================================
-   PROFILE
+   APPLICATIONS + SAVED
    ========================================================= */
 
+.two-column {
+
+    display: grid;
+
+    grid-template-columns:
+        1.3fr 1fr;
+
+    gap: 22px;
+
+    margin-bottom: 22px;
+}
+
+.list-card {
+
+    padding: 15px 0;
+
+    border-bottom:
+        1px solid
+        var(--border);
+}
+
+.list-card:last-child {
+
+    border-bottom: 0;
+
+    padding-bottom: 0;
+}
+
+.list-top {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+.job-name {
+
+    color: var(--text);
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+.company {
+
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: 9px;
+}
+
+.date {
+
+    color: var(--muted-2);
+
+    font-size: 8px;
+
+    white-space: nowrap;
+}
+
+.badge {
+
+    display: inline-block;
+
+    margin-top: 7px;
+
+    padding:
+        4px 8px;
+
+    border-radius: 999px;
+
+    font-size: 8px;
+
+    font-weight: 800;
+}
+
+.badge-review {
+
+    color: var(--orange);
+
+    background:
+        rgba(251,191,36,.08);
+
+    border:
+        1px solid
+        rgba(251,191,36,.18);
+}
+
+.badge-interview {
+
+    color: var(--blue);
+
+    background:
+        rgba(96,165,250,.08);
+
+    border:
+        1px solid
+        rgba(96,165,250,.18);
+}
+
+.badge-applied {
+
+    color: var(--green);
+
+    background:
+        rgba(110,231,183,.08);
+
+    border:
+        1px solid
+        rgba(110,231,183,.18);
+}
+
+.saved-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+
+    padding:
+        14px 0;
+
+    border-bottom:
+        1px solid
+        var(--border);
+}
+
+.saved-row:last-child {
+
+    border-bottom: 0;
+}
+
+.bookmark {
+
+    color: var(--purple);
+
+    font-size: 18px;
+}
+
+
+/* =========================================================
+   PROFILE + WALLET
+   ========================================================= */
+
+.profile-wallet {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 22px;
+
+    margin-bottom: 22px;
+}
+
+.small-button {
+
+    padding:
+        8px 11px;
+
+    border:
+        1px solid
+        var(--border-light);
+
+    border-radius: 8px;
+
+    background:
+        #10233a;
+
+    color: var(--text);
+
+    font-size: 9px;
+
+    font-weight: 800;
+}
+
 .profile-row {
+
     display: flex;
 
     justify-content: space-between;
 
     gap: 20px;
 
-    padding: 13px 0;
+    padding:
+        12px 0;
 
     border-bottom:
         1px solid
@@ -697,46 +940,35 @@ a {
 }
 
 .profile-row:last-child {
+
     border-bottom: 0;
 }
 
 .profile-label {
+
     color: var(--muted);
 
-    font-size: 10px;
+    font-size: 9px;
 }
 
 .profile-value {
+
+    max-width: 65%;
+
     color: var(--text);
 
-    font-size: 10px;
+    font-size: 9px;
 
     font-weight: 700;
 
     text-align: right;
-
-    word-break: break-word;
 }
 
 
-/* =========================================================
-   WALLET
-   ========================================================= */
+/* WALLET */
 
-.wallet-section {
-    border:
-        1px solid
-        var(--border);
+.wallet-connected {
 
-    background:
-        linear-gradient(
-            135deg,
-            #0d2035,
-            #091725
-        );
-}
-
-.wallet-header {
     display: flex;
 
     align-items: center;
@@ -745,281 +977,170 @@ a {
 
     gap: 15px;
 
-    margin-bottom: 15px;
-}
+    padding-bottom: 17px;
 
-.wallet-title {
-    display: flex;
-
-    align-items: center;
-
-    gap: 12px;
-}
-
-.wallet-icon {
-    width: 48px;
-
-    height: 48px;
-
-    display: grid;
-
-    place-items: center;
-
-    border-radius: 12px;
-
-    background:
-        rgba(96, 165, 250, .08);
-
-    border:
+    border-bottom:
         1px solid
-        rgba(96, 165, 250, .25);
-
-    font-size: 23px;
+        var(--border);
 }
 
-.wallet-title h2 {
-    margin:
-        0 0 4px;
+.connected {
 
-    color: var(--text);
+    color: var(--green);
 
-    font-size: 20px;
+    font-size: 10px;
 
     font-weight: 850;
 }
 
-.wallet-title p {
-    margin: 0;
+.wallet-address {
+
+    margin-top: 5px;
 
     color: var(--muted);
+
+    font-family: monospace;
 
     font-size: 9px;
 }
 
-.wallet-status {
-    display: inline-flex;
+.network {
 
-    align-items: center;
+    padding: 8px 10px;
 
-    gap: 6px;
+    border-radius: 9px;
 
-    padding:
-        6px 10px;
+    background:
+        rgba(96,165,250,.08);
 
     border:
         1px solid
-        var(--border);
+        rgba(96,165,250,.18);
 
-    border-radius: 999px;
-
-    background:
-        #091625;
-
-    color: var(--muted);
+    color: var(--blue);
 
     font-size: 8px;
 
     font-weight: 800;
 }
 
-.wallet-status.connected {
-    background:
-        rgba(110, 231, 183, .08);
+.wallet-metrics {
 
-    border-color:
-        rgba(110, 231, 183, .2);
-
-    color: var(--green);
-}
-
-.wallet-status-dot {
-    width: 7px;
-
-    height: 7px;
-
-    border-radius: 50%;
-
-    background:
-        #64748b;
-}
-
-.wallet-status.connected
-.wallet-status-dot {
-    background:
-        var(--green);
-
-    box-shadow:
-        0 0 9px
-        rgba(110, 231, 183, .75);
-}
-
-.wallet-description {
-    margin-bottom: 20px;
-
-    color: var(--muted);
-
-    font-size: 10px;
-
-    line-height: 1.7;
-}
-
-.wallet-connect-box {
-    padding: 20px;
-
-    border:
-        1px dashed
-        var(--border-light);
-
-    border-radius: 12px;
-
-    background:
-        #091625;
-}
-
-.wallet-connect-box h3 {
-    margin:
-        0 0 8px;
-
-    color: var(--text);
-
-    font-size: 13px;
-}
-
-.wallet-connect-box p {
-    margin:
-        0 0 16px;
-
-    color: var(--muted);
-
-    font-size: 10px;
-
-    line-height: 1.6;
-}
-
-.wallet-connected-box {
-    display: none;
-}
-
-.wallet-info-grid {
     display: grid;
 
     grid-template-columns:
-        repeat(3, minmax(0, 1fr));
+        repeat(3,1fr);
 
-    gap: 10px;
+    gap: 8px;
 
-    margin-bottom: 15px;
+    margin-top: 15px;
 }
 
-.wallet-info-card {
-    padding: 15px;
+.wallet-metric {
+
+    padding: 12px;
 
     border:
         1px solid
         var(--border);
 
-    border-radius: 10px;
+    border-radius: 9px;
 
     background:
         #091625;
 }
 
-.wallet-info-card span {
+.wallet-metric span {
+
     display: block;
 
-    margin-bottom: 6px;
+    margin-bottom: 4px;
 
     color: var(--muted);
 
-    font-size: 8px;
+    font-size: 7px;
 
     text-transform: uppercase;
-
-    letter-spacing: .4px;
 }
 
-.wallet-info-card strong {
-    display: block;
+.wallet-metric strong {
 
     color: var(--text);
 
-    font-size: 11px;
+    font-size: 9px;
 
     word-break: break-word;
 }
 
-.wallet-address {
-    color: var(--green) !important;
+.wallet-explorer {
 
-    font-family: monospace;
+    display: block;
 
-    font-size: 11px !important;
-}
+    margin-top: 12px;
 
-.wallet-actions {
-    display: flex;
+    padding: 11px;
 
-    flex-wrap: wrap;
+    text-align: center;
 
-    gap: 10px;
-}
-
-.wallet-message {
-    display: none;
-
-    margin-top: 15px;
-
-    padding:
-        11px 13px;
+    border:
+        1px solid
+        rgba(96,165,250,.2);
 
     border-radius: 9px;
 
-    font-size: 10px;
+    background:
+        rgba(96,165,250,.05);
 
-    line-height: 1.5;
+    color: var(--blue);
+
+    font-size: 9px;
+
+    font-weight: 800;
 }
 
-.wallet-message.info {
+.disconnect {
+
     display: block;
 
-    background:
-        rgba(96, 165, 250, .08);
+    width: 100%;
 
-    border:
-        1px solid
-        rgba(96, 165, 250, .18);
+    margin-top: 10px;
 
-    color: #93c5fd;
+    padding: 9px;
+
+    border: 0;
+
+    background: transparent;
+
+    color: var(--red);
+
+    font-size: 9px;
+
+    font-weight: 800;
 }
 
-.wallet-message.success {
-    display: block;
 
-    background:
-        rgba(110, 231, 183, .08);
+/* =========================================================
+   ACCOUNT INFORMATION
+   ========================================================= */
 
-    border:
-        1px solid
-        rgba(110, 231, 183, .18);
+.account-grid {
 
-    color: var(--green);
+    display: grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap: 15px;
 }
 
-.wallet-message.error {
-    display: block;
+.account-item {
 
-    background:
-        rgba(248, 113, 113, .08);
+    display: flex;
 
-    border:
-        1px solid
-        rgba(248, 113, 113, .18);
+    align-items: center;
 
-    color: #fca5a5;
-}
-
-.wallet-security {
-    margin-top: 18px;
+    gap: 12px;
 
     padding: 14px;
 
@@ -1031,106 +1152,80 @@ a {
 
     background:
         #091625;
+}
+
+.account-icon {
+
+    width: 35px;
+
+    height: 35px;
+
+    display: grid;
+
+    place-items: center;
+
+    border-radius: 9px;
+
+    background:
+        #10233a;
+
+    color: var(--blue);
+}
+
+.account-label {
 
     color: var(--muted);
 
-    font-size: 9px;
-
-    line-height: 1.7;
+    font-size: 8px;
 }
 
-.wallet-security strong {
+.account-value {
+
+    margin-top: 2px;
+
     color: var(--text);
-}
-
-
-/* =========================================================
-   SESSION WARNING
-   ========================================================= */
-
-.session-warning {
-    display: none;
-
-    margin-bottom: 20px;
-
-    padding:
-        13px 15px;
-
-    border:
-        1px solid
-        rgba(251, 191, 36, .22);
-
-    border-radius: 10px;
-
-    background:
-        rgba(251, 191, 36, .08);
-
-    color: #fcd34d;
 
     font-size: 10px;
 
-    line-height: 1.6;
+    font-weight: 800;
+}
+
+.active {
+
+    display: inline-block;
+
+    padding:
+        4px 8px;
+
+    border-radius: 999px;
+
+    color: var(--green);
+
+    background:
+        rgba(110,231,183,.08);
+
+    border:
+        1px solid
+        rgba(110,231,183,.18);
+
+    font-size: 8px;
 }
 
 
 /* =========================================================
-   LOADING
+   FOOTER
    ========================================================= */
 
-.dashboard-loading {
-    min-height: 100vh;
+footer {
 
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 30px;
+    padding:
+        25px 0 5px;
 
     text-align: center;
 
-    background:
-        radial-gradient(
-            circle at 80% 0%,
-            rgba(35, 80, 125, .12),
-            transparent 32%
-        ),
-        linear-gradient(
-            180deg,
-            var(--bg),
-            var(--bg-2)
-        );
-}
+    color: var(--muted-2);
 
-.dashboard-loading-box {
-    width:
-        min(100%, 420px);
-
-    padding: 32px;
-
-    border:
-        1px solid
-        var(--border);
-
-    border-radius: 18px;
-
-    background:
-        var(--card);
-
-    box-shadow:
-        0 25px 80px
-        rgba(0, 0, 0, .35);
-}
-
-.dashboard-loading-box h2 {
-    margin-top: 0;
-
-    color: var(--text);
-}
-
-.dashboard-loading-box p {
-    color: var(--muted);
+    font-size: 9px;
 }
 
 
@@ -1138,114 +1233,994 @@ a {
    RESPONSIVE
    ========================================================= */
 
-@media (max-width: 1000px) {
+@media(max-width:1000px) {
 
-    .dashboard-grid {
+    .stats-grid {
+
         grid-template-columns:
-            repeat(2, minmax(0, 1fr));
+            repeat(2,1fr);
     }
 
-    .dashboard-actions {
-        grid-template-columns: 1fr;
+    .actions-grid {
+
+        grid-template-columns:
+            1fr;
     }
 
-    .wallet-info-grid {
-        grid-template-columns: 1fr;
+    .two-column,
+    .profile-wallet {
+
+        grid-template-columns:
+            1fr;
     }
 }
 
 
-@media (max-width: 700px) {
+@media(max-width:700px) {
 
-    .dashboard-header {
-        padding:
-            13px 16px;
-    }
-
-    .dashboard-header-inner {
-        align-items: flex-start;
+    .header-inner {
 
         flex-direction: column;
+
+        align-items: flex-start;
+
+        padding: 13px 0;
     }
 
     .dashboard-nav {
+
         width: 100%;
+
+        overflow-x: auto;
+
+        flex-wrap: nowrap;
     }
 
-    .dashboard-nav a,
-    .dashboard-nav button {
-        flex: 1;
+    .dashboard-nav a {
 
-        text-align: center;
+        white-space: nowrap;
     }
 
     .dashboard-main {
-        padding:
-            22px 16px 50px;
+
+        width:
+            min(100% - 24px, 1500px);
+
+        padding-top: 20px;
     }
 
-    .dashboard-grid {
-        grid-template-columns: 1fr;
+    .welcome {
+
+        padding: 21px;
+
+        align-items: flex-start;
     }
 
-    .welcome-card,
-    .dashboard-section {
-        padding: 20px;
+    .welcome-left {
+
+        align-items: flex-start;
+    }
+
+    .avatar {
+
+        width: 52px;
+
+        height: 52px;
+
+        font-size: 22px;
+    }
+
+    .stats-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .section {
+
+        padding: 18px;
     }
 
     .profile-row {
+
         flex-direction: column;
 
-        gap: 5px;
+        gap: 4px;
     }
 
     .profile-value {
+
+        max-width: 100%;
+
         text-align: left;
     }
 
-    .wallet-header {
-        align-items: flex-start;
+    .account-grid {
 
-        flex-direction: column;
+        grid-template-columns:
+            1fr;
     }
 
-    .wallet-actions {
-        flex-direction: column;
-    }
+    .wallet-metrics {
 
-    .wallet-actions
-    .dashboard-button {
-        width: 100%;
-
-        text-align: center;
+        grid-template-columns:
+            1fr;
     }
 }
 
+</style>
 
-@media (max-width: 430px) {
+</head>
 
-    .dashboard-main {
-        padding-left: 13px;
 
-        padding-right: 13px;
+<body>
+
+<div class="dashboard-page">
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<header class="dashboard-header">
+
+<div class="header-inner">
+
+    <a href="index.html" class="logo">
+
+        <div class="logo-box">
+            W3
+        </div>
+
+        <div class="logo-text">
+
+            <span>Web3</span>Jobs
+
+            <small class="logo-subtitle">
+                Individual Dashboard
+            </small>
+
+        </div>
+
+    </a>
+
+
+    <nav class="dashboard-nav">
+
+        <a href="jobs.html">
+            🔎 Explore Jobs
+        </a>
+
+        <a href="#applications">
+            📄 My Applications
+        </a>
+
+        <a href="#saved">
+            🔖 Saved Jobs
+        </a>
+
+        <a href="#profile">
+            👤 My Profile
+        </a>
+
+        <a
+            href="javascript:void(0)"
+            class="logout-btn"
+            onclick="logoutUser()"
+        >
+            🚪 Logout
+        </a>
+
+    </nav>
+
+</div>
+
+</header>
+
+
+<!-- =====================================================
+     MAIN
+===================================================== -->
+
+<main class="dashboard-main">
+
+
+<!-- =====================================================
+     WELCOME
+===================================================== -->
+
+<section class="welcome">
+
+<div class="welcome-left">
+
+    <div class="avatar">
+        👤
+    </div>
+
+    <div>
+
+        <h1>
+            Welcome back,
+            <span id="welcome-name">
+                Individual
+            </span>
+            👋
+        </h1>
+
+        <p>
+
+            <span class="status-dot"></span>
+
+            Manage your profile, track your applications
+            and find your next opportunity in Web3.
+
+        </p>
+
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     STATISTICS
+===================================================== -->
+
+<section class="stats-grid">
+
+
+<div class="stat-card">
+
+    <div class="stat-icon blue-icon">
+        📄
+    </div>
+
+    <div
+        class="stat-number"
+        id="applications-count"
+    >
+        0
+    </div>
+
+    <div class="stat-title">
+        Applications
+    </div>
+
+    <div class="stat-description">
+        Jobs you've applied to
+    </div>
+
+</div>
+
+
+<div class="stat-card">
+
+    <div class="stat-icon green-icon">
+        🔖
+    </div>
+
+    <div
+        class="stat-number"
+        id="saved-count"
+    >
+        0
+    </div>
+
+    <div class="stat-title">
+        Saved Jobs
+    </div>
+
+    <div class="stat-description">
+        Jobs you saved
+    </div>
+
+</div>
+
+
+<div class="stat-card">
+
+    <div class="stat-icon purple-icon">
+        👁
+    </div>
+
+    <div
+        class="stat-number"
+        id="profile-strength"
+    >
+        0%
+    </div>
+
+    <div class="stat-title">
+        Profile Strength
+    </div>
+
+    <div class="stat-description">
+        Complete your profile
+    </div>
+
+</div>
+
+
+<div class="stat-card">
+
+    <div class="stat-icon orange-icon">
+        👤
+    </div>
+
+    <div
+        class="stat-number"
+        style="font-size:18px;margin-top:8px;"
+    >
+        Individual
+    </div>
+
+    <div class="stat-title">
+        Account Type
+    </div>
+
+    <div class="stat-description">
+        Your account type
+    </div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     QUICK ACTIONS
+===================================================== -->
+
+<section class="section">
+
+<div class="section-header">
+
+    <h2>
+        Quick Actions
+    </h2>
+
+</div>
+
+
+<div class="actions-grid">
+
+
+<div class="action-card">
+
+    <div class="action-icon">
+        🔎
+    </div>
+
+    <h3>
+        Explore Jobs
+    </h3>
+
+    <p>
+        Browse and discover amazing Web3
+        opportunities worldwide.
+    </p>
+
+    <a
+        href="jobs.html"
+        class="action-button green"
+    >
+        Browse Jobs
+    </a>
+
+</div>
+
+
+<div class="action-card">
+
+    <div class="action-icon">
+        📄
+    </div>
+
+    <h3>
+        My Applications
+    </h3>
+
+    <p>
+        Track the status of your job
+        applications.
+    </p>
+
+    <a
+        href="#applications"
+        class="action-button blue"
+    >
+        View Applications
+    </a>
+
+</div>
+
+
+<div class="action-card">
+
+    <div class="action-icon">
+        🔖
+    </div>
+
+    <h3>
+        Saved Jobs
+    </h3>
+
+    <p>
+        View and manage your saved
+        job opportunities.
+    </p>
+
+    <a
+        href="#saved"
+        class="action-button purple"
+    >
+        View Saved Jobs
+    </a>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     APPLICATIONS + SAVED
+===================================================== -->
+
+<div class="two-column">
+
+
+<section
+    class="section"
+    id="applications"
+>
+
+<div class="section-header">
+
+    <h2>
+        Recent Applications
+    </h2>
+
+    <a
+        href="#applications"
+        class="view-link"
+    >
+        View All
+    </a>
+
+</div>
+
+
+<div id="applications-list">
+
+    <div class="list-card">
+
+        <div class="list-top">
+
+            <div>
+
+                <div class="job-name">
+                    No applications yet
+                </div>
+
+                <div class="company">
+                    Start applying for Web3 jobs.
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+
+
+<section
+    class="section"
+    id="saved"
+>
+
+<div class="section-header">
+
+    <h2>
+        Saved Jobs
+    </h2>
+
+    <a
+        href="#saved"
+        class="view-link"
+        style="color:var(--purple)"
+    >
+        View All
+    </a>
+
+</div>
+
+
+<div id="saved-list">
+
+    <div class="saved-row">
+
+        <div>
+
+            <div class="job-name">
+                No saved jobs yet
+            </div>
+
+            <div class="company">
+                Save jobs you want to review later.
+            </div>
+
+        </div>
+
+        <div class="bookmark">
+            🔖
+        </div>
+
+    </div>
+
+</div>
+
+</section>
+
+</div>
+
+
+<!-- =====================================================
+     PROFILE + WALLET
+===================================================== -->
+
+<div class="profile-wallet">
+
+
+<section
+    class="section"
+    id="profile"
+>
+
+<div class="section-header">
+
+    <h2>
+        My Profile
+    </h2>
+
+    <a
+        href="profile.html"
+        class="small-button"
+    >
+        Edit Profile
+    </a>
+
+</div>
+
+
+<div class="profile-row">
+
+    <span class="profile-label">
+        Full Name
+    </span>
+
+    <span
+        class="profile-value"
+        id="profile-name"
+    >
+        —
+    </span>
+
+</div>
+
+
+<div class="profile-row">
+
+    <span class="profile-label">
+        Email
+    </span>
+
+    <span
+        class="profile-value"
+        id="profile-email"
+    >
+        —
+    </span>
+
+</div>
+
+
+<div class="profile-row">
+
+    <span class="profile-label">
+        Location
+    </span>
+
+    <span
+        class="profile-value"
+        id="profile-location"
+    >
+        —
+    </span>
+
+</div>
+
+
+<div class="profile-row">
+
+    <span class="profile-label">
+        Skills
+    </span>
+
+    <span
+        class="profile-value"
+        id="profile-skills"
+    >
+        —
+    </span>
+
+</div>
+
+
+<div class="profile-row">
+
+    <span class="profile-label">
+        Bio
+    </span>
+
+    <span
+        class="profile-value"
+        id="profile-bio"
+    >
+        —
+    </span>
+
+</div>
+
+</section>
+
+
+
+<section class="section">
+
+<div class="section-header">
+
+    <h2>
+        Web3 Wallet
+    </h2>
+
+    <a
+        href="wallet.html"
+        class="small-button"
+    >
+        Manage Wallet
+    </a>
+
+</div>
+
+
+<div class="wallet-connected">
+
+    <div>
+
+        <div class="connected">
+            🟢 Connected
+        </div>
+
+        <div
+            class="wallet-address"
+            id="wallet-address"
+        >
+            Not connected
+        </div>
+
+    </div>
+
+    <div
+        class="network"
+        id="wallet-network"
+    >
+        Ethereum
+    </div>
+
+</div>
+
+
+<div class="wallet-metrics">
+
+
+<div class="wallet-metric">
+
+    <span>
+        Balance
+    </span>
+
+    <strong id="wallet-balance">
+        —
+    </strong>
+
+</div>
+
+
+<div class="wallet-metric">
+
+    <span>
+        Network
+    </span>
+
+    <strong>
+        Ethereum
+    </strong>
+
+</div>
+
+
+<div class="wallet-metric">
+
+    <span>
+        Connected
+    </span>
+
+    <strong>
+        —
+    </strong>
+
+</div>
+
+
+</div>
+
+
+<a
+    href="#"
+    class="wallet-explorer"
+    id="wallet-explorer"
+>
+    🔗 View on Explorer
+</a>
+
+
+<button
+    class="disconnect"
+    onclick="disconnectWallet()"
+>
+    Disconnect Wallet
+</button>
+
+</section>
+
+</div>
+
+
+<!-- =====================================================
+     ACCOUNT INFORMATION
+===================================================== -->
+
+<section class="section">
+
+<div class="section-header">
+
+    <h2>
+        Account Information
+    </h2>
+
+</div>
+
+
+<div class="account-grid">
+
+
+<div class="account-item">
+
+    <div class="account-icon">
+        👤
+    </div>
+
+    <div>
+
+        <div class="account-label">
+            Account Type
+        </div>
+
+        <div class="account-value">
+            Individual
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="account-item">
+
+    <div class="account-icon">
+        📅
+    </div>
+
+    <div>
+
+        <div class="account-label">
+            Member Since
+        </div>
+
+        <div
+            class="account-value"
+            id="member-since"
+        >
+            —
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="account-item">
+
+    <div class="account-icon">
+        🕐
+    </div>
+
+    <div>
+
+        <div class="account-label">
+            Last Login
+        </div>
+
+        <div
+            class="account-value"
+            id="last-login"
+        >
+            —
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="account-item">
+
+    <div class="account-icon">
+        🛡
+    </div>
+
+    <div>
+
+        <div class="account-label">
+            Account Status
+        </div>
+
+        <div class="account-value">
+
+            <span class="active">
+                Active
+            </span>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+<footer>
+
+    © 2026 Web3Jobs. All rights reserved.
+
+</footer>
+
+
+</main>
+
+</div>
+
+
+<!-- =====================================================
+     BASIC SAFE FUNCTIONS
+===================================================== -->
+
+<script>
+
+function logoutUser() {
+
+    try {
+
+        if (
+            window.supabase &&
+            typeof window.supabase.auth?.signOut === "function"
+        ) {
+
+            window.supabase.auth
+                .signOut()
+                .finally(function () {
+
+                    window.location.href =
+                        "sign-in.html";
+
+                });
+
+            return;
+        }
+
+    } catch (error) {
+
+        console.error(error);
+
     }
 
-    .welcome-card {
-        padding:
-            20px 17px;
-    }
-
-    .welcome-card h1 {
-        font-size: 25px;
-    }
-
-    .dashboard-section {
-        padding: 17px;
-    }
-
-    .dashboard-section-header h2 {
-        font-size: 16px;
-    }
+    window.location.href =
+        "sign-in.html";
 }
 
-    </style>
+
+function disconnectWallet() {
+
+    if (
+        window.ethereum &&
+        window.ethereum.removeAllListeners
+    ) {
+
+        try {
+            window.ethereum.removeAllListeners();
+        } catch (e) {
+            console.log(e);
+        }
+
+    }
+
+    const address =
+        document.getElementById("wallet-address");
+
+    if (address) {
+
+        address.textContent =
+            "Not connected";
+
+    }
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const name =
+            document.getElementById(
+                "welcome-name"
+            );
+
+        const profileName =
+            document.getElementById(
+                "profile-name"
+            );
+
+        if (
+            name &&
+            profileName &&
+            profileName.textContent !== "—"
+        ) {
+
+            name.textContent =
+                profileName.textContent;
+
+        }
+
+    }
+);
+
+</script>
+
+
+</body>
+
+   </html>
