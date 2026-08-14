@@ -3,523 +3,524 @@
 
 <head>
 
-    <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="Web3Jobs - Login to your Web3Jobs account."
-    >
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login - Web3Jobs</title>
+<meta
+    name="description"
+    content="Web3Jobs - Login to your Web3Jobs account."
+>
 
-    <style>
+<title>Login - Web3Jobs</title>
 
-        :root {
-            --bg: #06101d;
-            --bg2: #09182a;
-            --card: #0d1b2e;
-            --text: #f5f8ff;
-            --muted: #9db0c8;
-            --line: #1d3553;
-            --accent: #6ee7b7;
-            --blue: #60a5fa;
-            --danger: #fb7185;
-        }
+<style>
 
-        * {
-            box-sizing: border-box;
-        }
+:root {
+    --bg: #06101d;
+    --bg2: #09182a;
+    --card: #0d1b2e;
+    --text: #f5f8ff;
+    --muted: #9db0c8;
+    --line: #1d3553;
+    --accent: #6ee7b7;
+    --blue: #60a5fa;
+    --danger: #fb7185;
+}
 
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100%;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        body {
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
 
-            min-height: 100vh;
+body {
 
-            display: flex;
+    min-height: 100vh;
 
-            align-items: center;
+    display: flex;
 
-            justify-content: center;
+    align-items: center;
 
-            padding: 25px;
+    justify-content: center;
 
-            background:
-                radial-gradient(
-                    circle at top,
-                    rgba(96, 165, 250, 0.14),
-                    transparent 45%
-                ),
-                linear-gradient(
-                    180deg,
-                    var(--bg),
-                    var(--bg2)
-                );
+    padding: 25px;
 
-            color: var(--text);
+    background:
+        radial-gradient(
+            circle at top,
+            rgba(96, 165, 250, 0.14),
+            transparent 45%
+        ),
+        linear-gradient(
+            180deg,
+            var(--bg),
+            var(--bg2)
+        );
 
-            font-family:
-                Inter,
-                system-ui,
-                -apple-system,
-                BlinkMacSystemFont,
-                "Segoe UI",
-                Arial,
-                sans-serif;
-        }
+    color: var(--text);
 
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
+    font-family:
+        Inter,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+}
 
-        button,
-        input {
-            font: inherit;
-        }
+a {
+    color: inherit;
+    text-decoration: none;
+}
 
-        .login-wrapper {
-            width: 100%;
-            max-width: 440px;
-        }
+button,
+input {
+    font: inherit;
+}
 
-        .brand {
+.login-wrapper {
+    width: 100%;
+    max-width: 440px;
+}
 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+.brand {
 
-            margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 
-            text-align: center;
-        }
+    margin-bottom: 24px;
 
-        .brand-logo {
+    text-align: center;
+}
 
-            width: 92px;
-            height: 92px;
+.brand-logo {
 
-            object-fit: cover;
+    width: 92px;
+    height: 92px;
 
-            border-radius: 20px;
+    object-fit: cover;
 
-            margin-bottom: 14px;
+    border-radius: 20px;
 
-            border:
-                1px solid
-                var(--line);
+    margin-bottom: 14px;
 
-            box-shadow:
-                0 18px 45px
-                rgba(0, 0, 0, 0.35);
-        }
+    border:
+        1px solid
+        var(--line);
 
-        .brand-name {
+    box-shadow:
+        0 18px 45px
+        rgba(0, 0, 0, 0.35);
+}
 
-            color: white;
+.brand-name {
 
-            font-size: 25px;
+    color: white;
 
-            font-weight: 850;
-        }
+    font-size: 25px;
 
-        .brand-name span {
-            color: var(--accent);
-        }
+    font-weight: 850;
+}
 
-        .login-card {
+.brand-name span {
+    color: var(--accent);
+}
 
-            padding: 32px;
+.login-card {
 
-            background:
-                rgba(13, 27, 46, 0.97);
+    padding: 32px;
 
-            border:
-                1px solid
-                var(--line);
+    background:
+        rgba(13, 27, 46, 0.97);
 
-            border-radius: 20px;
+    border:
+        1px solid
+        var(--line);
 
-            box-shadow:
-                0 25px 70px
-                rgba(0, 0, 0, 0.38);
-        }
+    border-radius: 20px;
 
-        .login-card h1 {
+    box-shadow:
+        0 25px 70px
+        rgba(0, 0, 0, 0.38);
+}
 
-            margin: 0 0 8px;
+.login-card h1 {
 
-            text-align: center;
+    margin: 0 0 8px;
 
-            font-size: 28px;
-        }
+    text-align: center;
 
-        .subtitle {
+    font-size: 28px;
+}
 
-            margin: 0 0 25px;
+.subtitle {
 
-            text-align: center;
+    margin: 0 0 25px;
 
-            color: var(--muted);
+    text-align: center;
 
-            font-size: 13px;
-        }
+    color: var(--muted);
 
-        #auth-message {
+    font-size: 13px;
+}
 
-            display: none;
+#auth-message {
 
-            margin-bottom: 18px;
+    display: none;
 
-            border-radius: 10px;
+    margin-bottom: 18px;
 
-            font-size: 12px;
+    border-radius: 10px;
 
-            line-height: 1.7;
-        }
+    font-size: 12px;
 
-        .auth-message-box {
+    line-height: 1.7;
+}
 
-            padding: 12px 14px;
+.auth-message-box {
 
-            border-radius: 9px;
-        }
+    padding: 12px 14px;
 
-        .auth-message-error {
+    border-radius: 9px;
+}
 
-            border:
-                1px solid
-                rgba(251, 113, 133, 0.35);
+.auth-message-error {
 
-            background:
-                rgba(251, 113, 133, 0.08);
+    border:
+        1px solid
+        rgba(251, 113, 133, 0.35);
 
-            color: #fda4af;
-        }
+    background:
+        rgba(251, 113, 133, 0.08);
 
-        .auth-message-success {
+    color: #fda4af;
+}
 
-            border:
-                1px solid
-                rgba(110, 231, 183, 0.35);
+.auth-message-success {
 
-            background:
-                rgba(110, 231, 183, 0.08);
+    border:
+        1px solid
+        rgba(110, 231, 183, 0.35);
 
-            color: var(--accent);
-        }
+    background:
+        rgba(110, 231, 183, 0.08);
 
-        .auth-message-info {
+    color: var(--accent);
+}
 
-            border:
-                1px solid
-                rgba(96, 165, 250, 0.35);
+.auth-message-info {
 
-            background:
-                rgba(96, 165, 250, 0.08);
+    border:
+        1px solid
+        rgba(96, 165, 250, 0.35);
 
-            color: #93c5fd;
-        }
+    background:
+        rgba(96, 165, 250, 0.08);
 
-        .form-group {
-            margin-bottom: 17px;
-        }
+    color: #93c5fd;
+}
 
-        .form-group label {
+.form-group {
+    margin-bottom: 17px;
+}
 
-            display: block;
+.form-group label {
 
-            margin-bottom: 7px;
+    display: block;
 
-            color: #dbe7f4;
+    margin-bottom: 7px;
 
-            font-size: 13px;
+    color: #dbe7f4;
 
-            font-weight: 700;
-        }
+    font-size: 13px;
 
-        .form-group input {
+    font-weight: 700;
+}
 
-            width: 100%;
+.form-group input {
 
-            padding: 13px 14px;
+    width: 100%;
 
-            border:
-                1px solid
-                #284563;
+    padding: 13px 14px;
 
-            border-radius: 10px;
+    border:
+        1px solid
+        #284563;
 
-            outline: none;
+    border-radius: 10px;
 
-            background: #071423;
+    outline: none;
 
-            color: white;
+    background: #071423;
 
-            font-size: 14px;
+    color: white;
 
-            transition:
-                border-color .2s,
-                box-shadow .2s;
-        }
+    font-size: 14px;
 
-        .form-group input:focus {
+    transition:
+        border-color .2s,
+        box-shadow .2s;
+}
 
-            border-color:
-                var(--blue);
+.form-group input:focus {
 
-            box-shadow:
-                0 0 0 3px
-                rgba(96, 165, 250, 0.08);
-        }
+    border-color:
+        var(--blue);
 
-        .form-group input::placeholder {
-            color: #60758d;
-        }
+    box-shadow:
+        0 0 0 3px
+        rgba(96, 165, 250, 0.08);
+}
 
-        .password-wrapper {
-            position: relative;
-        }
+.form-group input::placeholder {
+    color: #60758d;
+}
 
-        .password-wrapper input {
-            padding-right: 50px;
-        }
+.password-wrapper {
+    position: relative;
+}
 
-        .toggle-password {
+.password-wrapper input {
+    padding-right: 50px;
+}
 
-            position: absolute;
+.toggle-password {
 
-            top: 50%;
-            right: 10px;
+    position: absolute;
 
-            transform:
-                translateY(-50%);
+    top: 50%;
+    right: 10px;
 
-            border: 0;
+    transform:
+        translateY(-50%);
 
-            background: transparent;
+    border: 0;
 
-            color: var(--muted);
+    background: transparent;
 
-            cursor: pointer;
+    color: var(--muted);
 
-            font-size: 16px;
-        }
+    cursor: pointer;
 
-        .login-button {
+    font-size: 16px;
 
-            width: 100%;
+    width: auto;
 
-            margin-top: 5px;
+    padding: 5px;
+}
 
-            padding: 13px;
+.login-button {
 
-            border: 0;
+    width: 100%;
 
-            border-radius: 10px;
+    margin-top: 5px;
 
-            background:
-                var(--accent);
+    padding: 13px;
 
-            color: var(--bg);
+    border: 0;
 
-            font-size: 14px;
+    border-radius: 10px;
 
-            font-weight: 850;
+    background:
+        var(--accent);
 
-            cursor: pointer;
+    color: var(--bg);
 
-            transition:
-                transform .2s,
-                opacity .2s;
-        }
+    font-size: 14px;
 
-        .login-button:hover {
+    font-weight: 850;
 
-            transform:
-                translateY(-1px);
+    cursor: pointer;
 
-            opacity: .92;
-        }
+    transition:
+        transform .2s,
+        opacity .2s;
+}
 
-        .login-button:disabled {
+.login-button:hover {
 
-            opacity: .55;
+    transform:
+        translateY(-1px);
 
-            cursor: not-allowed;
+    opacity: .92;
+}
 
-            transform: none;
-        }
+.login-button:disabled {
 
-        .forgot {
+    opacity: .55;
 
-            display: block;
+    cursor: not-allowed;
 
-            margin: 16px 0;
+    transform: none;
+}
 
-            text-align: center;
+.forgot {
 
-            color: #8dbdf3;
+    display: block;
 
-            font-size: 12px;
-        }
+    margin: 16px 0;
 
-        .forgot:hover {
-            color: var(--accent);
-        }
+    text-align: center;
 
-        .divider {
+    color: #8dbdf3;
 
-            display: flex;
+    font-size: 12px;
+}
 
-            align-items: center;
+.forgot:hover {
+    color: var(--accent);
+}
 
-            gap: 10px;
+.divider {
 
-            margin: 23px 0;
+    display: flex;
 
-            color: #71869e;
+    align-items: center;
 
-            font-size: 10px;
-        }
+    gap: 10px;
 
-        .divider::before,
-        .divider::after {
+    margin: 23px 0;
 
-            content: "";
+    color: #71869e;
 
-            flex: 1;
+    font-size: 10px;
+}
 
-            height: 1px;
+.divider::before,
+.divider::after {
 
-            background:
-                var(--line);
-        }
+    content: "";
 
-        .signup {
+    flex: 1;
 
-            text-align: center;
+    height: 1px;
 
-            color: var(--muted);
+    background:
+        var(--line);
+}
 
-            font-size: 12px;
-        }
+.signup {
 
-        .signup a {
+    text-align: center;
 
-            color: var(--accent);
+    color: var(--muted);
 
-            font-weight: 800;
-        }
+    font-size: 12px;
+}
 
-        .back-home {
+.signup a {
 
-            display: block;
+    color: var(--accent);
 
-            margin-top: 20px;
+    font-weight: 800;
+}
 
-            text-align: center;
+.back-home {
 
-            color: #8da1b8;
+    display: block;
 
-            font-size: 11px;
-        }
+    margin-top: 20px;
 
-        .back-home:hover {
-            color: white;
-        }
+    text-align: center;
 
-        .social-section {
+    color: #8da1b8;
 
-            margin-top: 22px;
+    font-size: 11px;
+}
 
-            text-align: center;
-        }
+.back-home:hover {
+    color: white;
+}
 
-        .social-title {
+.social-section {
 
-            margin-bottom: 10px;
+    margin-top: 22px;
 
-            color: #71869e;
+    text-align: center;
+}
 
-            font-size: 10px;
+.social-title {
 
-            letter-spacing: .5px;
-        }
+    margin-bottom: 10px;
 
-        .social-links {
+    color: #71869e;
 
-            display: flex;
+    font-size: 10px;
 
-            justify-content: center;
+    letter-spacing: .5px;
+}
 
-            flex-wrap: wrap;
+.social-links {
 
-            gap: 8px;
-        }
+    display: flex;
 
-        .social-links a {
+    justify-content: center;
 
-            padding:
-                7px 10px;
+    flex-wrap: wrap;
 
-            border:
-                1px solid
-                var(--line);
+    gap: 8px;
+}
 
-            border-radius: 8px;
+.social-links a {
 
-            background:
-                rgba(13, 27, 46, .7);
+    padding:
+        7px 10px;
 
-            color: #9db0c8;
+    border:
+        1px solid
+        var(--line);
 
-            font-size: 10px;
+    border-radius: 8px;
 
-            transition: .2s;
-        }
+    background:
+        rgba(13, 27, 46, .7);
 
-        .social-links a:hover {
+    color: #9db0c8;
 
-            border-color:
-                var(--accent);
+    font-size: 10px;
 
-            color:
-                var(--accent);
-        }
+    transition: .2s;
+}
 
-        @media (max-width: 500px) {
+.social-links a:hover {
 
-            body {
-                padding: 15px;
-            }
+    border-color:
+        var(--accent);
 
-            .login-card {
-                padding: 25px 20px;
-            }
+    color:
+        var(--accent);
+}
 
-            .brand-logo {
+@media (max-width: 500px) {
 
-                width: 76px;
-                height: 76px;
-            }
+    body {
+        padding: 15px;
+    }
 
-            .brand-name {
-                font-size: 22px;
-            }
-        }
+    .login-card {
+        padding: 25px 20px;
+    }
 
-    </style>
+    .brand-logo {
+        width: 76px;
+        height: 76px;
+    }
+
+    .brand-name {
+        font-size: 22px;
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -527,6 +528,7 @@
 <body>
 
 <div class="login-wrapper">
+
 
     <div class="brand">
 
@@ -685,7 +687,7 @@
             </a>
 
             <a
-                href="https://www.linkedin.com/me?trk=p_mwlite_feed-secondary_nav"
+                href="https://www.linkedin.com/"
                 target="_blank"
                 rel="noopener noreferrer"
             >
@@ -707,672 +709,908 @@
 </div>
 
 
-<script
-    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-></script>
+<!-- =====================================================
+     SUPABASE LIBRARY
+===================================================== -->
 
-<script
-    src="js/supabase.js?v=20260812"
-></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script
-    src="js/auth.js?v=20260812"
-></script>
+
+<!-- =====================================================
+     WEB3JOBS UNIFIED SUPABASE CLIENT
+===================================================== -->
+
+<script src="js/supabase.js?v=20260814"></script>
 
 
 <script>
 
 "use strict";
 
-document.addEventListener(
-    "DOMContentLoaded",
-    function () {
 
-        const form =
-            document.getElementById("loginForm");
+/* =====================================================
+   ELEMENTS
+===================================================== */
 
-        const emailInput =
-            document.getElementById("email");
+const form =
+    document.getElementById("loginForm");
 
-        const passwordInput =
-            document.getElementById("password");
+const emailInput =
+    document.getElementById("email");
 
-        const loginButton =
-            document.getElementById("loginButton");
+const passwordInput =
+    document.getElementById("password");
 
-        const togglePassword =
-            document.getElementById("togglePassword");
+const loginButton =
+    document.getElementById("loginButton");
 
-        const messageElement =
-            document.getElementById("auth-message");
+const togglePassword =
+    document.getElementById("togglePassword");
+
+const messageElement =
+    document.getElementById("auth-message");
 
 
-        function showMessage(
-            arabic,
-            english,
-            type = "info"
-        ) {
+/* =====================================================
+   MESSAGE
+===================================================== */
 
-            if (!messageElement) {
-                return;
+function showMessage(
+    arabic,
+    english,
+    type = "info"
+) {
+
+    if (!messageElement) {
+        return;
+    }
+
+    messageElement.innerHTML = "";
+
+    const box =
+        document.createElement("div");
+
+    box.className =
+        "auth-message-box auth-message-" +
+        type;
+
+
+    const ar =
+        document.createElement("div");
+
+    ar.textContent =
+        arabic;
+
+
+    const en =
+        document.createElement("div");
+
+    en.textContent =
+        english;
+
+
+    box.appendChild(ar);
+
+    box.appendChild(en);
+
+    messageElement.appendChild(box);
+
+    messageElement.style.display =
+        "block";
+}
+
+
+/* =====================================================
+   PASSWORD TOGGLE
+===================================================== */
+
+if (togglePassword) {
+
+    togglePassword.addEventListener(
+        "click",
+        function() {
+
+            if (
+                passwordInput.type ===
+                "password"
+            ) {
+
+                passwordInput.type =
+                    "text";
+
+                togglePassword.textContent =
+                    "🙈";
+
+                togglePassword.setAttribute(
+                    "aria-label",
+                    "Hide password"
+                );
+
+            } else {
+
+                passwordInput.type =
+                    "password";
+
+                togglePassword.textContent =
+                    "👁";
+
+                togglePassword.setAttribute(
+                    "aria-label",
+                    "Show password"
+                );
+
             }
 
-            messageElement.innerHTML = "";
+        }
+    );
 
-            const box =
-                document.createElement("div");
+}
 
-            box.className =
-                "auth-message-box auth-message-" +
-                type;
 
-            const ar =
-                document.createElement("div");
+/* =====================================================
+   GET ACCOUNT TYPE
+   IMPORTANT:
+   We do NOT require profiles to exist.
+===================================================== */
 
-            ar.textContent =
-                arabic;
+async function getAccountType(
+    client,
+    user
+) {
 
-            const en =
-                document.createElement("div");
+    let accountType = "";
 
-            en.textContent =
-                english;
 
-            box.appendChild(ar);
-            box.appendChild(en);
+    /* -------------------------------------------------
+       1. PROFILE TABLE
+    ------------------------------------------------- */
 
-            messageElement.appendChild(box);
+    try {
 
-            messageElement.style.display =
-                "block";
+        const {
+            data: profile,
+            error
+        } =
+            await client
+                .from("profiles")
+                .select(
+                    "account_type,role"
+                )
+                .eq(
+                    "id",
+                    user.id
+                )
+                .maybeSingle();
+
+
+        if (
+            !error &&
+            profile
+        ) {
+
+            const role =
+                String(
+                    profile.role || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
+
+            /* ADMIN */
+
+            if (
+                role === "admin"
+            ) {
+
+                return "admin";
+            }
+
+
+            accountType =
+                String(
+                    profile.account_type || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
         }
 
+    } catch (error) {
 
-        if (togglePassword) {
+        console.warn(
+            "Profile lookup skipped:",
+            error
+        );
 
-            togglePassword.addEventListener(
-                "click",
-                function () {
+    }
 
-                    if (
-                        passwordInput.type ===
-                        "password"
-                    ) {
 
-                        passwordInput.type =
-                            "text";
+    /* -------------------------------------------------
+       2. USER METADATA
+    ------------------------------------------------- */
 
-                        togglePassword.textContent =
-                            "🙈";
+    if (!accountType) {
 
-                    } else {
+        const metadata =
+            user.user_metadata || {};
 
-                        passwordInput.type =
-                            "password";
 
-                        togglePassword.textContent =
-                            "👁";
-                    }
-                }
+        accountType =
+            String(
+                metadata.account_type ||
+                metadata.accountType ||
+                metadata.role ||
+                ""
+            )
+                .trim()
+                .toLowerCase();
+
+    }
+
+
+    /* -------------------------------------------------
+       3. PENDING ACCOUNT TYPE
+       Used especially after wallet signup.
+    ------------------------------------------------- */
+
+    if (!accountType) {
+
+        try {
+
+            accountType =
+                localStorage.getItem(
+                    "web3jobs_pending_account_type"
+                ) || "";
+
+            accountType =
+                accountType
+                    .trim()
+                    .toLowerCase();
+
+        } catch (error) {
+
+            console.warn(
+                "Pending account type unavailable:",
+                error
             );
+
         }
 
+    }
 
-        if (!form) {
+
+    /* -------------------------------------------------
+       4. LOCAL ACCOUNT TYPE
+    ------------------------------------------------- */
+
+    if (!accountType) {
+
+        try {
+
+            accountType =
+                localStorage.getItem(
+                    "web3jobs_account_type"
+                ) || "";
+
+            accountType =
+                accountType
+                    .trim()
+                    .toLowerCase();
+
+        } catch (error) {
+
+            console.warn(
+                "Local account type unavailable:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* -------------------------------------------------
+       5. COMPANY PROFILE FALLBACK
+    ------------------------------------------------- */
+
+    if (!accountType) {
+
+        try {
+
+            const {
+                data: companyProfile,
+                error
+            } =
+                await client
+                    .from("company_profiles")
+                    .select("id")
+                    .eq(
+                        "user_id",
+                        user.id
+                    )
+                    .maybeSingle();
+
+
+            if (
+                !error &&
+                companyProfile
+            ) {
+
+                accountType =
+                    "company";
+
+            }
+
+        } catch (error) {
+
+            console.warn(
+                "Company profile lookup skipped:",
+                error
+            );
+
+        }
+
+    }
+
+
+    /* -------------------------------------------------
+       NORMALIZE COMPANY
+    ------------------------------------------------- */
+
+    if (
+        accountType === "business" ||
+        accountType === "employer" ||
+        accountType === "organization" ||
+        accountType === "organizations" ||
+        accountType === "companies"
+    ) {
+
+        accountType =
+            "company";
+    }
+
+
+    /* -------------------------------------------------
+       NORMALIZE INDIVIDUAL
+    ------------------------------------------------- */
+
+    if (
+        accountType === "person" ||
+        accountType === "user" ||
+        accountType === "candidate" ||
+        accountType === "freelancer" ||
+        accountType === "individuals"
+    ) {
+
+        accountType =
+            "individual";
+    }
+
+
+    return accountType;
+
+}
+
+
+/* =====================================================
+   SAVE LOCAL DATA
+===================================================== */
+
+function saveLoginData(
+    accountType,
+    userId
+) {
+
+    try {
+
+        localStorage.setItem(
+            "web3jobs_account_type",
+            accountType
+        );
+
+        localStorage.setItem(
+            "web3jobs_user_id",
+            userId
+        );
+
+
+        /*
+         * Pending account type is no longer needed.
+         */
+
+        localStorage.removeItem(
+            "web3jobs_pending_account_type"
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "localStorage error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   REDIRECT
+===================================================== */
+
+function redirectUser(
+    accountType
+) {
+
+    if (
+        accountType ===
+        "admin"
+    ) {
+
+        window.location.replace(
+            "admin-dashboard.html"
+        );
+
+        return;
+    }
+
+
+    if (
+        accountType ===
+        "company"
+    ) {
+
+        window.location.replace(
+            "company-dashboard.html"
+        );
+
+        return;
+    }
+
+
+    window.location.replace(
+        "dashboard.html"
+    );
+
+}
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+form.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const email =
+            emailInput.value
+                .trim()
+                .toLowerCase();
+
+
+        const password =
+            passwordInput.value;
+
+
+        /* -------------------------------------------------
+           VALIDATION
+        ------------------------------------------------- */
+
+        if (!email) {
+
+            showMessage(
+                "يرجى إدخال البريد الإلكتروني.",
+                "Please enter your email address.",
+                "error"
+            );
+
             return;
         }
 
 
-        form.addEventListener(
-            "submit",
-            async function (event) {
+        if (!password) {
 
-                event.preventDefault();
+            showMessage(
+                "يرجى إدخال كلمة المرور.",
+                "Please enter your password.",
+                "error"
+            );
 
+            return;
+        }
 
-                const email =
-                    emailInput.value
-                        .trim()
-                        .toLowerCase();
 
-                const password =
-                    passwordInput.value;
+        /* -------------------------------------------------
+           GET SINGLE SUPABASE CLIENT
+        ------------------------------------------------- */
 
+        let client = null;
 
-                if (!email) {
 
-                    showMessage(
-                        "يرجى إدخال البريد الإلكتروني.",
-                        "Please enter your email address.",
-                        "error"
-                    );
+        try {
 
-                    return;
-                }
+            if (
+                window.Web3JobsSupabase &&
+                typeof
+                window.Web3JobsSupabase.getClient ===
+                "function"
+            ) {
 
+                client =
+                    window.Web3JobsSupabase.getClient();
 
-                if (!password) {
+            } else if (
+                window.supabaseClient
+            ) {
 
-                    showMessage(
-                        "يرجى إدخال كلمة المرور.",
-                        "Please enter your password.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-
-                let client = null;
-
-
-                try {
-
-                    if (
-                        window.Web3JobsSupabase &&
-                        typeof
-                        window.Web3JobsSupabase.getClient ===
-                        "function"
-                    ) {
-
-                        client =
-                            window.Web3JobsSupabase.getClient();
-
-                    } else if (
-                        window.supabaseClient
-                    ) {
-
-                        client =
-                            window.supabaseClient;
-                    }
-
-
-                    if (
-                        !client ||
-                        !client.auth
-                    ) {
-
-                        throw new Error(
-                            "Supabase client is not available."
-                        );
-                    }
-
-
-                    loginButton.disabled =
-                        true;
-
-                    loginButton.textContent =
-                        "Signing in...";
-
-
-                    /* =========================================
-                       LOGIN
-                    ========================================= */
-
-                    const {
-                        data,
-                        error
-                    } =
-                        await client.auth.signInWithPassword({
-
-                            email: email,
-
-                            password: password
-
-                        });
-
-
-                    if (error) {
-                        throw error;
-                    }
-
-
-                    const user =
-                        data?.user;
-
-                    const session =
-                        data?.session;
-
-
-                    if (!user || !session) {
-
-                        throw new Error(
-                            "No authenticated session was created."
-                        );
-                    }
-
-
-                    /* =========================================
-                       EMAIL CONFIRMATION
-                    ========================================= */
-
-                    if (
-                        !user.email_confirmed_at &&
-                        !user.confirmed_at
-                    ) {
-
-                        await client.auth.signOut();
-
-                        showMessage(
-                            "البريد الإلكتروني غير مؤكد. يرجى تأكيد البريد أولاً.",
-                            "Your email is not confirmed. Please confirm it first.",
-                            "error"
-                        );
-
-                        loginButton.disabled =
-                            false;
-
-                        loginButton.textContent =
-                            "Login";
-
-                        return;
-                    }
-
-
-                    /* =========================================
-                       GET PROFILE
-                    ========================================= */
-
-                    const {
-                        data: profile,
-                        error: profileError
-                    } =
-                        await client
-                            .from("profiles")
-                            .select(
-                                "id,email,account_type,role"
-                            )
-                            .eq(
-                                "id",
-                                user.id
-                            )
-                            .maybeSingle();
-
-
-                    if (profileError) {
-
-                        console.error(
-                            "Profile error:",
-                            profileError
-                        );
-
-                        throw new Error(
-                            "Unable to load account profile."
-                        );
-                    }
-
-
-                    if (!profile) {
-
-                        throw new Error(
-                            "Account profile was not found."
-                        );
-                    }
-
-
-                    /* =========================================
-                       ADMIN CHECK
-                       IMPORTANT:
-                       ADMIN MUST BE CHECKED FIRST
-                    ========================================= */
-
-                    const role =
-                        String(
-                            profile.role || ""
-                        )
-                            .trim()
-                            .toLowerCase();
-
-
-                    if (role === "admin") {
-
-                        try {
-
-                            localStorage.setItem(
-                                "web3jobs_account_type",
-                                "admin"
-                            );
-
-                            localStorage.setItem(
-                                "web3jobs_user_id",
-                                user.id
-                            );
-
-                        } catch (storageError) {
-
-                            console.warn(
-                                "localStorage:",
-                                storageError
-                            );
-                        }
-
-
-                        showMessage(
-                            "تم تسجيل الدخول كمسؤول. جاري فتح لوحة الإدارة...",
-                            "Administrator login successful. Opening admin dashboard...",
-                            "success"
-                        );
-
-
-                        setTimeout(
-                            function () {
-
-                                window.location.replace(
-                                    "admin-dashboard.html"
-                                );
-
-                            },
-                            400
-                        );
-
-
-                        return;
-                    }
-
-
-                    /* =========================================
-                       ACCOUNT TYPE
-                    ========================================= */
-
-                    let accountType =
-                        String(
-                            profile.account_type ||
-                            ""
-                        )
-                            .trim()
-                            .toLowerCase();
-
-
-                    /* =========================================
-                       NORMALIZE COMPANY
-                    ========================================= */
-
-                    if (
-                        accountType === "business" ||
-                        accountType === "employer" ||
-                        accountType === "organization" ||
-                        accountType === "organizations" ||
-                        accountType === "companies"
-                    ) {
-
-                        accountType =
-                            "company";
-                    }
-
-
-                    /* =========================================
-                       NORMALIZE INDIVIDUAL
-                    ========================================= */
-
-                    if (
-                        accountType === "person" ||
-                        accountType === "user" ||
-                        accountType === "candidate" ||
-                        accountType === "freelancer" ||
-                        accountType === "individuals"
-                    ) {
-
-                        accountType =
-                            "individual";
-                    }
-
-
-                    /* =========================================
-                       COMPANY PROFILE FALLBACK
-                    ========================================= */
-
-                    if (!accountType) {
-
-                        const {
-                            data: companyProfile,
-                            error: companyError
-                        } =
-                            await client
-                                .from("company_profiles")
-                                .select(
-                                    "id,user_id"
-                                )
-                                .eq(
-                                    "user_id",
-                                    user.id
-                                )
-                                .maybeSingle();
-
-
-                        if (
-                            !companyError &&
-                            companyProfile
-                        ) {
-
-                            accountType =
-                                "company";
-                        }
-                    }
-
-
-                    /* =========================================
-                       USER METADATA FALLBACK
-                    ========================================= */
-
-                    if (!accountType) {
-
-                        const metadata =
-                            user.user_metadata ||
-                            {};
-
-
-                        accountType =
-                            String(
-                                metadata.account_type ||
-                                metadata.accountType ||
-                                metadata.role ||
-                                ""
-                            )
-                                .trim()
-                                .toLowerCase();
-
-
-                        if (
-                            accountType === "business" ||
-                            accountType === "employer"
-                        ) {
-
-                            accountType =
-                                "company";
-                        }
-
-
-                        if (
-                            accountType === "person" ||
-                            accountType === "user" ||
-                            accountType === "candidate"
-                        ) {
-
-                            accountType =
-                                "individual";
-                        }
-                    }
-
-
-                    /* =========================================
-                       UNKNOWN ACCOUNT
-                    ========================================= */
-
-                    if (
-                        accountType !== "company" &&
-                        accountType !== "individual"
-                    ) {
-
-                        console.error(
-                            "Unknown account type:",
-                            {
-                                userId: user.id,
-                                email: user.email,
-                                profile: profile
-                            }
-                        );
-
-                        showMessage(
-                            "تم تسجيل الدخول، ولكن نوع الحساب غير محدد.",
-                            "Login succeeded, but the account type could not be determined.",
-                            "error"
-                        );
-
-                        loginButton.disabled =
-                            false;
-
-                        loginButton.textContent =
-                            "Login";
-
-                        return;
-                    }
-
-
-                    /* =========================================
-                       SAVE LOCAL DATA
-                    ========================================= */
-
-                    try {
-
-                        localStorage.setItem(
-                            "web3jobs_account_type",
-                            accountType
-                        );
-
-                        localStorage.setItem(
-                            "web3jobs_user_id",
-                            user.id
-                        );
-
-                    } catch (storageError) {
-
-                        console.warn(
-                            "localStorage:",
-                            storageError
-                        );
-                    }
-
-
-                    /* =========================================
-                       REDIRECT
-                    ========================================= */
-
-                    if (
-                        accountType === "company"
-                    ) {
-
-                        showMessage(
-                            "تم تسجيل الدخول بنجاح. جاري فتح لوحة الشركة...",
-                            "Login successful. Opening company dashboard...",
-                            "success"
-                        );
-
-
-                        setTimeout(
-                            function () {
-
-                                window.location.replace(
-                                    "company-dashboard.html"
-                                );
-
-                            },
-                            400
-                        );
-
-
-                        return;
-                    }
-
-
-                    showMessage(
-                        "تم تسجيل الدخول بنجاح. جاري فتح لوحة الأفراد...",
-                        "Login successful. Opening individual dashboard...",
-                        "success"
-                    );
-
-
-                    setTimeout(
-                        function () {
-
-                            window.location.replace(
-                                "dashboard.html"
-                            );
-
-                        },
-                        400
-                    );
-
-                } catch (error) {
-
-                    console.error(
-                        "Web3Jobs Login Error:",
-                        error
-                    );
-
-
-                    const errorText =
-                        String(
-                            error?.message ||
-                            ""
-                        ).toLowerCase();
-
-
-                    if (
-                        errorText.includes(
-                            "invalid login credentials"
-                        )
-                    ) {
-
-                        showMessage(
-                            "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-                            "Invalid email or password.",
-                            "error"
-                        );
-
-                    } else if (
-                        errorText.includes(
-                            "email not confirmed"
-                        )
-                    ) {
-
-                        showMessage(
-                            "البريد الإلكتروني غير مؤكد.",
-                            "Your email is not confirmed.",
-                            "error"
-                        );
-
-                    } else {
-
-                        showMessage(
-                            "حدث خطأ أثناء تسجيل الدخول: " +
-                            (
-                                error?.message ||
-                                "Unknown error"
-                            ),
-                            "Login error: " +
-                            (
-                                error?.message ||
-                                "Unknown error"
-                            ),
-                            "error"
-                        );
-                    }
-
-
-                    loginButton.disabled =
-                        false;
-
-                    loginButton.textContent =
-                        "Login";
-                }
+                client =
+                    window.supabaseClient;
 
             }
-        );
+
+
+            if (
+                !client ||
+                !client.auth
+            ) {
+
+                throw new Error(
+                    "Supabase client is not available."
+                );
+
+            }
+
+
+            /* -------------------------------------------------
+               DISABLE BUTTON
+            ------------------------------------------------- */
+
+            loginButton.disabled =
+                true;
+
+            loginButton.textContent =
+                "Signing in...";
+
+
+            /* -------------------------------------------------
+               SIGN IN
+            ------------------------------------------------- */
+
+            const {
+                data,
+                error
+            } =
+                await client.auth.signInWithPassword({
+
+                    email:
+                        email,
+
+                    password:
+                        password
+
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            const user =
+                data &&
+                data.user
+                    ? data.user
+                    : null;
+
+
+            const session =
+                data &&
+                data.session
+                    ? data.session
+                    : null;
+
+
+            if (
+                !user ||
+                !session
+            ) {
+
+                throw new Error(
+                    "No authenticated session was created."
+                );
+
+            }
+
+
+            /* -------------------------------------------------
+               EMAIL CONFIRMATION
+            ------------------------------------------------- */
+
+            if (
+                !user.email_confirmed_at &&
+                !user.confirmed_at
+            ) {
+
+                await client.auth.signOut();
+
+
+                showMessage(
+                    "البريد الإلكتروني غير مؤكد. يرجى تأكيد البريد أولاً.",
+                    "Your email is not confirmed. Please confirm it first.",
+                    "error"
+                );
+
+
+                loginButton.disabled =
+                    false;
+
+                loginButton.textContent =
+                    "Login";
+
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               DETERMINE ACCOUNT TYPE
+            ------------------------------------------------- */
+
+            const accountType =
+                await getAccountType(
+                    client,
+                    user
+                );
+
+
+            console.log(
+                "Web3Jobs account type:",
+                accountType
+            );
+
+
+            /* -------------------------------------------------
+               ADMIN
+            ------------------------------------------------- */
+
+            if (
+                accountType ===
+                "admin"
+            ) {
+
+                saveLoginData(
+                    "admin",
+                    user.id
+                );
+
+
+                showMessage(
+                    "تم تسجيل الدخول كمسؤول. جاري فتح لوحة الإدارة...",
+                    "Administrator login successful. Opening admin dashboard...",
+                    "success"
+                );
+
+
+                setTimeout(
+                    function() {
+
+                        redirectUser(
+                            "admin"
+                        );
+
+                    },
+                    500
+                );
+
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               IMPORTANT WALLET/GITHUB FIX
+               
+               If profiles does not exist yet, DO NOT FAIL.
+               Use metadata / local storage instead.
+            ------------------------------------------------- */
+
+            let finalAccountType =
+                accountType;
+
+
+            /*
+             * If account type is still unknown,
+             * default to individual instead of producing
+             * a blank/error page.
+             *
+             * This prevents wallet-created accounts from
+             * getting stuck at login.
+             */
+
+            if (
+                finalAccountType !==
+                "company" &&
+                finalAccountType !==
+                "individual"
+            ) {
+
+                console.warn(
+                    "Account type not found. Defaulting to individual.",
+                    user
+                );
+
+
+                finalAccountType =
+                    "individual";
+
+            }
+
+
+            /* -------------------------------------------------
+               SAVE LOGIN DATA
+            ------------------------------------------------- */
+
+            saveLoginData(
+                finalAccountType,
+                user.id
+            );
+
+
+            /* -------------------------------------------------
+               REDIRECT COMPANY
+            ------------------------------------------------- */
+
+            if (
+                finalAccountType ===
+                "company"
+            ) {
+
+                showMessage(
+                    "تم تسجيل الدخول بنجاح. جاري فتح لوحة الشركة...",
+                    "Login successful. Opening company dashboard...",
+                    "success"
+                );
+
+
+                setTimeout(
+                    function() {
+
+                        redirectUser(
+                            "company"
+                        );
+
+                    },
+                    500
+                );
+
+
+                return;
+            }
+
+
+            /* -------------------------------------------------
+               REDIRECT INDIVIDUAL
+            ------------------------------------------------- */
+
+            showMessage(
+                "تم تسجيل الدخول بنجاح. جاري فتح لوحة الأفراد...",
+                "Login successful. Opening individual dashboard...",
+                "success"
+            );
+
+
+            setTimeout(
+                function() {
+
+                    redirectUser(
+                        "individual"
+                    );
+
+                },
+                500
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Web3Jobs Login Error:",
+                error
+            );
+
+
+            const errorText =
+                String(
+                    error &&
+                    error.message
+                        ? error.message
+                        : error
+                ).toLowerCase();
+
+
+            /* -------------------------------------------------
+               INVALID LOGIN
+            ------------------------------------------------- */
+
+            if (
+                errorText.includes(
+                    "invalid login credentials"
+                )
+            ) {
+
+                showMessage(
+                    "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
+                    "Invalid email or password.",
+                    "error"
+                );
+
+            }
+
+
+            /* -------------------------------------------------
+               EMAIL NOT CONFIRMED
+            ------------------------------------------------- */
+
+            else if (
+                errorText.includes(
+                    "email not confirmed"
+                )
+            ) {
+
+                showMessage(
+                    "البريد الإلكتروني غير مؤكد.",
+                    "Your email is not confirmed.",
+                    "error"
+                );
+
+            }
+
+
+            /* -------------------------------------------------
+               NETWORK / SUPABASE
+            ------------------------------------------------- */
+
+            else {
+
+                showMessage(
+                    "حدث خطأ أثناء تسجيل الدخول: " +
+                    (
+                        error &&
+                        error.message
+                            ? error.message
+                            : "Unknown error"
+                    ),
+
+                    "Login error: " +
+                    (
+                        error &&
+                        error.message
+                            ? error.message
+                            : "Unknown error"
+                    ),
+
+                    "error"
+                );
+
+            }
+
+
+            loginButton.disabled =
+                false;
+
+            loginButton.textContent =
+                "Login";
+
+        }
 
     }
 );
 
 </script>
+
 
 </body>
 
