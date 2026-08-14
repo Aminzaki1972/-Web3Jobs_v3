@@ -199,9 +199,7 @@
 
 </head>
 
-
 <body>
-
 
 <div class="auth-container">
 
@@ -213,16 +211,12 @@
         Create your account
     </div>
 
-
     <div
         id="message"
         class="message"
     ></div>
 
-
-    <!-- =========================================
-         ACCOUNT TYPE
-    ========================================== -->
+    <!-- ACCOUNT TYPE -->
 
     <div class="form-group">
 
@@ -248,15 +242,11 @@
 
     </div>
 
-
-    <!-- =========================================
-         WEB3 WALLET
-    ========================================== -->
+    <!-- WEB3 WALLET -->
 
     <div class="section-title">
         Create account with
     </div>
-
 
     <button
         type="button"
@@ -267,10 +257,7 @@
         Continue with Web3 Wallet
     </button>
 
-
-    <!-- =========================================
-         GITHUB
-    ========================================== -->
+    <!-- GITHUB -->
 
     <button
         type="button"
@@ -281,23 +268,17 @@
         Continue with GitHub
     </button>
 
-
     <div class="divider">
         OR
     </div>
 
-
-    <!-- =========================================
-         EMAIL SIGNUP
-    ========================================== -->
+    <!-- EMAIL -->
 
     <div class="section-title">
         Create account with Email
     </div>
 
-
     <form id="signup-form">
-
 
         <div class="form-group">
 
@@ -314,7 +295,6 @@
 
         </div>
 
-
         <div class="form-group">
 
             <label for="email">
@@ -329,7 +309,6 @@
             >
 
         </div>
-
 
         <div class="form-group">
 
@@ -347,7 +326,6 @@
 
         </div>
 
-
         <button
             id="signup-button"
             class="email-button"
@@ -356,14 +334,11 @@
             Create Account with Email
         </button>
 
-
     </form>
-
 
     <div class="small-note">
         For Wallet and GitHub accounts, you will be asked to authorize the login.
     </div>
-
 
     <div class="login-link">
 
@@ -375,14 +350,11 @@
 
     </div>
 
-
 </div>
-
 
 <script>
 
 "use strict";
-
 
 /* =========================================
    SUPABASE
@@ -391,10 +363,8 @@
 const SUPABASE_URL =
     "https://jqhemwskrnlycximjpag.supabase.co";
 
-
 const SUPABASE_KEY =
     "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
-
 
 const supabaseClient =
     window.supabase.createClient(
@@ -402,66 +372,41 @@ const supabaseClient =
         SUPABASE_KEY
     );
 
-
 /* =========================================
    ELEMENTS
 ========================================= */
 
 const form =
-    document.getElementById(
-        "signup-form"
-    );
-
+    document.getElementById("signup-form");
 
 const button =
-    document.getElementById(
-        "signup-button"
-    );
-
+    document.getElementById("signup-button");
 
 const walletButton =
-    document.getElementById(
-        "wallet-button"
-    );
-
+    document.getElementById("wallet-button");
 
 const githubButton =
-    document.getElementById(
-        "github-button"
-    );
-
+    document.getElementById("github-button");
 
 const accountTypeSelect =
-    document.getElementById(
-        "account-type"
-    );
-
+    document.getElementById("account-type");
 
 const message =
-    document.getElementById(
-        "message"
-    );
-
+    document.getElementById("message");
 
 /* =========================================
    MESSAGE
 ========================================= */
 
-function showMessage(
-    text,
-    type
-) {
+function showMessage(text, type) {
 
-    message.textContent =
-        text;
+    message.textContent = text;
 
     message.className =
         "message " + type;
 
-    message.style.display =
-        "block";
+    message.style.display = "block";
 }
-
 
 /* =========================================
    ACCOUNT TYPE
@@ -469,17 +414,13 @@ function showMessage(
 
 function getAccountType() {
 
-    return accountTypeSelect
-        .value
+    return accountTypeSelect.value
         .trim()
         .toLowerCase();
-
 }
 
-
 /* =========================================
-   SAVE TEMPORARY ACCOUNT TYPE
-   USED FOR OAUTH CALLBACK
+   SAVE ACCOUNT TYPE
 ========================================= */
 
 function saveAccountType() {
@@ -510,7 +451,6 @@ function saveAccountType() {
     return true;
 }
 
-
 /* =========================================
    EMAIL SIGNUP
 ========================================= */
@@ -521,36 +461,25 @@ form.addEventListener(
 
         event.preventDefault();
 
-
         const fullName =
             document
-                .getElementById(
-                    "full-name"
-                )
+                .getElementById("full-name")
                 .value
                 .trim();
-
 
         const email =
             document
-                .getElementById(
-                    "email"
-                )
+                .getElementById("email")
                 .value
                 .trim();
 
-
         const password =
             document
-                .getElementById(
-                    "password"
-                )
+                .getElementById("password")
                 .value;
-
 
         const accountType =
             getAccountType();
-
 
         if (!fullName) {
 
@@ -562,7 +491,6 @@ form.addEventListener(
             return;
         }
 
-
         if (!email) {
 
             showMessage(
@@ -572,7 +500,6 @@ form.addEventListener(
 
             return;
         }
-
 
         if (!password) {
 
@@ -584,7 +511,6 @@ form.addEventListener(
             return;
         }
 
-
         if (password.length < 6) {
 
             showMessage(
@@ -594,7 +520,6 @@ form.addEventListener(
 
             return;
         }
-
 
         if (!accountType) {
 
@@ -606,19 +531,12 @@ form.addEventListener(
             return;
         }
 
-
-        button.disabled =
-            true;
-
-        walletButton.disabled =
-            true;
-
-        githubButton.disabled =
-            true;
+        button.disabled = true;
+        walletButton.disabled = true;
+        githubButton.disabled = true;
 
         button.textContent =
             "Creating account...";
-
 
         try {
 
@@ -628,11 +546,9 @@ form.addEventListener(
             } =
                 await supabaseClient.auth.signUp({
 
-                    email:
-                        email,
+                    email: email,
 
-                    password:
-                        password,
+                    password: password,
 
                     options: {
 
@@ -650,17 +566,14 @@ form.addEventListener(
 
                 });
 
-
             if (error) {
                 throw error;
             }
-
 
             showMessage(
                 "Account created successfully. Please check your email if confirmation is required.",
                 "success"
             );
-
 
             setTimeout(
                 function() {
@@ -672,7 +585,6 @@ form.addEventListener(
                 2000
             );
 
-
         } catch (error) {
 
             console.error(
@@ -680,31 +592,22 @@ form.addEventListener(
                 error
             );
 
-
             showMessage(
                 error.message ||
                 "Unable to create account.",
                 "error"
             );
 
-
-            button.disabled =
-                false;
-
-            walletButton.disabled =
-                false;
-
-            githubButton.disabled =
-                false;
+            button.disabled = false;
+            walletButton.disabled = false;
+            githubButton.disabled = false;
 
             button.textContent =
                 "Create Account with Email";
-
         }
 
     }
 );
-
 
 /* =========================================
    GITHUB SIGNUP
@@ -717,7 +620,6 @@ githubButton.addEventListener(
         const accountType =
             getAccountType();
 
-
         if (!accountType) {
 
             showMessage(
@@ -728,49 +630,36 @@ githubButton.addEventListener(
             return;
         }
 
-
         saveAccountType();
 
-
-        githubButton.disabled =
-            true;
-
-        walletButton.disabled =
-            true;
-
-        button.disabled =
-            true;
+        githubButton.disabled = true;
+        walletButton.disabled = true;
+        button.disabled = true;
 
         githubButton.textContent =
             "Connecting to GitHub...";
 
-
         try {
 
             const {
-                data,
                 error
             } =
                 await supabaseClient.auth.signInWithOAuth({
 
-                    provider:
-                        "github",
+                    provider: "github",
 
                     options: {
 
                         redirectTo:
-                            window.location.origin +
-                            window.location.pathname
+                            "https://aminzaki1972.github.io/web3jobs-v2/sign-in.html"
 
                     }
 
                 });
 
-
             if (error) {
                 throw error;
             }
-
 
         } catch (error) {
 
@@ -779,34 +668,25 @@ githubButton.addEventListener(
                 error
             );
 
-
             showMessage(
                 error.message ||
                 "Unable to connect to GitHub.",
                 "error"
             );
 
-
-            githubButton.disabled =
-                false;
-
-            walletButton.disabled =
-                false;
-
-            button.disabled =
-                false;
+            githubButton.disabled = false;
+            walletButton.disabled = false;
+            button.disabled = false;
 
             githubButton.textContent =
                 "🐙 Continue with GitHub";
-
         }
 
     }
 );
 
-
 /* =========================================
-   WEB3 WALLET SIGNUP
+   WEB3 WALLET
 ========================================= */
 
 walletButton.addEventListener(
@@ -816,7 +696,6 @@ walletButton.addEventListener(
         const accountType =
             getAccountType();
 
-
         if (!accountType) {
 
             showMessage(
@@ -827,22 +706,14 @@ walletButton.addEventListener(
             return;
         }
 
-
         saveAccountType();
 
-
-        walletButton.disabled =
-            true;
-
-        githubButton.disabled =
-            true;
-
-        button.disabled =
-            true;
+        walletButton.disabled = true;
+        githubButton.disabled = true;
+        button.disabled = true;
 
         walletButton.textContent =
             "Connecting Wallet...";
-
 
         try {
 
@@ -852,19 +723,16 @@ walletButton.addEventListener(
             } =
                 await supabaseClient.auth.signInWithWeb3({
 
-                    chain:
-                        "ethereum",
+                    chain: "ethereum",
 
                     statement:
                         "Sign in to Web3Jobs"
 
                 });
 
-
             if (error) {
                 throw error;
             }
-
 
             if (
                 !data ||
@@ -876,16 +744,6 @@ walletButton.addEventListener(
                 );
 
             }
-
-
-            const user =
-                data.user;
-
-
-            /*
-             * Save account type
-             * to user metadata.
-             */
 
             const {
                 error: updateError
@@ -901,7 +759,6 @@ walletButton.addEventListener(
 
                 });
 
-
             if (updateError) {
 
                 console.warn(
@@ -911,12 +768,10 @@ walletButton.addEventListener(
 
             }
 
-
             showMessage(
                 "Wallet connected successfully. Your account has been created.",
                 "success"
             );
-
 
             setTimeout(
                 function() {
@@ -940,7 +795,6 @@ walletButton.addEventListener(
                 1200
             );
 
-
         } catch (error) {
 
             console.error(
@@ -948,34 +802,25 @@ walletButton.addEventListener(
                 error
             );
 
-
             showMessage(
                 error.message ||
                 "Unable to connect your Web3 wallet.",
                 "error"
             );
 
-
-            walletButton.disabled =
-                false;
-
-            githubButton.disabled =
-                false;
-
-            button.disabled =
-                false;
+            walletButton.disabled = false;
+            githubButton.disabled = false;
+            button.disabled = false;
 
             walletButton.textContent =
                 "🦊 Continue with Web3 Wallet";
-
         }
 
     }
 );
 
-
 /* =========================================
-   OAUTH CALLBACK
+   GITHUB CALLBACK
 ========================================= */
 
 async function handleOAuthCallback() {
@@ -989,24 +834,15 @@ async function handleOAuthCallback() {
         } =
             await supabaseClient.auth.getSession();
 
-
         if (!session) {
             return;
         }
 
-
         const user =
             session.user;
 
-
-        /*
-         * Check whether this is a GitHub
-         * OAuth account.
-         */
-
         const provider =
             user.app_metadata?.provider;
-
 
         if (
             provider !==
@@ -1016,10 +852,7 @@ async function handleOAuthCallback() {
             return;
         }
 
-
-        let accountType =
-            "";
-
+        let accountType = "";
 
         try {
 
@@ -1037,12 +870,10 @@ async function handleOAuthCallback() {
 
         }
 
-
         accountType =
             accountType
                 .trim()
                 .toLowerCase();
-
 
         if (
             accountType !== "company" &&
@@ -1051,26 +882,30 @@ async function handleOAuthCallback() {
 
             accountType =
                 "individual";
-
         }
 
+        const {
+            error: updateError
+        } =
+            await supabaseClient.auth.updateUser({
 
-        /*
-         * Store account type
-         * in user metadata.
-         */
+                data: {
 
-        await supabaseClient.auth.updateUser({
+                    account_type:
+                        accountType
 
-            data: {
+                }
 
-                account_type:
-                    accountType
+            });
 
-            }
+        if (updateError) {
 
-        });
+            console.warn(
+                "Unable to update GitHub account type:",
+                updateError
+            );
 
+        }
 
         try {
 
@@ -1087,12 +922,10 @@ async function handleOAuthCallback() {
 
         }
 
-
         showMessage(
             "GitHub account connected successfully.",
             "success"
         );
-
 
         setTimeout(
             function() {
@@ -1118,7 +951,6 @@ async function handleOAuthCallback() {
             1000
         );
 
-
     } catch (error) {
 
         console.error(
@@ -1126,10 +958,15 @@ async function handleOAuthCallback() {
             error
         );
 
+        showMessage(
+            error.message ||
+            "Unable to complete GitHub login.",
+            "error"
+        );
+
     }
 
 }
-
 
 /* =========================================
    START
@@ -1146,7 +983,6 @@ document.addEventListener(
 
 </script>
 
-
 </body>
 
-        </html>
+    </html>
