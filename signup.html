@@ -3,353 +3,356 @@
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <meta
-        name="description"
-        content="Create your Web3Jobs account."
-    >
+<meta
+    name="description"
+    content="Create your Web3Jobs account."
+>
 
-    <title>Create Account - Web3Jobs</title>
+<title>Create Account - Web3Jobs</title>
 
-    <style>
+<style>
 
-        * {
-            box-sizing: border-box;
-        }
+* {
+    box-sizing: border-box;
+}
 
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
+body {
+    margin: 0;
 
-            background:
-                linear-gradient(
-                    180deg,
-                    #06101d,
-                    #09182a
-                );
+    font-family:
+        Arial,
+        sans-serif;
 
-            min-height: 100vh;
+    background:
+        linear-gradient(
+            180deg,
+            #06101d,
+            #09182a
+        );
 
-            display: flex;
+    min-height: 100vh;
 
-            align-items: center;
+    display: flex;
 
-            justify-content: center;
+    align-items: center;
 
-            padding: 20px;
-        }
+    justify-content: center;
 
-        .auth-container {
-            width: 100%;
-            max-width: 460px;
+    padding: 20px;
+}
 
-            background: #0d1b2e;
+.auth-container {
+    width: 100%;
+    max-width: 460px;
 
-            padding: 35px;
+    background: #0d1b2e;
 
-            border-radius: 18px;
+    padding: 35px;
 
-            border: 1px solid #1d3553;
+    border-radius: 18px;
 
-            box-shadow:
-                0 20px 60px
-                rgba(0,0,0,.35);
-        }
+    border: 1px solid #1d3553;
 
-        .logo {
-            text-align: center;
+    box-shadow:
+        0 20px 60px
+        rgba(0,0,0,.35);
+}
 
-            color: white;
+.logo {
+    text-align: center;
 
-            font-size: 30px;
+    color: white;
 
-            font-weight: 800;
+    font-size: 30px;
 
-            margin-bottom: 8px;
-        }
+    font-weight: 800;
 
-        .logo span {
-            color: #6ee7b7;
-        }
+    margin-bottom: 8px;
+}
 
-        .subtitle {
-            text-align: center;
+.logo span {
+    color: #6ee7b7;
+}
 
-            color: #9db0c8;
+.subtitle {
+    text-align: center;
 
-            margin-bottom: 25px;
+    color: #9db0c8;
 
-            font-size: 14px;
-        }
+    margin-bottom: 25px;
 
-        .section-title {
-            text-align: center;
+    font-size: 14px;
+}
 
-            color: #9db0c8;
+.section-title {
+    text-align: center;
 
-            font-size: 12px;
+    color: #9db0c8;
 
-            font-weight: 700;
+    font-size: 12px;
 
-            margin: 20px 0 12px;
-        }
+    font-weight: 700;
 
-        .form-group {
-            margin-bottom: 18px;
-        }
+    margin: 20px 0 12px;
+}
 
-        label {
-            display: block;
+.form-group {
+    margin-bottom: 18px;
+}
 
-            margin-bottom: 7px;
+label {
+    display: block;
 
-            color: #dbe7f4;
+    margin-bottom: 7px;
 
-            font-weight: 600;
+    color: #dbe7f4;
 
-            font-size: 13px;
-        }
+    font-weight: 600;
 
-        input,
-        select {
-            width: 100%;
+    font-size: 13px;
+}
 
-            padding: 13px 14px;
+input,
+select {
+    width: 100%;
 
-            border:
-                1px solid
-                #284563;
+    padding: 13px 14px;
 
-            border-radius: 9px;
+    border:
+        1px solid
+        #284563;
 
-            font-size: 14px;
+    border-radius: 9px;
 
-            outline: none;
+    font-size: 14px;
 
-            background: #071423;
+    outline: none;
 
-            color: white;
-        }
+    background: #071423;
 
-        input:focus,
-        select:focus {
-            border-color: #60a5fa;
+    color: white;
+}
 
-            box-shadow:
-                0 0 0 3px
-                rgba(96,165,250,.08);
-        }
+input:focus,
+select:focus {
+    border-color: #60a5fa;
 
-        select option {
-            background: #071423;
+    box-shadow:
+        0 0 0 3px
+        rgba(96,165,250,.08);
+}
 
-            color: white;
-        }
+select option {
+    background: #071423;
 
-        button {
-            width: 100%;
+    color: white;
+}
 
-            border: 0;
+button {
+    width: 100%;
 
-            padding: 14px;
+    border: 0;
 
-            border-radius: 9px;
+    padding: 14px;
 
-            font-size: 14px;
+    border-radius: 9px;
 
-            font-weight: 700;
+    font-size: 14px;
 
-            cursor: pointer;
-        }
+    font-weight: 700;
 
-        button:disabled {
-            opacity: .55;
+    cursor: pointer;
+}
 
-            cursor: not-allowed;
-        }
+button:disabled {
+    opacity: .55;
 
-        .email-button {
-            background: #6ee7b7;
+    cursor: not-allowed;
+}
 
-            color: #06101d;
-        }
+.email-button {
+    background: #6ee7b7;
 
-        .wallet-button {
-            background: #111827;
+    color: #06101d;
+}
 
-            color: white;
+.wallet-button {
+    background: #111827;
 
-            margin-bottom: 10px;
+    color: white;
 
-            border:
-                1px solid
-                #334155;
-        }
+    margin-bottom: 10px;
 
-        .github-button {
-            background: #24292f;
+    border:
+        1px solid
+        #334155;
+}
 
-            color: white;
-        }
+.github-button {
+    background: #24292f;
 
-        .wallet-button,
-        .github-button {
-            display: flex;
+    color: white;
+}
 
-            align-items: center;
+.wallet-button,
+.github-button {
+    display: flex;
 
-            justify-content: center;
+    align-items: center;
 
-            gap: 9px;
-        }
+    justify-content: center;
 
-        .button-icon {
-            font-size: 19px;
-        }
+    gap: 9px;
+}
 
-        .divider {
-            display: flex;
+.button-icon {
+    font-size: 19px;
+}
 
-            align-items: center;
+.divider {
+    display: flex;
 
-            gap: 10px;
+    align-items: center;
 
-            margin: 23px 0;
+    gap: 10px;
 
-            color: #71869e;
+    margin: 23px 0;
 
-            font-size: 11px;
-        }
+    color: #71869e;
 
-        .divider::before,
-        .divider::after {
-            content: "";
+    font-size: 11px;
+}
 
-            flex: 1;
+.divider::before,
+.divider::after {
+    content: "";
 
-            height: 1px;
+    flex: 1;
 
-            background: #1d3553;
-        }
+    height: 1px;
 
-        .message {
-            display: none;
+    background: #1d3553;
+}
 
-            margin-bottom: 18px;
+.message {
+    display: none;
 
-            padding: 12px;
+    margin-bottom: 18px;
 
-            border-radius: 8px;
+    padding: 12px;
 
-            font-size: 13px;
+    border-radius: 8px;
 
-            line-height: 1.6;
-        }
+    font-size: 13px;
 
-        .success {
-            background:
-                rgba(110,231,183,.10);
+    line-height: 1.6;
+}
 
-            border:
-                1px solid
-                rgba(110,231,183,.3);
+.success {
+    background:
+        rgba(110,231,183,.10);
 
-            color: #6ee7b7;
-        }
+    border:
+        1px solid
+        rgba(110,231,183,.3);
 
-        .error {
-            background:
-                rgba(251,113,133,.10);
+    color: #6ee7b7;
+}
 
-            border:
-                1px solid
-                rgba(251,113,133,.3);
+.error {
+    background:
+        rgba(251,113,133,.10);
 
-            color: #fda4af;
-        }
+    border:
+        1px solid
+        rgba(251,113,133,.3);
 
-        .info {
-            background:
-                rgba(96,165,250,.10);
+    color: #fda4af;
+}
 
-            border:
-                1px solid
-                rgba(96,165,250,.3);
+.info {
+    background:
+        rgba(96,165,250,.10);
 
-            color: #93c5fd;
-        }
+    border:
+        1px solid
+        rgba(96,165,250,.3);
 
-        .login-link {
-            text-align: center;
+    color: #93c5fd;
+}
 
-            margin-top: 22px;
+.login-link {
+    text-align: center;
 
-            color: #9db0c8;
+    margin-top: 22px;
 
-            font-size: 13px;
-        }
+    color: #9db0c8;
 
-        .login-link a {
-            color: #6ee7b7;
+    font-size: 13px;
+}
 
-            text-decoration: none;
+.login-link a {
+    color: #6ee7b7;
 
-            font-weight: 700;
-        }
+    text-decoration: none;
 
-        .small-note {
-            text-align: center;
+    font-weight: 700;
+}
 
-            color: #71869e;
+.small-note {
+    text-align: center;
 
-            font-size: 11px;
+    color: #71869e;
 
-            margin-top: 12px;
+    font-size: 11px;
 
-            line-height: 1.5;
-        }
+    margin-top: 12px;
 
-        .wallet-address {
-            display: none;
+    line-height: 1.5;
+}
 
-            margin-top: 10px;
+.wallet-address {
+    display: none;
 
-            padding: 9px;
+    margin-top: 10px;
 
-            background: #071423;
+    padding: 9px;
 
-            border: 1px solid #1d3553;
+    background: #071423;
 
-            border-radius: 8px;
+    border: 1px solid #1d3553;
 
-            color: #9db0c8;
+    border-radius: 8px;
 
-            font-size: 10px;
+    color: #9db0c8;
 
-            word-break: break-all;
+    font-size: 10px;
 
-            text-align: center;
-        }
+    word-break: break-all;
 
-        @media (max-width: 500px) {
+    text-align: center;
+}
 
-            body {
-                padding: 12px;
-            }
+@media (max-width: 500px) {
 
-            .auth-container {
-                padding: 25px 20px;
-            }
+    body {
+        padding: 12px;
+    }
 
-        }
+    .auth-container {
+        padding: 25px 20px;
+    }
 
-    </style>
+}
+
+</style>
 
 </head>
 
@@ -545,18 +548,12 @@
 </div>
 
 
-<!-- =====================================================
-     SUPABASE LIBRARY
-===================================================== -->
+<!-- SUPABASE -->
 
 <script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ></script>
 
-
-<!-- =====================================================
-     WEB3JOBS UNIFIED SUPABASE CLIENT
-===================================================== -->
 
 <script
     src="js/supabase.js?v=20260814"
@@ -573,43 +570,29 @@
 ===================================================== */
 
 const form =
-    document.getElementById(
-        "signup-form"
-    );
+    document.getElementById("signup-form");
 
 const button =
-    document.getElementById(
-        "signup-button"
-    );
+    document.getElementById("signup-button");
 
 const walletButton =
-    document.getElementById(
-        "wallet-button"
-    );
+    document.getElementById("wallet-button");
 
 const githubButton =
-    document.getElementById(
-        "github-button"
-    );
+    document.getElementById("github-button");
 
 const accountTypeSelect =
-    document.getElementById(
-        "account-type"
-    );
+    document.getElementById("account-type");
 
 const message =
-    document.getElementById(
-        "message"
-    );
+    document.getElementById("message");
 
 const walletAddress =
-    document.getElementById(
-        "wallet-address"
-    );
+    document.getElementById("wallet-address");
 
 
 /* =====================================================
-   SUPABASE CLIENT
+   SUPABASE
 ===================================================== */
 
 function getClient() {
@@ -621,8 +604,14 @@ function getClient() {
         "function"
     ) {
 
-        return window.Web3JobsSupabase
-            .getClient();
+        const client =
+            window.Web3JobsSupabase.getClient();
+
+        if (client) {
+
+            return client;
+
+        }
 
     }
 
@@ -652,10 +641,6 @@ function showMessage(
     type
 ) {
 
-    if (!message) {
-        return;
-    }
-
     message.textContent =
         text;
 
@@ -664,6 +649,16 @@ function showMessage(
 
     message.style.display =
         "block";
+}
+
+
+function hideMessage() {
+
+    message.style.display =
+        "none";
+
+    message.textContent =
+        "";
 }
 
 
@@ -682,28 +677,17 @@ function getAccountType() {
 
 
 /* =====================================================
-   SAVE ACCOUNT TYPE
+   SAVE PENDING ACCOUNT TYPE
 ===================================================== */
 
-function saveAccountType(
+function savePendingAccountType(
     accountType
 ) {
 
-    try {
-
-        localStorage.setItem(
-            "web3jobs_pending_account_type",
-            accountType
-        );
-
-    } catch (error) {
-
-        console.warn(
-            "Storage error:",
-            error
-        );
-
-    }
+    localStorage.setItem(
+        "web3jobs_pending_account_type",
+        accountType
+    );
 }
 
 
@@ -733,6 +717,7 @@ function resetButtons() {
 
     githubButton.innerHTML =
         '<span class="button-icon">🐙</span> Continue with GitHub';
+
 }
 
 
@@ -750,6 +735,264 @@ function disableAll() {
 
     githubButton.disabled =
         true;
+
+}
+
+
+/* =====================================================
+   CREATE / UPDATE PROFILE
+===================================================== */
+
+async function createOrUpdateProfile(
+    client,
+    user,
+    accountType
+) {
+
+    if (
+        !client ||
+        !user ||
+        !user.id
+    ) {
+
+        throw new Error(
+            "User information is missing."
+        );
+
+    }
+
+
+    const metadata =
+        user.user_metadata || {};
+
+
+    const fullName =
+        metadata.full_name ||
+        metadata.name ||
+        "";
+
+
+    const avatarUrl =
+        metadata.avatar_url ||
+        metadata.picture ||
+        null;
+
+
+    /*
+     * First check whether profile exists.
+     */
+
+    const existing =
+        await client
+            .from("profiles")
+            .select(
+                "id,email,full_name,account_type,avatar_url,role"
+            )
+            .eq(
+                "id",
+                user.id
+            )
+            .maybeSingle();
+
+
+    if (existing.error) {
+
+        throw existing.error;
+
+    }
+
+
+    /*
+     * Profile already exists.
+     */
+
+    if (existing.data) {
+
+        const updateData = {
+
+            email:
+                user.email ||
+                existing.data.email ||
+                null,
+
+            account_type:
+                accountType,
+
+            updated_at:
+                new Date().toISOString()
+
+        };
+
+
+        if (
+            fullName &&
+            !existing.data.full_name
+        ) {
+
+            updateData.full_name =
+                fullName;
+
+        }
+
+
+        if (
+            avatarUrl &&
+            !existing.data.avatar_url
+        ) {
+
+            updateData.avatar_url =
+                avatarUrl;
+
+        }
+
+
+        const updated =
+            await client
+                .from("profiles")
+                .update(
+                    updateData
+                )
+                .eq(
+                    "id",
+                    user.id
+                );
+
+
+        if (updated.error) {
+
+            throw updated.error;
+
+        }
+
+
+        return updated.data;
+
+    }
+
+
+    /*
+     * Profile does not exist.
+     * Create it.
+     */
+
+    const profile = {
+
+        id:
+            user.id,
+
+        email:
+            user.email ||
+            null,
+
+        full_name:
+            fullName ||
+            null,
+
+        account_type:
+            accountType,
+
+        avatar_url:
+            avatarUrl,
+
+        bio:
+            null,
+
+        location:
+            null,
+
+        website:
+            null,
+
+        role:
+            accountType,
+
+        created_at:
+            new Date().toISOString(),
+
+        updated_at:
+            new Date().toISOString()
+
+    };
+
+
+    const inserted =
+        await client
+            .from("profiles")
+            .insert(
+                profile
+            );
+
+
+    if (inserted.error) {
+
+        throw inserted.error;
+
+    }
+
+
+    return inserted.data;
+
+}
+
+
+/* =====================================================
+   SAVE LOCAL ACCOUNT
+===================================================== */
+
+function saveLocalAccount(
+    user,
+    accountType,
+    method
+) {
+
+    localStorage.setItem(
+        "web3jobs_account_type",
+        accountType
+    );
+
+    localStorage.setItem(
+        "web3jobs_user_id",
+        user.id
+    );
+
+    localStorage.setItem(
+        "web3jobs_auth_method",
+        method
+    );
+
+    localStorage.removeItem(
+        "web3jobs_pending_account_type"
+    );
+
+}
+
+
+/* =====================================================
+   REDIRECT
+===================================================== */
+
+function redirectToDashboard(
+    accountType
+) {
+
+    if (
+        accountType ===
+        "company"
+    ) {
+
+        window.location.replace(
+            "company-dashboard.html"
+        );
+
+        return;
+
+    }
+
+
+    window.location.replace(
+        "dashboard.html"
+    );
+
 }
 
 
@@ -762,6 +1005,8 @@ form.addEventListener(
     async function(event) {
 
         event.preventDefault();
+
+        hideMessage();
 
 
         const client =
@@ -776,23 +1021,20 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
         const fullName =
             document
-                .getElementById(
-                    "full-name"
-                )
+                .getElementById("full-name")
                 .value
                 .trim();
 
 
         const email =
             document
-                .getElementById(
-                    "email"
-                )
+                .getElementById("email")
                 .value
                 .trim()
                 .toLowerCase();
@@ -800,9 +1042,7 @@ form.addEventListener(
 
         const password =
             document
-                .getElementById(
-                    "password"
-                )
+                .getElementById("password")
                 .value;
 
 
@@ -818,6 +1058,7 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -829,6 +1070,7 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -840,6 +1082,7 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -853,11 +1096,11 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
         disableAll();
-
 
         button.textContent =
             "Creating account...";
@@ -865,10 +1108,7 @@ form.addEventListener(
 
         try {
 
-            const {
-                data,
-                error
-            } =
+            const result =
                 await client.auth.signUp({
 
                     email:
@@ -894,13 +1134,64 @@ form.addEventListener(
                 });
 
 
-            if (error) {
-                throw error;
+            if (result.error) {
+
+                throw result.error;
+
             }
 
 
+            /*
+             * If Supabase immediately created
+             * an authenticated session, create profile.
+             */
+
+            if (
+                result.data &&
+                result.data.user &&
+                result.data.session
+            ) {
+
+                await createOrUpdateProfile(
+                    client,
+                    result.data.user,
+                    accountType
+                );
+
+                saveLocalAccount(
+                    result.data.user,
+                    accountType,
+                    "email"
+                );
+
+                showMessage(
+                    "Account created successfully. Opening your account...",
+                    "success"
+                );
+
+
+                setTimeout(
+                    function() {
+
+                        redirectToDashboard(
+                            accountType
+                        );
+
+                    },
+                    1000
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * Email confirmation is enabled.
+             */
+
             showMessage(
-                "Account created successfully. Please check your email if confirmation is required.",
+                "Account created. Please check your email to confirm your account.",
                 "success"
             );
 
@@ -913,7 +1204,7 @@ form.addEventListener(
                     );
 
                 },
-                1800
+                2000
             );
 
 
@@ -944,12 +1235,15 @@ form.addEventListener(
 
 
 /* =====================================================
-   GITHUB
+   GITHUB SIGNUP
 ===================================================== */
 
 githubButton.addEventListener(
     "click",
     async function() {
+
+        hideMessage();
+
 
         const client =
             getClient();
@@ -963,6 +1257,7 @@ githubButton.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -980,25 +1275,19 @@ githubButton.addEventListener(
             accountTypeSelect.focus();
 
             return;
+
         }
 
 
         /*
-         * Save account type BEFORE leaving
-         * the Web3Jobs website.
+         * VERY IMPORTANT:
+         * Save the selected type before leaving
+         * the page for GitHub.
          */
 
-        saveAccountType(
+        savePendingAccountType(
             accountType
         );
-
-
-        /*
-         * Fixed OAuth callback.
-         */
-
-        const redirectUrl =
-            "https://aminzaki1972.github.io/-Web3Jobs_v3/signup.html";
 
 
         disableAll();
@@ -1016,10 +1305,11 @@ githubButton.addEventListener(
 
         try {
 
-            const {
-                data,
-                error
-            } =
+            const redirectUrl =
+                "https://aminzaki1972.github.io/-Web3Jobs_v3/signup.html";
+
+
+            const result =
                 await client.auth.signInWithOAuth({
 
                     provider:
@@ -1035,47 +1325,27 @@ githubButton.addEventListener(
                 });
 
 
-            if (error) {
+            if (result.error) {
 
-                throw error;
+                throw result.error;
 
             }
 
 
             /*
              * Supabase normally redirects automatically.
-             *
-             * This fallback handles browsers where
-             * automatic navigation is not performed.
              */
 
             if (
-                data &&
-                data.url
+                result.data &&
+                result.data.url
             ) {
 
-                setTimeout(
-                    function() {
-
-                        if (
-                            window.location.href
-                                .indexOf(
-                                    "signup.html"
-                                ) !== -1
-                        ) {
-
-                            window.location.assign(
-                                data.url
-                            );
-
-                        }
-
-                    },
-                    500
+                window.location.assign(
+                    result.data.url
                 );
 
             }
-
 
         } catch (error) {
 
@@ -1104,12 +1374,295 @@ githubButton.addEventListener(
 
 
 /* =====================================================
-   WALLET
+   GITHUB CALLBACK
+===================================================== */
+
+async function handleGitHubCallback() {
+
+    const client =
+        getClient();
+
+
+    if (!client) {
+
+        return;
+
+    }
+
+
+    try {
+
+        /*
+         * Wait briefly for Supabase to process
+         * the OAuth URL.
+         */
+
+        const {
+            data,
+            error
+        } =
+            await client.auth.getSession();
+
+
+        if (error) {
+
+            throw error;
+
+        }
+
+
+        const session =
+            data &&
+            data.session
+                ? data.session
+                : null;
+
+
+        /*
+         * No session = normal signup page.
+         */
+
+        if (
+            !session ||
+            !session.user
+        ) {
+
+            return;
+
+        }
+
+
+        const user =
+            session.user;
+
+
+        const provider =
+            String(
+                user.app_metadata?.provider ||
+                ""
+            )
+                .trim()
+                .toLowerCase();
+
+
+        /*
+         * Only process GitHub callback.
+         */
+
+        if (
+            provider !==
+            "github"
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+         * Get the account type selected
+         * BEFORE going to GitHub.
+         */
+
+        let accountType =
+            localStorage.getItem(
+                "web3jobs_pending_account_type"
+            ) || "";
+
+
+        accountType =
+            String(accountType)
+                .trim()
+                .toLowerCase();
+
+
+        if (
+            accountType !== "individual" &&
+            accountType !== "company"
+        ) {
+
+            /*
+             * Try metadata as a secondary source.
+             */
+
+            accountType =
+                String(
+                    user.user_metadata?.account_type ||
+                    ""
+                )
+                    .trim()
+                    .toLowerCase();
+
+        }
+
+
+        /*
+         * Do NOT silently select individual.
+         */
+
+        if (
+            accountType !== "individual" &&
+            accountType !== "company"
+        ) {
+
+            await client.auth.signOut();
+
+
+            showMessage(
+                "Please return and select Individual or Company before continuing with GitHub.",
+                "error"
+            );
+
+
+            resetButtons();
+
+            return;
+
+        }
+
+
+        /*
+         * Save account type in Auth metadata.
+         */
+
+        const metadataUpdate =
+            await client.auth.updateUser({
+
+                data: {
+
+                    full_name:
+                        user.user_metadata?.name ||
+                        user.user_metadata?.full_name ||
+                        null,
+
+                    account_type:
+                        accountType,
+
+                    auth_provider:
+                        "github"
+
+                }
+
+            });
+
+
+        if (
+            metadataUpdate.error
+        ) {
+
+            console.warn(
+                "GitHub metadata warning:",
+                metadataUpdate.error
+            );
+
+        }
+
+
+        /*
+         * CREATE THE PROFILES ROW.
+         */
+
+        await createOrUpdateProfile(
+            client,
+            user,
+            accountType
+        );
+
+
+        /*
+         * Save verified local account data.
+         */
+
+        saveLocalAccount(
+            user,
+            accountType,
+            "github"
+        );
+
+
+        /*
+         * Clean the URL.
+         */
+
+        try {
+
+            window.history.replaceState(
+                {},
+                document.title,
+                window.location.pathname
+            );
+
+        } catch (historyError) {
+
+            console.warn(
+                "URL cleanup warning:",
+                historyError
+            );
+
+        }
+
+
+        /*
+         * Success.
+         */
+
+        showMessage(
+            "GitHub account created successfully. Opening your account...",
+            "success"
+        );
+
+
+        /*
+         * Redirect.
+         */
+
+        setTimeout(
+            function() {
+
+                redirectToDashboard(
+                    accountType
+                );
+
+            },
+            1000
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "GitHub callback error:",
+            error
+        );
+
+
+        showMessage(
+            "Unable to complete GitHub account creation: " +
+            (
+                error.message ||
+                "Unknown error"
+            ),
+            "error"
+        );
+
+
+        resetButtons();
+
+    }
+
+}
+
+
+/* =====================================================
+   WALLET SIGNUP
 ===================================================== */
 
 walletButton.addEventListener(
     "click",
     async function() {
+
+        hideMessage();
+
 
         const client =
             getClient();
@@ -1123,6 +1676,7 @@ walletButton.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -1140,10 +1694,11 @@ walletButton.addEventListener(
             accountTypeSelect.focus();
 
             return;
+
         }
 
 
-        saveAccountType(
+        savePendingAccountType(
             accountType
         );
 
@@ -1157,40 +1712,49 @@ walletButton.addEventListener(
 
         try {
 
-            const {
-                data,
-                error
-            } =
+            if (
+                !client.auth ||
+                typeof client.auth.signInWithWeb3 !==
+                "function"
+            ) {
+
+                throw new Error(
+                    "Supabase Web3 authentication is not available."
+                );
+
+            }
+
+
+            const result =
                 await client.auth.signInWithWeb3({
 
                     chain:
                         "ethereum",
 
                     statement:
-                        "Sign in to Web3Jobs"
+                        "Create your Web3Jobs account"
 
                 });
 
 
-            if (error) {
-                throw error;
-            }
+            if (result.error) {
 
-
-            if (
-                !data ||
-                !data.user
-            ) {
-
-                throw new Error(
-                    "Wallet authentication did not create a user."
-                );
+                throw result.error;
 
             }
 
 
             const user =
-                data.user;
+                result.data?.user;
+
+
+            if (!user) {
+
+                throw new Error(
+                    "Wallet authentication did not return a user."
+                );
+
+            }
 
 
             const wallet =
@@ -1211,92 +1775,53 @@ walletButton.addEventListener(
             }
 
 
-            const {
-                error: updateError
-            } =
-                await client.auth.updateUser({
+            await client.auth.updateUser({
 
-                    data: {
+                data: {
 
-                        account_type:
-                            accountType,
+                    account_type:
+                        accountType,
 
-                        wallet_connected:
-                            true,
+                    wallet_connected:
+                        true,
 
-                        wallet_address:
-                            wallet || null
+                    wallet_address:
+                        wallet || null
 
-                    }
+                }
 
-                });
+            });
 
 
-            if (updateError) {
-
-                console.warn(
-                    "Metadata update warning:",
-                    updateError
-                );
-
-            }
+            await createOrUpdateProfile(
+                client,
+                user,
+                accountType
+            );
 
 
-            try {
-
-                localStorage.setItem(
-                    "web3jobs_account_type",
-                    accountType
-                );
-
-                localStorage.setItem(
-                    "web3jobs_user_id",
-                    user.id
-                );
-
-                localStorage.removeItem(
-                    "web3jobs_pending_account_type"
-                );
-
-            } catch (storageError) {
-
-                console.warn(
-                    "Storage error:",
-                    storageError
-                );
-
-            }
+            saveLocalAccount(
+                user,
+                accountType,
+                "wallet"
+            );
 
 
             showMessage(
-                "Wallet connected and account created successfully. Opening login page...",
+                "Wallet account created successfully. Opening your account...",
                 "success"
             );
 
 
             setTimeout(
-                async function() {
+                function() {
 
-                    try {
-
-                        await client.auth.signOut();
-
-                    } catch (logoutError) {
-
-                        console.warn(
-                            "Sign out warning:",
-                            logoutError
-                        );
-
-                    }
-
-
-                    window.location.replace(
-                        "login.html"
+                    redirectToDashboard(
+                        accountType
                     );
 
                 },
-                1500
+                1000
             );
 
 
@@ -1327,284 +1852,17 @@ walletButton.addEventListener(
 
 
 /* =====================================================
-   GITHUB CALLBACK
-===================================================== */
-
-async function handleGitHubCallback() {
-
-    const client =
-        getClient();
-
-
-    if (!client) {
-
-        console.error(
-            "Supabase client unavailable."
-        );
-
-        return;
-    }
-
-
-    try {
-
-        /*
-         * Supabase processes the OAuth callback
-         * automatically because detectSessionInUrl
-         * is enabled in js/supabase.js.
-         */
-
-        const {
-            data,
-            error
-        } =
-            await client.auth.getSession();
-
-
-        if (error) {
-
-            throw error;
-
-        }
-
-
-        const session =
-            data?.session;
-
-
-        /*
-         * Normal signup page.
-         */
-
-        if (
-            !session ||
-            !session.user
-        ) {
-
-            return;
-
-        }
-
-
-        const user =
-            session.user;
-
-
-        const provider =
-            String(
-                user.app_metadata?.provider ||
-                ""
-            )
-                .toLowerCase();
-
-
-        /*
-         * Only process GitHub sessions.
-         */
-
-        if (
-            provider !==
-            "github"
-        ) {
-
-            return;
-
-        }
-
-
-        let accountType =
-            "";
-
-
-        try {
-
-            accountType =
-                localStorage.getItem(
-                    "web3jobs_pending_account_type"
-                ) || "";
-
-        } catch (storageError) {
-
-            console.warn(
-                "Unable to read account type:",
-                storageError
-            );
-
-        }
-
-
-        accountType =
-            String(accountType)
-                .trim()
-                .toLowerCase();
-
-
-        /*
-         * Safety fallback.
-         */
-
-        if (
-            accountType !== "individual" &&
-            accountType !== "company"
-        ) {
-
-            accountType =
-                "individual";
-
-        }
-
-
-        /*
-         * Save account type in Supabase.
-         */
-
-        const {
-            error: updateError
-        } =
-            await client.auth.updateUser({
-
-                data: {
-
-                    account_type:
-                        accountType,
-
-                    auth_provider:
-                        "github"
-
-                }
-
-            });
-
-
-        if (updateError) {
-
-            console.warn(
-                "GitHub metadata update:",
-                updateError
-            );
-
-        }
-
-
-        /*
-         * Save local information.
-         */
-
-        try {
-
-            localStorage.setItem(
-                "web3jobs_account_type",
-                accountType
-            );
-
-            localStorage.setItem(
-                "web3jobs_user_id",
-                user.id
-            );
-
-            localStorage.removeItem(
-                "web3jobs_pending_account_type"
-            );
-
-        } catch (storageError) {
-
-            console.warn(
-                "localStorage error:",
-                storageError
-            );
-
-        }
-
-
-        /*
-         * Remove OAuth parameters from URL.
-         */
-
-        try {
-
-            window.history.replaceState(
-                {},
-                document.title,
-                window.location.pathname
-            );
-
-        } catch (historyError) {
-
-            console.warn(
-                "Unable to clean OAuth URL:",
-                historyError
-            );
-
-        }
-
-
-        /*
-         * Success.
-         */
-
-        showMessage(
-            "GitHub account connected successfully.",
-            "success"
-        );
-
-
-        /*
-         * Redirect according to account type.
-         */
-
-        setTimeout(
-            function() {
-
-                if (
-                    accountType ===
-                    "company"
-                ) {
-
-                    window.location.replace(
-                        "company-dashboard.html"
-                    );
-
-                } else {
-
-                    window.location.replace(
-                        "dashboard.html"
-                    );
-
-                }
-
-            },
-            1000
-        );
-
-    } catch (error) {
-
-        console.error(
-            "GitHub callback error:",
-            error
-        );
-
-
-        showMessage(
-            "Unable to complete GitHub authentication: " +
-            (
-                error.message ||
-                "Unknown error"
-            ),
-            "error"
-        );
-
-    }
-
-}
-
-
-/* =====================================================
    PAGE START
 ===================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
     function() {
+
+        /*
+         * If this is a GitHub callback,
+         * complete the account creation.
+         */
 
         handleGitHubCallback();
 
@@ -1615,4 +1873,4 @@ document.addEventListener(
 
 </body>
 
-    </html>
+        </html>
