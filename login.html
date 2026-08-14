@@ -741,6 +741,396 @@ emailButton.addEventListener(
 
 
 /* =====================================================
+   NORMALIZE ACCOUNT TYPE
+===================================================== */
+
+function normalizeAccountType(
+    value
+) {
+
+    const type =
+        String(value || "")
+            .trim()
+            .toLowerCase();
+
+
+    if (
+        type === "business" ||
+        type === "employer" ||
+        type === "organization" ||
+        type === "organizations"
+    ) {
+
+        return "company";
+
+    }
+
+
+    if (
+        type === "person" ||
+        type === "candidate" ||
+        type === "freelancer" ||
+        type === "individuals"
+    ) {
+
+        return "individual";
+
+    }
+
+
+    if (
+        type === "company" ||
+        type === "individual" ||
+        type === "admin"
+    ) {
+
+        return type;
+
+    }
+
+
+    return "";
+
+}
+
+
+/* =====================================================
+   GET ACCOUNT TYPE
+===================================================== */
+
+async function getAccountType(
+    client,
+    user
+) {
+
+    if (
+        !client ||
+        !user ||
+        !user.id
+    ) {
+
+        return "";
+
+    }
+
+
+    /*
+     * IMPORTANT:
+     *
+     * First check the profiles table.
+     * We do NOT automatically use "individual".
+     */
+
+    try {
+
+        const result =
+            await client
+                .from("profiles")
+                .select("account_type,role")
+                .eq("id", user.id)
+                .maybeSingle();
+
+
+        if (
+            !result.error &&
+            result.data
+        ) {
+
+            const role =
+                String(
+                    result.data.role || ""
+                )
+                    .trim()
+                    .toLowerCase();
+
+
+            if (
+                role === "admin"
+            ) {
+
+                return "admin";
+
+            }
+
+
+            const profileType =
+                normalizeAccountType(
+                    result.data.account_type
+                );
+
+
+            if (profileType) {
+
+                return profileType;
+
+            }
+
+
+            const roleType =
+                normalizeAccountType(
+                    result.data.role
+                );
+
+
+            if (roleType) {
+
+                return roleType;
+
+            }
+
+        }
+
+    } catch (error) {
+
+        console.warn(
+            "Profile lookup error:",
+            error
+        );
+
+    }
+
+
+    /*
+     * Second check authenticated user metadata.
+     */
+
+    const metadataType =
+        normalizeAccountType(
+
+            user.user_metadata?.account_type ||
+            user.user_metadata?.accountType ||
+            user.user_metadata?.role
+
+        );
+
+
+    if (metadataType) {
+
+        return metadataType;
+
+    }
+
+
+    /*
+     * IMPORTANT:
+     *
+     * Do NOT use localStorage as proof that
+     * the user has an account.
+     *
+     * localStorage can contain old information.
+     */
+
+    return "";
+
+}
+
+
+/* =====================================================
+   REDIRECT USER
+===================================================== */
+
+function redirectUser(
+    accountType
+) {
+
+    const type =
+        normalizeAccountType(
+            accountType
+        );
+
+
+    if (
+        type === "admin"
+    ) {
+
+        window.location.replace(
+            "admin-dashboard.html"
+        );
+
+        return true;
+    }
+
+
+    if (
+        type === "company"
+    ) {
+
+        window.location.replace(
+            "company-dashboard.html"
+        );
+
+        return true;
+    }
+
+
+    if (
+        type === "individual"
+    ) {
+
+        window.location.replace(
+            "dashboard.html"
+        );
+
+        return true;
+    }
+
+
+    return false;
+
+}
+
+
+/* =====================================================
+   FINALIZE LOGIN
+===================================================== */
+
+async function finalizeLogin(
+    client,
+    user,
+    methodName
+) {
+
+    if (
+        !client ||
+        !user
+    ) {
+
+        throw new Error(
+            "Authenticated user was not found."
+        );
+
+    }
+
+
+    const accountType =
+        await getAccountType(
+            client,
+            user
+        );
+
+
+    /*
+     * VERY IMPORTANT:
+     *
+     * No account type = do NOT enter dashboard.
+     */
+
+    if (!accountType) {
+
+        try {
+
+            await client.auth.signOut();
+
+        } catch (signOutError) {
+
+            console.warn(
+                "Sign out after unregistered login:",
+                signOutError
+            );
+
+        }
+
+
+        try {
+
+            localStorage.removeItem(
+                "web3jobs_account_type"
+            );
+
+            localStorage.removeItem(
+                "web3jobs_user_id"
+            );
+
+        } catch (storageError) {
+
+            console.warn(
+                "Storage cleanup:",
+                storageError
+            );
+
+        }
+
+
+        showMessage(
+            "هذا الحساب غير مسجل في Web3Jobs. يرجى إنشاء حساب جديد أولاً.",
+            "This account is not registered with Web3Jobs. Please create an account first.",
+            "error"
+        );
+
+
+        setTimeout(
+            function() {
+
+                window.location.replace(
+                    "signup.html"
+                );
+
+            },
+            2200
+        );
+
+
+        return false;
+
+    }
+
+
+    /*
+     * Save verified account data.
+     */
+
+    try {
+
+        localStorage.setItem(
+            "web3jobs_account_type",
+            accountType
+        );
+
+        localStorage.setItem(
+            "web3jobs_user_id",
+            user.id
+        );
+
+        localStorage.setItem(
+            "web3jobs_auth_method",
+            methodName
+        );
+
+    } catch (storageError) {
+
+        console.warn(
+            "Storage error:",
+            storageError
+        );
+
+    }
+
+
+    showMessage(
+        "تم تسجيل الدخول بنجاح. جاري فتح الحساب...",
+        "Login successful. Opening your account...",
+        "success"
+    );
+
+
+    setTimeout(
+        function() {
+
+            redirectUser(
+                accountType
+            );
+
+        },
+        700
+    );
+
+
+    return true;
+
+}
+
+
+/* =====================================================
    GITHUB LOGIN
 ===================================================== */
 
@@ -772,7 +1162,8 @@ githubButton.addEventListener(
             const result =
                 await client.auth.signInWithOAuth({
 
-                    provider: "github",
+                    provider:
+                        "github",
 
                     options: {
 
@@ -839,11 +1230,6 @@ walletButton.addEventListener(
                 getClient();
 
 
-            /*
-             * Supabase Web3 authentication
-             * requests the wallet signature.
-             */
-
             if (
                 !client.auth ||
                 typeof
@@ -852,11 +1238,15 @@ walletButton.addEventListener(
             ) {
 
                 throw new Error(
-                    "Supabase Web3 authentication is not available in this Supabase client."
+                    "Supabase Web3 authentication is not available."
                 );
 
             }
 
+
+            /*
+             * Wallet authentication.
+             */
 
             const result =
                 await client.auth.signInWithWeb3({
@@ -891,44 +1281,19 @@ walletButton.addEventListener(
                 result.data.user;
 
 
-            try {
+            /*
+             * IMPORTANT:
+             *
+             * We do NOT redirect directly to dashboard.
+             *
+             * First we verify that this wallet
+             * actually has a Web3Jobs profile.
+             */
 
-                localStorage.setItem(
-                    "web3jobs_auth_method",
-                    "wallet"
-                );
-
-                localStorage.setItem(
-                    "web3jobs_user_id",
-                    user.id
-                );
-
-            } catch (storageError) {
-
-                console.warn(
-                    "Storage error:",
-                    storageError
-                );
-
-            }
-
-
-            showMessage(
-                "تم تسجيل الدخول بالمحفظة بنجاح.",
-                "Wallet login successful.",
-                "success"
-            );
-
-
-            setTimeout(
-                function() {
-
-                    window.location.replace(
-                        "dashboard.html"
-                    );
-
-                },
-                800
+            await finalizeLogin(
+                client,
+                user,
+                "wallet"
             );
 
 
@@ -957,180 +1322,6 @@ walletButton.addEventListener(
 
     }
 );
-
-
-/* =====================================================
-   ACCOUNT TYPE
-===================================================== */
-
-async function getAccountType(
-    client,
-    user
-) {
-
-    let accountType = "";
-
-
-    try {
-
-        const result =
-            await client
-                .from("profiles")
-                .select("account_type,role")
-                .eq("id", user.id)
-                .maybeSingle();
-
-
-        if (
-            !result.error &&
-            result.data
-        ) {
-
-            if (
-                String(
-                    result.data.role || ""
-                )
-                    .toLowerCase()
-                ===
-                "admin"
-            ) {
-
-                return "admin";
-
-            }
-
-
-            accountType =
-                String(
-                    result.data.account_type ||
-                    ""
-                )
-                    .trim()
-                    .toLowerCase();
-
-        }
-
-    } catch (error) {
-
-        console.warn(
-            "Profile lookup:",
-            error
-        );
-
-    }
-
-
-    if (!accountType) {
-
-        accountType =
-            String(
-                user.user_metadata?.account_type ||
-                user.user_metadata?.accountType ||
-                user.user_metadata?.role ||
-                ""
-            )
-                .trim()
-                .toLowerCase();
-
-    }
-
-
-    if (!accountType) {
-
-        try {
-
-            accountType =
-                localStorage.getItem(
-                    "web3jobs_account_type"
-                ) || "";
-
-            accountType =
-                accountType
-                    .trim()
-                    .toLowerCase();
-
-        } catch (error) {
-
-            console.warn(
-                "Storage:",
-                error
-            );
-
-        }
-
-    }
-
-
-    if (
-        accountType === "business" ||
-        accountType === "employer" ||
-        accountType === "organization" ||
-        accountType === "organizations"
-    ) {
-
-        accountType =
-            "company";
-
-    }
-
-
-    if (
-        accountType === "person" ||
-        accountType === "candidate" ||
-        accountType === "freelancer" ||
-        accountType === "individuals"
-    ) {
-
-        accountType =
-            "individual";
-
-    }
-
-
-    return accountType;
-
-}
-
-
-/* =====================================================
-   REDIRECT
-===================================================== */
-
-function redirectUser(
-    accountType
-) {
-
-    if (
-        accountType ===
-        "admin"
-    ) {
-
-        window.location.replace(
-            "admin-dashboard.html"
-        );
-
-        return;
-    }
-
-
-    if (
-        accountType ===
-        "company"
-    ) {
-
-        window.location.replace(
-            "company-dashboard.html"
-        );
-
-        return;
-    }
-
-
-    window.location.replace(
-        "dashboard.html"
-    );
-
-}
 
 
 /* =====================================================
@@ -1163,6 +1354,7 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -1175,6 +1367,7 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -1228,72 +1421,22 @@ form.addEventListener(
 
 
             /*
-             * If email confirmation is enabled,
-             * Supabase may reject the login before this.
+             * Verify the account before redirecting.
              */
 
-            const accountType =
-                await getAccountType(
+            const success =
+                await finalizeLogin(
                     client,
-                    user
+                    user,
+                    "email"
                 );
 
 
-            let finalType =
-                accountType;
+            if (!success) {
 
-
-            if (
-                finalType !== "company" &&
-                finalType !== "admin" &&
-                finalType !== "individual"
-            ) {
-
-                finalType =
-                    "individual";
+                return;
 
             }
-
-
-            try {
-
-                localStorage.setItem(
-                    "web3jobs_account_type",
-                    finalType
-                );
-
-                localStorage.setItem(
-                    "web3jobs_user_id",
-                    user.id
-                );
-
-            } catch (storageError) {
-
-                console.warn(
-                    "Storage:",
-                    storageError
-                );
-
-            }
-
-
-            showMessage(
-                "تم تسجيل الدخول بنجاح. جاري فتح الحساب...",
-                "Login successful. Opening your account...",
-                "success"
-            );
-
-
-            setTimeout(
-                function() {
-
-                    redirectUser(
-                        finalType
-                    );
-
-                },
-                700
-            );
 
 
         } catch (error) {
@@ -1359,7 +1502,9 @@ async function handleOAuthCallback() {
 
 
         if (!session) {
+
             return;
+
         }
 
 
@@ -1375,76 +1520,29 @@ async function handleOAuthCallback() {
                 .toLowerCase();
 
 
+        /*
+         * Only process GitHub sessions here.
+         */
+
         if (
             provider !==
             "github"
         ) {
 
             return;
-        }
-
-
-        const accountType =
-            await getAccountType(
-                client,
-                user
-            );
-
-
-        let finalType =
-            accountType;
-
-
-        if (
-            finalType !== "company" &&
-            finalType !== "admin" &&
-            finalType !== "individual"
-        ) {
-
-            finalType =
-                "individual";
 
         }
 
 
-        try {
+        /*
+         * Verify GitHub account actually has
+         * a Web3Jobs profile.
+         */
 
-            localStorage.setItem(
-                "web3jobs_account_type",
-                finalType
-            );
-
-            localStorage.setItem(
-                "web3jobs_user_id",
-                user.id
-            );
-
-        } catch (storageError) {
-
-            console.warn(
-                "Storage:",
-                storageError
-            );
-
-        }
-
-
-        showMessage(
-            "تم تسجيل الدخول باستخدام GitHub بنجاح.",
-            "GitHub login successful.",
-            "success"
-        );
-
-
-        setTimeout(
-            function() {
-
-                redirectUser(
-                    finalType
-                );
-
-            },
-            700
+        await finalizeLogin(
+            client,
+            user,
+            "github"
         );
 
 
@@ -1466,6 +1564,9 @@ async function handleOAuthCallback() {
             "error"
         );
 
+
+        resetButtons();
+
     }
 
 }
@@ -1479,12 +1580,6 @@ document.addEventListener(
     "DOMContentLoaded",
     function() {
 
-        /*
-         * All event listeners are attached
-         * before this point because the script
-         * is placed at the end of the document.
-         */
-
         handleOAuthCallback();
 
     }
@@ -1494,4 +1589,4 @@ document.addEventListener(
 
 </body>
 
-                    </html>
+    </html>
