@@ -10,9 +10,12 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Create Account - Web3Jobs</title>
+    <meta
+        name="description"
+        content="Create your Web3Jobs account."
+    >
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>Create Account - Web3Jobs</title>
 
     <style>
 
@@ -22,42 +25,80 @@
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f7fb;
+            font-family:
+                Arial,
+                sans-serif;
+
+            background:
+                linear-gradient(
+                    180deg,
+                    #06101d,
+                    #09182a
+                );
+
             min-height: 100vh;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             padding: 20px;
         }
 
         .auth-container {
             width: 100%;
             max-width: 460px;
-            background: #ffffff;
+
+            background: #0d1b2e;
+
             padding: 35px;
-            border-radius: 16px;
-            box-shadow: 0 10px 35px rgba(0,0,0,.10);
+
+            border-radius: 18px;
+
+            border: 1px solid #1d3553;
+
+            box-shadow:
+                0 20px 60px
+                rgba(0,0,0,.35);
         }
 
         .logo {
             text-align: center;
+
+            color: white;
+
             font-size: 30px;
-            font-weight: 700;
+
+            font-weight: 800;
+
             margin-bottom: 8px;
+        }
+
+        .logo span {
+            color: #6ee7b7;
         }
 
         .subtitle {
             text-align: center;
-            color: #666;
+
+            color: #9db0c8;
+
             margin-bottom: 25px;
+
+            font-size: 14px;
         }
 
         .section-title {
             text-align: center;
-            color: #555;
-            font-size: 14px;
+
+            color: #9db0c8;
+
+            font-size: 12px;
+
             font-weight: 700;
+
             margin: 20px 0 12px;
         }
 
@@ -67,66 +108,105 @@
 
         label {
             display: block;
+
             margin-bottom: 7px;
+
+            color: #dbe7f4;
+
             font-weight: 600;
+
+            font-size: 13px;
         }
 
         input,
         select {
             width: 100%;
+
             padding: 13px 14px;
-            border: 1px solid #d9dce3;
+
+            border:
+                1px solid
+                #284563;
+
             border-radius: 9px;
-            font-size: 15px;
+
+            font-size: 14px;
+
             outline: none;
+
+            background: #071423;
+
+            color: white;
         }
 
         input:focus,
         select:focus {
-            border-color: #2563eb;
+            border-color: #60a5fa;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(96,165,250,.08);
+        }
+
+        select option {
+            background: #071423;
+            color: white;
         }
 
         button {
             width: 100%;
+
             border: 0;
+
             padding: 14px;
+
             border-radius: 9px;
-            font-size: 15px;
+
+            font-size: 14px;
+
             font-weight: 700;
+
             cursor: pointer;
         }
 
-        button:hover {
-            opacity: .92;
-        }
-
         button:disabled {
-            opacity: .6;
+            opacity: .55;
+
             cursor: not-allowed;
         }
 
         .email-button {
-            background: #2563eb;
-            color: white;
-            font-size: 16px;
+            background: #6ee7b7;
+
+            color: #06101d;
         }
 
         .wallet-button {
             background: #111827;
+
             color: white;
+
             margin-bottom: 10px;
+
+            border:
+                1px solid
+                #334155;
         }
 
         .github-button {
             background: #24292f;
+
             color: white;
         }
 
         .wallet-button,
         .github-button {
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             gap: 9px;
         }
 
@@ -136,85 +216,165 @@
 
         .divider {
             display: flex;
+
             align-items: center;
+
             gap: 10px;
+
             margin: 23px 0;
-            color: #888;
-            font-size: 12px;
+
+            color: #71869e;
+
+            font-size: 11px;
         }
 
         .divider::before,
         .divider::after {
             content: "";
+
             flex: 1;
+
             height: 1px;
-            background: #ddd;
+
+            background: #1d3553;
         }
 
         .message {
             display: none;
+
             margin-bottom: 18px;
+
             padding: 12px;
+
             border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.5;
+
+            font-size: 13px;
+
+            line-height: 1.6;
         }
 
         .success {
-            background: #d1fae5;
-            color: #065f46;
+            background:
+                rgba(110,231,183,.10);
+
+            border:
+                1px solid
+                rgba(110,231,183,.3);
+
+            color: #6ee7b7;
         }
 
         .error {
-            background: #fee2e2;
-            color: #991b1b;
+            background:
+                rgba(251,113,133,.10);
+
+            border:
+                1px solid
+                rgba(251,113,133,.3);
+
+            color: #fda4af;
         }
 
         .info {
-            background: #dbeafe;
-            color: #1e40af;
+            background:
+                rgba(96,165,250,.10);
+
+            border:
+                1px solid
+                rgba(96,165,250,.3);
+
+            color: #93c5fd;
         }
 
         .login-link {
             text-align: center;
+
             margin-top: 22px;
-            color: #666;
+
+            color: #9db0c8;
+
+            font-size: 13px;
         }
 
         .login-link a {
-            color: #2563eb;
+            color: #6ee7b7;
+
             text-decoration: none;
-            font-weight: 600;
+
+            font-weight: 700;
         }
 
         .small-note {
             text-align: center;
-            color: #777;
+
+            color: #71869e;
+
             font-size: 11px;
-            margin-top: 10px;
+
+            margin-top: 12px;
+
             line-height: 1.5;
+        }
+
+        .wallet-address {
+            display: none;
+
+            margin-top: 10px;
+
+            padding: 9px;
+
+            background: #071423;
+
+            border: 1px solid #1d3553;
+
+            border-radius: 8px;
+
+            color: #9db0c8;
+
+            font-size: 10px;
+
+            word-break: break-all;
+
+            text-align: center;
+        }
+
+        @media (max-width: 500px) {
+
+            body {
+                padding: 12px;
+            }
+
+            .auth-container {
+                padding: 25px 20px;
+            }
+
         }
 
     </style>
 
 </head>
 
+
 <body>
 
 <div class="auth-container">
 
     <div class="logo">
-        Web3Jobs
+        Web3<span>Jobs</span>
     </div>
 
     <div class="subtitle">
         Create your account
     </div>
 
+
     <div
         id="message"
         class="message"
+        role="alert"
+        aria-live="polite"
     ></div>
+
 
     <!-- ACCOUNT TYPE -->
 
@@ -242,20 +402,34 @@
 
     </div>
 
-    <!-- WEB3 WALLET -->
+
+    <!-- WALLET -->
 
     <div class="section-title">
         Create account with
     </div>
+
 
     <button
         type="button"
         id="wallet-button"
         class="wallet-button"
     >
-        <span class="button-icon">🦊</span>
+
+        <span class="button-icon">
+            🦊
+        </span>
+
         Continue with Web3 Wallet
+
     </button>
+
+
+    <div
+        id="wallet-address"
+        class="wallet-address"
+    ></div>
+
 
     <!-- GITHUB -->
 
@@ -264,13 +438,20 @@
         id="github-button"
         class="github-button"
     >
-        <span class="button-icon">🐙</span>
+
+        <span class="button-icon">
+            🐙
+        </span>
+
         Continue with GitHub
+
     </button>
+
 
     <div class="divider">
         OR
     </div>
+
 
     <!-- EMAIL -->
 
@@ -278,7 +459,9 @@
         Create account with Email
     </div>
 
+
     <form id="signup-form">
+
 
         <div class="form-group">
 
@@ -290,10 +473,12 @@
                 id="full-name"
                 type="text"
                 placeholder="Enter your full name"
+                autocomplete="name"
                 required
             >
 
         </div>
+
 
         <div class="form-group">
 
@@ -305,10 +490,12 @@
                 id="email"
                 type="email"
                 placeholder="Enter your email"
+                autocomplete="email"
                 required
             >
 
         </div>
+
 
         <div class="form-group">
 
@@ -320,11 +507,13 @@
                 id="password"
                 type="password"
                 placeholder="Create a password"
+                autocomplete="new-password"
                 minlength="6"
                 required
             >
 
         </div>
+
 
         <button
             id="signup-button"
@@ -334,11 +523,17 @@
             Create Account with Email
         </button>
 
+
     </form>
 
+
     <div class="small-note">
-        For Wallet and GitHub accounts, you will be asked to authorize the login.
+
+        Wallet and GitHub accounts will be connected
+        securely through Supabase.
+
     </div>
+
 
     <div class="login-link">
 
@@ -352,85 +547,152 @@
 
 </div>
 
+
+<!-- =====================================================
+     SUPABASE LIBRARY
+===================================================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+
+<!-- =====================================================
+     WEB3JOBS UNIFIED SUPABASE CLIENT
+===================================================== -->
+
+<script
+    src="js/supabase.js?v=20260814"
+></script>
+
+
 <script>
 
 "use strict";
 
-/* =========================================
-   SUPABASE
-========================================= */
 
-const SUPABASE_URL =
-    "https://jqhemwskrnlycximjpag.supabase.co";
-
-const SUPABASE_KEY =
-    "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
-
-const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
-
-/* =========================================
+/* =====================================================
    ELEMENTS
-========================================= */
+===================================================== */
 
 const form =
-    document.getElementById("signup-form");
+    document.getElementById(
+        "signup-form"
+    );
 
 const button =
-    document.getElementById("signup-button");
+    document.getElementById(
+        "signup-button"
+    );
 
 const walletButton =
-    document.getElementById("wallet-button");
+    document.getElementById(
+        "wallet-button"
+    );
 
 const githubButton =
-    document.getElementById("github-button");
+    document.getElementById(
+        "github-button"
+    );
 
 const accountTypeSelect =
-    document.getElementById("account-type");
+    document.getElementById(
+        "account-type"
+    );
 
 const message =
-    document.getElementById("message");
+    document.getElementById(
+        "message"
+    );
 
-/* =========================================
+const walletAddress =
+    document.getElementById(
+        "wallet-address"
+    );
+
+
+/* =====================================================
+   SUPABASE CLIENT
+===================================================== */
+
+function getClient() {
+
+    if (
+        window.Web3JobsSupabase &&
+        typeof
+        window.Web3JobsSupabase.getClient ===
+        "function"
+    ) {
+
+        return
+            window.Web3JobsSupabase
+                .getClient();
+
+    }
+
+
+    if (
+        window.supabaseClient
+    ) {
+
+        return
+            window.supabaseClient;
+
+    }
+
+
+    return null;
+
+}
+
+
+/* =====================================================
    MESSAGE
-========================================= */
+===================================================== */
 
-function showMessage(text, type) {
+function showMessage(
+    text,
+    type
+) {
 
-    message.textContent = text;
+    if (!message) {
+        return;
+    }
+
+    message.textContent =
+        text;
 
     message.className =
         "message " + type;
 
-    message.style.display = "block";
+    message.style.display =
+        "block";
+
 }
 
-/* =========================================
+
+/* =====================================================
    ACCOUNT TYPE
-========================================= */
+===================================================== */
 
 function getAccountType() {
 
-    return accountTypeSelect.value
+    return String(
+        accountTypeSelect.value || ""
+    )
         .trim()
         .toLowerCase();
+
 }
 
-/* =========================================
+
+/* =====================================================
    SAVE ACCOUNT TYPE
-========================================= */
+===================================================== */
 
-function saveAccountType() {
-
-    const accountType =
-        getAccountType();
-
-    if (!accountType) {
-        return false;
-    }
+function saveAccountType(
+    accountType
+) {
 
     try {
 
@@ -442,18 +704,63 @@ function saveAccountType() {
     } catch (error) {
 
         console.warn(
-            "Unable to save account type:",
+            "Storage error:",
             error
         );
 
     }
 
-    return true;
 }
 
-/* =========================================
+
+/* =====================================================
+   RESET BUTTONS
+===================================================== */
+
+function resetButtons() {
+
+    button.disabled =
+        false;
+
+    walletButton.disabled =
+        false;
+
+    githubButton.disabled =
+        false;
+
+    button.textContent =
+        "Create Account with Email";
+
+    walletButton.innerHTML =
+        '<span class="button-icon">🦊</span> Continue with Web3 Wallet';
+
+    githubButton.innerHTML =
+        '<span class="button-icon">🐙</span> Continue with GitHub';
+
+}
+
+
+/* =====================================================
+   DISABLE ALL
+===================================================== */
+
+function disableAll() {
+
+    button.disabled =
+        true;
+
+    walletButton.disabled =
+        true;
+
+    githubButton.disabled =
+        true;
+
+}
+
+
+/* =====================================================
    EMAIL SIGNUP
-========================================= */
+===================================================== */
 
 form.addEventListener(
     "submit",
@@ -461,82 +768,114 @@ form.addEventListener(
 
         event.preventDefault();
 
+
+        const client =
+            getClient();
+
+
+        if (!client) {
+
+            showMessage(
+                "تعذر الاتصال بقاعدة البيانات.",
+                "Supabase connection is unavailable.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
         const fullName =
             document
-                .getElementById("full-name")
+                .getElementById(
+                    "full-name"
+                )
                 .value
                 .trim();
+
 
         const email =
             document
-                .getElementById("email")
+                .getElementById(
+                    "email"
+                )
                 .value
-                .trim();
+                .trim()
+                .toLowerCase();
+
 
         const password =
             document
-                .getElementById("password")
+                .getElementById(
+                    "password"
+                )
                 .value;
+
 
         const accountType =
             getAccountType();
 
+
+        if (!accountType) {
+
+            showMessage(
+                "اختر نوع الحساب أولاً.",
+                "Please select Individual or Company first.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
         if (!fullName) {
 
             showMessage(
+                "أدخل الاسم بالكامل.",
                 "Please enter your full name.",
                 "error"
             );
 
             return;
+
         }
+
 
         if (!email) {
 
             showMessage(
+                "أدخل البريد الإلكتروني.",
                 "Please enter your email.",
                 "error"
             );
 
             return;
+
         }
 
-        if (!password) {
+
+        if (
+            password.length < 6
+        ) {
 
             showMessage(
-                "Please create a password.",
-                "error"
-            );
-
-            return;
-        }
-
-        if (password.length < 6) {
-
-            showMessage(
+                "كلمة المرور يجب أن تحتوي على 6 أحرف على الأقل.",
                 "Password must contain at least 6 characters.",
                 "error"
             );
 
             return;
+
         }
 
-        if (!accountType) {
 
-            showMessage(
-                "Please select Individual or Company.",
-                "error"
-            );
-
-            return;
-        }
-
-        button.disabled = true;
-        walletButton.disabled = true;
-        githubButton.disabled = true;
+        disableAll();
 
         button.textContent =
             "Creating account...";
+
 
         try {
 
@@ -544,11 +883,13 @@ form.addEventListener(
                 data,
                 error
             } =
-                await supabaseClient.auth.signUp({
+                await client.auth.signUp({
 
-                    email: email,
+                    email:
+                        email,
 
-                    password: password,
+                    password:
+                        password,
 
                     options: {
 
@@ -566,100 +907,140 @@ form.addEventListener(
 
                 });
 
+
             if (error) {
                 throw error;
             }
 
+
             showMessage(
+                "تم إنشاء الحساب بنجاح. تحقق من بريدك الإلكتروني إذا كان تأكيد البريد مطلوباً.",
                 "Account created successfully. Please check your email if confirmation is required.",
                 "success"
             );
 
+
             setTimeout(
                 function() {
 
-                    window.location.href =
-                        "login.html";
+                    window.location.replace(
+                        "login.html"
+                    );
 
                 },
-                2000
+                1800
             );
+
 
         } catch (error) {
 
             console.error(
-                "Signup error:",
+                "Email signup error:",
                 error
             );
 
+
             showMessage(
-                error.message ||
-                "Unable to create account.",
+                "حدث خطأ أثناء إنشاء الحساب: " +
+                (
+                    error.message ||
+                    "Unknown error"
+                ),
+                "Unable to create account: " +
+                (
+                    error.message ||
+                    "Unknown error"
+                ),
                 "error"
             );
 
-            button.disabled = false;
-            walletButton.disabled = false;
-            githubButton.disabled = false;
 
-            button.textContent =
-                "Create Account with Email";
+            resetButtons();
+
         }
 
     }
 );
 
-/* =========================================
-   GITHUB SIGNUP
-========================================= */
+
+/* =====================================================
+   GITHUB
+===================================================== */
 
 githubButton.addEventListener(
     "click",
     async function() {
 
+        const client =
+            getClient();
+
+
+        if (!client) {
+
+            showMessage(
+                "تعذر الاتصال بـ Supabase.",
+                "Supabase connection is unavailable.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
         const accountType =
             getAccountType();
+
 
         if (!accountType) {
 
             showMessage(
+                "اختر فرد أو شركة أولاً.",
                 "Please select Individual or Company first.",
                 "error"
             );
 
             return;
+
         }
 
-        saveAccountType();
 
-        githubButton.disabled = true;
-        walletButton.disabled = true;
-        button.disabled = true;
+        saveAccountType(
+            accountType
+        );
+
+
+        disableAll();
 
         githubButton.textContent =
             "Connecting to GitHub...";
+
 
         try {
 
             const {
                 error
             } =
-                await supabaseClient.auth.signInWithOAuth({
+                await client.auth.signInWithOAuth({
 
-                    provider: "github",
+                    provider:
+                        "github",
 
                     options: {
 
                         redirectTo:
-                            "https://aminzaki1972.github.io/-Web3Jobs_v3/signup.html"
+                            window.location.origin +
+                            window.location.pathname
 
                     }
 
                 });
 
+
             if (error) {
                 throw error;
             }
+
 
         } catch (error) {
 
@@ -668,71 +1049,100 @@ githubButton.addEventListener(
                 error
             );
 
+
             showMessage(
                 error.message ||
                 "Unable to connect to GitHub.",
                 "error"
             );
 
-            githubButton.disabled = false;
-            walletButton.disabled = false;
-            button.disabled = false;
 
-            githubButton.textContent =
-                "🐙 Continue with GitHub";
+            resetButtons();
+
         }
 
     }
 );
 
-/* =========================================
-   WEB3 WALLET
-========================================= */
+
+/* =====================================================
+   WALLET
+===================================================== */
 
 walletButton.addEventListener(
     "click",
     async function() {
 
+        const client =
+            getClient();
+
+
+        if (!client) {
+
+            showMessage(
+                "تعذر الاتصال بـ Supabase.",
+                "Supabase connection is unavailable.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
         const accountType =
             getAccountType();
+
 
         if (!accountType) {
 
             showMessage(
+                "اختر فرد أو شركة أولاً.",
                 "Please select Individual or Company first.",
                 "error"
             );
 
             return;
+
         }
 
-        saveAccountType();
 
-        walletButton.disabled = true;
-        githubButton.disabled = true;
-        button.disabled = true;
+        saveAccountType(
+            accountType
+        );
+
+
+        disableAll();
 
         walletButton.textContent =
             "Connecting Wallet...";
 
+
         try {
+
+            /*
+             * Wallet authentication
+             */
 
             const {
                 data,
                 error
             } =
-                await supabaseClient.auth.signInWithWeb3({
+                await client.auth.signInWithWeb3({
 
-                    chain: "ethereum",
+                    chain:
+                        "ethereum",
 
                     statement:
                         "Sign in to Web3Jobs"
 
                 });
 
+
             if (error) {
                 throw error;
             }
+
 
             if (
                 !data ||
@@ -745,19 +1155,55 @@ walletButton.addEventListener(
 
             }
 
+
+            const user =
+                data.user;
+
+
+            /*
+             * Save wallet address
+             */
+
+            const wallet =
+                user.user_metadata?.wallet_address ||
+                user.user_metadata?.address ||
+                user.identities?.[0]?.identity_data?.address ||
+                "";
+
+
+            if (wallet) {
+
+                walletAddress.textContent =
+                    "Wallet: " + wallet;
+
+                walletAddress.style.display =
+                    "block";
+
+            }
+
+
+            /*
+             * Update user metadata
+             */
+
             const {
-                error: updateError
+                error:
+                    updateError
             } =
-                await supabaseClient.auth.updateUser({
+                await client.auth.updateUser({
 
                     data: {
 
                         account_type:
-                            accountType
+                            accountType,
+
+                        wallet_connected:
+                            true
 
                     }
 
                 });
+
 
             if (updateError) {
 
@@ -768,32 +1214,80 @@ walletButton.addEventListener(
 
             }
 
+
+            /*
+             * Save local account type
+             */
+
+            try {
+
+                localStorage.setItem(
+                    "web3jobs_account_type",
+                    accountType
+                );
+
+                localStorage.setItem(
+                    "web3jobs_user_id",
+                    user.id
+                );
+
+            } catch (storageError) {
+
+                console.warn(
+                    "localStorage:",
+                    storageError
+                );
+
+            }
+
+
+            /*
+             * IMPORTANT
+             *
+             * Wallet authentication is complete.
+             *
+             * Do NOT immediately send the user to
+             * dashboard.
+             *
+             * Send them to login.html.
+             */
+
             showMessage(
-                "Wallet connected successfully. Your account has been created.",
+                "تم ربط المحفظة وإنشاء الحساب بنجاح. سيتم الانتقال إلى صفحة تسجيل الدخول.",
+                "Wallet connected and account created successfully. Opening login page...",
                 "success"
             );
 
+
             setTimeout(
-                function() {
+                async function() {
 
-                    if (
-                        accountType ===
-                        "company"
-                    ) {
+                    /*
+                     * Sign out so login page starts cleanly.
+                     */
 
-                        window.location.href =
-                            "company-dashboard.html";
+                    try {
 
-                    } else {
+                        await client.auth.signOut();
 
-                        window.location.href =
-                            "dashboard.html";
+                    } catch (logoutError) {
+
+                        console.warn(
+                            "Wallet signout:",
+                            logoutError
+                        );
 
                     }
 
+
+                    window.location.replace(
+                        "login.html"
+                    );
+
                 },
-                1200
+                1500
             );
+
 
         } catch (error) {
 
@@ -802,47 +1296,79 @@ walletButton.addEventListener(
                 error
             );
 
+
             showMessage(
-                error.message ||
-                "Unable to connect your Web3 wallet.",
+                "تعذر إنشاء الحساب باستخدام المحفظة: " +
+                (
+                    error.message ||
+                    "Unknown error"
+                ),
+                "Wallet signup failed: " +
+                (
+                    error.message ||
+                    "Unknown error"
+                ),
                 "error"
             );
 
-            walletButton.disabled = false;
-            githubButton.disabled = false;
-            button.disabled = false;
 
-            walletButton.textContent =
-                "🦊 Continue with Web3 Wallet";
+            resetButtons();
+
         }
 
     }
 );
 
-/* =========================================
-   GITHUB CALLBACK
-========================================= */
 
-async function handleOAuthCallback() {
+/* =====================================================
+   GITHUB CALLBACK
+===================================================== */
+
+async function handleGitHubCallback() {
+
+    const client =
+        getClient();
+
+
+    if (!client) {
+        return;
+    }
+
 
     try {
 
         const {
-            data: {
-                session
-            }
+            data,
+            error
         } =
-            await supabaseClient.auth.getSession();
+            await client.auth.getSession();
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        const session =
+            data?.session;
+
 
         if (!session) {
             return;
         }
 
+
         const user =
             session.user;
 
+
         const provider =
-            user.app_metadata?.provider;
+            String(
+                user.app_metadata?.provider ||
+                ""
+            )
+                .toLowerCase();
+
 
         if (
             provider !==
@@ -850,9 +1376,13 @@ async function handleOAuthCallback() {
         ) {
 
             return;
+
         }
 
-        let accountType = "";
+
+        let accountType =
+            "";
+
 
         try {
 
@@ -864,16 +1394,18 @@ async function handleOAuthCallback() {
         } catch (error) {
 
             console.warn(
-                "Unable to read account type:",
+                "Storage read error:",
                 error
             );
 
         }
 
+
         accountType =
-            accountType
+            String(accountType)
                 .trim()
                 .toLowerCase();
+
 
         if (
             accountType !== "company" &&
@@ -882,12 +1414,19 @@ async function handleOAuthCallback() {
 
             accountType =
                 "individual";
+
         }
 
+
+        /*
+         * Save account type in metadata.
+         */
+
         const {
-            error: updateError
+            error:
+                updateError
         } =
-            await supabaseClient.auth.updateUser({
+            await client.auth.updateUser({
 
                 data: {
 
@@ -898,34 +1437,57 @@ async function handleOAuthCallback() {
 
             });
 
+
         if (updateError) {
 
             console.warn(
-                "Unable to update GitHub account type:",
+                "GitHub metadata update:",
                 updateError
             );
 
         }
 
+
+        /*
+         * Save local data.
+         */
+
         try {
+
+            localStorage.setItem(
+                "web3jobs_account_type",
+                accountType
+            );
+
+            localStorage.setItem(
+                "web3jobs_user_id",
+                user.id
+            );
 
             localStorage.removeItem(
                 "web3jobs_pending_account_type"
             );
 
-        } catch (error) {
+        } catch (storageError) {
 
             console.warn(
-                "localStorage cleanup:",
-                error
+                "Storage cleanup:",
+                storageError
             );
 
         }
 
+
+        /*
+         * GitHub account is ready.
+         */
+
         showMessage(
+            "تم ربط حساب GitHub بنجاح.",
             "GitHub account connected successfully.",
             "success"
         );
+
 
         setTimeout(
             function() {
@@ -951,16 +1513,26 @@ async function handleOAuthCallback() {
             1000
         );
 
+
     } catch (error) {
 
         console.error(
-            "OAuth callback error:",
+            "GitHub callback error:",
             error
         );
 
+
         showMessage(
-            error.message ||
-            "Unable to complete GitHub login.",
+            "تعذر إكمال تسجيل الدخول عبر GitHub: " +
+            (
+                error.message ||
+                "Unknown error"
+            ),
+            "Unable to complete GitHub authentication: " +
+            (
+                error.message ||
+                "Unknown error"
+            ),
             "error"
         );
 
@@ -968,15 +1540,16 @@ async function handleOAuthCallback() {
 
 }
 
-/* =========================================
-   START
-========================================= */
+
+/* =====================================================
+   PAGE START
+===================================================== */
 
 document.addEventListener(
     "DOMContentLoaded",
     function() {
 
-        handleOAuthCallback();
+        handleGitHubCallback();
 
     }
 );
@@ -985,4 +1558,4 @@ document.addEventListener(
 
 </body>
 
-    </html>
+            </html>
