@@ -5,7 +5,10 @@
 
 <meta charset="UTF-8">
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
 <meta
     name="description"
@@ -196,19 +199,15 @@ a {
 
 .wallet-button {
     border-color: rgba(110,231,183,.45);
+
     background:
         linear-gradient(
             135deg,
             rgba(110,231,183,.18),
             rgba(96,165,250,.14)
         );
-    color: #dffdf1;
-}
 
-.github-button {
-    border-color: rgba(255,255,255,.20);
-    background: #111827;
-    color: white;
+    color: #dffdf1;
 }
 
 .email-method {
@@ -268,6 +267,7 @@ a {
 
 .form-group input:focus {
     border-color: var(--blue);
+
     box-shadow:
         0 0 0 3px
         rgba(96,165,250,.08);
@@ -355,6 +355,7 @@ a {
 
 </head>
 
+
 <body>
 
 <div class="login-wrapper">
@@ -392,37 +393,43 @@ a {
 
         <div class="login-methods">
 
+            <!-- WALLET -->
+
             <button
                 type="button"
                 id="walletLoginButton"
                 class="method-button wallet-button"
             >
-                <span class="method-icon">🔐</span>
+
+                <span class="method-icon">
+                    🔐
+                </span>
+
                 Login with Wallet
+
             </button>
 
 
-            <button
-                type="button"
-                id="githubLoginButton"
-                class="method-button github-button"
-            >
-                <span class="method-icon">🐙</span>
-                Login with GitHub
-            </button>
-
+            <!-- EMAIL -->
 
             <button
                 type="button"
                 id="emailMethodButton"
                 class="method-button email-method"
             >
-                <span class="method-icon">📧</span>
+
+                <span class="method-icon">
+                    📧
+                </span>
+
                 Login with Email
+
             </button>
 
         </div>
 
+
+        <!-- EMAIL LOGIN -->
 
         <div id="emailLoginSection">
 
@@ -431,7 +438,10 @@ a {
             </div>
 
 
-            <form id="loginForm" novalidate>
+            <form
+                id="loginForm"
+                novalidate
+            >
 
                 <div class="form-group">
 
@@ -457,6 +467,7 @@ a {
                         Password
                     </label>
 
+
                     <div class="password-wrapper">
 
                         <input
@@ -468,10 +479,12 @@ a {
                             required
                         >
 
+
                         <button
                             type="button"
                             id="togglePassword"
                             class="toggle-password"
+                            aria-label="Show password"
                         >
                             👁
                         </button>
@@ -525,9 +538,12 @@ a {
 </div>
 
 
+<!-- SUPABASE -->
+
 <script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 ></script>
+
 
 <script
     src="js/supabase.js?v=20260814"
@@ -563,9 +579,6 @@ const messageElement =
 
 const walletButton =
     document.getElementById("walletLoginButton");
-
-const githubButton =
-    document.getElementById("githubLoginButton");
 
 const emailButton =
     document.getElementById("emailMethodButton");
@@ -615,6 +628,7 @@ function showMessage(
 
     messageElement.style.display =
         "block";
+
 }
 
 
@@ -624,6 +638,7 @@ function hideMessage() {
         "none";
 
     messageElement.innerHTML = "";
+
 }
 
 
@@ -644,7 +659,9 @@ function getClient() {
             window.Web3JobsSupabase.getClient();
 
         if (client) {
+
             return client;
+
         }
 
     }
@@ -663,6 +680,7 @@ function getClient() {
     throw new Error(
         "Supabase client is not available."
     );
+
 }
 
 
@@ -672,15 +690,16 @@ function getClient() {
 
 function resetButtons() {
 
-    walletButton.disabled = false;
-    githubButton.disabled = false;
-    emailButton.disabled = false;
+    walletButton.disabled =
+        false;
+
+    emailButton.disabled =
+        false;
+
 
     walletButton.innerHTML =
         '<span class="method-icon">🔐</span> Login with Wallet';
 
-    githubButton.innerHTML =
-        '<span class="method-icon">🐙</span> Login with GitHub';
 
     emailButton.innerHTML =
         '<span class="method-icon">📧</span> Login with Email';
@@ -815,10 +834,7 @@ async function getAccountType(
 
 
     /*
-     * IMPORTANT:
-     *
-     * First check the profiles table.
-     * We do NOT automatically use "individual".
+     * First check profiles.
      */
 
     try {
@@ -826,8 +842,13 @@ async function getAccountType(
         const result =
             await client
                 .from("profiles")
-                .select("account_type,role")
-                .eq("id", user.id)
+                .select(
+                    "account_type,role"
+                )
+                .eq(
+                    "id",
+                    user.id
+                )
                 .maybeSingle();
 
 
@@ -891,7 +912,7 @@ async function getAccountType(
 
 
     /*
-     * Second check authenticated user metadata.
+     * Check authenticated user metadata.
      */
 
     const metadataType =
@@ -910,15 +931,6 @@ async function getAccountType(
 
     }
 
-
-    /*
-     * IMPORTANT:
-     *
-     * Do NOT use localStorage as proof that
-     * the user has an account.
-     *
-     * localStorage can contain old information.
-     */
 
     return "";
 
@@ -948,6 +960,7 @@ function redirectUser(
         );
 
         return true;
+
     }
 
 
@@ -960,6 +973,7 @@ function redirectUser(
         );
 
         return true;
+
     }
 
 
@@ -972,6 +986,7 @@ function redirectUser(
         );
 
         return true;
+
     }
 
 
@@ -1010,9 +1025,7 @@ async function finalizeLogin(
 
 
     /*
-     * VERY IMPORTANT:
-     *
-     * No account type = do NOT enter dashboard.
+     * No profile = not registered.
      */
 
     if (!accountType) {
@@ -1024,7 +1037,7 @@ async function finalizeLogin(
         } catch (signOutError) {
 
             console.warn(
-                "Sign out after unregistered login:",
+                "Sign out error:",
                 signOutError
             );
 
@@ -1039,6 +1052,10 @@ async function finalizeLogin(
 
             localStorage.removeItem(
                 "web3jobs_user_id"
+            );
+
+            localStorage.removeItem(
+                "web3jobs_auth_method"
             );
 
         } catch (storageError) {
@@ -1131,82 +1148,6 @@ async function finalizeLogin(
 
 
 /* =====================================================
-   GITHUB LOGIN
-===================================================== */
-
-githubButton.addEventListener(
-    "click",
-    async function() {
-
-        hideMessage();
-
-        githubButton.disabled = true;
-        walletButton.disabled = true;
-        emailButton.disabled = true;
-
-        githubButton.textContent =
-            "Connecting to GitHub...";
-
-
-        try {
-
-            const client =
-                getClient();
-
-
-            const redirectUrl =
-                window.location.origin +
-                window.location.pathname;
-
-
-            const result =
-                await client.auth.signInWithOAuth({
-
-                    provider:
-                        "github",
-
-                    options: {
-
-                        redirectTo:
-                            redirectUrl
-
-                    }
-
-                });
-
-
-            if (result.error) {
-                throw result.error;
-            }
-
-        } catch (error) {
-
-            console.error(
-                "GitHub login error:",
-                error
-            );
-
-
-            showMessage(
-                "تعذر تسجيل الدخول باستخدام GitHub.",
-                "GitHub login failed: " +
-                (
-                    error.message ||
-                    "Unknown error"
-                ),
-                "error"
-            );
-
-
-            resetButtons();
-
-        }
-
-    }
-);
-
-
-/* =====================================================
    WALLET LOGIN
 ===================================================== */
 
@@ -1216,12 +1157,16 @@ walletButton.addEventListener(
 
         hideMessage();
 
-        walletButton.disabled = true;
-        githubButton.disabled = true;
-        emailButton.disabled = true;
 
-        walletButton.textContent =
-            "Connecting Wallet...";
+        walletButton.disabled =
+            true;
+
+        emailButton.disabled =
+            true;
+
+
+        walletButton.innerHTML =
+            '<span class="method-icon">🔐</span> Connecting Wallet...';
 
 
         try {
@@ -1244,10 +1189,6 @@ walletButton.addEventListener(
             }
 
 
-            /*
-             * Wallet authentication.
-             */
-
             const result =
                 await client.auth.signInWithWeb3({
 
@@ -1261,7 +1202,9 @@ walletButton.addEventListener(
 
 
             if (result.error) {
+
                 throw result.error;
+
             }
 
 
@@ -1282,12 +1225,7 @@ walletButton.addEventListener(
 
 
             /*
-             * IMPORTANT:
-             *
-             * We do NOT redirect directly to dashboard.
-             *
-             * First we verify that this wallet
-             * actually has a Web3Jobs profile.
+             * Verify account before redirect.
              */
 
             await finalizeLogin(
@@ -1336,10 +1274,12 @@ form.addEventListener(
 
         hideMessage();
 
+
         const email =
             emailInput.value
                 .trim()
                 .toLowerCase();
+
 
         const password =
             passwordInput.value;
@@ -1397,12 +1337,15 @@ form.addEventListener(
 
 
             if (result.error) {
+
                 throw result.error;
+
             }
 
 
             const user =
                 result.data?.user;
+
 
             const session =
                 result.data?.session;
@@ -1420,23 +1363,11 @@ form.addEventListener(
             }
 
 
-            /*
-             * Verify the account before redirecting.
-             */
-
-            const success =
-                await finalizeLogin(
-                    client,
-                    user,
-                    "email"
-                );
-
-
-            if (!success) {
-
-                return;
-
-            }
+            await finalizeLogin(
+                client,
+                user,
+                "email"
+            );
 
 
         } catch (error) {
@@ -1475,118 +1406,8 @@ form.addEventListener(
     }
 );
 
-
-/* =====================================================
-   GITHUB CALLBACK
-===================================================== */
-
-async function handleOAuthCallback() {
-
-    try {
-
-        const client =
-            getClient();
-
-
-        const result =
-            await client.auth.getSession();
-
-
-        if (result.error) {
-            throw result.error;
-        }
-
-
-        const session =
-            result.data?.session;
-
-
-        if (!session) {
-
-            return;
-
-        }
-
-
-        const user =
-            session.user;
-
-
-        const provider =
-            String(
-                user.app_metadata?.provider ||
-                ""
-            )
-                .toLowerCase();
-
-
-        /*
-         * Only process GitHub sessions here.
-         */
-
-        if (
-            provider !==
-            "github"
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-         * Verify GitHub account actually has
-         * a Web3Jobs profile.
-         */
-
-        await finalizeLogin(
-            client,
-            user,
-            "github"
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "OAuth callback error:",
-            error
-        );
-
-
-        showMessage(
-            "تعذر إكمال تسجيل الدخول.",
-            "Unable to complete authentication: " +
-            (
-                error.message ||
-                "Unknown error"
-            ),
-            "error"
-        );
-
-
-        resetButtons();
-
-    }
-
-}
-
-
-/* =====================================================
-   PAGE START
-===================================================== */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-        handleOAuthCallback();
-
-    }
-);
-
 </script>
 
 </body>
 
-    </html>
+                </html>
