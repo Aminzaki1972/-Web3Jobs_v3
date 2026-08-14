@@ -25,6 +25,7 @@
     --line: #1d3553;
     --accent: #6ee7b7;
     --blue: #60a5fa;
+    --github: #ffffff;
     --danger: #fb7185;
 }
 
@@ -228,6 +229,184 @@ input {
     color: #93c5fd;
 }
 
+
+/* =====================================================
+   LOGIN METHODS
+===================================================== */
+
+.login-methods {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    margin-bottom: 22px;
+}
+
+.method-button {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    padding: 12px 15px;
+
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    transition:
+        transform .2s,
+        opacity .2s,
+        border-color .2s;
+}
+
+.method-button:hover {
+
+    transform:
+        translateY(-1px);
+
+    opacity: .94;
+}
+
+.method-button:disabled {
+
+    opacity: .55;
+
+    cursor: not-allowed;
+
+    transform: none;
+}
+
+
+/* WALLET */
+
+.wallet-button {
+
+    border:
+        1px solid
+        rgba(110, 231, 183, .45);
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(110, 231, 183, .18),
+            rgba(96, 165, 250, .14)
+        );
+
+    color: #dffdf1;
+}
+
+.wallet-icon {
+
+    margin-right: 8px;
+
+    font-size: 17px;
+
+    vertical-align: -1px;
+}
+
+
+/* GITHUB */
+
+.github-button {
+
+    border:
+        1px solid
+        rgba(255, 255, 255, .22);
+
+    background:
+        #111827;
+
+    color:
+        var(--github);
+}
+
+.github-icon {
+
+    margin-right: 8px;
+
+    font-size: 17px;
+
+    vertical-align: -1px;
+}
+
+
+/* EMAIL */
+
+.email-method {
+
+    border:
+        1px solid
+        rgba(96, 165, 250, .25);
+
+    background:
+        rgba(96, 165, 250, .08);
+
+    color:
+        #bfdbfe;
+}
+
+.email-icon {
+
+    margin-right: 8px;
+
+    font-size: 17px;
+
+    vertical-align: -1px;
+}
+
+
+/* =====================================================
+   DIVIDER
+===================================================== */
+
+.method-divider {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    margin: 20px 0;
+
+    color: #71869e;
+
+    font-size: 10px;
+}
+
+.method-divider::before,
+.method-divider::after {
+
+    content: "";
+
+    flex: 1;
+
+    height: 1px;
+
+    background:
+        var(--line);
+}
+
+
+/* =====================================================
+   EMAIL FORM
+===================================================== */
+
+#emailLoginSection {
+
+    display: none;
+
+    margin-top: 5px;
+}
+
 .form-group {
     margin-bottom: 17px;
 }
@@ -379,33 +558,10 @@ input {
     color: var(--accent);
 }
 
-.divider {
 
-    display: flex;
-
-    align-items: center;
-
-    gap: 10px;
-
-    margin: 23px 0;
-
-    color: #71869e;
-
-    font-size: 10px;
-}
-
-.divider::before,
-.divider::after {
-
-    content: "";
-
-    flex: 1;
-
-    height: 1px;
-
-    background:
-        var(--line);
-}
+/* =====================================================
+   SIGNUP
+===================================================== */
 
 .signup {
 
@@ -414,6 +570,8 @@ input {
     color: var(--muted);
 
     font-size: 12px;
+
+    margin-top: 20px;
 }
 
 .signup a {
@@ -423,22 +581,10 @@ input {
     font-weight: 800;
 }
 
-.back-home {
 
-    display: block;
-
-    margin-top: 20px;
-
-    text-align: center;
-
-    color: #8da1b8;
-
-    font-size: 11px;
-}
-
-.back-home:hover {
-    color: white;
-}
+/* =====================================================
+   SOCIAL
+===================================================== */
 
 .social-section {
 
@@ -499,6 +645,28 @@ input {
         var(--accent);
 }
 
+.back-home {
+
+    display: block;
+
+    margin-top: 20px;
+
+    text-align: center;
+
+    color: #8da1b8;
+
+    font-size: 11px;
+}
+
+.back-home:hover {
+    color: white;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
 @media (max-width: 500px) {
 
     body {
@@ -530,6 +698,10 @@ input {
 <div class="login-wrapper">
 
 
+    <!-- =================================================
+         BRAND
+    ================================================= -->
+
     <div class="brand">
 
         <img
@@ -545,16 +717,22 @@ input {
     </div>
 
 
+    <!-- =================================================
+         LOGIN CARD
+    ================================================= -->
+
     <div class="login-card">
 
         <h1>
-            Welcome Back
+            Login
         </h1>
 
         <p class="subtitle">
-            Login to your Web3Jobs account
+            Choose how you want to login to Web3Jobs
         </p>
 
+
+        <!-- MESSAGE -->
 
         <div
             id="auth-message"
@@ -563,83 +741,142 @@ input {
         ></div>
 
 
-        <form
-            id="loginForm"
-            novalidate
+        <!-- =================================================
+             THREE LOGIN OPTIONS
+        ================================================= -->
+
+        <div class="login-methods">
+
+
+            <!-- WALLET -->
+
+            <button
+                type="button"
+                id="walletLoginButton"
+                class="method-button wallet-button"
+            >
+                <span class="wallet-icon">🔐</span>
+                Login with Wallet
+            </button>
+
+
+            <!-- GITHUB -->
+
+            <button
+                type="button"
+                id="githubLoginButton"
+                class="method-button github-button"
+            >
+                <span class="github-icon">🐙</span>
+                Login with GitHub
+            </button>
+
+
+            <!-- EMAIL -->
+
+            <button
+                type="button"
+                id="emailMethodButton"
+                class="method-button email-method"
+            >
+                <span class="email-icon">📧</span>
+                Login with Email
+            </button>
+
+        </div>
+
+
+        <!-- =================================================
+             EMAIL LOGIN
+        ================================================= -->
+
+        <div
+            id="emailLoginSection"
         >
 
-            <div class="form-group">
-
-                <label for="email">
-                    Email Address
-                </label>
-
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autocomplete="email"
-                    placeholder="Enter your email"
-                    required
-                >
-
+            <div class="method-divider">
+                EMAIL LOGIN
             </div>
 
 
-            <div class="form-group">
+            <form
+                id="loginForm"
+                novalidate
+            >
 
-                <label for="password">
-                    Password
-                </label>
+                <div class="form-group">
 
-                <div class="password-wrapper">
+                    <label for="email">
+                        Email Address
+                    </label>
 
                     <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        autocomplete="current-password"
-                        placeholder="Enter your password"
+                        id="email"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="Enter your email"
                         required
                     >
 
-                    <button
-                        type="button"
-                        id="togglePassword"
-                        class="toggle-password"
-                        aria-label="Show password"
-                    >
-                        👁
-                    </button>
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-wrapper">
+
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autocomplete="current-password"
+                            placeholder="Enter your password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            id="togglePassword"
+                            class="toggle-password"
+                            aria-label="Show password"
+                        >
+                            👁
+                        </button>
+
+                    </div>
 
                 </div>
 
-            </div>
+
+                <button
+                    type="submit"
+                    id="loginButton"
+                    class="login-button"
+                >
+                    Login
+                </button>
+
+            </form>
 
 
-            <button
-                type="submit"
-                id="loginButton"
-                class="login-button"
+            <a
+                href="forgot-password.html"
+                class="forgot"
             >
-                Login
-            </button>
+                Forgot your password?
+            </a>
 
-        </form>
-
-
-        <a
-            href="forgot-password.html"
-            class="forgot"
-        >
-            Forgot your password?
-        </a>
-
-
-        <div class="divider">
-            OR
         </div>
 
+
+        <!-- =================================================
+             CREATE ACCOUNT
+        ================================================= -->
 
         <div class="signup">
 
@@ -653,6 +890,10 @@ input {
 
     </div>
 
+
+    <!-- =================================================
+         SOCIAL
+    ================================================= -->
 
     <div class="social-section">
 
@@ -750,6 +991,18 @@ const togglePassword =
 const messageElement =
     document.getElementById("auth-message");
 
+const walletLoginButton =
+    document.getElementById("walletLoginButton");
+
+const githubLoginButton =
+    document.getElementById("githubLoginButton");
+
+const emailMethodButton =
+    document.getElementById("emailMethodButton");
+
+const emailLoginSection =
+    document.getElementById("emailLoginSection");
+
 
 /* =====================================================
    MESSAGE
@@ -801,6 +1054,69 @@ function showMessage(
 
 
 /* =====================================================
+   HIDE MESSAGE
+===================================================== */
+
+function hideMessage() {
+
+    if (!messageElement) {
+        return;
+    }
+
+    messageElement.style.display =
+        "none";
+
+    messageElement.innerHTML = "";
+}
+
+
+/* =====================================================
+   GET SUPABASE CLIENT
+===================================================== */
+
+function getSupabaseClient() {
+
+    let client = null;
+
+
+    if (
+        window.Web3JobsSupabase &&
+        typeof
+        window.Web3JobsSupabase.getClient ===
+        "function"
+    ) {
+
+        client =
+            window.Web3JobsSupabase.getClient();
+
+    } else if (
+        window.supabaseClient
+    ) {
+
+        client =
+            window.supabaseClient;
+
+    }
+
+
+    if (
+        !client ||
+        !client.auth
+    ) {
+
+        throw new Error(
+            "Supabase client is not available."
+        );
+
+    }
+
+
+    return client;
+
+}
+
+
+/* =====================================================
    PASSWORD TOGGLE
 ===================================================== */
 
@@ -848,9 +1164,392 @@ if (togglePassword) {
 
 
 /* =====================================================
+   EMAIL METHOD
+===================================================== */
+
+emailMethodButton.addEventListener(
+    "click",
+    function() {
+
+        hideMessage();
+
+        emailLoginSection.style.display =
+            "block";
+
+        emailInput.focus();
+
+    }
+);
+
+
+/* =====================================================
+   GITHUB LOGIN
+===================================================== */
+
+githubLoginButton.addEventListener(
+    "click",
+    async function() {
+
+        hideMessage();
+
+        githubLoginButton.disabled =
+            true;
+
+        walletLoginButton.disabled =
+            true;
+
+        emailMethodButton.disabled =
+            true;
+
+        githubLoginButton.textContent =
+            "Connecting to GitHub...";
+
+
+        try {
+
+            const client =
+                getSupabaseClient();
+
+
+            /*
+             * We intentionally use the current
+             * login page as the OAuth redirect.
+             *
+             * Supabase must have this URL in:
+             *
+             * Authentication
+             * → URL Configuration
+             * → Redirect URLs
+             */
+
+            const redirectUrl =
+                window.location.origin +
+                window.location.pathname;
+
+
+            const {
+                error
+            } =
+                await client.auth.signInWithOAuth({
+
+                    provider:
+                        "github",
+
+                    options: {
+
+                        redirectTo:
+                            redirectUrl
+
+                    }
+
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "GitHub Login Error:",
+                error
+            );
+
+
+            showMessage(
+                "تعذر تسجيل الدخول باستخدام GitHub: " +
+                (
+                    error.message ||
+                    "خطأ غير معروف"
+                ),
+
+                "GitHub login failed: " +
+                (
+                    error.message ||
+                    "Unknown error"
+                ),
+
+                "error"
+            );
+
+
+            githubLoginButton.disabled =
+                false;
+
+            walletLoginButton.disabled =
+                false;
+
+            emailMethodButton.disabled =
+                false;
+
+            githubLoginButton.innerHTML =
+                '<span class="github-icon">🐙</span> Login with GitHub';
+
+        }
+
+    }
+);
+
+
+/* =====================================================
+   WALLET LOGIN
+===================================================== */
+
+walletLoginButton.addEventListener(
+    "click",
+    async function() {
+
+        hideMessage();
+
+        walletLoginButton.disabled =
+            true;
+
+        githubLoginButton.disabled =
+            true;
+
+        emailMethodButton.disabled =
+            true;
+
+        walletLoginButton.textContent =
+            "Connecting Wallet...";
+
+
+        try {
+
+            const client =
+                getSupabaseClient();
+
+
+            /* ---------------------------------------------
+               CHECK WALLET
+            --------------------------------------------- */
+
+            if (
+                !window.ethereum
+            ) {
+
+                throw new Error(
+                    "No Ethereum wallet was detected. Please open Web3Jobs inside MetaMask or another compatible wallet."
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               SUPABASE WEB3 LOGIN
+            --------------------------------------------- */
+
+            const {
+                data,
+                error
+            } =
+                await client.auth.signInWithWeb3({
+
+                    chain:
+                        "ethereum",
+
+                    statement:
+                        "Sign in to Web3Jobs with your Web3 wallet."
+
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            const user =
+                data &&
+                data.user
+                    ? data.user
+                    : null;
+
+
+            const session =
+                data &&
+                data.session
+                    ? data.session
+                    : null;
+
+
+            if (
+                !user ||
+                !session
+            ) {
+
+                throw new Error(
+                    "Wallet authentication did not create a session."
+                );
+
+            }
+
+
+            /* ---------------------------------------------
+               SAVE WALLET LOGIN
+            --------------------------------------------- */
+
+            let walletAddress = "";
+
+
+            try {
+
+                const accounts =
+                    await window.ethereum.request({
+
+                        method:
+                            "eth_accounts"
+
+                    });
+
+
+                if (
+                    accounts &&
+                    accounts.length
+                ) {
+
+                    walletAddress =
+                        accounts[0];
+
+                }
+
+            } catch (walletError) {
+
+                console.warn(
+                    "Could not read wallet address:",
+                    walletError
+                );
+
+            }
+
+
+            try {
+
+                localStorage.setItem(
+                    "web3jobs_auth_method",
+                    "wallet"
+                );
+
+                localStorage.setItem(
+                    "web3jobs_user_id",
+                    user.id
+                );
+
+
+                if (walletAddress) {
+
+                    localStorage.setItem(
+                        "web3jobs_wallet_address",
+                        walletAddress
+                    );
+
+                }
+
+            } catch (storageError) {
+
+                console.warn(
+                    "Wallet localStorage error:",
+                    storageError
+                );
+
+            }
+
+
+            showMessage(
+                "تم تسجيل الدخول بالمحفظة بنجاح. جاري فتح لوحة التحكم...",
+                "Wallet login successful. Opening dashboard...",
+                "success"
+            );
+
+
+            setTimeout(
+                function() {
+
+                    window.location.replace(
+                        "dashboard.html"
+                    );
+
+                },
+                500
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Wallet Login Error:",
+                error
+            );
+
+
+            const errorText =
+                String(
+                    error &&
+                    error.message
+                        ? error.message
+                        : error
+                );
+
+
+            const lower =
+                errorText.toLowerCase();
+
+
+            if (
+                lower.includes(
+                    "user rejected"
+                ) ||
+                lower.includes(
+                    "user denied"
+                ) ||
+                lower.includes(
+                    "rejected"
+                )
+            ) {
+
+                showMessage(
+                    "تم إلغاء طلب تسجيل الدخول من المحفظة.",
+                    "Wallet login was cancelled.",
+                    "error"
+                );
+
+            } else {
+
+                showMessage(
+                    "تعذر تسجيل الدخول بالمحفظة: " +
+                    errorText,
+
+                    "Wallet login failed: " +
+                    errorText,
+
+                    "error"
+                );
+
+            }
+
+
+            walletLoginButton.disabled =
+                false;
+
+            githubLoginButton.disabled =
+                false;
+
+            emailMethodButton.disabled =
+                false;
+
+            walletLoginButton.innerHTML =
+                '<span class="wallet-icon">🔐</span> Login with Wallet';
+
+        }
+
+    }
+);
+
+
+/* =====================================================
    GET ACCOUNT TYPE
-   IMPORTANT:
-   We do NOT require profiles to exist.
 ===================================================== */
 
 async function getAccountType(
@@ -862,7 +1561,7 @@ async function getAccountType(
 
 
     /* -------------------------------------------------
-       1. PROFILE TABLE
+       PROFILE TABLE
     ------------------------------------------------- */
 
     try {
@@ -896,13 +1595,12 @@ async function getAccountType(
                     .toLowerCase();
 
 
-            /* ADMIN */
-
             if (
                 role === "admin"
             ) {
 
                 return "admin";
+
             }
 
 
@@ -926,7 +1624,7 @@ async function getAccountType(
 
 
     /* -------------------------------------------------
-       2. USER METADATA
+       USER METADATA
     ------------------------------------------------- */
 
     if (!accountType) {
@@ -949,8 +1647,7 @@ async function getAccountType(
 
 
     /* -------------------------------------------------
-       3. PENDING ACCOUNT TYPE
-       Used especially after wallet signup.
+       PENDING ACCOUNT TYPE
     ------------------------------------------------- */
 
     if (!accountType) {
@@ -980,7 +1677,7 @@ async function getAccountType(
 
 
     /* -------------------------------------------------
-       4. LOCAL ACCOUNT TYPE
+       LOCAL ACCOUNT TYPE
     ------------------------------------------------- */
 
     if (!accountType) {
@@ -1010,7 +1707,7 @@ async function getAccountType(
 
 
     /* -------------------------------------------------
-       5. COMPANY PROFILE FALLBACK
+       COMPANY PROFILE FALLBACK
     ------------------------------------------------- */
 
     if (!accountType) {
@@ -1067,6 +1764,7 @@ async function getAccountType(
 
         accountType =
             "company";
+
     }
 
 
@@ -1084,6 +1782,7 @@ async function getAccountType(
 
         accountType =
             "individual";
+
     }
 
 
@@ -1093,7 +1792,7 @@ async function getAccountType(
 
 
 /* =====================================================
-   SAVE LOCAL DATA
+   SAVE LOGIN DATA
 ===================================================== */
 
 function saveLoginData(
@@ -1112,11 +1811,6 @@ function saveLoginData(
             "web3jobs_user_id",
             userId
         );
-
-
-        /*
-         * Pending account type is no longer needed.
-         */
 
         localStorage.removeItem(
             "web3jobs_pending_account_type"
@@ -1152,6 +1846,7 @@ function redirectUser(
         );
 
         return;
+
     }
 
 
@@ -1165,6 +1860,7 @@ function redirectUser(
         );
 
         return;
+
     }
 
 
@@ -1176,7 +1872,7 @@ function redirectUser(
 
 
 /* =====================================================
-   LOGIN
+   EMAIL LOGIN
 ===================================================== */
 
 form.addEventListener(
@@ -1196,10 +1892,6 @@ form.addEventListener(
             passwordInput.value;
 
 
-        /* -------------------------------------------------
-           VALIDATION
-        ------------------------------------------------- */
-
         if (!email) {
 
             showMessage(
@@ -1209,6 +1901,7 @@ form.addEventListener(
             );
 
             return;
+
         }
 
 
@@ -1221,64 +1914,25 @@ form.addEventListener(
             );
 
             return;
+
         }
 
-
-        /* -------------------------------------------------
-           GET SINGLE SUPABASE CLIENT
-        ------------------------------------------------- */
 
         let client = null;
 
 
         try {
 
-            if (
-                window.Web3JobsSupabase &&
-                typeof
-                window.Web3JobsSupabase.getClient ===
-                "function"
-            ) {
+            client =
+                getSupabaseClient();
 
-                client =
-                    window.Web3JobsSupabase.getClient();
-
-            } else if (
-                window.supabaseClient
-            ) {
-
-                client =
-                    window.supabaseClient;
-
-            }
-
-
-            if (
-                !client ||
-                !client.auth
-            ) {
-
-                throw new Error(
-                    "Supabase client is not available."
-                );
-
-            }
-
-
-            /* -------------------------------------------------
-               DISABLE BUTTON
-            ------------------------------------------------- */
 
             loginButton.disabled =
                 true;
 
             loginButton.textContent =
-                "Signing in...";
+                "Logging in...";
 
-
-            /* -------------------------------------------------
-               SIGN IN
-            ------------------------------------------------- */
 
             const {
                 data,
@@ -1326,9 +1980,9 @@ form.addEventListener(
             }
 
 
-            /* -------------------------------------------------
+            /* ---------------------------------------------
                EMAIL CONFIRMATION
-            ------------------------------------------------- */
+            --------------------------------------------- */
 
             if (
                 !user.email_confirmed_at &&
@@ -1353,12 +2007,13 @@ form.addEventListener(
 
 
                 return;
+
             }
 
 
-            /* -------------------------------------------------
-               DETERMINE ACCOUNT TYPE
-            ------------------------------------------------- */
+            /* ---------------------------------------------
+               ACCOUNT TYPE
+            --------------------------------------------- */
 
             const accountType =
                 await getAccountType(
@@ -1367,251 +2022,12 @@ form.addEventListener(
                 );
 
 
-            console.log(
-                "Web3Jobs account type:",
-                accountType
-            );
-
-
-            /* -------------------------------------------------
-               ADMIN
-            ------------------------------------------------- */
-
-            if (
-                accountType ===
-                "admin"
-            ) {
-
-                saveLoginData(
-                    "admin",
-                    user.id
-                );
-
-
-                showMessage(
-                    "تم تسجيل الدخول كمسؤول. جاري فتح لوحة الإدارة...",
-                    "Administrator login successful. Opening admin dashboard...",
-                    "success"
-                );
-
-
-                setTimeout(
-                    function() {
-
-                        redirectUser(
-                            "admin"
-                        );
-
-                    },
-                    500
-                );
-
-
-                return;
-            }
-
-
-            /* -------------------------------------------------
-               IMPORTANT WALLET/GITHUB FIX
-               
-               If profiles does not exist yet, DO NOT FAIL.
-               Use metadata / local storage instead.
-            ------------------------------------------------- */
-
             let finalAccountType =
                 accountType;
 
-
-            /*
-             * If account type is still unknown,
-             * default to individual instead of producing
-             * a blank/error page.
-             *
-             * This prevents wallet-created accounts from
-             * getting stuck at login.
-             */
 
             if (
                 finalAccountType !==
                 "company" &&
                 finalAccountType !==
-                "individual"
-            ) {
-
-                console.warn(
-                    "Account type not found. Defaulting to individual.",
-                    user
-                );
-
-
-                finalAccountType =
-                    "individual";
-
-            }
-
-
-            /* -------------------------------------------------
-               SAVE LOGIN DATA
-            ------------------------------------------------- */
-
-            saveLoginData(
-                finalAccountType,
-                user.id
-            );
-
-
-            /* -------------------------------------------------
-               REDIRECT COMPANY
-            ------------------------------------------------- */
-
-            if (
-                finalAccountType ===
-                "company"
-            ) {
-
-                showMessage(
-                    "تم تسجيل الدخول بنجاح. جاري فتح لوحة الشركة...",
-                    "Login successful. Opening company dashboard...",
-                    "success"
-                );
-
-
-                setTimeout(
-                    function() {
-
-                        redirectUser(
-                            "company"
-                        );
-
-                    },
-                    500
-                );
-
-
-                return;
-            }
-
-
-            /* -------------------------------------------------
-               REDIRECT INDIVIDUAL
-            ------------------------------------------------- */
-
-            showMessage(
-                "تم تسجيل الدخول بنجاح. جاري فتح لوحة الأفراد...",
-                "Login successful. Opening individual dashboard...",
-                "success"
-            );
-
-
-            setTimeout(
-                function() {
-
-                    redirectUser(
-                        "individual"
-                    );
-
-                },
-                500
-            );
-
-        } catch (error) {
-
-            console.error(
-                "Web3Jobs Login Error:",
-                error
-            );
-
-
-            const errorText =
-                String(
-                    error &&
-                    error.message
-                        ? error.message
-                        : error
-                ).toLowerCase();
-
-
-            /* -------------------------------------------------
-               INVALID LOGIN
-            ------------------------------------------------- */
-
-            if (
-                errorText.includes(
-                    "invalid login credentials"
-                )
-            ) {
-
-                showMessage(
-                    "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-                    "Invalid email or password.",
-                    "error"
-                );
-
-            }
-
-
-            /* -------------------------------------------------
-               EMAIL NOT CONFIRMED
-            ------------------------------------------------- */
-
-            else if (
-                errorText.includes(
-                    "email not confirmed"
-                )
-            ) {
-
-                showMessage(
-                    "البريد الإلكتروني غير مؤكد.",
-                    "Your email is not confirmed.",
-                    "error"
-                );
-
-            }
-
-
-            /* -------------------------------------------------
-               NETWORK / SUPABASE
-            ------------------------------------------------- */
-
-            else {
-
-                showMessage(
-                    "حدث خطأ أثناء تسجيل الدخول: " +
-                    (
-                        error &&
-                        error.message
-                            ? error.message
-                            : "Unknown error"
-                    ),
-
-                    "Login error: " +
-                    (
-                        error &&
-                        error.message
-                            ? error.message
-                            : "Unknown error"
-                    ),
-
-                    "error"
-                );
-
-            }
-
-
-            loginButton.disabled =
-                false;
-
-            loginButton.textContent =
-                "Login";
-
-        }
-
-    }
-);
-
-</script>
-
-
-</body>
-
-</html>
+                "
