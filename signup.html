@@ -12,9 +12,7 @@
 
     <title>Create Account - Web3Jobs</title>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
 
@@ -52,7 +50,15 @@
         .subtitle {
             text-align: center;
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            text-align: center;
+            color: #555;
+            font-size: 14px;
+            font-weight: 700;
+            margin: 20px 0 12px;
         }
 
         .form-group {
@@ -85,9 +91,7 @@
             border: 0;
             padding: 14px;
             border-radius: 9px;
-            background: #2563eb;
-            color: white;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 700;
             cursor: pointer;
         }
@@ -101,12 +105,59 @@
             cursor: not-allowed;
         }
 
+        .email-button {
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+        }
+
+        .wallet-button {
+            background: #111827;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .github-button {
+            background: #24292f;
+            color: white;
+        }
+
+        .wallet-button,
+        .github-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+        }
+
+        .button-icon {
+            font-size: 19px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 23px 0;
+            color: #888;
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #ddd;
+        }
+
         .message {
             display: none;
             margin-bottom: 18px;
             padding: 12px;
             border-radius: 8px;
             font-size: 14px;
+            line-height: 1.5;
         }
 
         .success {
@@ -119,6 +170,11 @@
             color: #991b1b;
         }
 
+        .info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
         .login-link {
             text-align: center;
             margin-top: 22px;
@@ -129,6 +185,14 @@
             color: #2563eb;
             text-decoration: none;
             font-weight: 600;
+        }
+
+        .small-note {
+            text-align: center;
+            color: #777;
+            font-size: 11px;
+            margin-top: 10px;
+            line-height: 1.5;
         }
 
     </style>
@@ -154,6 +218,82 @@
         id="message"
         class="message"
     ></div>
+
+
+    <!-- =========================================
+         ACCOUNT TYPE
+    ========================================== -->
+
+    <div class="form-group">
+
+        <label for="account-type">
+            Account Type
+        </label>
+
+        <select id="account-type">
+
+            <option value="">
+                Select account type
+            </option>
+
+            <option value="individual">
+                Individual
+            </option>
+
+            <option value="company">
+                Company
+            </option>
+
+        </select>
+
+    </div>
+
+
+    <!-- =========================================
+         WEB3 WALLET
+    ========================================== -->
+
+    <div class="section-title">
+        Create account with
+    </div>
+
+
+    <button
+        type="button"
+        id="wallet-button"
+        class="wallet-button"
+    >
+        <span class="button-icon">🦊</span>
+        Continue with Web3 Wallet
+    </button>
+
+
+    <!-- =========================================
+         GITHUB
+    ========================================== -->
+
+    <button
+        type="button"
+        id="github-button"
+        class="github-button"
+    >
+        <span class="button-icon">🐙</span>
+        Continue with GitHub
+    </button>
+
+
+    <div class="divider">
+        OR
+    </div>
+
+
+    <!-- =========================================
+         EMAIL SIGNUP
+    ========================================== -->
+
+    <div class="section-title">
+        Create account with Email
+    </div>
 
 
     <form id="signup-form">
@@ -208,43 +348,21 @@
         </div>
 
 
-        <div class="form-group">
-
-            <label for="account-type">
-                Account Type
-            </label>
-
-            <select
-                id="account-type"
-                required
-            >
-
-                <option value="">
-                    Select account type
-                </option>
-
-                <option value="individual">
-                    Individual
-                </option>
-
-                <option value="company">
-                    Company
-                </option>
-
-            </select>
-
-        </div>
-
-
         <button
             id="signup-button"
+            class="email-button"
             type="submit"
         >
-            Create Account
+            Create Account with Email
         </button>
 
 
     </form>
+
+
+    <div class="small-note">
+        For Wallet and GitHub accounts, you will be asked to authorize the login.
+    </div>
 
 
     <div class="login-link">
@@ -266,6 +384,10 @@
 "use strict";
 
 
+/* =========================================
+   SUPABASE
+========================================= */
+
 const SUPABASE_URL =
     "https://jqhemwskrnlycximjpag.supabase.co";
 
@@ -281,6 +403,10 @@ const supabaseClient =
     );
 
 
+/* =========================================
+   ELEMENTS
+========================================= */
+
 const form =
     document.getElementById(
         "signup-form"
@@ -293,11 +419,33 @@ const button =
     );
 
 
+const walletButton =
+    document.getElementById(
+        "wallet-button"
+    );
+
+
+const githubButton =
+    document.getElementById(
+        "github-button"
+    );
+
+
+const accountTypeSelect =
+    document.getElementById(
+        "account-type"
+    );
+
+
 const message =
     document.getElementById(
         "message"
     );
 
+
+/* =========================================
+   MESSAGE
+========================================= */
 
 function showMessage(
     text,
@@ -314,6 +462,58 @@ function showMessage(
         "block";
 }
 
+
+/* =========================================
+   ACCOUNT TYPE
+========================================= */
+
+function getAccountType() {
+
+    return accountTypeSelect
+        .value
+        .trim()
+        .toLowerCase();
+
+}
+
+
+/* =========================================
+   SAVE TEMPORARY ACCOUNT TYPE
+   USED FOR OAUTH CALLBACK
+========================================= */
+
+function saveAccountType() {
+
+    const accountType =
+        getAccountType();
+
+    if (!accountType) {
+        return false;
+    }
+
+    try {
+
+        localStorage.setItem(
+            "web3jobs_pending_account_type",
+            accountType
+        );
+
+    } catch (error) {
+
+        console.warn(
+            "Unable to save account type:",
+            error
+        );
+
+    }
+
+    return true;
+}
+
+
+/* =========================================
+   EMAIL SIGNUP
+========================================= */
 
 form.addEventListener(
     "submit",
@@ -349,11 +549,7 @@ form.addEventListener(
 
 
         const accountType =
-            document
-                .getElementById(
-                    "account-type"
-                )
-                .value;
+            getAccountType();
 
 
         if (!fullName) {
@@ -367,10 +563,43 @@ form.addEventListener(
         }
 
 
+        if (!email) {
+
+            showMessage(
+                "Please enter your email.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (!password) {
+
+            showMessage(
+                "Please create a password.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (password.length < 6) {
+
+            showMessage(
+                "Password must contain at least 6 characters.",
+                "error"
+            );
+
+            return;
+        }
+
+
         if (!accountType) {
 
             showMessage(
-                "Please select your account type.",
+                "Please select Individual or Company.",
                 "error"
             );
 
@@ -379,6 +608,12 @@ form.addEventListener(
 
 
         button.disabled =
+            true;
+
+        walletButton.disabled =
+            true;
+
+        githubButton.disabled =
             true;
 
         button.textContent =
@@ -394,11 +629,9 @@ form.addEventListener(
                 await supabaseClient.auth.signUp({
 
                     email:
-
                         email,
 
                     password:
-
                         password,
 
                     options: {
@@ -419,16 +652,9 @@ form.addEventListener(
 
 
             if (error) {
-
                 throw error;
             }
 
-
-            /*
-             * If email confirmation is enabled,
-             * Supabase will ask the user
-             * to confirm their email.
-             */
 
             showMessage(
                 "Account created successfully. Please check your email if confirmation is required.",
@@ -465,9 +691,455 @@ form.addEventListener(
             button.disabled =
                 false;
 
+            walletButton.disabled =
+                false;
+
+            githubButton.disabled =
+                false;
+
             button.textContent =
-                "Create Account";
+                "Create Account with Email";
+
         }
+
+    }
+);
+
+
+/* =========================================
+   GITHUB SIGNUP
+========================================= */
+
+githubButton.addEventListener(
+    "click",
+    async function() {
+
+        const accountType =
+            getAccountType();
+
+
+        if (!accountType) {
+
+            showMessage(
+                "Please select Individual or Company first.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        saveAccountType();
+
+
+        githubButton.disabled =
+            true;
+
+        walletButton.disabled =
+            true;
+
+        button.disabled =
+            true;
+
+        githubButton.textContent =
+            "Connecting to GitHub...";
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signInWithOAuth({
+
+                    provider:
+                        "github",
+
+                    options: {
+
+                        redirectTo:
+                            window.location.origin +
+                            window.location.pathname
+
+                    }
+
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "GitHub OAuth error:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to connect to GitHub.",
+                "error"
+            );
+
+
+            githubButton.disabled =
+                false;
+
+            walletButton.disabled =
+                false;
+
+            button.disabled =
+                false;
+
+            githubButton.textContent =
+                "🐙 Continue with GitHub";
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   WEB3 WALLET SIGNUP
+========================================= */
+
+walletButton.addEventListener(
+    "click",
+    async function() {
+
+        const accountType =
+            getAccountType();
+
+
+        if (!accountType) {
+
+            showMessage(
+                "Please select Individual or Company first.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        saveAccountType();
+
+
+        walletButton.disabled =
+            true;
+
+        githubButton.disabled =
+            true;
+
+        button.disabled =
+            true;
+
+        walletButton.textContent =
+            "Connecting Wallet...";
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabaseClient.auth.signInWithWeb3({
+
+                    chain:
+                        "ethereum",
+
+                    statement:
+                        "Sign in to Web3Jobs"
+
+                });
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            if (
+                !data ||
+                !data.user
+            ) {
+
+                throw new Error(
+                    "Wallet authentication did not create a user."
+                );
+
+            }
+
+
+            const user =
+                data.user;
+
+
+            /*
+             * Save account type
+             * to user metadata.
+             */
+
+            const {
+                error: updateError
+            } =
+                await supabaseClient.auth.updateUser({
+
+                    data: {
+
+                        account_type:
+                            accountType
+
+                    }
+
+                });
+
+
+            if (updateError) {
+
+                console.warn(
+                    "Metadata update:",
+                    updateError
+                );
+
+            }
+
+
+            showMessage(
+                "Wallet connected successfully. Your account has been created.",
+                "success"
+            );
+
+
+            setTimeout(
+                function() {
+
+                    if (
+                        accountType ===
+                        "company"
+                    ) {
+
+                        window.location.href =
+                            "company-dashboard.html";
+
+                    } else {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    }
+
+                },
+                1200
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Wallet signup error:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Unable to connect your Web3 wallet.",
+                "error"
+            );
+
+
+            walletButton.disabled =
+                false;
+
+            githubButton.disabled =
+                false;
+
+            button.disabled =
+                false;
+
+            walletButton.textContent =
+                "🦊 Continue with Web3 Wallet";
+
+        }
+
+    }
+);
+
+
+/* =========================================
+   OAUTH CALLBACK
+========================================= */
+
+async function handleOAuthCallback() {
+
+    try {
+
+        const {
+            data: {
+                session
+            }
+        } =
+            await supabaseClient.auth.getSession();
+
+
+        if (!session) {
+            return;
+        }
+
+
+        const user =
+            session.user;
+
+
+        /*
+         * Check whether this is a GitHub
+         * OAuth account.
+         */
+
+        const provider =
+            user.app_metadata?.provider;
+
+
+        if (
+            provider !==
+            "github"
+        ) {
+
+            return;
+        }
+
+
+        let accountType =
+            "";
+
+
+        try {
+
+            accountType =
+                localStorage.getItem(
+                    "web3jobs_pending_account_type"
+                ) || "";
+
+        } catch (error) {
+
+            console.warn(
+                "Unable to read account type:",
+                error
+            );
+
+        }
+
+
+        accountType =
+            accountType
+                .trim()
+                .toLowerCase();
+
+
+        if (
+            accountType !== "company" &&
+            accountType !== "individual"
+        ) {
+
+            accountType =
+                "individual";
+
+        }
+
+
+        /*
+         * Store account type
+         * in user metadata.
+         */
+
+        await supabaseClient.auth.updateUser({
+
+            data: {
+
+                account_type:
+                    accountType
+
+            }
+
+        });
+
+
+        try {
+
+            localStorage.removeItem(
+                "web3jobs_pending_account_type"
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "localStorage cleanup:",
+                error
+            );
+
+        }
+
+
+        showMessage(
+            "GitHub account connected successfully.",
+            "success"
+        );
+
+
+        setTimeout(
+            function() {
+
+                if (
+                    accountType ===
+                    "company"
+                ) {
+
+                    window.location.replace(
+                        "company-dashboard.html"
+                    );
+
+                } else {
+
+                    window.location.replace(
+                        "dashboard.html"
+                    );
+
+                }
+
+            },
+            1000
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "OAuth callback error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================================
+   START
+========================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function() {
+
+        handleOAuthCallback();
 
     }
 );
@@ -477,4 +1149,4 @@ form.addEventListener(
 
 </body>
 
-</html>
+        </html>
