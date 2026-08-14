@@ -195,14 +195,7 @@ button:disabled {
         #334155;
 }
 
-.github-button {
-    background: #24292f;
-
-    color: white;
-}
-
-.wallet-button,
-.github-button {
+.wallet-button {
     display: flex;
 
     align-items: center;
@@ -433,23 +426,6 @@ button:disabled {
     ></div>
 
 
-    <!-- GITHUB -->
-
-    <button
-        type="button"
-        id="github-button"
-        class="github-button"
-    >
-
-        <span class="button-icon">
-            🐙
-        </span>
-
-        Continue with GitHub
-
-    </button>
-
-
     <div class="divider">
         OR
     </div>
@@ -529,7 +505,7 @@ button:disabled {
 
     <div class="small-note">
 
-        Wallet and GitHub accounts will be connected
+        Wallet and Email accounts are connected
         securely through Supabase.
 
     </div>
@@ -577,9 +553,6 @@ const button =
 
 const walletButton =
     document.getElementById("wallet-button");
-
-const githubButton =
-    document.getElementById("github-button");
 
 const accountTypeSelect =
     document.getElementById("account-type");
@@ -703,9 +676,6 @@ function resetButtons() {
     walletButton.disabled =
         false;
 
-    githubButton.disabled =
-        false;
-
 
     button.textContent =
         "Create Account with Email";
@@ -713,10 +683,6 @@ function resetButtons() {
 
     walletButton.innerHTML =
         '<span class="button-icon">🦊</span> Continue with Web3 Wallet';
-
-
-    githubButton.innerHTML =
-        '<span class="button-icon">🐙</span> Continue with GitHub';
 
 }
 
@@ -731,9 +697,6 @@ function disableAll() {
         true;
 
     walletButton.disabled =
-        true;
-
-    githubButton.disabled =
         true;
 
 }
@@ -1235,425 +1198,6 @@ form.addEventListener(
 
 
 /* =====================================================
-   GITHUB SIGNUP
-===================================================== */
-
-githubButton.addEventListener(
-    "click",
-    async function() {
-
-        hideMessage();
-
-
-        const client =
-            getClient();
-
-
-        if (!client) {
-
-            showMessage(
-                "Supabase connection is unavailable.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const accountType =
-            getAccountType();
-
-
-        if (!accountType) {
-
-            showMessage(
-                "Please select Individual or Company first.",
-                "error"
-            );
-
-            accountTypeSelect.focus();
-
-            return;
-
-        }
-
-
-        /*
-         * VERY IMPORTANT:
-         * Save the selected type before leaving
-         * the page for GitHub.
-         */
-
-        savePendingAccountType(
-            accountType
-        );
-
-
-        disableAll();
-
-
-        githubButton.innerHTML =
-            '<span class="button-icon">🐙</span> Connecting to GitHub...';
-
-
-        showMessage(
-            "Connecting to GitHub...",
-            "info"
-        );
-
-
-        try {
-
-            const redirectUrl =
-                "https://aminzaki1972.github.io/-Web3Jobs_v3/signup.html";
-
-
-            const result =
-                await client.auth.signInWithOAuth({
-
-                    provider:
-                        "github",
-
-                    options: {
-
-                        redirectTo:
-                            redirectUrl
-
-                    }
-
-                });
-
-
-            if (result.error) {
-
-                throw result.error;
-
-            }
-
-
-            /*
-             * Supabase normally redirects automatically.
-             */
-
-            if (
-                result.data &&
-                result.data.url
-            ) {
-
-                window.location.assign(
-                    result.data.url
-                );
-
-            }
-
-        } catch (error) {
-
-            console.error(
-                "GitHub OAuth error:",
-                error
-            );
-
-
-            showMessage(
-                "Unable to connect to GitHub: " +
-                (
-                    error.message ||
-                    "Unknown error"
-                ),
-                "error"
-            );
-
-
-            resetButtons();
-
-        }
-
-    }
-);
-
-
-/* =====================================================
-   GITHUB CALLBACK
-===================================================== */
-
-async function handleGitHubCallback() {
-
-    const client =
-        getClient();
-
-
-    if (!client) {
-
-        return;
-
-    }
-
-
-    try {
-
-        /*
-         * Wait briefly for Supabase to process
-         * the OAuth URL.
-         */
-
-        const {
-            data,
-            error
-        } =
-            await client.auth.getSession();
-
-
-        if (error) {
-
-            throw error;
-
-        }
-
-
-        const session =
-            data &&
-            data.session
-                ? data.session
-                : null;
-
-
-        /*
-         * No session = normal signup page.
-         */
-
-        if (
-            !session ||
-            !session.user
-        ) {
-
-            return;
-
-        }
-
-
-        const user =
-            session.user;
-
-
-        const provider =
-            String(
-                user.app_metadata?.provider ||
-                ""
-            )
-                .trim()
-                .toLowerCase();
-
-
-        /*
-         * Only process GitHub callback.
-         */
-
-        if (
-            provider !==
-            "github"
-        ) {
-
-            return;
-
-        }
-
-
-        /*
-         * Get the account type selected
-         * BEFORE going to GitHub.
-         */
-
-        let accountType =
-            localStorage.getItem(
-                "web3jobs_pending_account_type"
-            ) || "";
-
-
-        accountType =
-            String(accountType)
-                .trim()
-                .toLowerCase();
-
-
-        if (
-            accountType !== "individual" &&
-            accountType !== "company"
-        ) {
-
-            /*
-             * Try metadata as a secondary source.
-             */
-
-            accountType =
-                String(
-                    user.user_metadata?.account_type ||
-                    ""
-                )
-                    .trim()
-                    .toLowerCase();
-
-        }
-
-
-        /*
-         * Do NOT silently select individual.
-         */
-
-        if (
-            accountType !== "individual" &&
-            accountType !== "company"
-        ) {
-
-            await client.auth.signOut();
-
-
-            showMessage(
-                "Please return and select Individual or Company before continuing with GitHub.",
-                "error"
-            );
-
-
-            resetButtons();
-
-            return;
-
-        }
-
-
-        /*
-         * Save account type in Auth metadata.
-         */
-
-        const metadataUpdate =
-            await client.auth.updateUser({
-
-                data: {
-
-                    full_name:
-                        user.user_metadata?.name ||
-                        user.user_metadata?.full_name ||
-                        null,
-
-                    account_type:
-                        accountType,
-
-                    auth_provider:
-                        "github"
-
-                }
-
-            });
-
-
-        if (
-            metadataUpdate.error
-        ) {
-
-            console.warn(
-                "GitHub metadata warning:",
-                metadataUpdate.error
-            );
-
-        }
-
-
-        /*
-         * CREATE THE PROFILES ROW.
-         */
-
-        await createOrUpdateProfile(
-            client,
-            user,
-            accountType
-        );
-
-
-        /*
-         * Save verified local account data.
-         */
-
-        saveLocalAccount(
-            user,
-            accountType,
-            "github"
-        );
-
-
-        /*
-         * Clean the URL.
-         */
-
-        try {
-
-            window.history.replaceState(
-                {},
-                document.title,
-                window.location.pathname
-            );
-
-        } catch (historyError) {
-
-            console.warn(
-                "URL cleanup warning:",
-                historyError
-            );
-
-        }
-
-
-        /*
-         * Success.
-         */
-
-        showMessage(
-            "GitHub account created successfully. Opening your account...",
-            "success"
-        );
-
-
-        /*
-         * Redirect.
-         */
-
-        setTimeout(
-            function() {
-
-                redirectToDashboard(
-                    accountType
-                );
-
-            },
-            1000
-        );
-
-
-    } catch (error) {
-
-        console.error(
-            "GitHub callback error:",
-            error
-        );
-
-
-        showMessage(
-            "Unable to complete GitHub account creation: " +
-            (
-                error.message ||
-                "Unknown error"
-            ),
-            "error"
-        );
-
-
-        resetButtons();
-
-    }
-
-}
-
-
-/* =====================================================
    WALLET SIGNUP
 ===================================================== */
 
@@ -1846,25 +1390,6 @@ walletButton.addEventListener(
             resetButtons();
 
         }
-
-    }
-);
-
-
-/* =====================================================
-   PAGE START
-===================================================== */
-
-document.addEventListener(
-    "DOMContentLoaded",
-    function() {
-
-        /*
-         * If this is a GitHub callback,
-         * complete the account creation.
-         */
-
-        handleGitHubCallback();
 
     }
 );
