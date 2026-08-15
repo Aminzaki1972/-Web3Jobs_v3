@@ -1788,6 +1788,24 @@
 
                 return result;
 
+            },
+
+
+        /*
+         * Compatibility loader.
+         *
+         * Some pages/modules use loadAllJobs()
+         * while the main application uses loadJobs().
+         *
+         * Keep both names available so the jobs
+         * system remains compatible.
+         */
+
+        loadAllJobs:
+            async function () {
+
+                return await this.loadJobs();
+
             }
 
     };
@@ -2064,12 +2082,23 @@
         await initializeUser();
 
 
+        /* =================================================
+           LOAD JOBS
+           ================================================= */
+
         if (
             getJobsContainer()
         ) {
 
-            await window.Web3JobsJobs
-                .loadJobs();
+            if (
+                typeof window.Web3JobsJobs?.loadAllJobs ===
+                "function"
+            ) {
+
+                await window.Web3JobsJobs
+                    .loadAllJobs();
+
+            }
 
             syncJobsState();
         }
