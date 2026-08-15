@@ -13,6 +13,8 @@
    - External application links open in a new tab.
    - application_url is preferred over apply_link.
    - source_url is NOT used as an application URL.
+   - jobs.js does NOT auto-start.
+   - app.js is responsible for initializeJobs().
    ========================================================= */
 
 "use strict";
@@ -580,12 +582,6 @@
          * 4. apply_url
          *
          * source_url is intentionally NOT included.
-         *
-         * source_url for Anchorage is:
-         * https://jobs.lever.co/anchorage
-         *
-         * It is the company jobs page, not the specific
-         * application page.
          */
 
         const rawURL =
@@ -727,10 +723,6 @@
                 job.created_at
             );
 
-
-        /*
-         * Get the REAL application URL.
-         */
 
         const applicationURL =
             getApplicationURL(job);
@@ -1401,10 +1393,6 @@
             );
 
 
-        /*
-         * Get the specific external application URL.
-         */
-
         const applicationURL =
             getApplicationURL(job);
 
@@ -1518,13 +1506,6 @@
         `;
 
 
-        /*
-         * Internal application only.
-         *
-         * External applications use a normal anchor link and
-         * NEVER require authentication.
-         */
-
         const applyButton =
             body.querySelector(
                 "#job-apply-button"
@@ -1635,13 +1616,6 @@
         }
 
 
-        /*
-         * Read the existing session.
-         *
-         * NEVER redirect.
-         * NEVER sign out.
-         */
-
         const user =
             JobsSystem.currentUser ||
             await getCurrentUser();
@@ -1660,10 +1634,6 @@
 
 
         try {
-
-            /*
-             * Check duplicate application.
-             */
 
             const existing =
                 await client
@@ -1706,10 +1676,6 @@
                 return false;
             }
 
-
-            /*
-             * Insert application.
-             */
 
             const response =
                 await client
@@ -1909,13 +1875,6 @@
         document.addEventListener(
             "click",
             async event => {
-
-                /*
-                 * Ignore external application links.
-                 *
-                 * They must work normally without any
-                 * JavaScript interception.
-                 */
 
                 const externalApplyLink =
                     event.target.closest(
@@ -2596,24 +2555,15 @@
 
     /* =========================================================
        START
+       ---------------------------------------------------------
+       IMPORTANT:
+       jobs.js does NOT auto-start.
+
+       app.js is responsible for calling:
+
+           await window.Web3JobsJobs.initializeJobs();
+
+       This prevents jobs from being loaded twice.
        ========================================================= */
-
-    if (
-        document.readyState === "loading"
-    ) {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            initializeJobs,
-            {
-                once: true
-            }
-        );
-
-    } else {
-
-        initializeJobs();
-    }
-
 
 })();
