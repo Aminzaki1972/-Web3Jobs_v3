@@ -13,8 +13,7 @@
    - External application links open in a new tab.
    - application_url is preferred over apply_link.
    - source_url is NOT used as an application URL.
-   - jobs.js does NOT auto-start.
-   - app.js is responsible for initializeJobs().
+   - Provides compatibility aliases for app.js.
    ========================================================= */
 
 "use strict";
@@ -49,7 +48,7 @@
     function getJobsSupabase() {
 
         /*
-         * Always use the unified Web3Jobs Supabase client.
+         * ALWAYS use the unified Web3Jobs Supabase client.
          */
 
         if (
@@ -57,16 +56,26 @@
             typeof window.Web3JobsSupabase.getClient === "function"
         ) {
 
-            const client =
-                window.Web3JobsSupabase.getClient();
+            try {
 
-            if (
-                client &&
-                client.auth &&
-                typeof client.from === "function"
-            ) {
+                const client =
+                    window.Web3JobsSupabase.getClient();
 
-                return client;
+                if (
+                    client &&
+                    client.auth &&
+                    typeof client.from === "function"
+                ) {
+
+                    return client;
+                }
+
+            } catch (error) {
+
+                console.warn(
+                    "Web3Jobs: Unable to get unified Supabase client:",
+                    error
+                );
             }
         }
 
@@ -291,7 +300,8 @@
             "#jobs-container",
             ".jobs-list",
             ".jobs-container",
-            "[data-jobs-container]"
+            "[data-jobs-container]",
+            "[data-jobs-list]"
 
         ];
 
@@ -314,6 +324,20 @@
 
 
         return null;
+    }
+
+
+    /*
+     * Compatibility function.
+     *
+     * Some older app.js versions use:
+     *
+     * window.Web3JobsJobs.getJobsContainer()
+     */
+
+    function getJobsContainer() {
+
+        return findJobsContainer();
     }
 
 
@@ -347,7 +371,7 @@
 
 
     /* =========================================================
-       SUPABASE ERROR
+       ERROR
        ========================================================= */
 
     function buildSupabaseError(
@@ -524,6 +548,33 @@
             );
 
 
+            /*
+             * Notify the rest of the application.
+             */
+
+            try {
+
+                window.dispatchEvent(
+                    new CustomEvent(
+                        "web3jobs:jobs-loaded",
+                        {
+                            detail: {
+                                jobs: data,
+                                count: data.length
+                            }
+                        }
+                    )
+                );
+
+            } catch (eventError) {
+
+                console.warn(
+                    "Web3Jobs: Unable to dispatch jobs-loaded event:",
+                    eventError
+                );
+            }
+
+
             return data;
 
         } catch (error) {
@@ -561,6 +612,112 @@
 
 
     /* =========================================================
+       COMPATIBILITY ALIAS
+       ========================================================= */
+
+    /*
+     * IMPORTANT:
+     *
+     * Older app.js versions call:
+     *
+     * window.Web3JobsJobs.loadJobs()
+     *
+     * The main function is loadAllJobs().
+     *
+     * This alias prevents:
+     *
+     * loadJobs is not a function
+     */
+
+    async function loadJobs() {
+
+        return await loadAllJobs();
+    }
+
+
+    /* =========================================================
+       SYNC JOB STATE
+       ========================================================= */
+
+    /*
+     * Compatibility helper for app.js.
+     *
+     * It keeps the global JobsSystem state synchronized
+     * without creating another Supabase client.
+     */
+
+    function syncJobsState() {
+
+        try {
+
+            if (
+                window.Web3JobsState &&
+                typeof window.Web3JobsState === "object"
+            ) {
+
+                window.Web3JobsState.jobs =
+                    JobsSystem.jobs;
+
+                window.Web3JobsState.filteredJobs =
+                    JobsSystem.filteredJobs;
+
+                window.Web3JobsState.currentJob =
+                    JobsSystem.currentJob;
+
+                window.Web3JobsState.currentUser =
+                    JobsSystem.currentUser;
+            }
+
+
+            /*
+             * Some older files expect these properties
+             * directly on Web3JobsJobs.
+             */
+
+            return {
+
+                jobs:
+                    JobsSystem.jobs,
+
+                filteredJobs:
+                    JobsSystem.filteredJobs,
+
+                currentJob:
+                    JobsSystem.currentJob,
+
+                currentUser:
+                    JobsSystem.currentUser
+
+            };
+
+        } catch (error) {
+
+            console.warn(
+                "Web3Jobs: syncJobsState failed:",
+                error
+            );
+
+
+            return {
+
+                jobs:
+                    JobsSystem.jobs,
+
+                filteredJobs:
+                    JobsSystem.filteredJobs,
+
+                currentJob:
+                    JobsSystem.currentJob,
+
+                currentUser:
+                    JobsSystem.currentUser
+
+            };
+        }
+    }
+
+
+    /* =========================================================
        SAFE APPLICATION URL
        ========================================================= */
 
@@ -572,8 +729,6 @@
 
 
         /*
-         * IMPORTANT:
-         *
          * Priority:
          *
          * 1. application_url
@@ -581,7 +736,7 @@
          * 3. application_link
          * 4. apply_url
          *
-         * source_url is intentionally NOT included.
+         * source_url is intentionally NOT used.
          */
 
         const rawURL =
@@ -886,6 +1041,8 @@
 
             `;
 
+            syncJobsState();
+
             return;
         }
 
@@ -894,6 +1051,9 @@
             jobs
                 .map(createJobCard)
                 .join("");
+
+
+        syncJobsState();
     }
 
 
@@ -1158,6 +1318,9 @@
                 response.data || null;
 
 
+            syncJobsState();
+
+
             return JobsSystem.currentJob;
 
         } catch (error) {
@@ -1306,6 +1469,9 @@
 
         JobsSystem.currentJob =
             job;
+
+
+        syncJobsState();
 
 
         const modal =
@@ -1615,6 +1781,13 @@
             return false;
         }
 
+
+        /*
+         * Read existing session.
+         *
+         * NEVER redirect.
+         * NEVER sign out.
+         */
 
         const user =
             JobsSystem.currentUser ||
@@ -2108,6 +2281,12 @@
             JobsSystem.initialized
         ) {
 
+            /*
+             * Still synchronize state for app.js.
+             */
+
+            syncJobsState();
+
             return;
         }
 
@@ -2141,7 +2320,7 @@
 
 
         /*
-         * Read the current authentication session.
+         * Read current authentication session.
          *
          * There is NO redirect here.
          */
@@ -2167,6 +2346,8 @@
             );
 
 
+            syncJobsState();
+
             return;
         }
 
@@ -2174,9 +2355,39 @@
         await loadAllJobs();
 
 
+        syncJobsState();
+
+
         console.log(
             "Web3Jobs: Jobs System initialized."
         );
+
+
+        /*
+         * Tell app.js that jobs.js is ready.
+         */
+
+        try {
+
+            window.dispatchEvent(
+                new CustomEvent(
+                    "web3jobs:ready",
+                    {
+                        detail: {
+                            version: "3.0.3",
+                            supabaseConnected: true
+                        }
+                    }
+                )
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Web3Jobs: Unable to dispatch ready event:",
+                error
+            );
+        }
     }
 
 
@@ -2186,7 +2397,14 @@
 
     async function refreshJobs() {
 
-        return await loadAllJobs();
+        const result =
+            await loadAllJobs();
+
+
+        syncJobsState();
+
+
+        return result;
     }
 
 
@@ -2336,6 +2554,8 @@
 
                 applyFilters();
 
+                syncJobsState();
+
 
                 showMessage(
                     "Job published successfully.",
@@ -2461,6 +2681,8 @@
 
             applyFilters();
 
+            syncJobsState();
+
 
             showMessage(
                 "Job deleted successfully.",
@@ -2499,14 +2721,35 @@
 
     window.Web3JobsJobs = {
 
+        /*
+         * Main functions
+         */
+
         initializeJobs:
             initializeJobs,
 
         loadAllJobs:
             loadAllJobs,
 
+        /*
+         * IMPORTANT COMPATIBILITY ALIAS
+         *
+         * app.js can safely call:
+         *
+         * window.Web3JobsJobs.loadJobs()
+         */
+
+        loadJobs:
+            loadJobs,
+
         refreshJobs:
             refreshJobs,
+
+        syncJobsState:
+            syncJobsState,
+
+        getJobsContainer:
+            getJobsContainer,
 
         renderAllJobs:
             renderAllJobs,
@@ -2555,15 +2798,24 @@
 
     /* =========================================================
        START
-       ---------------------------------------------------------
-       IMPORTANT:
-       jobs.js does NOT auto-start.
-
-       app.js is responsible for calling:
-
-           await window.Web3JobsJobs.initializeJobs();
-
-       This prevents jobs from being loaded twice.
        ========================================================= */
+
+    if (
+        document.readyState === "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeJobs,
+            {
+                once: true
+            }
+        );
+
+    } else {
+
+        initializeJobs();
+    }
+
 
 })();
