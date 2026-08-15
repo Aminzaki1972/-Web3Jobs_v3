@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Web3Jobs - Discover leading Web3, Blockchain and Crypto companies."
+    >
+
+    <meta
+        name="keywords"
+        content="Web3 companies, Blockchain companies, Crypto companies, Web3Jobs"
+    >
+
+    <title>Web3Jobs - Companies</title>
+
+
+    <!-- Main CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+
+    <style>
+
+        /* =====================================================
+           COMPANIES PAGE
+           ===================================================== */
+
+        .companies-page {
+            min-height: 100vh;
+        }
+
+
+        /* =====================================================
+           HERO
+           ===================================================== */
+
+        .companies-hero {
+
+            padding:
+                90px 20px 55px;
+
+            text-align:
+                center;
+        }
+
+
+        .companies-hero h1 {
+
+            margin:
+                0 0 15px;
+
+            font-size:
+                clamp(36px, 6vw, 64px);
+
+            font-weight:
+                800;
+        }
+
+
+        .companies-hero p {
+
+            max-width:
+                720px;
+
+            margin:
+                0 auto;
+
+            font-size:
+                18px;
+
+            line-height:
+                1.7;
+
+            opacity:
+                .8;
+        }
+
+
+        /* =====================================================
+           COMPANIES SECTION
+           ===================================================== */
+
+        .companies-section {
+
+            width:
+                min(
+                    1150px,
+                    calc(100% - 40px)
+                );
+
+            margin:
+                0 auto 80px;
+        }
+
+
+        .companies-section-header {
+
+            margin-bottom:
+                30px;
+
+            text-align:
+                center;
+        }
+
+
+        .companies-section-header h2 {
+
+            margin:
+                0 0 10px;
+
+            font-size:
+                30px;
+        }
+
+
+        .companies-section-header p {
+
+            margin:
+                0;
+
+            opacity:
+                .7;
+        }
+
+
+        /* =====================================================
+           COMPANY GRID
+           ===================================================== */
+
+        .companies-grid {
+
+            display:
+                grid;
+
+            grid-template-columns:
+                repeat(
+                    3,
+                    minmax(0, 1fr)
+                );
+
+            gap:
+                20px;
+        }
+
+
+        /* =====================================================
+           COMPANY CARD
+           ===================================================== */
+
+        .company-card {
+
+            padding:
+                28px;
+
+            border-radius:
+                18px;
+
+            background:
+                rgba(255,255,255,.05);
+
+            border:
+                1px solid
+                rgba(255,255,255,.10);
+
+            transition:
+                transform .2s ease,
+                border-color .2s ease,
+                box-shadow .2s ease;
+        }
+
+
+        .company-card:hover {
+
+            transform:
+                translateY(-4px);
+
+            border-color:
+                rgba(99,102,241,.6);
+
+            box-shadow:
+                0 15px 40px
+                rgba(0,0,0,.18);
+        }
+
+
+        /* =====================================================
+           COMPANY LOGO
+           ===================================================== */
+
+        .company-logo {
+
+            width:
+                64px;
+
+            height:
+                64px;
+
+            margin-bottom:
+                20px;
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            border-radius:
+                16px;
+
+            background:
+                rgba(99,102,241,.15);
+
+            color:
+                #818cf8;
+
+            font-size:
+                25px;
+
+            font-weight:
+                800;
+        }
+
+
+        /* =====================================================
+           COMPANY NAME
+           ===================================================== */
+
+        .company-card h3 {
+
+            margin:
+                0 0 8px;
+
+            font-size:
+                21px;
+        }
+
+
+        .company-card p {
+
+            margin:
+                0 0 20px;
+
+            line-height:
+                1.6;
+
+            font-size:
+                14px;
+
+            opacity:
+                .7;
+        }
+
+
+        /* =====================================================
+           COMPANY TAG
+           ===================================================== */
+
+        .company-tag {
+
+            display:
+                inline-block;
+
+            padding:
+                6px 10px;
+
+            margin-bottom:
+                18px;
+
+            border-radius:
+                8px;
+
+            background:
+                rgba(255,255,255,.06);
+
+            font-size:
+                12px;
+        }
+
+
+        /* =====================================================
+           BUTTON
+           ===================================================== */
+
+        .company-button {
+
+            display:
+                flex;
+
+            align-items:
+                center;
+
+            justify-content:
+                center;
+
+            width:
+                100%;
+
+            min-height:
+                45px;
+
+            border:
+                0;
+
+            border-radius:
+                10px;
+
+            background:
+                #6366f1;
+
+            color:
+                #ffffff;
+
+            text-decoration:
+                none;
+
+            font-weight:
+                700;
+
+            box-sizing:
+                border-box;
+        }
+
+
+        .company-button:hover {
+
+            filter:
+                brightness(1.1);
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+           ===================================================== */
+
+        .companies-empty {
+
+            grid-column:
+                1 / -1;
+
+            text-align:
+                center;
+
+            padding:
+                70px 20px;
+
+            border-radius:
+                18px;
+
+            background:
+                rgba(255,255,255,.04);
+
+            border:
+                1px solid
+                rgba(255,255,255,.08);
+        }
+
+
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .companies-grid {
+
+                grid-template-columns:
+                    repeat(
+                        2,
+                        minmax(0, 1fr)
+                    );
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .companies-hero {
+
+                padding-top:
+                    60px;
+            }
+
+
+            .companies-section {
+
+                width:
+                    calc(100% - 24px);
+            }
+
+
+            .companies-grid {
+
+                grid-template-columns:
+                    1fr;
+            }
+
+
+            .company-card {
+
+                padding:
+                    22px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="site-header">
+
+        <div class="container">
+
+            <a
+                href="index.html"
+                class="logo"
+            >
+                Web3Jobs
+            </a>
+
+
+            <nav class="main-nav">
+
+                <a href="index.html">
+                    Home
+                </a>
+
+
+                <a href="jobs.html">
+                    Jobs
+                </a>
+
+
+                <a
+                    href="companies.html"
+                    class="active"
+                >
+                    Companies
+                </a>
+
+
+                <a href="roadmap.html">
+                    Roadmap
+                </a>
+
+
+                <a href="login.html">
+                    Login
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="companies-page">
+
+
+        <!-- =================================================
+             HERO
+             ================================================= -->
+
+        <section class="companies-hero">
+
+            <h1>
+                Web3 Companies
+            </h1>
+
+
+            <p>
+                Explore companies building the future of
+                Web3, Blockchain, Crypto, DeFi and the
+                decentralized economy.
+            </p>
+
+        </section>
+
+
+        <!-- =================================================
+             COMPANIES
+             ================================================= -->
+
+        <section class="companies-section">
+
+
+            <div class="companies-section-header">
+
+                <h2>
+                    Featured Companies
+                </h2>
+
+
+                <p>
+                    Discover organizations creating
+                    opportunities across Web3.
+                </p>
+
+            </div>
+
+
+            <div class="companies-grid">
+
+
+                <!-- Company 1 -->
+
+                <article class="company-card">
+
+                    <div class="company-logo">
+                        A
+                    </div>
+
+
+                    <span class="company-tag">
+                        Blockchain
+                    </span>
+
+
+                    <h3>
+                        Anchorage Digital
+                    </h3>
+
+
+                    <p>
+                        Digital asset platform providing
+                        institutional cryptocurrency
+                        custody and blockchain services.
+                    </p>
+
+
+                    <a
+                        href="https://www.anchorage.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="company-button"
+                    >
+                        Visit Company
+                    </a>
+
+                </article>
+
+
+                <!-- Company 2 -->
+
+                <article class="company-card">
+
+                    <div class="company-logo">
+                        C
+                    </div>
+
+
+                    <span class="company-tag">
+                        Crypto
+                    </span>
+
+
+                    <h3>
+                        Coinbase
+                    </h3>
+
+
+                    <p>
+                        A global cryptocurrency platform
+                        building products and services
+                        for the crypto economy.
+                    </p>
+
+
+                    <a
+                        href="https://www.coinbase.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="company-button"
+                    >
+                        Visit Company
+                    </a>
+
+                </article>
+
+
+                <!-- Company 3 -->
+
+                <article class="company-card">
+
+                    <div class="company-logo">
+                        C
+                    </div>
+
+
+                    <span class="company-tag">
+                        Blockchain
+                    </span>
+
+
+                    <h3>
+                        Consensys
+                    </h3>
+
+
+                    <p>
+                        Blockchain technology company
+                        developing infrastructure and
+                        applications for Ethereum.
+                    </p>
+
+
+                    <a
+                        href="https://consensys.io/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="company-button"
+                    >
+                        Visit Company
+                    </a>
+
+                </article>
+
+
+                <!-- Company 4 -->
+
+                <article class="company-card">
+
+                    <div class="company-logo">
+                        O
+                    </div>
+
+
+                    <span class="company-tag">
+                        Web3
+                    </span>
+
+
+                    <h3>
+                        OpenSea
+                    </h3>
+
+
+                    <p>
+                        Digital marketplace and Web3
+                        platform for discovering and
+                        interacting with digital assets.
+                    </p>
+
+
+                    <a
+                        href="https://opensea.io/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="company-button"
+                    >
+                        Visit Company
+                    </a>
+
+                </article>
+
+
+                <!-- Company 5 -->
+
+                <article class="company-card">
+
+                    <div class="company-logo">
+                        B
+                    </div>
+
+
+                    <span class="company-tag">
+                        Exchange
+                    </span>
+
+
+                    <h3>
+                        Binance
+                    </h3>
+
+
+                    <p>
+                        Global blockchain ecosystem
+                        providing cryptocurrency trading
+                        and Web3 infrastructure.
+                    </p>
+
+
+                    <a
+                        href="https://www.binance.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="company-button"
+                    >
+                        Visit Company
+                    </a>
+
+                </article>
+
+
+                <!-- Company 6 -->
+
+                <article class="company-card">
+
+                    <div class="company-logo">
+                        W
+                    </div>
+
+
+                    <span class="company-tag">
+                        Web3
+                    </span>
+
+
+                    <h3>
+                        Web3 Company
+                    </h3>
+
+
+                    <p>
+                        Discover emerging companies and
+                        new opportunities across the
+                        decentralized economy.
+                    </p>
+
+
+                    <a
+                        href="jobs.html"
+                        class="company-button"
+                    >
+                        View Jobs
+                    </a>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="site-footer">
+
+        <div class="container">
+
+            <p>
+                © 2026 Web3Jobs. All rights reserved.
+            </p>
+
+        </div>
+
+    </footer>
+
+
+</body>
+
+          </html>
