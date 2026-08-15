@@ -29,12 +29,12 @@
 
     <link
         rel="stylesheet"
-        href="css/style.css"
+        href="./css/style.css"
     >
 
     <link
         rel="stylesheet"
-        href="css/responsive.css"
+        href="./css/responsive.css"
     >
 
 
@@ -317,7 +317,7 @@
 
 
         /* =====================================================
-           BUTTON
+           BUTTONS
            ===================================================== */
 
         .job-card-actions {
@@ -325,9 +325,16 @@
             gap: 10px;
         }
 
-        .job-view-button {
+        .job-view-button,
+        .job-apply-button {
             width: 100%;
             min-height: 45px;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            box-sizing: border-box;
 
             border: 0;
             border-radius: 10px;
@@ -338,9 +345,11 @@
             color: #fff;
 
             font-weight: 700;
+            text-decoration: none;
         }
 
-        .job-view-button:hover {
+        .job-view-button:hover,
+        .job-apply-button:hover {
             filter: brightness(1.1);
         }
 
@@ -508,9 +517,6 @@
 
         .job-apply-button {
 
-            width:
-                100%;
-
             min-height:
                 52px;
 
@@ -640,6 +646,10 @@
                     flex-start;
             }
 
+            .job-card-actions {
+                flex-direction: column;
+            }
+
         }
 
     </style>
@@ -659,7 +669,7 @@
         <div class="container">
 
             <a
-                href="index.html"
+                href="./index.html"
                 class="logo"
             >
                 Web3Jobs
@@ -668,26 +678,26 @@
 
             <nav class="main-nav">
 
-                <a href="index.html">
+                <a href="./index.html">
                     Home
                 </a>
 
                 <a
-                    href="jobs.html"
+                    href="./jobs.html"
                     class="active"
                 >
                     Jobs
                 </a>
 
-                <a href="companies.html">
+                <a href="./companies.html">
                     Companies
                 </a>
 
-                <a href="roadmap.html">
+                <a href="./roadmap.html">
                     Roadmap
                 </a>
 
-                <a href="login.html">
+                <a href="./login.html">
                     Login
                 </a>
 
@@ -911,8 +921,7 @@
 
                             if (
                                 window.Web3JobsJobs &&
-                                typeof
-                                window.Web3JobsJobs.filterJobsByType ===
+                                typeof window.Web3JobsJobs.filterJobsByType ===
                                 "function"
                             ) {
 
@@ -940,8 +949,7 @@
 
                             if (
                                 window.Web3JobsJobs &&
-                                typeof
-                                window.Web3JobsJobs.filterJobsByLocation ===
+                                typeof window.Web3JobsJobs.filterJobsByLocation ===
                                 "function"
                             ) {
 
@@ -990,8 +998,7 @@
 
                             if (
                                 window.Web3JobsJobs &&
-                                typeof
-                                window.Web3JobsJobs.clearJobFilters ===
+                                typeof window.Web3JobsJobs.clearJobFilters ===
                                 "function"
                             ) {
 
@@ -1012,10 +1019,11 @@
 
     <!-- =====================================================
          UNIFIED SUPABASE CLIENT
+         MUST LOAD BEFORE jobs.js
          ===================================================== -->
 
     <script
-        src="js/supabase.js"
+        src="./js/supabase.js"
     ></script>
 
 
@@ -1024,26 +1032,143 @@
          ===================================================== -->
 
     <script
-        src="js/jobs.js"
+        src="./js/jobs.js"
     ></script>
 
 
     <!-- =====================================================
-         GREENHOUSE SYNC
+         JOBS BOOT / SAFE INITIALIZATION
          ===================================================== -->
 
-    <!--
-        IMPORTANT:
+    <script>
 
-        This file is responsible for the external
-        Greenhouse job synchronization.
+        (function () {
 
-        It is loaded AFTER Supabase and jobs.js.
-    -->
+            "use strict";
 
-    <script
-        src="js/greenhouse-sync.js"
-    ></script>
+
+            function bootJobsPage() {
+
+                /*
+                 * jobs.js exposes:
+                 *
+                 * window.Web3JobsJobs.initializeJobs()
+                 */
+
+                if (
+                    window.Web3JobsJobs &&
+                    typeof window.Web3JobsJobs.initializeJobs ===
+                    "function"
+                ) {
+
+                    window.Web3JobsJobs
+                        .initializeJobs();
+
+                    return true;
+                }
+
+
+                return false;
+            }
+
+
+            function waitForJobsSystem(
+                attempts = 0
+            ) {
+
+                if (
+                    bootJobsPage()
+                ) {
+
+                    return;
+                }
+
+
+                /*
+                 * Give supabase.js / jobs.js time
+                 * to finish loading.
+                 */
+
+                if (
+                    attempts >= 20
+                ) {
+
+                    console.error(
+                        "Web3Jobs: Jobs system could not be initialized."
+                    );
+
+                    const container =
+                        document.getElementById(
+                            "jobs-list"
+                        );
+
+
+                    if (container) {
+
+                        container.innerHTML = `
+
+                            <div class="no-jobs">
+
+                                <h3>
+                                    Unable to load jobs
+                                </h3>
+
+                                <p>
+                                    Please refresh the page and try again.
+                                </p>
+
+                            </div>
+
+                        `;
+                    }
+
+                    return;
+                }
+
+
+                setTimeout(
+                    function () {
+
+                        waitForJobsSystem(
+                            attempts + 1
+                        );
+
+                    },
+                    300
+                );
+            }
+
+
+            /*
+             * Start after DOM is ready.
+             */
+
+            if (
+                document.readyState ===
+                "loading"
+            ) {
+
+                document.addEventListener(
+                    "DOMContentLoaded",
+                    function () {
+
+                        waitForJobsSystem();
+
+                    },
+                    {
+                        once: true
+                    }
+                );
+
+            } else {
+
+                waitForJobsSystem();
+
+            }
+
+        })();
+
+    </script>
 
 
 </body>
