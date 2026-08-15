@@ -1,7 +1,8 @@
 /* =========================================================
    Web3Jobs Company Dashboard
+   Subscription + USDT Payment
+   BNB Smart Chain
    Plans: Free / $2 / $5 / $10
-   Payment: USDT on BNB Smart Chain
    ========================================================= */
 
 "use strict";
@@ -31,26 +32,17 @@
             "https://bscscan.com",
 
         /*
-         * =================================================
-         * IMPORTANT
-         * =================================================
+         * Web3Jobs payment receiving wallet
          *
-         * 0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36 Web3Jobs.
-         *
-         * مثال:
-         *
-         * paymentWallet:
-         *     "0x1234567890123456789012345678901234567890",
-         *
-         * لا تضع Private Key هنا.
-         * لا تضع Seed Phrase هنا.
+         * IMPORTANT:
+         * Never put a private key or seed phrase here.
          */
 
         paymentWallet:
-            "ضع_عنوان_محفظة_الاستلام_هنا",
+            "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
 
         /*
-         * USDT الرسمي على BNB Smart Chain
+         * USDT on BNB Smart Chain
          */
 
         usdtContract:
@@ -157,6 +149,8 @@
 
     let applications = [];
 
+    let paymentInProgress = false;
+
 
     /* =====================================================
        SUPABASE CLIENT
@@ -171,10 +165,6 @@
         }
 
 
-        /*
-         * Preferred global client
-         */
-
         if (
             window.supabaseClient &&
             typeof window.supabaseClient.from === "function"
@@ -187,10 +177,6 @@
 
         }
 
-
-        /*
-         * Supabase CDN client
-         */
 
         if (
             window.supabase &&
@@ -265,7 +251,7 @@
                         "none";
 
                 },
-                6000
+                7000
             );
 
     }
@@ -420,9 +406,7 @@
         } =
             await sb
 
-                .from(
-                    "profiles"
-                )
+                .from("profiles")
 
                 .select("*")
 
@@ -453,52 +437,7 @@
             data || null;
 
 
-        const companyName =
-
-            currentProfile?.company_name ||
-
-            currentProfile?.name ||
-
-            currentProfile?.full_name ||
-
-            currentUser.user_metadata?.company_name ||
-
-            currentUser.user_metadata?.name ||
-
-            currentUser.email?.split("@")[0] ||
-
-            "Company";
-
-
-        const companyInput =
-            document.getElementById(
-                "job-company"
-            );
-
-
-        const sidebarName =
-            document.getElementById(
-                "sidebar-company-name"
-            );
-
-
-        if (
-            companyInput &&
-            !companyInput.value
-        ) {
-
-            companyInput.value =
-                companyName;
-
-        }
-
-
-        if (sidebarName) {
-
-            sidebarName.textContent =
-                companyName;
-
-        }
+        updateCompanyNameUI();
 
     }
 
@@ -529,9 +468,7 @@
         } =
             await sb
 
-                .from(
-                    "company_profiles"
-                )
+                .from("company_profiles")
 
                 .select("*")
 
@@ -551,7 +488,18 @@
         }
 
 
-        const companyName =
+        updateCompanyNameUI();
+
+    }
+
+
+    /* =====================================================
+       GET COMPANY NAME
+       ===================================================== */
+
+    function getCompanyName() {
+
+        return (
 
             currentCompany?.company_name ||
 
@@ -563,13 +511,27 @@
 
             currentProfile?.full_name ||
 
-            currentUser.user_metadata?.company_name ||
+            currentUser?.user_metadata?.company_name ||
 
-            currentUser.user_metadata?.name ||
+            currentUser?.user_metadata?.name ||
 
-            currentUser.email?.split("@")[0] ||
+            currentUser?.email?.split("@")[0] ||
 
-            "Company";
+            "Company"
+
+        );
+
+    }
+
+
+    /* =====================================================
+       UPDATE COMPANY NAME UI
+       ===================================================== */
+
+    function updateCompanyNameUI() {
+
+        const companyName =
+            getCompanyName();
 
 
         const companyInput =
@@ -633,9 +595,7 @@
             } =
                 await sb
 
-                    .from(
-                        "company_plans"
-                    )
+                    .from("company_plans")
 
                     .select("*")
 
@@ -656,10 +616,24 @@
                     .maybeSingle();
 
 
-            if (
-                !error &&
-                data
-            ) {
+            if (error) {
+
+                console.warn(
+                    "Subscription load:",
+                    error
+                );
+
+                currentPlan =
+                    PLANS.free;
+
+                updatePlanUI();
+
+                return;
+
+            }
+
+
+            if (data) {
 
                 const code =
                     data.plan_code ||
@@ -691,6 +665,11 @@
 
                 }
 
+            } else {
+
+                currentPlan =
+                    PLANS.free;
+
             }
 
         } catch (error) {
@@ -699,6 +678,9 @@
                 "Subscription table unavailable:",
                 error
             );
+
+            currentPlan =
+                PLANS.free;
 
         }
 
@@ -764,9 +746,7 @@
         };
 
 
-        if (
-            paymentData.txHash
-        ) {
+        if (paymentData.txHash) {
 
             payload.tx_hash =
                 paymentData.txHash;
@@ -774,9 +754,7 @@
         }
 
 
-        if (
-            paymentData.wallet
-        ) {
+        if (paymentData.wallet) {
 
             payload.wallet_address =
                 paymentData.wallet;
@@ -789,9 +767,7 @@
         } =
             await sb
 
-                .from(
-                    "company_plans"
-                )
+                .from("company_plans")
 
                 .upsert(
                     payload,
@@ -808,11 +784,6 @@
                 "Saving company plan failed:",
                 error
             );
-
-            /*
-             * Do not pretend the subscription
-             * was successfully saved.
-             */
 
             throw error;
 
@@ -844,9 +815,12 @@
                 function (button) {
 
                     button.classList.toggle(
+
                         "active",
+
                         button.dataset.plan ===
                         currentPlan.code
+
                     );
 
                 }
@@ -911,9 +885,7 @@
         } =
             await sb
 
-                .from(
-                    "jobs"
-                )
+                .from("jobs")
 
                 .select("*")
 
@@ -938,13 +910,16 @@
             );
 
 
-            list.innerHTML =
-                `
+            list.innerHTML = `
+
                 <div class="empty-state">
+
                     Unable to load your jobs.
                     Please check the jobs table and RLS policies.
+
                 </div>
-                `;
+
+            `;
 
 
             return;
@@ -982,12 +957,15 @@
 
         if (!jobs.length) {
 
-            list.innerHTML =
-                `
+            list.innerHTML = `
+
                 <div class="empty-state">
+
                     You have not published any jobs yet.
+
                 </div>
-                `;
+
+            `;
 
 
             return;
@@ -996,6 +974,7 @@
 
 
         list.innerHTML =
+
             jobs
 
                 .map(
@@ -1010,26 +989,34 @@
 
                         const safeDescription =
                             escapeHTML(
+
                                 description.length > 500
+
                                     ? description.slice(
                                         0,
                                         500
                                     ) + "…"
+
                                     : description
+
                             );
 
 
                         const applyLink =
                             job.apply_link
                                 ? `
+
                                     <a
                                         class="small-button"
-                                        href="${escapeHTML(job.apply_link)}"
+                                        href="${escapeHTML(
+                                            job.apply_link
+                                        )}"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                     >
                                         View Apply Link
                                     </a>
+
                                   `
                                 : "";
 
@@ -1043,33 +1030,44 @@
                                     <div>
 
                                         <div class="job-title">
+
                                             ${escapeHTML(
                                                 job.title ||
                                                 "Untitled Job"
                                             )}
+
                                         </div>
+
 
                                         <div class="job-meta">
 
                                             <span>
+
                                                 ${escapeHTML(
                                                     job.company ||
                                                     "Company"
                                                 )}
+
                                             </span>
 
+
                                             <span>
+
                                                 ${escapeHTML(
                                                     job.location ||
                                                     "Remote"
                                                 )}
+
                                             </span>
 
+
                                             <span>
+
                                                 ${escapeHTML(
                                                     job.type ||
                                                     "Full-time"
                                                 )}
+
                                             </span>
 
                                         </div>
@@ -1157,13 +1155,11 @@
         }
 
 
-        const confirmed =
-            window.confirm(
+        if (
+            !window.confirm(
                 "Delete this job?"
-            );
-
-
-        if (!confirmed) {
+            )
+        ) {
 
             return;
 
@@ -1191,9 +1187,7 @@
         } =
             await sb
 
-                .from(
-                    "jobs"
-                )
+                .from("jobs")
 
                 .delete()
 
@@ -1254,18 +1248,15 @@
         }
 
 
-        /*
-         * Count existing jobs before publishing.
-         */
-
         if (
             currentPlan.limit !== Infinity &&
-            jobs.length >=
-            currentPlan.limit
+            jobs.length >= currentPlan.limit
         ) {
 
             throw new Error(
+
                 `Your ${currentPlan.name} plan allows ${currentPlan.limit} job postings. Please upgrade your plan.`
+
             );
 
         }
@@ -1353,9 +1344,7 @@
         } =
             await sb
 
-                .from(
-                    "jobs"
-                )
+                .from("jobs")
 
                 .insert(
                     payload
@@ -1372,31 +1361,7 @@
         form.reset();
 
 
-        const companyInput =
-            document.getElementById(
-                "job-company"
-            );
-
-
-        if (companyInput) {
-
-            companyInput.value =
-
-                currentCompany?.company_name ||
-
-                currentCompany?.name ||
-
-                currentProfile?.company_name ||
-
-                currentProfile?.name ||
-
-                currentProfile?.full_name ||
-
-                currentUser.email?.split("@")[0] ||
-
-                "";
-
-        }
+        updateCompanyNameUI();
 
 
         alertBox(
@@ -1442,9 +1407,7 @@
         } =
             await sb
 
-                .from(
-                    "applications"
-                )
+                .from("applications")
 
                 .select(
                     "*, jobs(title, company_id)"
@@ -1471,19 +1434,22 @@
             );
 
 
-            body.innerHTML =
-                `
+            body.innerHTML = `
+
                 <tr>
 
                     <td
                         colspan="4"
                         class="empty-state"
                     >
+
                         Applications are currently unavailable.
+
                     </td>
 
                 </tr>
-                `;
+
+            `;
 
 
             return;
@@ -1497,19 +1463,22 @@
 
         if (!applications.length) {
 
-            body.innerHTML =
-                `
+            body.innerHTML = `
+
                 <tr>
 
                     <td
                         colspan="4"
                         class="empty-state"
                     >
+
                         No applications yet.
+
                     </td>
 
                 </tr>
-                `;
+
+            `;
 
 
             return;
@@ -1533,13 +1502,16 @@
 
 
                         const statusClass =
+
                             [
                                 "pending",
                                 "approved",
                                 "rejected"
                             ]
                             .includes(status)
+
                                 ? status
+
                                 : "pending";
 
 
@@ -1548,6 +1520,7 @@
                             <tr>
 
                                 <td>
+
                                     ${escapeHTML(
                                         application.candidate_name ||
                                         application.name ||
@@ -1555,36 +1528,50 @@
                                         application.user_id ||
                                         "Candidate"
                                     )}
+
                                 </td>
 
+
                                 <td>
+
                                     ${escapeHTML(
                                         application.jobs?.title ||
                                         application.job_title ||
                                         "Job"
                                     )}
+
                                 </td>
+
 
                                 <td>
 
                                     <span
                                         class="status ${statusClass}"
                                     >
+
                                         ${escapeHTML(
                                             status
                                         )}
+
                                     </span>
 
                                 </td>
 
+
                                 <td>
+
                                     ${escapeHTML(
+
                                         application.created_at
+
                                             ? new Date(
                                                 application.created_at
                                             ).toLocaleDateString()
+
                                             : "—"
+
                                     )}
+
                                 </td>
 
                             </tr>
@@ -1600,7 +1587,79 @@
 
 
     /* =====================================================
-       SWITCH TO BNB SMART CHAIN
+       VALIDATE PAYMENT WALLET
+       ===================================================== */
+
+    function validatePaymentWallet() {
+
+        const wallet =
+            CONFIG.paymentWallet;
+
+
+        if (
+            !wallet ||
+            !/^0x[a-fA-F0-9]{40}$/.test(
+                wallet
+            )
+        ) {
+
+            throw new Error(
+                "The Web3Jobs payment wallet address is invalid."
+            );
+
+        }
+
+
+        return wallet;
+
+    }
+
+
+    /* =====================================================
+       CHECK WALLET
+       ===================================================== */
+
+    async function connectWallet() {
+
+        if (!window.ethereum) {
+
+            throw new Error(
+
+                "MetaMask is not installed. Please install MetaMask and try again."
+
+            );
+
+        }
+
+
+        const accounts =
+            await window.ethereum.request({
+
+                method:
+                    "eth_requestAccounts"
+
+            });
+
+
+        if (
+            !accounts ||
+            !accounts.length
+        ) {
+
+            throw new Error(
+                "No wallet account was connected."
+            );
+
+        }
+
+
+        return accounts[0];
+
+    }
+
+
+    /* =====================================================
+       SWITCH TO BSC
        ===================================================== */
 
     async function switchToBSC() {
@@ -1622,10 +1681,12 @@
                     "wallet_switchEthereumChain",
 
                 params: [
+
                     {
                         chainId:
                             CONFIG.chainId
                     }
+
                 ]
 
             });
@@ -1679,46 +1740,27 @@
 
 
     /* =====================================================
-       VALIDATE PAYMENT WALLET
+       GET ETHERS
        ===================================================== */
 
-    function validatePaymentWallet() {
-
-        const wallet =
-            CONFIG.paymentWallet;
-
+    function getEthers() {
 
         if (
-            !wallet ||
-            wallet.includes(
-                "ضع_عنوان"
-            ) ||
-            wallet.includes(
-                "REPLACE_WITH"
-            )
+            window.ethers &&
+            typeof window.ethers.BrowserProvider ===
+            "function"
         ) {
 
-            throw new Error(
-                "Payment wallet is not configured. Add your BSC receiving wallet address to company-dashboard.js."
-            );
+            return window.ethers;
 
         }
 
 
-        if (
-            !/^0x[a-fA-F0-9]{40}$/.test(
-                wallet
-            )
-        ) {
+        throw new Error(
 
-            throw new Error(
-                "The payment wallet address is not a valid BSC/EVM address."
-            );
+            "Ethers.js is not loaded. Add the ethers.js script before company-dashboard.js."
 
-        }
-
-
-        return wallet;
+        );
 
     }
 
@@ -1731,217 +1773,324 @@
         plan
     ) {
 
-        /*
-         * FREE PLAN
-         */
-
-        if (
-            plan.price <= 0
-        ) {
-
-            await savePlan(
-                plan.code
-            );
-
-
-            alertBox(
-                "Free plan activated successfully."
-            );
-
-
-            return;
-
-        }
-
-
-        /*
-         * WALLET
-         */
-
-        if (!window.ethereum) {
+        if (paymentInProgress) {
 
             throw new Error(
-                "Please install MetaMask or another compatible Web3 wallet."
+                "A payment is already in progress."
             );
 
         }
 
 
-        /*
-         * PAYMENT RECEIVING WALLET
-         */
-
-        const receivingWallet =
-            validatePaymentWallet();
+        paymentInProgress =
+            true;
 
 
-        /*
-         * ETHERS
-         */
+        try {
 
-        if (!window.ethers) {
+            /* =============================================
+               FREE
+               ============================================= */
 
-            throw new Error(
-                "Ethers library is not loaded. Add ethers.js before using payments."
-            );
+            if (
+                plan.price <= 0
+            ) {
 
-        }
-
-
-        /*
-         * BNB CHAIN
-         */
-
-        await switchToBSC();
+                await savePlan(
+                    plan.code
+                );
 
 
-        /*
-         * PROVIDER
-         */
-
-        const provider =
-            new window.ethers.BrowserProvider(
-                window.ethereum
-            );
+                alertBox(
+                    "Free plan activated successfully."
+                );
 
 
-        /*
-         * SIGNER
-         */
-
-        const signer =
-            await provider.getSigner();
-
-
-        const wallet =
-            await signer.getAddress();
-
-
-        /*
-         * USDT CONTRACT
-         */
-
-        const token =
-            new window.ethers.Contract(
-
-                CONFIG.usdtContract,
-
-                USDT_ABI,
-
-                signer
-
-            );
-
-
-        /*
-         * PAYMENT AMOUNT
-         */
-
-        const amount =
-            window.ethers.parseUnits(
-
-                String(
-                    plan.price
-                ),
-
-                CONFIG.usdtDecimals
-
-            );
-
-
-        /*
-         * BALANCE
-         */
-
-        const balance =
-            await token.balanceOf(
-                wallet
-            );
-
-
-        if (
-            balance < amount
-        ) {
-
-            throw new Error(
-                `Insufficient USDT balance for the ${plan.name} plan.`
-            );
-
-        }
-
-
-        /*
-         * SEND USDT
-         */
-
-        alertBox(
-            `Please confirm the ${plan.name} payment in your wallet.`
-        );
-
-
-        const transaction =
-            await token.transfer(
-
-                receivingWallet,
-
-                amount
-
-            );
-
-
-        alertBox(
-            "Transaction sent. Waiting for BNB Smart Chain confirmation..."
-        );
-
-
-        /*
-         * WAIT FOR CONFIRMATION
-         */
-
-        const receipt =
-            await transaction.wait();
-
-
-        if (
-            !receipt ||
-            receipt.status !== 1
-        ) {
-
-            throw new Error(
-                "The blockchain transaction was not confirmed successfully."
-            );
-
-        }
-
-
-        /*
-         * SAVE SUBSCRIPTION
-         */
-
-        await savePlan(
-
-            plan.code,
-
-            {
-
-                txHash:
-                    receipt.hash,
-
-                wallet:
-                    wallet
+                return;
 
             }
 
-        );
+
+            /* =============================================
+               WALLET
+               ============================================= */
+
+            if (!window.ethereum) {
+
+                throw new Error(
+
+                    "MetaMask is not installed. Please install MetaMask to subscribe."
+
+                );
+
+            }
 
 
-        /*
-         * SUCCESS
-         */
+            /* =============================================
+               VALIDATE RECEIVING WALLET
+               ============================================= */
 
-        alertBox(
-            `${plan.name} activated successfully. Transaction: ${receipt.hash}`
-        );
+            const receivingWallet =
+                validatePaymentWallet();
+
+
+            /* =============================================
+               ETHERS
+               ============================================= */
+
+            const ethers =
+                getEthers();
+
+
+            /* =============================================
+               CONNECT WALLET
+               ============================================= */
+
+            alertBox(
+                "Connecting to your wallet..."
+            );
+
+
+            const connectedWallet =
+                await connectWallet();
+
+
+            /* =============================================
+               BSC
+               ============================================= */
+
+            await switchToBSC();
+
+
+            /* =============================================
+               PROVIDER
+               ============================================= */
+
+            const provider =
+                new ethers.BrowserProvider(
+                    window.ethereum
+                );
+
+
+            /* =============================================
+               NETWORK CHECK
+               ============================================= */
+
+            const network =
+                await provider.getNetwork();
+
+
+            if (
+                network.chainId !==
+                56n
+            ) {
+
+                throw new Error(
+                    "Please switch MetaMask to BNB Smart Chain."
+                );
+
+            }
+
+
+            /* =============================================
+               SIGNER
+               ============================================= */
+
+            const signer =
+                await provider.getSigner();
+
+
+            const wallet =
+                await signer.getAddress();
+
+
+            /* =============================================
+               VERIFY CONNECTED WALLET
+               ============================================= */
+
+            if (
+                wallet.toLowerCase() !==
+                connectedWallet.toLowerCase()
+            ) {
+
+                throw new Error(
+                    "Wallet account changed. Please reconnect and try again."
+                );
+
+            }
+
+
+            /* =============================================
+               USDT CONTRACT
+               ============================================= */
+
+            const token =
+                new ethers.Contract(
+
+                    CONFIG.usdtContract,
+
+                    USDT_ABI,
+
+                    signer
+
+                );
+
+
+            /* =============================================
+               AMOUNT
+               ============================================= */
+
+            const amount =
+                ethers.parseUnits(
+
+                    String(
+                        plan.price
+                    ),
+
+                    CONFIG.usdtDecimals
+
+                );
+
+
+            /* =============================================
+               BALANCE
+               ============================================= */
+
+            alertBox(
+                "Checking your USDT balance..."
+            );
+
+
+            const balance =
+                await token.balanceOf(
+                    wallet
+                );
+
+
+            if (
+                balance < amount
+            ) {
+
+                throw new Error(
+
+                    `Insufficient USDT balance. You need ${plan.price} USDT.`
+
+                );
+
+            }
+
+
+            /* =============================================
+               PAYMENT
+               ============================================= */
+
+            alertBox(
+
+                `Please confirm the ${plan.name} payment of ${plan.price} USDT in MetaMask.`
+
+            );
+
+
+            const transaction =
+                await token.transfer(
+
+                    receivingWallet,
+
+                    amount
+
+                );
+
+
+            alertBox(
+
+                "Payment submitted. Waiting for blockchain confirmation..."
+
+            );
+
+
+            /* =============================================
+               WAIT
+               ============================================= */
+
+            const receipt =
+                await transaction.wait();
+
+
+            if (
+                !receipt ||
+                receipt.status !== 1
+            ) {
+
+                throw new Error(
+
+                    "The USDT transaction was not confirmed successfully."
+
+                );
+
+            }
+
+
+            /* =============================================
+               SAVE SUBSCRIPTION
+               ============================================= */
+
+            try {
+
+                await savePlan(
+
+                    plan.code,
+
+                    {
+
+                        txHash:
+                            receipt.hash,
+
+                        wallet:
+                            wallet
+
+                    }
+
+                );
+
+            } catch (saveError) {
+
+                console.error(
+                    "Subscription save error:",
+                    saveError
+                );
+
+
+                alertBox(
+
+                    `Payment confirmed on BNB Smart Chain, but the subscription could not be saved to the database. Transaction: ${receipt.hash}`,
+
+                    "error"
+
+                );
+
+
+                throw saveError;
+
+            }
+
+
+            /* =============================================
+               SUCCESS
+               ============================================= */
+
+            alertBox(
+
+                `${plan.name} activated successfully for 30 days. Payment: ${plan.price} USDT.`
+
+            );
+
+
+        } finally {
+
+            paymentInProgress =
+                false;
+
+        }
 
     }
 
@@ -1954,28 +2103,112 @@
         planCode
     ) {
 
-        const plan =
-            normalizePlan(
-                planCode
+        try {
+
+            const plan =
+                normalizePlan(
+                    planCode
+                );
+
+
+            await payUSDT(
+                plan
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Plan payment error:",
+                error
             );
 
 
-        await payUSDT(
-            plan
-        );
+            if (
+                error?.code ===
+                4001
+            ) {
+
+                alertBox(
+
+                    "The wallet transaction was cancelled.",
+
+                    "error"
+
+                );
+
+                return;
+
+            }
+
+
+            alertBox(
+
+                error?.message ||
+                "Unable to complete the subscription.",
+
+                "error"
+
+            );
+
+        }
 
     }
 
 
-    /*
-     * Expose functions
-     */
+    /* =====================================================
+       EXPOSE PAYMENT FUNCTIONS
+       ===================================================== */
 
     window.handlePlanSelection =
         handlePlanSelection;
 
+
     window.selectPlan =
         handlePlanSelection;
+
+
+    window.connectPaymentWallet =
+        async function () {
+
+            try {
+
+                const wallet =
+                    await connectWallet();
+
+
+                await switchToBSC();
+
+
+                alertBox(
+
+                    `Wallet connected: ${wallet.slice(0, 6)}...${wallet.slice(-4)}`
+
+                );
+
+                return wallet;
+
+            } catch (error) {
+
+                console.error(
+                    "Wallet connection error:",
+                    error
+                );
+
+
+                alertBox(
+
+                    error?.message ||
+                    "Unable to connect wallet.",
+
+                    "error"
+
+                );
+
+                return null;
+
+            }
+
+        };
 
 
     /* =====================================================
@@ -2020,9 +2253,9 @@
             await loadApplications();
 
 
-            /* =================================================
+            /* =============================================
                POST JOB FORM
-               ================================================= */
+               ============================================= */
 
             const form =
                 document.getElementById(
@@ -2108,9 +2341,9 @@
             }
 
 
-            /* =================================================
+            /* =============================================
                SHOW DASHBOARD
-               ================================================= */
+               ============================================= */
 
             const loader =
                 document.getElementById(
@@ -2142,8 +2375,11 @@
         } catch (error) {
 
             console.error(
+
                 "Company dashboard initialization error:",
+
                 error
+
             );
 
 
@@ -2168,11 +2404,14 @@
                         </h2>
 
                         <p>
+
                             ${escapeHTML(
                                 error?.message ||
                                 "An unexpected error occurred."
                             )}
+
                         </p>
+
 
                         <button
                             type="button"
@@ -2187,7 +2426,9 @@
                                 cursor:pointer;
                             "
                         >
+
                             Try Again
+
                         </button>
 
                     </div>
@@ -2201,9 +2442,16 @@
     }
 
 
+    /* =====================================================
+       DOM READY
+       ===================================================== */
+
     document.addEventListener(
+
         "DOMContentLoaded",
+
         init
+
     );
 
 
