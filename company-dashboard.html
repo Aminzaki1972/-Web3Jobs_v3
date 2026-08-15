@@ -35,7 +35,16 @@
 
 
     <!-- =====================================================
-         COMPANY DASHBOARD JS
+         ETHERS
+         ===================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/ethers@6.13.5/dist/ethers.umd.min.js"
+    ></script>
+
+
+    <!-- =====================================================
+         COMPANY DASHBOARD
          ===================================================== -->
 
     <script
@@ -589,18 +598,8 @@
         }
 
 
-        .sidebar-logout:hover {
-
-            border-color: var(--red);
-
-            background:
-                rgba(248, 113, 113, .08);
-
-        }
-
-
         /* =====================================================
-           MOBILE TOPBAR
+           MOBILE
            ===================================================== */
 
         .mobile-topbar {
@@ -708,10 +707,6 @@
         }
 
 
-        /* =====================================================
-           HEADER
-           ===================================================== */
-
         .top-header {
 
             display: flex;
@@ -732,8 +727,6 @@
             font-size: 25px;
 
             font-weight: 900;
-
-            letter-spacing: -.5px;
 
         }
 
@@ -787,10 +780,6 @@
 
             background: var(--green);
 
-            box-shadow:
-                0 0 10px
-                rgba(110, 231, 183, .8);
-
         }
 
 
@@ -815,13 +804,6 @@
         }
 
 
-        .subscription-header {
-
-            margin-bottom: 16px;
-
-        }
-
-
         .subscription-title {
 
             font-size: 18px;
@@ -835,9 +817,37 @@
 
             margin-top: 4px;
 
+            margin-bottom: 17px;
+
             color: var(--muted);
 
             font-size: 10px;
+
+        }
+
+
+        .current-plan {
+
+            margin-bottom: 16px;
+
+            padding: 11px 13px;
+
+            border: 1px solid var(--border);
+
+            border-radius: 10px;
+
+            background: #081423;
+
+            color: var(--muted);
+
+            font-size: 9px;
+
+        }
+
+
+        .current-plan strong {
+
+            color: var(--green);
 
         }
 
@@ -847,7 +857,7 @@
             display: grid;
 
             grid-template-columns:
-                repeat(3, 1fr);
+                repeat(4, 1fr);
 
             gap: 10px;
 
@@ -858,7 +868,7 @@
 
             position: relative;
 
-            min-height: 68px;
+            min-height: 82px;
 
             padding: 13px 14px;
 
@@ -877,11 +887,7 @@
 
             text-align: left;
 
-            transition:
-                border-color .2s ease,
-                background .2s ease,
-                transform .2s ease,
-                box-shadow .2s ease;
+            transition: .2s ease;
 
         }
 
@@ -909,10 +915,6 @@
                     rgba(96, 165, 250, .05)
                 );
 
-            box-shadow:
-                0 10px 30px
-                rgba(0, 0, 0, .15);
-
         }
 
 
@@ -931,11 +933,26 @@
 
             display: block;
 
+            margin-top: 5px;
+
+            color: var(--green);
+
+            font-size: 10px;
+
+            font-weight: 800;
+
+        }
+
+
+        .plan-button-limit {
+
+            display: block;
+
             margin-top: 4px;
 
             color: var(--muted);
 
-            font-size: 9px;
+            font-size: 8px;
 
         }
 
@@ -961,14 +978,8 @@
 
             font-weight: 850;
 
-            letter-spacing: .4px;
-
         }
 
-
-        /* =====================================================
-           PLAN DETAILS
-           ===================================================== */
 
         .plan-details {
 
@@ -989,38 +1000,12 @@
                     #091624
                 );
 
-            animation:
-                planReveal .22s ease;
-
         }
 
 
         .plan-details.active {
 
             display: block;
-
-        }
-
-
-        @keyframes planReveal {
-
-            from {
-
-                opacity: 0;
-
-                transform:
-                    translateY(-5px);
-
-            }
-
-            to {
-
-                opacity: 1;
-
-                transform:
-                    translateY(0);
-
-            }
 
         }
 
@@ -1153,22 +1138,11 @@
         }
 
 
-        .plan-pay-button:hover {
-
-            filter: brightness(1.1);
-
-        }
-
-
         /* =====================================================
-           PAGE HERO
+           HERO
            ===================================================== */
 
         .jobs-hero {
-
-            position: relative;
-
-            overflow: hidden;
 
             padding: 30px;
 
@@ -1188,37 +1162,7 @@
         }
 
 
-        .jobs-hero::before {
-
-            content: "";
-
-            position: absolute;
-
-            width: 350px;
-
-            height: 350px;
-
-            right: -170px;
-
-            top: -180px;
-
-            border-radius: 50%;
-
-            background:
-                radial-gradient(
-                    circle,
-                    rgba(110, 231, 183, .12),
-                    transparent 68%
-                );
-
-        }
-
-
         .hero-label {
-
-            position: relative;
-
-            display: inline-flex;
 
             margin-bottom: 9px;
 
@@ -1235,8 +1179,6 @@
 
         .jobs-hero h1 {
 
-            position: relative;
-
             margin-bottom: 6px;
 
             font-size: clamp(26px, 4vw, 36px);
@@ -1248,8 +1190,6 @@
 
         .jobs-hero p {
 
-            position: relative;
-
             max-width: 650px;
 
             color: var(--muted);
@@ -1260,7 +1200,7 @@
 
 
         /* =====================================================
-           ACTION BAR
+           ACTION
            ===================================================== */
 
         .action-bar {
@@ -1334,15 +1274,8 @@
         }
 
 
-        .primary-button:hover {
-
-            filter: brightness(1.1);
-
-        }
-
-
         /* =====================================================
-           POST JOB FORM
+           SECTIONS
            ===================================================== */
 
         .dashboard-section {
@@ -1458,21 +1391,6 @@
 
             font-size: 11px;
 
-            transition: .2s;
-
-        }
-
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-
-            border-color: var(--blue);
-
-            box-shadow:
-                0 0 0 2px
-                rgba(96, 165, 250, .06);
-
         }
 
 
@@ -1514,7 +1432,7 @@
 
 
         /* =====================================================
-           JOBS LIST
+           JOBS
            ===================================================== */
 
         .jobs-list {
@@ -1537,17 +1455,6 @@
             border-radius: 12px;
 
             background: #091625;
-
-            transition: .2s ease;
-
-        }
-
-
-        .job-card:hover {
-
-            border-color: var(--border-light);
-
-            background: #0c1a2c;
 
         }
 
@@ -1649,29 +1556,12 @@
         }
 
 
-        .small-button:hover {
-
-            border-color: var(--blue);
-
-        }
-
-
         .small-button.delete {
 
             border-color:
                 rgba(248, 113, 113, .3);
 
             color: #fecaca;
-
-        }
-
-
-        .small-button.delete:hover {
-
-            border-color: var(--red);
-
-            background:
-                rgba(248, 113, 113, .06);
 
         }
 
@@ -1734,16 +1624,6 @@
             font-weight: 750;
 
             text-transform: uppercase;
-
-            letter-spacing: .4px;
-
-        }
-
-
-        .applications-table tbody tr:hover {
-
-            background:
-                rgba(255,255,255,.015);
 
         }
 
@@ -1810,7 +1690,7 @@
             z-index: 9999;
 
             width: min(
-                360px,
+                380px,
                 calc(100% - 44px)
             );
 
@@ -1847,9 +1727,17 @@
         }
 
 
-        /* =====================================================
-           MOBILE
-           ===================================================== */
+        @media (max-width: 950px) {
+
+            .plan-buttons {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+        }
+
 
         @media (max-width: 800px) {
 
@@ -1859,10 +1747,6 @@
 
                 transition:
                     transform .25s ease;
-
-                box-shadow:
-                    20px 0 60px
-                    rgba(0,0,0,.35);
 
             }
 
@@ -1905,30 +1789,9 @@
             }
 
 
-            .top-header {
-
-                margin-bottom: 20px;
-
-            }
-
-
             .status-pill {
 
                 display: none;
-
-            }
-
-
-            .plan-buttons {
-
-                grid-template-columns: 1fr;
-
-            }
-
-
-            .plan-button {
-
-                min-height: 58px;
 
             }
 
@@ -1936,6 +1799,13 @@
 
 
         @media (max-width: 650px) {
+
+            .plan-buttons {
+
+                grid-template-columns: 1fr;
+
+            }
+
 
             .form-grid {
 
@@ -1969,9 +1839,11 @@
             }
 
 
-            .action-bar button {
+            .action-bar a {
 
                 width: 100%;
+
+                text-align: center;
 
             }
 
@@ -2011,13 +1883,6 @@
             }
 
 
-            .plan-details {
-
-                padding: 16px;
-
-            }
-
-
             .plan-payment-row {
 
                 flex-direction: column;
@@ -2053,26 +1918,6 @@
 
             }
 
-
-            .jobs-hero h1 {
-
-                font-size: 25px;
-
-            }
-
-
-            .section-title {
-
-                font-size: 16px;
-
-            }
-
-
-            .subscription-section {
-
-                padding: 17px;
-
-            }
 
         }
 
@@ -2117,13 +1962,10 @@
 
     <div id="dashboard-content">
 
-
         <div class="dashboard-layout">
 
 
-            <!-- =================================================
-                 SIDEBAR
-                 ================================================= -->
+            <!-- SIDEBAR -->
 
             <aside
                 class="sidebar"
@@ -2158,20 +2000,12 @@
 
                 <nav class="sidebar-nav">
 
-
                     <a
                         href="company-dashboard.html"
                         class="sidebar-link"
                     >
-
-                        <span class="sidebar-icon">
-                            ▦
-                        </span>
-
-                        <span>
-                            Overview
-                        </span>
-
+                        <span class="sidebar-icon">▦</span>
+                        <span>Overview</span>
                     </a>
 
 
@@ -2179,15 +2013,8 @@
                         href="company-jobs.html"
                         class="sidebar-link active"
                     >
-
-                        <span class="sidebar-icon">
-                            💼
-                        </span>
-
-                        <span>
-                            My Jobs
-                        </span>
-
+                        <span class="sidebar-icon">💼</span>
+                        <span>My Jobs</span>
                     </a>
 
 
@@ -2195,15 +2022,8 @@
                         href="#post-job"
                         class="sidebar-link"
                     >
-
-                        <span class="sidebar-icon">
-                            ＋
-                        </span>
-
-                        <span>
-                            Post a Job
-                        </span>
-
+                        <span class="sidebar-icon">＋</span>
+                        <span>Post a Job</span>
                     </a>
 
 
@@ -2211,15 +2031,8 @@
                         href="#applications"
                         class="sidebar-link"
                     >
-
-                        <span class="sidebar-icon">
-                            👥
-                        </span>
-
-                        <span>
-                            Applications
-                        </span>
-
+                        <span class="sidebar-icon">👥</span>
+                        <span>Applications</span>
                     </a>
 
 
@@ -2227,15 +2040,8 @@
                         href="company-dashboard.html#company-profile"
                         class="sidebar-link"
                     >
-
-                        <span class="sidebar-icon">
-                            ◉
-                        </span>
-
-                        <span>
-                            Company Profile
-                        </span>
-
+                        <span class="sidebar-icon">◉</span>
+                        <span>Company Profile</span>
                     </a>
 
                 </nav>
@@ -2248,27 +2054,18 @@
 
                 <nav class="sidebar-nav">
 
-
                     <a
                         href="#subscription-section"
                         class="sidebar-link"
                     >
-
-                        <span class="sidebar-icon">
-                            ◆
-                        </span>
-
-                        <span>
-                            Subscription
-                        </span>
-
+                        <span class="sidebar-icon">◆</span>
+                        <span>Subscription</span>
                     </a>
 
                 </nav>
 
 
                 <div class="sidebar-bottom">
-
 
                     <div class="sidebar-account">
 
@@ -2299,12 +2096,9 @@
             </aside>
 
 
-            <!-- =================================================
-                 MOBILE TOPBAR
-                 ================================================= -->
+            <!-- MOBILE -->
 
             <div class="mobile-topbar">
-
 
                 <div class="mobile-brand">
 
@@ -2323,7 +2117,6 @@
                     type="button"
                     class="mobile-menu-button"
                     id="mobile-menu-button"
-                    aria-label="Open menu"
                 >
                     ☰
                 </button>
@@ -2337,22 +2130,16 @@
             ></div>
 
 
-            <!-- =================================================
-                 MAIN
-                 ================================================= -->
+            <!-- MAIN -->
 
             <div class="main-area">
-
 
                 <main class="main-content">
 
 
-                    <!-- =================================================
-                         HEADER
-                         ================================================= -->
+                    <!-- HEADER -->
 
                     <div class="top-header">
-
 
                         <div>
 
@@ -2379,7 +2166,7 @@
 
 
                     <!-- =================================================
-                         SUBSCRIPTION PLANS
+                         SUBSCRIPTION
                          ================================================= -->
 
                     <section
@@ -2387,25 +2174,53 @@
                         class="subscription-section"
                     >
 
+                        <div class="subscription-title">
+                            Subscription Plans
+                        </div>
 
-                        <div class="subscription-header">
-
-                            <div class="subscription-title">
-                                Subscription Plans
-                            </div>
-
-                            <div class="subscription-description">
-                                Choose a monthly plan that gives your company more job postings and better hiring capabilities.
-                            </div>
-
+                        <div class="subscription-description">
+                            Choose the plan that fits your hiring needs. Payments are made in USDT on BNB Smart Chain.
                         </div>
 
 
-                        <!-- =================================================
-                             PLAN BUTTONS
-                             ================================================= -->
+                        <div
+                            class="current-plan"
+                            id="current-plan-box"
+                        >
+                            Current plan:
+                            <strong id="current-plan-name">
+                                Free
+                            </strong>
+                            <span id="current-plan-usage">
+                                · Loading usage...
+                            </span>
+                        </div>
+
 
                         <div class="plan-buttons">
+
+
+                            <!-- FREE -->
+
+                            <button
+                                type="button"
+                                class="plan-button"
+                                data-plan="free"
+                            >
+
+                                <span class="plan-button-name">
+                                    Free
+                                </span>
+
+                                <span class="plan-button-price">
+                                    $0 / month
+                                </span>
+
+                                <span class="plan-button-limit">
+                                    2 jobs / month
+                                </span>
+
+                            </button>
 
 
                             <!-- STARTER -->
@@ -2421,7 +2236,11 @@
                                 </span>
 
                                 <span class="plan-button-price">
-                                    $19 USDT / month
+                                    $2 USDT / month
+                                </span>
+
+                                <span class="plan-button-limit">
+                                    5 jobs / month
                                 </span>
 
                             </button>
@@ -2436,7 +2255,7 @@
                             >
 
                                 <span class="plan-popular">
-                                    MOST POPULAR
+                                    POPULAR
                                 </span>
 
                                 <span class="plan-button-name">
@@ -2444,7 +2263,11 @@
                                 </span>
 
                                 <span class="plan-button-price">
-                                    $49 USDT / month
+                                    $5 USDT / month
+                                </span>
+
+                                <span class="plan-button-limit">
+                                    20 jobs / month
                                 </span>
 
                             </button>
@@ -2463,7 +2286,11 @@
                                 </span>
 
                                 <span class="plan-button-price">
-                                    $99 USDT / month
+                                    $10 USDT / month
+                                </span>
+
+                                <span class="plan-button-limit">
+                                    Unlimited jobs
                                 </span>
 
                             </button>
@@ -2471,15 +2298,75 @@
                         </div>
 
 
-                        <!-- =================================================
-                             STARTER DETAILS
-                             ================================================= -->
+                        <!-- FREE -->
+
+                        <div
+                            class="plan-details"
+                            data-plan-details="free"
+                        >
+
+                            <div class="plan-details-top">
+
+                                <div>
+
+                                    <div class="plan-details-name">
+                                        Free
+                                    </div>
+
+                                    <div class="plan-details-price">
+                                        $0 / month
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="plan-features">
+
+                                <div class="plan-feature">
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>2 job postings / month</span>
+                                </div>
+
+                                <div class="plan-feature">
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Company dashboard</span>
+                                </div>
+
+                                <div class="plan-feature">
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Application management</span>
+                                </div>
+
+                            </div>
+
+
+                            <div class="plan-payment-row">
+
+                                <div class="plan-payment-note">
+                                    No payment required.
+                                </div>
+
+                                <button
+                                    type="button"
+                                    class="plan-pay-button"
+                                    data-pay-plan="free"
+                                >
+                                    Use Free Plan
+                                </button>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- STARTER -->
 
                         <div
                             class="plan-details"
                             data-plan-details="starter"
                         >
-
 
                             <div class="plan-details-top">
 
@@ -2490,7 +2377,7 @@
                                     </div>
 
                                     <div class="plan-details-price">
-                                        $19 USDT / month
+                                        $2 USDT / month
                                     </div>
 
                                 </div>
@@ -2500,98 +2387,51 @@
 
                             <div class="plan-features">
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        5 jobs / month
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>5 job postings / month</span>
                                 </div>
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Job publishing
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Company dashboard</span>
                                 </div>
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Company dashboard
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Application management</span>
                                 </div>
-
-
-                                <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Application management
-                                    </span>
-
-                                </div>
-
 
                             </div>
 
 
                             <div class="plan-payment-row">
 
-
                                 <div class="plan-payment-note">
-
-                                    Payment is processed securely using USDT on BNB Smart Chain.
-
+                                    Payment: 2 USDT on BNB Smart Chain.
                                 </div>
-
 
                                 <button
                                     type="button"
                                     class="plan-pay-button"
                                     data-pay-plan="starter"
                                 >
-                                    Choose Plan &amp; Pay
+                                    Connect Wallet & Pay
                                 </button>
 
                             </div>
 
-
                         </div>
 
 
-                        <!-- =================================================
-                             PROFESSIONAL DETAILS
-                             ================================================= -->
+                        <!-- PROFESSIONAL -->
 
                         <div
                             class="plan-details"
                             data-plan-details="professional"
                         >
 
-
                             <div class="plan-details-top">
-
 
                                 <div>
 
@@ -2600,14 +2440,13 @@
                                     </div>
 
                                     <div class="plan-details-price">
-                                        $49 USDT / month
+                                        $5 USDT / month
                                     </div>
 
                                 </div>
 
-
                                 <span class="plan-popular">
-                                    MOST POPULAR
+                                    POPULAR
                                 </span>
 
                             </div>
@@ -2615,111 +2454,56 @@
 
                             <div class="plan-features">
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        20 jobs / month
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>20 job postings / month</span>
                                 </div>
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Job publishing
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Company dashboard</span>
                                 </div>
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Company dashboard
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Application management</span>
                                 </div>
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Application management
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Priority hiring visibility</span>
                                 </div>
-
-
-                                <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Priority hiring visibility
-                                    </span>
-
-                                </div>
-
 
                             </div>
 
 
                             <div class="plan-payment-row">
 
-
                                 <div class="plan-payment-note">
-
-                                    Payment is processed securely using USDT on BNB Smart Chain.
-
+                                    Payment: 5 USDT on BNB Smart Chain.
                                 </div>
-
 
                                 <button
                                     type="button"
                                     class="plan-pay-button"
                                     data-pay-plan="professional"
                                 >
-                                    Choose Plan &amp; Pay
+                                    Connect Wallet & Pay
                                 </button>
 
                             </div>
 
-
                         </div>
 
 
-                        <!-- =================================================
-                             ENTERPRISE DETAILS
-                             ================================================= -->
+                        <!-- ENTERPRISE -->
 
                         <div
                             class="plan-details"
                             data-plan-details="enterprise"
                         >
 
-
                             <div class="plan-details-top">
-
 
                                 <div>
 
@@ -2728,7 +2512,7 @@
                                     </div>
 
                                     <div class="plan-details-price">
-                                        $99 USDT / month
+                                        $10 USDT / month
                                     </div>
 
                                 </div>
@@ -2738,134 +2522,73 @@
 
                             <div class="plan-features">
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Unlimited job postings
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Unlimited job postings</span>
                                 </div>
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Job publishing
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Company dashboard</span>
                                 </div>
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Company dashboard
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Application management</span>
                                 </div>
 
-
                                 <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Application management
-                                    </span>
-
+                                    <span class="plan-feature-check">✓</span>
+                                    <span>Priority hiring visibility</span>
                                 </div>
-
-
-                                <div class="plan-feature">
-
-                                    <span class="plan-feature-check">
-                                        ✓
-                                    </span>
-
-                                    <span>
-                                        Priority hiring visibility
-                                    </span>
-
-                                </div>
-
 
                             </div>
 
 
                             <div class="plan-payment-row">
 
-
                                 <div class="plan-payment-note">
-
-                                    Payment is processed securely using USDT on BNB Smart Chain.
-
+                                    Payment: 10 USDT on BNB Smart Chain.
                                 </div>
-
 
                                 <button
                                     type="button"
                                     class="plan-pay-button"
                                     data-pay-plan="enterprise"
                                 >
-                                    Choose Plan &amp; Pay
+                                    Connect Wallet & Pay
                                 </button>
 
                             </div>
 
-
                         </div>
-
 
                     </section>
 
 
-                    <!-- =================================================
-                         HERO
-                         ================================================= -->
+                    <!-- HERO -->
 
                     <section class="jobs-hero">
-
 
                         <div class="hero-label">
                             ● COMPANY JOB MANAGEMENT
                         </div>
 
-
                         <h1>
                             Manage Your Jobs
                         </h1>
 
-
                         <p>
                             Publish new Web3 opportunities, update existing listings,
-                            and manage the applications received from candidates.
+                            and manage applications from candidates.
                         </p>
-
 
                     </section>
 
 
-                    <!-- =================================================
-                         ACTION BAR
-                         ================================================= -->
+                    <!-- ACTION -->
 
                     <div class="action-bar">
-
 
                         <div class="action-info">
 
@@ -2887,22 +2610,17 @@
                             + Post New Job
                         </a>
 
-
                     </div>
 
 
-                    <!-- =================================================
-                         POST JOB
-                         ================================================= -->
+                    <!-- POST JOB -->
 
                     <section
                         id="post-job"
                         class="dashboard-section"
                     >
 
-
                         <div class="section-header">
-
 
                             <div>
 
@@ -2916,15 +2634,12 @@
 
                             </div>
 
-
                         </div>
 
 
                         <form id="post-job-form">
 
-
                             <div class="form-grid">
-
 
                                 <div class="form-group">
 
@@ -3044,18 +2759,16 @@
 
                                 </div>
 
-
                             </div>
 
 
                             <div class="publish-area">
 
-
                                 <div
                                     class="publish-note"
                                     id="publish-note"
                                 >
-                                    Your current plan determines how many jobs you can publish.
+                                    Free plan: 2 jobs per month.
                                 </div>
 
 
@@ -3067,28 +2780,21 @@
                                     Publish Job
                                 </button>
 
-
                             </div>
 
-
                         </form>
-
 
                     </section>
 
 
-                    <!-- =================================================
-                         MY JOBS
-                         ================================================= -->
+                    <!-- MY JOBS -->
 
                     <section
                         id="my-jobs"
                         class="dashboard-section"
                     >
 
-
                         <div class="section-header">
-
 
                             <div>
 
@@ -3101,7 +2807,6 @@
                                 </div>
 
                             </div>
-
 
                         </div>
 
@@ -3117,22 +2822,17 @@
 
                         </div>
 
-
                     </section>
 
 
-                    <!-- =================================================
-                         APPLICATIONS
-                         ================================================= -->
+                    <!-- APPLICATIONS -->
 
                     <section
                         id="applications"
                         class="dashboard-section"
                     >
 
-
                         <div class="section-header">
-
 
                             <div>
 
@@ -3146,15 +2846,12 @@
 
                             </div>
 
-
                         </div>
 
 
                         <div class="applications-table-wrapper">
 
-
                             <table class="applications-table">
-
 
                                 <thead>
 
@@ -3196,31 +2893,23 @@
 
                                 </tbody>
 
-
                             </table>
 
-
                         </div>
-
 
                     </section>
 
 
                 </main>
 
-
             </div>
 
-
         </div>
-
 
     </div>
 
 
-    <!-- =====================================================
-         ALERT
-         ===================================================== -->
+    <!-- ALERT -->
 
     <div
         id="dashboard-alert"
@@ -3229,7 +2918,7 @@
 
 
     <!-- =====================================================
-         UI SCRIPT
+         MOBILE / PLAN UI
          ===================================================== -->
 
     <script>
@@ -3240,11 +2929,6 @@
         document.addEventListener(
             "DOMContentLoaded",
             function () {
-
-
-                /* =================================================
-                   ELEMENTS
-                   ================================================= */
 
                 const sidebar =
                     document.getElementById(
@@ -3270,52 +2954,17 @@
                     );
 
 
-                /* =================================================
-                   MOBILE SIDEBAR
-                   ================================================= */
-
-                function openSidebar() {
-
-                    if (!sidebar) {
-
-                        return;
-
-                    }
-
-                    sidebar.classList.add(
-                        "open"
-                    );
-
-
-                    if (overlay) {
-
-                        overlay.classList.add(
-                            "active"
-                        );
-
-                    }
-
-                }
-
-
                 function closeSidebar() {
 
-                    if (!sidebar) {
+                    if (sidebar) {
 
-                        return;
+                        sidebar.classList.remove("open");
 
                     }
 
-                    sidebar.classList.remove(
-                        "open"
-                    );
-
-
                     if (overlay) {
 
-                        overlay.classList.remove(
-                            "active"
-                        );
+                        overlay.classList.remove("active");
 
                     }
 
@@ -3326,7 +2975,21 @@
 
                     menuButton.addEventListener(
                         "click",
-                        openSidebar
+                        function () {
+
+                            if (sidebar) {
+
+                                sidebar.classList.toggle("open");
+
+                            }
+
+                            if (overlay) {
+
+                                overlay.classList.toggle("active");
+
+                            }
+
+                        }
                     );
 
                 }
@@ -3342,10 +3005,6 @@
                 }
 
 
-                /* =================================================
-                   SIDEBAR ANCHOR LINKS
-                   ================================================= */
-
                 document
                     .querySelectorAll(
                         '.sidebar-link[href^="#"]'
@@ -3355,11 +3014,7 @@
 
                             link.addEventListener(
                                 "click",
-                                function () {
-
-                                    closeSidebar();
-
-                                }
+                                closeSidebar
                             );
 
                         }
@@ -3379,25 +3034,40 @@
                             try {
 
                                 if (
+                                    window.__web3jobsSupabase &&
+                                    window.__web3jobsSupabase.auth
+                                ) {
+
+                                    await
+                                        window.__web3jobsSupabase
+                                            .auth
+                                            .signOut();
+
+                                }
+
+                                else if (
+                                    window.supabaseClient &&
+                                    window.supabaseClient.auth
+                                ) {
+
+                                    await
+                                        window.supabaseClient
+                                            .auth
+                                            .signOut();
+
+                                }
+
+                                else if (
                                     window.supabase &&
-                                    typeof window.supabase.auth?.signOut ===
+                                    window.supabase.auth &&
+                                    typeof window.supabase.auth.signOut ===
                                     "function"
                                 ) {
 
-                                    await window.supabase.auth.signOut();
+                                    await
+                                        window.supabase.auth.signOut();
 
                                 }
-
-
-                                if (
-                                    typeof window.logout ===
-                                    "function"
-                                ) {
-
-                                    await window.logout();
-
-                                }
-
 
                             } catch (error) {
 
@@ -3407,7 +3077,6 @@
                                 );
 
                             }
-
 
                             window.location.href =
                                 "login.html";
@@ -3419,61 +3088,7 @@
 
 
                 /* =================================================
-                   COMPANY NAME
-                   ================================================= */
-
-                const companyName =
-                    document.getElementById(
-                        "company-name"
-                    );
-
-
-                const sidebarCompanyName =
-                    document.getElementById(
-                        "sidebar-company-name"
-                    );
-
-
-                if (
-                    companyName &&
-                    sidebarCompanyName
-                ) {
-
-                    function updateSidebarName() {
-
-                        const name =
-                            companyName.textContent.trim();
-
-
-                        sidebarCompanyName.textContent =
-                            name || "Company";
-
-                    }
-
-
-                    updateSidebarName();
-
-
-                    const nameObserver =
-                        new MutationObserver(
-                            updateSidebarName
-                        );
-
-
-                    nameObserver.observe(
-                        companyName,
-                        {
-                            childList: true,
-                            characterData: true,
-                            subtree: true
-                        }
-                    );
-
-                }
-
-
-                /* =================================================
-                   SUBSCRIPTION PLAN UI
+                   PLAN UI
                    ================================================= */
 
                 const planButtons =
@@ -3501,7 +3116,9 @@
 
                                 const details =
                                     document.querySelector(
-                                        `[data-plan-details="${plan}"]`
+                                        '[data-plan-details="' +
+                                        plan +
+                                        '"]'
                                     );
 
 
@@ -3512,7 +3129,7 @@
                                 }
 
 
-                                const alreadyOpen =
+                                const open =
                                     details.classList.contains(
                                         "active"
                                     );
@@ -3540,30 +3157,14 @@
                                 );
 
 
-                                if (!alreadyOpen) {
+                                if (!open) {
 
                                     button.classList.add(
                                         "active"
                                     );
 
-
                                     details.classList.add(
                                         "active"
-                                    );
-
-
-                                    setTimeout(
-                                        function () {
-
-                                            details.scrollIntoView(
-                                                {
-                                                    behavior: "smooth",
-                                                    block: "nearest"
-                                                }
-                                            );
-
-                                        },
-                                        50
                                     );
 
                                 }
@@ -3575,157 +3176,10 @@
                 );
 
 
-                /* =================================================
-                   PLAN PAYMENT
-                   ================================================= */
-
-                document
-                    .querySelectorAll(
-                        "[data-pay-plan]"
-                    )
-                    .forEach(
-                        function (button) {
-
-                            button.addEventListener(
-                                "click",
-                                async function () {
-
-                                    const plan =
-                                        button.dataset.payPlan;
-
-
-                                    const originalText =
-                                        button.textContent;
-
-
-                                    button.disabled =
-                                        true;
-
-
-                                    button.textContent =
-                                        "Processing...";
-
-
-                                    try {
-
-
-                                        /*
-                                         * First try the existing
-                                         * payment handler.
-                                         */
-
-                                        if (
-                                            typeof window.handlePlanSelection ===
-                                            "function"
-                                        ) {
-
-                                            await window.handlePlanSelection(
-                                                plan
-                                            );
-
-                                            return;
-
-                                        }
-
-
-                                        /*
-                                         * Second supported name.
-                                         */
-
-                                        if (
-                                            typeof window.selectPlan ===
-                                            "function"
-                                        ) {
-
-                                            await window.selectPlan(
-                                                plan
-                                            );
-
-                                            return;
-
-                                        }
-
-
-                                        /*
-                                         * If the existing dashboard
-                                         * JavaScript exposes neither
-                                         * function, do not fake a payment.
-                                         */
-
-                                        console.error(
-                                            "Subscription payment function was not found."
-                                        );
-
-
-                                        if (
-                                            typeof window.showDashboardAlert ===
-                                            "function"
-                                        ) {
-
-                                            window.showDashboardAlert(
-                                                "The payment system is currently unavailable. Please try again.",
-                                                "error"
-                                            );
-
-                                        } else {
-
-                                            alert(
-                                                "The payment system is currently unavailable. Please try again."
-                                            );
-
-                                        }
-
-
-                                    } catch (error) {
-
-                                        console.error(
-                                            "Plan payment error:",
-                                            error
-                                        );
-
-
-                                        if (
-                                            typeof window.showDashboardAlert ===
-                                            "function"
-                                        ) {
-
-                                            window.showDashboardAlert(
-                                                "Unable to start the payment process. Please try again.",
-                                                "error"
-                                            );
-
-                                        } else {
-
-                                            alert(
-                                                "Unable to start the payment process. Please try again."
-                                            );
-
-                                        }
-
-
-                                    } finally {
-
-                                        button.disabled =
-                                            false;
-
-
-                                        button.textContent =
-                                            originalText;
-
-                                    }
-
-                                }
-                            );
-
-                        }
-                    );
-
-
             }
         );
 
     </script>
-
 
 </body>
 
