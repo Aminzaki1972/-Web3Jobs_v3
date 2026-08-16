@@ -2,7 +2,20 @@
    Web3Jobs Company Dashboard
    Subscription + USDT Payment
    BNB Smart Chain
-   Plans: Free / $2 / $5 / $10
+   ---------------------------------------------------------
+   Features:
+   - Supabase authentication
+   - Company profile
+   - Jobs management
+   - Applications
+   - Subscription plans
+   - Connect Wallet
+   - Wallet state management
+   - BNB Smart Chain
+   - USDT BEP-20 payments
+   - Transaction confirmation
+   - Subscription activation
+   - NO onclick dependency
    ========================================================= */
 
 "use strict";
@@ -16,6 +29,8 @@
     const CONFIG = {
 
         chainId: "0x38",
+
+        chainIdDecimal: 56,
 
         chainName: "BNB Smart Chain",
 
@@ -31,19 +46,8 @@
         blockExplorer:
             "https://bscscan.com",
 
-        /*
-         * Web3Jobs payment receiving wallet
-         *
-         * IMPORTANT:
-         * Never put a private key or seed phrase here.
-         */
-
         paymentWallet:
             "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
-
-        /*
-         * USDT on BNB Smart Chain
-         */
 
         usdtContract:
             "0x55d398326f99059fF775485246999027B3197955",
@@ -60,59 +64,35 @@
     const PLANS = {
 
         free: {
-
             code: "free",
-
             name: "Free",
-
             price: 0,
-
             limit: 2,
-
             durationDays: 30
-
         },
 
         starter: {
-
             code: "starter",
-
             name: "Starter",
-
             price: 2,
-
             limit: 5,
-
             durationDays: 30
-
         },
 
         professional: {
-
             code: "professional",
-
             name: "Professional",
-
             price: 5,
-
             limit: 20,
-
             durationDays: 30
-
         },
 
         enterprise: {
-
             code: "enterprise",
-
             name: "Enterprise",
-
             price: 10,
-
             limit: Infinity,
-
             durationDays: 30
-
         }
 
     };
@@ -151,6 +131,12 @@
 
     let paymentInProgress = false;
 
+    let connectedWallet = null;
+
+    let walletProvider = null;
+
+    let walletSigner = null;
+
 
     /* =====================================================
        SUPABASE CLIENT
@@ -159,9 +145,7 @@
     function getClient() {
 
         if (client) {
-
             return client;
-
         }
 
 
@@ -172,6 +156,19 @@
 
             client =
                 window.supabaseClient;
+
+            return client;
+
+        }
+
+
+        if (
+            window.__web3jobsSupabase &&
+            typeof window.__web3jobsSupabase.from === "function"
+        ) {
+
+            client =
+                window.__web3jobsSupabase;
 
             return client;
 
@@ -214,13 +211,9 @@
         if (!element) {
 
             if (type === "error") {
-
                 console.error(message);
-
             } else {
-
                 console.log(message);
-
             }
 
             return;
@@ -355,9 +348,7 @@
 
 
         if (error) {
-
             throw error;
-
         }
 
 
@@ -394,9 +385,7 @@
             !sb ||
             !currentUser
         ) {
-
             return;
-
         }
 
 
@@ -405,16 +394,12 @@
             error
         } =
             await sb
-
                 .from("profiles")
-
                 .select("*")
-
                 .eq(
                     "id",
                     currentUser.id
                 )
-
                 .maybeSingle();
 
 
@@ -456,9 +441,7 @@
             !sb ||
             !currentUser
         ) {
-
             return;
-
         }
 
 
@@ -467,16 +450,12 @@
             error
         } =
             await sb
-
                 .from("company_profiles")
-
                 .select("*")
-
                 .eq(
                     "id",
                     currentUser.id
                 )
-
                 .maybeSingle();
 
 
@@ -581,9 +560,7 @@
             !sb ||
             !currentUser
         ) {
-
             return;
-
         }
 
 
@@ -594,25 +571,19 @@
                 error
             } =
                 await sb
-
                     .from("company_plans")
-
                     .select("*")
-
                     .eq(
                         "company_id",
                         currentUser.id
                     )
-
                     .order(
                         "created_at",
                         {
                             ascending: false
                         }
                     )
-
                     .limit(1)
-
                     .maybeSingle();
 
 
@@ -766,9 +737,7 @@
             error
         } =
             await sb
-
                 .from("company_plans")
-
                 .upsert(
                     payload,
                     {
@@ -806,21 +775,16 @@
     function updatePlanUI() {
 
         document
-
             .querySelectorAll(
                 ".plan-button"
             )
-
             .forEach(
                 function (button) {
 
                     button.classList.toggle(
-
                         "active",
-
                         button.dataset.plan ===
                         currentPlan.code
-
                     );
 
                 }
@@ -834,9 +798,7 @@
 
 
         if (!note) {
-
             return;
-
         }
 
 
@@ -873,9 +835,7 @@
             !currentUser ||
             !list
         ) {
-
             return;
-
         }
 
 
@@ -884,16 +844,12 @@
             error
         } =
             await sb
-
                 .from("jobs")
-
                 .select("*")
-
                 .eq(
                     "company_id",
                     currentUser.id
                 )
-
                 .order(
                     "created_at",
                     {
@@ -949,9 +905,7 @@
 
 
         if (!list) {
-
             return;
-
         }
 
 
@@ -976,7 +930,6 @@
         list.innerHTML =
 
             jobs
-
                 .map(
                     function (job) {
 
@@ -1107,16 +1060,13 @@
 
                     }
                 )
-
                 .join("");
 
 
         list
-
             .querySelectorAll(
                 "[data-delete-job]"
             )
-
             .forEach(
                 function (button) {
 
@@ -1149,9 +1099,7 @@
             !id ||
             !currentUser
         ) {
-
             return;
-
         }
 
 
@@ -1160,9 +1108,7 @@
                 "Delete this job?"
             )
         ) {
-
             return;
-
         }
 
 
@@ -1186,16 +1132,12 @@
             error
         } =
             await sb
-
                 .from("jobs")
-
                 .delete()
-
                 .eq(
                     "id",
                     id
                 )
-
                 .eq(
                     "company_id",
                     currentUser.id
@@ -1343,31 +1285,24 @@
             error
         } =
             await sb
-
                 .from("jobs")
-
                 .insert(
                     payload
                 );
 
 
         if (error) {
-
             throw error;
-
         }
 
 
         form.reset();
 
-
         updateCompanyNameUI();
-
 
         alertBox(
             "Job published successfully."
         );
-
 
         await loadJobs();
 
@@ -1395,9 +1330,7 @@
             !currentUser ||
             !body
         ) {
-
             return;
-
         }
 
 
@@ -1406,18 +1339,14 @@
             error
         } =
             await sb
-
                 .from("applications")
-
                 .select(
                     "*, jobs(title, company_id)"
                 )
-
                 .eq(
                     "jobs.company_id",
                     currentUser.id
                 )
-
                 .order(
                     "created_at",
                     {
@@ -1489,7 +1418,6 @@
         body.innerHTML =
 
             applications
-
                 .map(
                     function (application) {
 
@@ -1580,7 +1508,6 @@
 
                     }
                 )
-
                 .join("");
 
     }
@@ -1616,17 +1543,292 @@
 
 
     /* =====================================================
-       CHECK WALLET
+       GET ETHERS
        ===================================================== */
 
-    async function connectWallet() {
+    function getEthers() {
+
+        if (
+            window.ethers &&
+            typeof window.ethers.BrowserProvider ===
+            "function"
+        ) {
+
+            return window.ethers;
+
+        }
+
+
+        throw new Error(
+
+            "Ethers.js is not loaded. Please check the ethers.js script."
+
+        );
+
+    }
+
+
+    /* =====================================================
+       SHORT WALLET ADDRESS
+       ===================================================== */
+
+    function shortAddress(
+        address
+    ) {
+
+        if (!address) {
+            return "";
+        }
+
+
+        return (
+            address.slice(0, 6) +
+            "..." +
+            address.slice(-4)
+        );
+
+    }
+
+
+    /* =====================================================
+       CREATE WALLET UI
+       ===================================================== */
+
+    function createWalletUI() {
+
+        const section =
+            document.getElementById(
+                "subscription-section"
+            );
+
+
+        if (!section) {
+            return null;
+        }
+
+
+        let container =
+            document.getElementById(
+                "wallet-connection-area"
+            );
+
+
+        if (container) {
+            return container;
+        }
+
+
+        container =
+            document.createElement(
+                "div"
+            );
+
+
+        container.id =
+            "wallet-connection-area";
+
+
+        container.style.cssText = `
+            margin-bottom:16px;
+            padding:14px;
+            border:1px solid #182d47;
+            border-radius:12px;
+            background:#081423;
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:12px;
+            flex-wrap:wrap;
+        `;
+
+
+        container.innerHTML = `
+
+            <div>
+
+                <div
+                    id="wallet-status-title"
+                    style="
+                        color:#f5f8ff;
+                        font-size:11px;
+                        font-weight:800;
+                    "
+                >
+                    Wallet Not Connected
+                </div>
+
+                <div
+                    id="wallet-status-text"
+                    style="
+                        margin-top:3px;
+                        color:#8ea3bc;
+                        font-size:9px;
+                    "
+                >
+                    Connect your wallet to pay subscription plans.
+                </div>
+
+            </div>
+
+
+            <button
+                type="button"
+                id="connect-wallet-button"
+                style="
+                    min-height:40px;
+                    padding:10px 16px;
+                    border:0;
+                    border-radius:9px;
+                    background:linear-gradient(135deg,#1c765a,#175a47);
+                    color:#fff;
+                    font-size:9px;
+                    font-weight:850;
+                    cursor:pointer;
+                "
+            >
+                Connect Wallet
+            </button>
+
+        `;
+
+
+        const description =
+            section.querySelector(
+                ".subscription-description"
+            );
+
+
+        if (description) {
+
+            description.insertAdjacentElement(
+                "afterend",
+                container
+            );
+
+        } else {
+
+            section.prepend(
+                container
+            );
+
+        }
+
+
+        return container;
+
+    }
+
+
+    /* =====================================================
+       UPDATE WALLET UI
+       ===================================================== */
+
+    function updateWalletUI(
+        address = null,
+        message = null
+    ) {
+
+        const title =
+            document.getElementById(
+                "wallet-status-title"
+            );
+
+
+        const text =
+            document.getElementById(
+                "wallet-status-text"
+            );
+
+
+        const button =
+            document.getElementById(
+                "connect-wallet-button"
+            );
+
+
+        if (!title || !text || !button) {
+            return;
+        }
+
+
+        if (address) {
+
+            title.textContent =
+                "Wallet Connected";
+
+            title.style.color =
+                "#6ee7b7";
+
+
+            text.textContent =
+                message ||
+                `${shortAddress(address)} • BNB Smart Chain`;
+
+
+            text.style.color =
+                "#8ea3bc";
+
+
+            button.textContent =
+                shortAddress(address);
+
+
+            button.style.background =
+                "linear-gradient(135deg,#0f5d48,#104b3d)";
+
+        } else {
+
+            title.textContent =
+                "Wallet Not Connected";
+
+            title.style.color =
+                "#f5f8ff";
+
+
+            text.textContent =
+                message ||
+                "Connect your wallet to pay subscription plans.";
+
+
+            text.style.color =
+                "#8ea3bc";
+
+
+            button.textContent =
+                "Connect Wallet";
+
+
+            button.style.background =
+                "linear-gradient(135deg,#1c765a,#175a47)";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       CONNECT WALLET
+       ===================================================== */
+
+    async function connectWallet(
+        showMessage = true
+    ) {
 
         if (!window.ethereum) {
 
             throw new Error(
 
-                "MetaMask is not installed. Please install MetaMask and try again."
+                "MetaMask or another compatible Web3 wallet is not installed."
 
+            );
+
+        }
+
+
+        if (showMessage) {
+
+            alertBox(
+                "Connecting to your wallet..."
             );
 
         }
@@ -1653,7 +1855,23 @@
         }
 
 
-        return accounts[0];
+        connectedWallet =
+            accounts[0];
+
+
+        updateWalletUI(
+            connectedWallet,
+            "Wallet connected. Checking BNB Smart Chain..."
+        );
+
+
+        await switchToBSC();
+
+
+        await refreshWalletState();
+
+
+        return connectedWallet;
 
     }
 
@@ -1667,7 +1885,7 @@
         if (!window.ethereum) {
 
             throw new Error(
-                "MetaMask or another compatible Web3 wallet is required."
+                "A compatible Web3 wallet is required."
             );
 
         }
@@ -1740,27 +1958,344 @@
 
 
     /* =====================================================
-       GET ETHERS
+       REFRESH WALLET STATE
        ===================================================== */
 
-    function getEthers() {
+    async function refreshWalletState() {
 
-        if (
-            window.ethers &&
-            typeof window.ethers.BrowserProvider ===
-            "function"
-        ) {
+        if (!window.ethereum) {
 
-            return window.ethers;
+            connectedWallet =
+                null;
+
+            updateWalletUI(
+                null,
+                "MetaMask or another compatible wallet is required."
+            );
+
+            return null;
 
         }
 
 
-        throw new Error(
+        try {
 
-            "Ethers.js is not loaded. Add the ethers.js script before company-dashboard.js."
+            const accounts =
+                await window.ethereum.request({
 
+                    method:
+                        "eth_accounts"
+
+                });
+
+
+            if (
+                !accounts ||
+                !accounts.length
+            ) {
+
+                connectedWallet =
+                    null;
+
+                walletProvider =
+                    null;
+
+                walletSigner =
+                    null;
+
+                updateWalletUI();
+
+                return null;
+
+            }
+
+
+            connectedWallet =
+                accounts[0];
+
+
+            const ethers =
+                getEthers();
+
+
+            walletProvider =
+                new ethers.BrowserProvider(
+                    window.ethereum
+                );
+
+
+            const network =
+                await walletProvider.getNetwork();
+
+
+            if (
+                network.chainId !==
+                BigInt(CONFIG.chainIdDecimal)
+            ) {
+
+                updateWalletUI(
+
+                    connectedWallet,
+
+                    "Wallet connected. Please switch to BNB Smart Chain."
+
+                );
+
+                return connectedWallet;
+
+            }
+
+
+            walletSigner =
+                await walletProvider.getSigner();
+
+
+            updateWalletUI(
+
+                connectedWallet,
+
+                "Connected to BNB Smart Chain."
+
+            );
+
+
+            return connectedWallet;
+
+        } catch (error) {
+
+            console.warn(
+                "Wallet state refresh:",
+                error
+            );
+
+            return null;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       WALLET EVENTS
+       ===================================================== */
+
+    function setupWalletEvents() {
+
+        if (!window.ethereum) {
+            return;
+        }
+
+
+        if (
+            typeof window.ethereum.on !==
+            "function"
+        ) {
+            return;
+        }
+
+
+        window.ethereum.on(
+            "accountsChanged",
+            async function (accounts) {
+
+                connectedWallet =
+                    accounts?.[0] || null;
+
+
+                walletProvider =
+                    null;
+
+                walletSigner =
+                    null;
+
+
+                if (!connectedWallet) {
+
+                    updateWalletUI();
+
+                    alertBox(
+                        "Wallet disconnected."
+                    );
+
+                    return;
+
+                }
+
+
+                await refreshWalletState();
+
+
+                alertBox(
+                    `Wallet changed to ${shortAddress(connectedWallet)}.`
+                );
+
+            }
         );
+
+
+        window.ethereum.on(
+            "chainChanged",
+            async function () {
+
+                walletProvider =
+                    null;
+
+                walletSigner =
+                    null;
+
+
+                await refreshWalletState();
+
+
+                if (connectedWallet) {
+
+                    alertBox(
+                        "Network changed. BNB Smart Chain status updated."
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       CONNECT WALLET BUTTON
+       ===================================================== */
+
+    function setupConnectWalletButton() {
+
+        const button =
+            document.getElementById(
+                "connect-wallet-button"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            async function () {
+
+                if (paymentInProgress) {
+                    return;
+                }
+
+
+                const oldText =
+                    button.textContent;
+
+
+                button.disabled =
+                    true;
+
+                button.textContent =
+                    "Connecting...";
+
+
+                try {
+
+                    const wallet =
+                        await connectWallet(
+                            true
+                        );
+
+
+                    if (wallet) {
+
+                        alertBox(
+
+                            `Wallet connected successfully: ${shortAddress(wallet)}`
+
+                        );
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Connect wallet error:",
+                        error
+                    );
+
+
+                    if (
+                        error?.code ===
+                        4001
+                    ) {
+
+                        alertBox(
+                            "Wallet connection was cancelled.",
+                            "error"
+                        );
+
+                    } else {
+
+                        alertBox(
+
+                            error?.message ||
+                            "Unable to connect wallet.",
+
+                            "error"
+
+                        );
+
+                    }
+
+                } finally {
+
+                    button.disabled =
+                        false;
+
+
+                    if (connectedWallet) {
+
+                        button.textContent =
+                            shortAddress(
+                                connectedWallet
+                            );
+
+                    } else {
+
+                        button.textContent =
+                            oldText ||
+                            "Connect Wallet";
+
+                    }
+
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       PAYMENT BUTTON UI
+       ===================================================== */
+
+    function setPaymentButtonsState(
+        disabled
+    ) {
+
+        document
+            .querySelectorAll(
+                "[data-pay-plan]"
+            )
+            .forEach(
+                function (button) {
+
+                    button.disabled =
+                        disabled;
+
+                }
+            );
 
     }
 
@@ -1786,10 +2321,15 @@
             true;
 
 
+        setPaymentButtonsState(
+            true
+        );
+
+
         try {
 
             /* =============================================
-               FREE
+               FREE PLAN
                ============================================= */
 
             if (
@@ -1812,14 +2352,14 @@
 
 
             /* =============================================
-               WALLET
+               CHECK WALLET
                ============================================= */
 
             if (!window.ethereum) {
 
                 throw new Error(
 
-                    "MetaMask is not installed. Please install MetaMask to subscribe."
+                    "MetaMask or another compatible Web3 wallet is required."
 
                 );
 
@@ -1827,7 +2367,7 @@
 
 
             /* =============================================
-               VALIDATE RECEIVING WALLET
+               RECEIVING WALLET
                ============================================= */
 
             const receivingWallet =
@@ -1843,21 +2383,31 @@
 
 
             /* =============================================
-               CONNECT WALLET
+               CONNECT WALLET IF NEEDED
                ============================================= */
 
-            alertBox(
-                "Connecting to your wallet..."
-            );
+            if (!connectedWallet) {
+
+                alertBox(
+                    "Please connect your wallet..."
+                );
 
 
-            const connectedWallet =
-                await connectWallet();
+                await connectWallet(
+                    false
+                );
+
+            }
 
 
             /* =============================================
                BSC
                ============================================= */
+
+            alertBox(
+                "Checking BNB Smart Chain..."
+            );
+
 
             await switchToBSC();
 
@@ -1866,46 +2416,75 @@
                PROVIDER
                ============================================= */
 
-            const provider =
+            walletProvider =
                 new ethers.BrowserProvider(
                     window.ethereum
                 );
 
 
             /* =============================================
-               NETWORK CHECK
+               NETWORK
                ============================================= */
 
             const network =
-                await provider.getNetwork();
+                await walletProvider.getNetwork();
 
 
             if (
                 network.chainId !==
-                56n
+                BigInt(CONFIG.chainIdDecimal)
             ) {
 
                 throw new Error(
-                    "Please switch MetaMask to BNB Smart Chain."
+                    "Please switch your wallet to BNB Smart Chain."
                 );
 
             }
 
 
             /* =============================================
-               SIGNER
+               ACCOUNT
                ============================================= */
 
-            const signer =
-                await provider.getSigner();
+            const accounts =
+                await window.ethereum.request({
+
+                    method:
+                        "eth_accounts"
+
+                });
 
 
-            const wallet =
-                await signer.getAddress();
+            if (
+                !accounts ||
+                !accounts.length
+            ) {
+
+                throw new Error(
+                    "Wallet is not connected."
+                );
+
+            }
+
+
+            connectedWallet =
+                accounts[0];
 
 
             /* =============================================
-               VERIFY CONNECTED WALLET
+               SIGNER
+               ============================================= */
+
+            walletSigner =
+                await walletProvider.getSigner();
+
+
+            const wallet =
+                await walletSigner.getAddress();
+
+
+            /* =============================================
+               VERIFY WALLET
                ============================================= */
 
             if (
@@ -1914,10 +2493,18 @@
             ) {
 
                 throw new Error(
+
                     "Wallet account changed. Please reconnect and try again."
+
                 );
 
             }
+
+
+            updateWalletUI(
+                wallet,
+                "Connected to BNB Smart Chain."
+            );
 
 
             /* =============================================
@@ -1931,7 +2518,7 @@
 
                     USDT_ABI,
 
-                    signer
+                    walletSigner
 
                 );
 
@@ -1981,12 +2568,12 @@
 
 
             /* =============================================
-               PAYMENT
+               PAYMENT CONFIRMATION
                ============================================= */
 
             alertBox(
 
-                `Please confirm the ${plan.name} payment of ${plan.price} USDT in MetaMask.`
+                `Please confirm the ${plan.name} payment of ${plan.price} USDT in your wallet.`
 
             );
 
@@ -2003,7 +2590,7 @@
 
             alertBox(
 
-                "Payment submitted. Waiting for blockchain confirmation..."
+                "Payment submitted. Waiting for BNB Smart Chain confirmation..."
 
             );
 
@@ -2062,7 +2649,7 @@
 
                 alertBox(
 
-                    `Payment confirmed on BNB Smart Chain, but the subscription could not be saved to the database. Transaction: ${receipt.hash}`,
+                    `Payment confirmed on BNB Smart Chain, but the subscription could not be saved. Transaction: ${receipt.hash}`,
 
                     "error"
 
@@ -2080,9 +2667,16 @@
 
             alertBox(
 
-                `${plan.name} activated successfully for 30 days. Payment: ${plan.price} USDT.`
+                `${plan.name} activated successfully for 30 days. ${plan.price} USDT paid.`
 
             );
+
+
+            /* =============================================
+               UPDATE BUTTONS
+               ============================================= */
+
+            updatePlanUI();
 
 
         } finally {
@@ -2090,81 +2684,281 @@
             paymentInProgress =
                 false;
 
+            setPaymentButtonsState(
+                false
+            );
+
         }
 
     }
 
 
     /* =====================================================
-       PLAN SELECTION
+       PAYMENT BUTTONS
        ===================================================== */
 
-    async function handlePlanSelection(
-        planCode
-    ) {
+    function setupPaymentButtons() {
 
-        try {
+        document
+            .querySelectorAll(
+                "[data-pay-plan]"
+            )
+            .forEach(
+                function (button) {
+
+                    button.addEventListener(
+                        "click",
+                        async function () {
+
+                            if (
+                                paymentInProgress
+                            ) {
+                                return;
+                            }
+
+
+                            const planCode =
+                                button.dataset.payPlan;
+
+
+                            if (!planCode) {
+
+                                alertBox(
+                                    "Invalid subscription plan.",
+                                    "error"
+                                );
+
+                                return;
+
+                            }
+
+
+                            const plan =
+                                normalizePlan(
+                                    planCode
+                                );
+
+
+                            const originalText =
+                                button.textContent.trim();
+
+
+                            button.disabled =
+                                true;
+
+
+                            button.textContent =
+                                plan.price > 0
+                                    ? "Connecting Wallet..."
+                                    : "Activating...";
+
+
+                            try {
+
+                                await payUSDT(
+                                    plan
+                                );
+
+                            } catch (error) {
+
+                                console.error(
+                                    "Plan payment error:",
+                                    error
+                                );
+
+
+                                if (
+                                    error?.code ===
+                                    4001
+                                ) {
+
+                                    alertBox(
+
+                                        "The wallet transaction was cancelled.",
+
+                                        "error"
+
+                                    );
+
+                                } else {
+
+                                    alertBox(
+
+                                        error?.message ||
+                                        "Unable to complete the subscription.",
+
+                                        "error"
+
+                                    );
+
+                                }
+
+                            } finally {
+
+                                button.disabled =
+                                    false;
+
+                                button.textContent =
+                                    originalText;
+
+                            }
+
+                        }
+                    );
+
+                }
+            );
+
+    }
+
+
+    /* =====================================================
+       PLAN UI
+       ===================================================== */
+
+    function setupPlanUI() {
+
+        const planButtons =
+            document.querySelectorAll(
+                ".plan-button"
+            );
+
+
+        const planDetails =
+            document.querySelectorAll(
+                ".plan-details"
+            );
+
+
+        planButtons.forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const plan =
+                            button.dataset.plan;
+
+
+                        const details =
+                            document.querySelector(
+
+                                '[data-plan-details="' +
+                                plan +
+                                '"]'
+
+                            );
+
+
+                        if (!details) {
+                            return;
+                        }
+
+
+                        const open =
+                            details.classList.contains(
+                                "active"
+                            );
+
+
+                        planButtons.forEach(
+                            function (item) {
+
+                                item.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                        planDetails.forEach(
+                            function (item) {
+
+                                item.classList.remove(
+                                    "active"
+                                );
+
+                            }
+                        );
+
+
+                        if (!open) {
+
+                            button.classList.add(
+                                "active"
+                            );
+
+                            details.classList.add(
+                                "active"
+                            );
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       EXPOSE PUBLIC API
+       ===================================================== */
+
+    window.Web3JobsCompanyDashboard = {
+
+        connectWallet:
+            connectWallet,
+
+        payUSDT:
+            payUSDT,
+
+        getConnectedWallet:
+            function () {
+                return connectedWallet;
+            },
+
+        getCurrentPlan:
+            function () {
+                return currentPlan;
+            },
+
+        plans:
+            PLANS
+
+    };
+
+
+    /* =====================================================
+       LEGACY PUBLIC API
+       -----------------------------------------------------
+       Kept for compatibility with any existing code.
+       Payment itself does NOT depend on onclick.
+       ===================================================== */
+
+    window.handlePlanSelection =
+        async function (
+            planCode
+        ) {
 
             const plan =
                 normalizePlan(
                     planCode
                 );
 
-
-            await payUSDT(
+            return payUSDT(
                 plan
             );
 
-        } catch (error) {
-
-            console.error(
-                "Plan payment error:",
-                error
-            );
-
-
-            if (
-                error?.code ===
-                4001
-            ) {
-
-                alertBox(
-
-                    "The wallet transaction was cancelled.",
-
-                    "error"
-
-                );
-
-                return;
-
-            }
-
-
-            alertBox(
-
-                error?.message ||
-                "Unable to complete the subscription.",
-
-                "error"
-
-            );
-
-        }
-
-    }
-
-
-    /* =====================================================
-       EXPOSE PAYMENT FUNCTIONS
-       ===================================================== */
-
-    window.handlePlanSelection =
-        handlePlanSelection;
+        };
 
 
     window.selectPlan =
-        handlePlanSelection;
+        window.handlePlanSelection;
 
 
     window.connectPaymentWallet =
@@ -2172,20 +2966,9 @@
 
             try {
 
-                const wallet =
-                    await connectWallet();
-
-
-                await switchToBSC();
-
-
-                alertBox(
-
-                    `Wallet connected: ${wallet.slice(0, 6)}...${wallet.slice(-4)}`
-
+                return await connectWallet(
+                    true
                 );
-
-                return wallet;
 
             } catch (error) {
 
@@ -2204,6 +2987,7 @@
 
                 );
 
+
                 return null;
 
             }
@@ -2219,6 +3003,10 @@
 
         try {
 
+            /* =============================================
+               SUPABASE
+               ============================================= */
+
             getClient();
 
 
@@ -2231,16 +3019,22 @@
             }
 
 
+            /* =============================================
+               USER
+               ============================================= */
+
             const user =
                 await getUser();
 
 
             if (!user) {
-
                 return;
-
             }
 
+
+            /* =============================================
+               LOAD DATA
+               ============================================= */
 
             await loadProfile();
 
@@ -2251,6 +3045,28 @@
             await loadJobs();
 
             await loadApplications();
+
+
+            /* =============================================
+               WALLET UI
+               ============================================= */
+
+            createWalletUI();
+
+            setupConnectWalletButton();
+
+            setupWalletEvents();
+
+            await refreshWalletState();
+
+
+            /* =============================================
+               PLAN UI
+               ============================================= */
+
+            setupPlanUI();
+
+            setupPaymentButtons();
 
 
             /* =============================================
@@ -2266,9 +3082,7 @@
             if (form) {
 
                 form.addEventListener(
-
                     "submit",
-
                     async function (event) {
 
                         event.preventDefault();
@@ -2335,7 +3149,6 @@
                         }
 
                     }
-
                 );
 
             }
@@ -2415,7 +3228,7 @@
 
                         <button
                             type="button"
-                            onclick="location.reload()"
+                            id="dashboard-retry-button"
                             style="
                                 margin-top:20px;
                                 padding:10px 16px;
@@ -2435,6 +3248,26 @@
 
                 `;
 
+
+                const retry =
+                    document.getElementById(
+                        "dashboard-retry-button"
+                    );
+
+
+                if (retry) {
+
+                    retry.addEventListener(
+                        "click",
+                        function () {
+
+                            location.reload();
+
+                        }
+                    );
+
+                }
+
             }
 
         }
@@ -2446,13 +3279,21 @@
        DOM READY
        ===================================================== */
 
-    document.addEventListener(
+    if (
+        document.readyState ===
+        "loading"
+    ) {
 
-        "DOMContentLoaded",
+        document.addEventListener(
+            "DOMContentLoaded",
+            init
+        );
 
-        init
+    } else {
 
-    );
+        init();
+
+    }
 
 
 })();
