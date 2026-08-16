@@ -15,6 +15,7 @@
    - USDT BEP-20 payments
    - Transaction confirmation
    - Subscription activation
+   - Payment buttons enabled after wallet connection
    - NO onclick dependency
    ========================================================= */
 
@@ -137,6 +138,12 @@
 
     let walletSigner = null;
 
+    let walletEventsInitialized = false;
+
+    let paymentButtonsInitialized = false;
+
+    let planButtonsInitialized = false;
+
 
     /* =====================================================
        SUPABASE CLIENT
@@ -147,7 +154,6 @@
         if (client) {
             return client;
         }
-
 
         if (
             window.supabaseClient &&
@@ -161,7 +167,6 @@
 
         }
 
-
         if (
             window.__web3jobsSupabase &&
             typeof window.__web3jobsSupabase.from === "function"
@@ -174,7 +179,6 @@
 
         }
 
-
         if (
             window.supabase &&
             typeof window.supabase.from === "function"
@@ -186,7 +190,6 @@
             return client;
 
         }
-
 
         return null;
 
@@ -207,7 +210,6 @@
                 "dashboard-alert"
             );
 
-
         if (!element) {
 
             if (type === "error") {
@@ -220,7 +222,6 @@
 
         }
 
-
         element.textContent =
             message;
 
@@ -230,11 +231,9 @@
         element.style.display =
             "block";
 
-
         clearTimeout(
             alertBox.timer
         );
-
 
         alertBox.timer =
             setTimeout(
@@ -268,7 +267,6 @@
             )
             .trim()
             .toLowerCase();
-
 
         return (
             PLANS[normalized] ||
@@ -327,7 +325,6 @@
         const sb =
             getClient();
 
-
         if (
             !sb ||
             !sb.auth
@@ -339,22 +336,18 @@
 
         }
 
-
         const {
             data,
             error
         } =
             await sb.auth.getUser();
 
-
         if (error) {
             throw error;
         }
 
-
         currentUser =
             data?.user || null;
-
 
         if (!currentUser) {
 
@@ -364,7 +357,6 @@
             return null;
 
         }
-
 
         return currentUser;
 
@@ -380,14 +372,12 @@
         const sb =
             getClient();
 
-
         if (
             !sb ||
             !currentUser
         ) {
             return;
         }
-
 
         const {
             data,
@@ -401,7 +391,6 @@
                     currentUser.id
                 )
                 .maybeSingle();
-
 
         if (
             error &&
@@ -417,10 +406,8 @@
 
         }
 
-
         currentProfile =
             data || null;
-
 
         updateCompanyNameUI();
 
@@ -436,14 +423,12 @@
         const sb =
             getClient();
 
-
         if (
             !sb ||
             !currentUser
         ) {
             return;
         }
-
 
         const {
             data,
@@ -458,14 +443,12 @@
                 )
                 .maybeSingle();
 
-
         if (!error) {
 
             currentCompany =
                 data || null;
 
         }
-
 
         updateCompanyNameUI();
 
@@ -512,18 +495,15 @@
         const companyName =
             getCompanyName();
 
-
         const companyInput =
             document.getElementById(
                 "job-company"
             );
 
-
         const sidebarName =
             document.getElementById(
                 "sidebar-company-name"
             );
-
 
         if (
             companyInput &&
@@ -534,7 +514,6 @@
                 companyName;
 
         }
-
 
         if (sidebarName) {
 
@@ -555,14 +534,12 @@
         const sb =
             getClient();
 
-
         if (
             !sb ||
             !currentUser
         ) {
             return;
         }
-
 
         try {
 
@@ -586,7 +563,6 @@
                     .limit(1)
                     .maybeSingle();
 
-
             if (error) {
 
                 console.warn(
@@ -603,7 +579,6 @@
 
             }
 
-
             if (data) {
 
                 const code =
@@ -612,11 +587,9 @@
                     data.code ||
                     "free";
 
-
                 const expires =
                     data.expires_at ||
                     data.expiration_date;
-
 
                 if (
                     !expires ||
@@ -655,7 +628,6 @@
 
         }
 
-
         updatePlanUI();
 
     }
@@ -673,7 +645,6 @@
         const sb =
             getClient();
 
-
         if (
             !sb ||
             !currentUser
@@ -685,12 +656,10 @@
 
         }
 
-
         const plan =
             normalizePlan(
                 planCode
             );
-
 
         const expiresAt =
             new Date(
@@ -698,7 +667,6 @@
                 plan.durationDays *
                 86400000
             ).toISOString();
-
 
         const payload = {
 
@@ -716,7 +684,6 @@
 
         };
 
-
         if (paymentData.txHash) {
 
             payload.tx_hash =
@@ -724,14 +691,12 @@
 
         }
 
-
         if (paymentData.wallet) {
 
             payload.wallet_address =
                 paymentData.wallet;
 
         }
-
 
         const {
             error
@@ -746,7 +711,6 @@
                     }
                 );
 
-
         if (error) {
 
             console.error(
@@ -758,10 +722,8 @@
 
         }
 
-
         currentPlan =
             plan;
-
 
         updatePlanUI();
 
@@ -790,26 +752,25 @@
                 }
             );
 
-
         const note =
             document.getElementById(
                 "publish-note"
             );
 
-
         if (!note) {
+            updatePaymentButtonsUI();
             return;
         }
-
 
         const limit =
             currentPlan.limit === Infinity
                 ? "Unlimited"
                 : currentPlan.limit;
 
-
         note.textContent =
             `Current plan: ${currentPlan.name} — ${limit} job${limit === 1 ? "" : "s"} / month.`;
+
+        updatePaymentButtonsUI();
 
     }
 
@@ -823,12 +784,10 @@
         const sb =
             getClient();
 
-
         const list =
             document.getElementById(
                 "company-jobs-list"
             );
-
 
         if (
             !sb ||
@@ -837,7 +796,6 @@
         ) {
             return;
         }
-
 
         const {
             data,
@@ -857,14 +815,12 @@
                     }
                 );
 
-
         if (error) {
 
             console.error(
                 "Company jobs query:",
                 error
             );
-
 
             list.innerHTML = `
 
@@ -877,15 +833,12 @@
 
             `;
 
-
             return;
 
         }
 
-
         jobs =
             data || [];
-
 
         renderJobs();
 
@@ -903,11 +856,9 @@
                 "company-jobs-list"
             );
 
-
         if (!list) {
             return;
         }
-
 
         if (!jobs.length) {
 
@@ -921,11 +872,9 @@
 
             `;
 
-
             return;
 
         }
-
 
         list.innerHTML =
 
@@ -938,7 +887,6 @@
                                 job.description ||
                                 ""
                             );
-
 
                         const safeDescription =
                             escapeHTML(
@@ -953,7 +901,6 @@
                                     : description
 
                             );
-
 
                         const applyLink =
                             job.apply_link
@@ -973,7 +920,6 @@
                                   `
                                 : "";
 
-
                         return `
 
                             <article class="job-card">
@@ -991,7 +937,6 @@
 
                                         </div>
 
-
                                         <div class="job-meta">
 
                                             <span>
@@ -1003,7 +948,6 @@
 
                                             </span>
 
-
                                             <span>
 
                                                 ${escapeHTML(
@@ -1012,7 +956,6 @@
                                                 )}
 
                                             </span>
-
 
                                             <span>
 
@@ -1027,11 +970,9 @@
 
                                     </div>
 
-
                                     <div class="job-actions">
 
                                         ${applyLink}
-
 
                                         <button
                                             class="small-button delete"
@@ -1047,7 +988,6 @@
 
                                 </div>
 
-
                                 <div class="job-description">
 
                                     ${safeDescription}
@@ -1061,7 +1001,6 @@
                     }
                 )
                 .join("");
-
 
         list
             .querySelectorAll(
@@ -1102,7 +1041,6 @@
             return;
         }
 
-
         if (
             !window.confirm(
                 "Delete this job?"
@@ -1111,10 +1049,8 @@
             return;
         }
 
-
         const sb =
             getClient();
-
 
         if (!sb) {
 
@@ -1126,7 +1062,6 @@
             return;
 
         }
-
 
         const {
             error
@@ -1143,7 +1078,6 @@
                     currentUser.id
                 );
 
-
         if (error) {
 
             console.error(
@@ -1151,22 +1085,18 @@
                 error
             );
 
-
             alertBox(
                 "Unable to delete the job. Check your database policy.",
                 "error"
             );
 
-
             return;
 
         }
 
-
         alertBox(
             "Job deleted successfully."
         );
-
 
         await loadJobs();
 
@@ -1189,7 +1119,6 @@
 
         }
 
-
         if (
             currentPlan.limit !== Infinity &&
             jobs.length >= currentPlan.limit
@@ -1203,12 +1132,10 @@
 
         }
 
-
         const formData =
             new FormData(
                 form
             );
-
 
         const payload = {
 
@@ -1253,7 +1180,6 @@
 
         };
 
-
         if (
             !payload.title ||
             !payload.company ||
@@ -1267,10 +1193,8 @@
 
         }
 
-
         const sb =
             getClient();
-
 
         if (!sb) {
 
@@ -1279,7 +1203,6 @@
             );
 
         }
-
 
         const {
             error
@@ -1290,11 +1213,9 @@
                     payload
                 );
 
-
         if (error) {
             throw error;
         }
-
 
         form.reset();
 
@@ -1318,12 +1239,10 @@
         const sb =
             getClient();
 
-
         const body =
             document.getElementById(
                 "applications-table-body"
             );
-
 
         if (
             !sb ||
@@ -1332,7 +1251,6 @@
         ) {
             return;
         }
-
 
         const {
             data,
@@ -1354,14 +1272,12 @@
                     }
                 );
 
-
         if (error) {
 
             console.warn(
                 "Applications query:",
                 error
             );
-
 
             body.innerHTML = `
 
@@ -1380,15 +1296,12 @@
 
             `;
 
-
             return;
 
         }
 
-
         applications =
             data || [];
-
 
         if (!applications.length) {
 
@@ -1409,11 +1322,9 @@
 
             `;
 
-
             return;
 
         }
-
 
         body.innerHTML =
 
@@ -1428,7 +1339,6 @@
                             )
                             .toLowerCase();
 
-
                         const statusClass =
 
                             [
@@ -1441,7 +1351,6 @@
                                 ? status
 
                                 : "pending";
-
 
                         return `
 
@@ -1459,7 +1368,6 @@
 
                                 </td>
 
-
                                 <td>
 
                                     ${escapeHTML(
@@ -1469,7 +1377,6 @@
                                     )}
 
                                 </td>
-
 
                                 <td>
 
@@ -1484,7 +1391,6 @@
                                     </span>
 
                                 </td>
-
 
                                 <td>
 
@@ -1522,7 +1428,6 @@
         const wallet =
             CONFIG.paymentWallet;
 
-
         if (
             !wallet ||
             !/^0x[a-fA-F0-9]{40}$/.test(
@@ -1535,7 +1440,6 @@
             );
 
         }
-
 
         return wallet;
 
@@ -1558,7 +1462,6 @@
 
         }
 
-
         throw new Error(
 
             "Ethers.js is not loaded. Please check the ethers.js script."
@@ -1580,7 +1483,6 @@
             return "";
         }
 
-
         return (
             address.slice(0, 6) +
             "..." +
@@ -1601,32 +1503,26 @@
                 "subscription-section"
             );
 
-
         if (!section) {
             return null;
         }
-
 
         let container =
             document.getElementById(
                 "wallet-connection-area"
             );
 
-
         if (container) {
             return container;
         }
-
 
         container =
             document.createElement(
                 "div"
             );
 
-
         container.id =
             "wallet-connection-area";
-
 
         container.style.cssText = `
             margin-bottom:16px;
@@ -1640,7 +1536,6 @@
             gap:12px;
             flex-wrap:wrap;
         `;
-
 
         container.innerHTML = `
 
@@ -1670,7 +1565,6 @@
 
             </div>
 
-
             <button
                 type="button"
                 id="connect-wallet-button"
@@ -1691,12 +1585,10 @@
 
         `;
 
-
         const description =
             section.querySelector(
                 ".subscription-description"
             );
-
 
         if (description) {
 
@@ -1712,7 +1604,6 @@
             );
 
         }
-
 
         return container;
 
@@ -1733,23 +1624,19 @@
                 "wallet-status-title"
             );
 
-
         const text =
             document.getElementById(
                 "wallet-status-text"
             );
-
 
         const button =
             document.getElementById(
                 "connect-wallet-button"
             );
 
-
         if (!title || !text || !button) {
             return;
         }
-
 
         if (address) {
 
@@ -1759,19 +1646,15 @@
             title.style.color =
                 "#6ee7b7";
 
-
             text.textContent =
                 message ||
                 `${shortAddress(address)} • BNB Smart Chain`;
 
-
             text.style.color =
                 "#8ea3bc";
 
-
             button.textContent =
                 shortAddress(address);
-
 
             button.style.background =
                 "linear-gradient(135deg,#0f5d48,#104b3d)";
@@ -1784,24 +1667,98 @@
             title.style.color =
                 "#f5f8ff";
 
-
             text.textContent =
                 message ||
                 "Connect your wallet to pay subscription plans.";
 
-
             text.style.color =
                 "#8ea3bc";
 
-
             button.textContent =
                 "Connect Wallet";
-
 
             button.style.background =
                 "linear-gradient(135deg,#1c765a,#175a47)";
 
         }
+
+    }
+
+
+    /* =====================================================
+       UPDATE PAYMENT BUTTONS UI
+       -----------------------------------------------------
+       IMPORTANT:
+       Payment buttons become active ONLY when:
+       - wallet is connected
+       - wallet provider exists
+       - wallet signer exists
+       - wallet is on BNB Smart Chain
+       ===================================================== */
+
+    function updatePaymentButtonsUI() {
+
+        const buttons =
+            document.querySelectorAll(
+                "[data-pay-plan]"
+            );
+
+        if (!buttons.length) {
+            return;
+        }
+
+        const walletReady =
+            Boolean(
+                connectedWallet &&
+                walletProvider &&
+                walletSigner
+            );
+
+        buttons.forEach(
+            function (button) {
+
+                if (paymentInProgress) {
+
+                    button.disabled =
+                        true;
+
+                    button.style.opacity =
+                        "0.55";
+
+                    button.style.cursor =
+                        "not-allowed";
+
+                    return;
+
+                }
+
+                button.disabled =
+                    !walletReady;
+
+                button.style.opacity =
+                    walletReady
+                        ? "1"
+                        : "0.55";
+
+                button.style.cursor =
+                    walletReady
+                        ? "pointer"
+                        : "not-allowed";
+
+                if (!walletReady) {
+
+                    button.title =
+                        "Connect your wallet on BNB Smart Chain first.";
+
+                } else {
+
+                    button.title =
+                        "Pay with USDT";
+
+                }
+
+            }
+        );
 
     }
 
@@ -1824,7 +1781,6 @@
 
         }
 
-
         if (showMessage) {
 
             alertBox(
@@ -1833,7 +1789,6 @@
 
         }
 
-
         const accounts =
             await window.ethereum.request({
 
@@ -1841,7 +1796,6 @@
                     "eth_requestAccounts"
 
             });
-
 
         if (
             !accounts ||
@@ -1854,22 +1808,19 @@
 
         }
 
-
         connectedWallet =
             accounts[0];
-
 
         updateWalletUI(
             connectedWallet,
             "Wallet connected. Checking BNB Smart Chain..."
         );
 
-
         await switchToBSC();
-
 
         await refreshWalletState();
 
+        updatePaymentButtonsUI();
 
         return connectedWallet;
 
@@ -1889,7 +1840,6 @@
             );
 
         }
-
 
         try {
 
@@ -1918,7 +1868,6 @@
                 throw error;
 
             }
-
 
             await window.ethereum.request({
 
@@ -1968,15 +1917,22 @@
             connectedWallet =
                 null;
 
+            walletProvider =
+                null;
+
+            walletSigner =
+                null;
+
             updateWalletUI(
                 null,
-                "MetaMask or another compatible wallet is required."
+                "MetaMask or another compatible Web3 wallet is required."
             );
+
+            updatePaymentButtonsUI();
 
             return null;
 
         }
-
 
         try {
 
@@ -1987,7 +1943,6 @@
                         "eth_accounts"
 
                 });
-
 
             if (
                 !accounts ||
@@ -2005,33 +1960,33 @@
 
                 updateWalletUI();
 
+                updatePaymentButtonsUI();
+
                 return null;
 
             }
 
-
             connectedWallet =
                 accounts[0];
 
-
             const ethers =
                 getEthers();
-
 
             walletProvider =
                 new ethers.BrowserProvider(
                     window.ethereum
                 );
 
-
             const network =
                 await walletProvider.getNetwork();
-
 
             if (
                 network.chainId !==
                 BigInt(CONFIG.chainIdDecimal)
             ) {
+
+                walletSigner =
+                    null;
 
                 updateWalletUI(
 
@@ -2041,14 +1996,39 @@
 
                 );
 
+                updatePaymentButtonsUI();
+
                 return connectedWallet;
 
             }
 
-
             walletSigner =
                 await walletProvider.getSigner();
 
+            const signerAddress =
+                await walletSigner.getAddress();
+
+            if (
+                signerAddress.toLowerCase() !==
+                connectedWallet.toLowerCase()
+            ) {
+
+                walletSigner =
+                    null;
+
+                updateWalletUI(
+
+                    connectedWallet,
+
+                    "Wallet account changed. Please reconnect."
+
+                );
+
+                updatePaymentButtonsUI();
+
+                return connectedWallet;
+
+            }
 
             updateWalletUI(
 
@@ -2058,6 +2038,7 @@
 
             );
 
+            updatePaymentButtonsUI();
 
             return connectedWallet;
 
@@ -2067,6 +2048,14 @@
                 "Wallet state refresh:",
                 error
             );
+
+            walletProvider =
+                null;
+
+            walletSigner =
+                null;
+
+            updatePaymentButtonsUI();
 
             return null;
 
@@ -2081,10 +2070,15 @@
 
     function setupWalletEvents() {
 
-        if (!window.ethereum) {
+        if (
+            walletEventsInitialized
+        ) {
             return;
         }
 
+        if (!window.ethereum) {
+            return;
+        }
 
         if (
             typeof window.ethereum.on !==
@@ -2093,6 +2087,8 @@
             return;
         }
 
+        walletEventsInitialized =
+            true;
 
         window.ethereum.on(
             "accountsChanged",
@@ -2101,17 +2097,17 @@
                 connectedWallet =
                     accounts?.[0] || null;
 
-
                 walletProvider =
                     null;
 
                 walletSigner =
                     null;
 
-
                 if (!connectedWallet) {
 
                     updateWalletUI();
+
+                    updatePaymentButtonsUI();
 
                     alertBox(
                         "Wallet disconnected."
@@ -2121,9 +2117,9 @@
 
                 }
 
-
                 await refreshWalletState();
 
+                updatePaymentButtonsUI();
 
                 alertBox(
                     `Wallet changed to ${shortAddress(connectedWallet)}.`
@@ -2131,7 +2127,6 @@
 
             }
         );
-
 
         window.ethereum.on(
             "chainChanged",
@@ -2143,9 +2138,9 @@
                 walletSigner =
                     null;
 
-
                 await refreshWalletState();
 
+                updatePaymentButtonsUI();
 
                 if (connectedWallet) {
 
@@ -2172,11 +2167,9 @@
                 "connect-wallet-button"
             );
 
-
         if (!button) {
             return;
         }
-
 
         button.addEventListener(
             "click",
@@ -2186,10 +2179,8 @@
                     return;
                 }
 
-
                 const oldText =
                     button.textContent;
-
 
                 button.disabled =
                     true;
@@ -2197,14 +2188,12 @@
                 button.textContent =
                     "Connecting...";
 
-
                 try {
 
                     const wallet =
                         await connectWallet(
                             true
                         );
-
 
                     if (wallet) {
 
@@ -2222,7 +2211,6 @@
                         "Connect wallet error:",
                         error
                     );
-
 
                     if (
                         error?.code ===
@@ -2247,11 +2235,12 @@
 
                     }
 
+                    updatePaymentButtonsUI();
+
                 } finally {
 
                     button.disabled =
                         false;
-
 
                     if (connectedWallet) {
 
@@ -2277,7 +2266,7 @@
 
 
     /* =====================================================
-       PAYMENT BUTTON UI
+       PAYMENT BUTTONS STATE
        ===================================================== */
 
     function setPaymentButtonsState(
@@ -2293,6 +2282,16 @@
 
                     button.disabled =
                         disabled;
+
+                    button.style.opacity =
+                        disabled
+                            ? "0.55"
+                            : "1";
+
+                    button.style.cursor =
+                        disabled
+                            ? "not-allowed"
+                            : "pointer";
 
                 }
             );
@@ -2316,15 +2315,12 @@
 
         }
 
-
         paymentInProgress =
             true;
-
 
         setPaymentButtonsState(
             true
         );
-
 
         try {
 
@@ -2340,11 +2336,9 @@
                     plan.code
                 );
 
-
                 alertBox(
                     "Free plan activated successfully."
                 );
-
 
                 return;
 
@@ -2392,7 +2386,6 @@
                     "Please connect your wallet..."
                 );
 
-
                 await connectWallet(
                     false
                 );
@@ -2407,7 +2400,6 @@
             alertBox(
                 "Checking BNB Smart Chain..."
             );
-
 
             await switchToBSC();
 
@@ -2428,7 +2420,6 @@
 
             const network =
                 await walletProvider.getNetwork();
-
 
             if (
                 network.chainId !==
@@ -2454,7 +2445,6 @@
 
                 });
 
-
             if (
                 !accounts ||
                 !accounts.length
@@ -2466,7 +2456,6 @@
 
             }
 
-
             connectedWallet =
                 accounts[0];
 
@@ -2477,7 +2466,6 @@
 
             walletSigner =
                 await walletProvider.getSigner();
-
 
             const wallet =
                 await walletSigner.getAddress();
@@ -2505,6 +2493,13 @@
                 wallet,
                 "Connected to BNB Smart Chain."
             );
+
+
+            /* =============================================
+               UPDATE BUTTONS
+               ============================================= */
+
+            updatePaymentButtonsUI();
 
 
             /* =============================================
@@ -2547,12 +2542,10 @@
                 "Checking your USDT balance..."
             );
 
-
             const balance =
                 await token.balanceOf(
                     wallet
                 );
-
 
             if (
                 balance < amount
@@ -2577,7 +2570,6 @@
 
             );
 
-
             const transaction =
                 await token.transfer(
 
@@ -2588,20 +2580,18 @@
                 );
 
 
+            /* =============================================
+               WAIT
+               ============================================= */
+
             alertBox(
 
                 "Payment submitted. Waiting for BNB Smart Chain confirmation..."
 
             );
 
-
-            /* =============================================
-               WAIT
-               ============================================= */
-
             const receipt =
                 await transaction.wait();
-
 
             if (
                 !receipt ||
@@ -2646,7 +2636,6 @@
                     saveError
                 );
 
-
                 alertBox(
 
                     `Payment confirmed on BNB Smart Chain, but the subscription could not be saved. Transaction: ${receipt.hash}`,
@@ -2654,7 +2643,6 @@
                     "error"
 
                 );
-
 
                 throw saveError;
 
@@ -2672,10 +2660,6 @@
             );
 
 
-            /* =============================================
-               UPDATE BUTTONS
-               ============================================= */
-
             updatePlanUI();
 
 
@@ -2684,9 +2668,7 @@
             paymentInProgress =
                 false;
 
-            setPaymentButtonsState(
-                false
-            );
+            updatePaymentButtonsUI();
 
         }
 
@@ -2699,115 +2681,154 @@
 
     function setupPaymentButtons() {
 
-        document
-            .querySelectorAll(
+        if (
+            paymentButtonsInitialized
+        ) {
+            updatePaymentButtonsUI();
+            return;
+        }
+
+        const buttons =
+            document.querySelectorAll(
                 "[data-pay-plan]"
-            )
-            .forEach(
-                function (button) {
+            );
 
-                    button.addEventListener(
-                        "click",
-                        async function () {
+        buttons.forEach(
+            function (button) {
 
-                            if (
-                                paymentInProgress
-                            ) {
-                                return;
-                            }
+                button.addEventListener(
+                    "click",
+                    async function () {
 
-
-                            const planCode =
-                                button.dataset.payPlan;
+                        if (
+                            paymentInProgress
+                        ) {
+                            return;
+                        }
 
 
-                            if (!planCode) {
+                        /*
+                         * Safety check:
+                         * The user must have a connected
+                         * wallet on BNB Smart Chain.
+                         */
 
-                                alertBox(
-                                    "Invalid subscription plan.",
-                                    "error"
-                                );
+                        if (
+                            !connectedWallet ||
+                            !walletProvider ||
+                            !walletSigner
+                        ) {
 
-                                return;
+                            alertBox(
 
-                            }
+                                "Please connect your wallet on BNB Smart Chain first.",
 
+                                "error"
 
-                            const plan =
-                                normalizePlan(
-                                    planCode
-                                );
+                            );
 
+                            await refreshWalletState();
 
-                            const originalText =
-                                button.textContent.trim();
-
-
-                            button.disabled =
-                                true;
-
-
-                            button.textContent =
-                                plan.price > 0
-                                    ? "Connecting Wallet..."
-                                    : "Activating...";
-
-
-                            try {
-
-                                await payUSDT(
-                                    plan
-                                );
-
-                            } catch (error) {
-
-                                console.error(
-                                    "Plan payment error:",
-                                    error
-                                );
-
-
-                                if (
-                                    error?.code ===
-                                    4001
-                                ) {
-
-                                    alertBox(
-
-                                        "The wallet transaction was cancelled.",
-
-                                        "error"
-
-                                    );
-
-                                } else {
-
-                                    alertBox(
-
-                                        error?.message ||
-                                        "Unable to complete the subscription.",
-
-                                        "error"
-
-                                    );
-
-                                }
-
-                            } finally {
-
-                                button.disabled =
-                                    false;
-
-                                button.textContent =
-                                    originalText;
-
-                            }
+                            return;
 
                         }
-                    );
 
-                }
-            );
+
+                        const planCode =
+                            button.dataset.payPlan;
+
+                        if (!planCode) {
+
+                            alertBox(
+                                "Invalid subscription plan.",
+                                "error"
+                            );
+
+                            return;
+
+                        }
+
+
+                        const plan =
+                            normalizePlan(
+                                planCode
+                            );
+
+
+                        const originalText =
+                            button.textContent.trim();
+
+
+                        button.disabled =
+                            true;
+
+                        button.textContent =
+                            plan.price > 0
+                                ? "Processing..."
+                                : "Activating...";
+
+
+                        try {
+
+                            await payUSDT(
+                                plan
+                            );
+
+                        } catch (error) {
+
+                            console.error(
+                                "Plan payment error:",
+                                error
+                            );
+
+                            if (
+                                error?.code ===
+                                4001
+                            ) {
+
+                                alertBox(
+
+                                    "The wallet transaction was cancelled.",
+
+                                    "error"
+
+                                );
+
+                            } else {
+
+                                alertBox(
+
+                                    error?.message ||
+                                    "Unable to complete the subscription.",
+
+                                    "error"
+
+                                );
+
+                            }
+
+                        } finally {
+
+                            button.disabled =
+                                false;
+
+                            button.textContent =
+                                originalText;
+
+                            updatePaymentButtonsUI();
+
+                        }
+
+                    }
+                );
+
+            }
+        );
+
+        paymentButtonsInitialized =
+            true;
+
+        updatePaymentButtonsUI();
 
     }
 
@@ -2818,17 +2839,21 @@
 
     function setupPlanUI() {
 
+        if (
+            planButtonsInitialized
+        ) {
+            return;
+        }
+
         const planButtons =
             document.querySelectorAll(
                 ".plan-button"
             );
 
-
         const planDetails =
             document.querySelectorAll(
                 ".plan-details"
             );
-
 
         planButtons.forEach(
             function (button) {
@@ -2840,7 +2865,6 @@
                         const plan =
                             button.dataset.plan;
 
-
                         const details =
                             document.querySelector(
 
@@ -2850,17 +2874,14 @@
 
                             );
 
-
                         if (!details) {
                             return;
                         }
-
 
                         const open =
                             details.classList.contains(
                                 "active"
                             );
-
 
                         planButtons.forEach(
                             function (item) {
@@ -2872,7 +2893,6 @@
                             }
                         );
 
-
                         planDetails.forEach(
                             function (item) {
 
@@ -2882,7 +2902,6 @@
 
                             }
                         );
-
 
                         if (!open) {
 
@@ -2901,6 +2920,9 @@
 
             }
         );
+
+        planButtonsInitialized =
+            true;
 
     }
 
@@ -2935,9 +2957,6 @@
 
     /* =====================================================
        LEGACY PUBLIC API
-       -----------------------------------------------------
-       Kept for compatibility with any existing code.
-       Payment itself does NOT depend on onclick.
        ===================================================== */
 
     window.handlePlanSelection =
@@ -2977,7 +2996,6 @@
                     error
                 );
 
-
                 alertBox(
 
                     error?.message ||
@@ -2986,7 +3004,6 @@
                     "error"
 
                 );
-
 
                 return null;
 
@@ -3009,7 +3026,6 @@
 
             getClient();
 
-
             if (!getClient()) {
 
                 throw new Error(
@@ -3025,7 +3041,6 @@
 
             const user =
                 await getUser();
-
 
             if (!user) {
                 return;
@@ -3068,6 +3083,14 @@
 
             setupPaymentButtons();
 
+            /*
+             * Important:
+             * Initial state is recalculated after the
+             * payment buttons have been created.
+             */
+
+            updatePaymentButtonsUI();
+
 
             /* =============================================
                POST JOB FORM
@@ -3078,7 +3101,6 @@
                     "post-job-form"
                 );
 
-
             if (form) {
 
                 form.addEventListener(
@@ -3087,18 +3109,15 @@
 
                         event.preventDefault();
 
-
                         const button =
                             document.getElementById(
                                 "publish-job-button"
                             );
 
-
                         const oldText =
                             button
                                 ? button.textContent
                                 : "Publish Job";
-
 
                         if (button) {
 
@@ -3109,7 +3128,6 @@
                                 "Publishing...";
 
                         }
-
 
                         try {
 
@@ -3123,7 +3141,6 @@
                                 "Add job:",
                                 error
                             );
-
 
                             alertBox(
 
@@ -3163,12 +3180,10 @@
                     "loading-spinner"
                 );
 
-
             const dashboard =
                 document.getElementById(
                     "dashboard-content"
                 );
-
 
             if (loader) {
 
@@ -3176,7 +3191,6 @@
                     "none";
 
             }
-
 
             if (dashboard) {
 
@@ -3195,12 +3209,10 @@
 
             );
 
-
             const loader =
                 document.getElementById(
                     "loading-spinner"
                 );
-
 
             if (loader) {
 
@@ -3225,7 +3237,6 @@
 
                         </p>
 
-
                         <button
                             type="button"
                             id="dashboard-retry-button"
@@ -3248,12 +3259,10 @@
 
                 `;
 
-
                 const retry =
                     document.getElementById(
                         "dashboard-retry-button"
                     );
-
 
                 if (retry) {
 
