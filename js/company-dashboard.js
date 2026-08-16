@@ -15,7 +15,8 @@
    - USDT BEP-20 payments
    - Transaction confirmation
    - Subscription activation
-   - Payment buttons enabled after wallet connection
+   - Payment buttons enabled BEFORE wallet connection
+   - Automatic wallet connection when paying
    - NO onclick dependency
    ========================================================= */
 
@@ -758,8 +759,11 @@
             );
 
         if (!note) {
+
             updatePaymentButtonsUI();
+
             return;
+
         }
 
         const limit =
@@ -1688,12 +1692,12 @@
     /* =====================================================
        UPDATE PAYMENT BUTTONS UI
        -----------------------------------------------------
-       IMPORTANT:
-       Payment buttons become active ONLY when:
-       - wallet is connected
-       - wallet provider exists
-       - wallet signer exists
-       - wallet is on BNB Smart Chain
+       IMPORTANT FIX:
+       Payment buttons remain enabled even when the wallet
+       is not connected.
+
+       Clicking a paid plan will automatically open the
+       wallet connection process.
        ===================================================== */
 
     function updatePaymentButtonsUI() {
@@ -1706,13 +1710,6 @@
         if (!buttons.length) {
             return;
         }
-
-        const walletReady =
-            Boolean(
-                connectedWallet &&
-                walletProvider &&
-                walletSigner
-            );
 
         buttons.forEach(
             function (button) {
@@ -1728,32 +1725,50 @@
                     button.style.cursor =
                         "not-allowed";
 
+                    button.title =
+                        "Payment is currently processing.";
+
                     return;
 
                 }
 
+                /*
+                 * IMPORTANT:
+                 * Do NOT disable the button because the
+                 * wallet is disconnected.
+                 */
+
                 button.disabled =
-                    !walletReady;
+                    false;
 
                 button.style.opacity =
-                    walletReady
-                        ? "1"
-                        : "0.55";
+                    "1";
 
                 button.style.cursor =
-                    walletReady
-                        ? "pointer"
-                        : "not-allowed";
+                    "pointer";
 
-                if (!walletReady) {
+                const planCode =
+                    button.dataset.payPlan;
+
+                const plan =
+                    normalizePlan(
+                        planCode
+                    );
+
+                if (plan.price <= 0) {
 
                     button.title =
-                        "Connect your wallet on BNB Smart Chain first.";
+                        "Activate the Free plan.";
+
+                } else if (connectedWallet) {
+
+                    button.title =
+                        "Pay with USDT on BNB Smart Chain.";
 
                 } else {
 
                     button.title =
-                        "Pay with USDT";
+                        "Connect your wallet and pay with USDT.";
 
                 }
 
@@ -2380,7 +2395,11 @@
                CONNECT WALLET IF NEEDED
                ============================================= */
 
-            if (!connectedWallet) {
+            if (
+                !connectedWallet ||
+                !walletProvider ||
+                !walletSigner
+            ) {
 
                 alertBox(
                     "Please connect your wallet..."
@@ -2388,6 +2407,23 @@
 
                 await connectWallet(
                     false
+                );
+
+            }
+
+
+            /*
+             * Verify wallet after automatic connection.
+             */
+
+            if (
+                !connectedWallet ||
+                !walletProvider ||
+                !walletSigner
+            ) {
+
+                throw new Error(
+                    "Wallet connection was not completed."
                 );
 
             }
@@ -2677,6 +2713,10 @@
 
     /* =====================================================
        PAYMENT BUTTONS
+       -----------------------------------------------------
+       IMPORTANT FIX:
+       Buttons are NOT disabled before wallet connection.
+       Clicking a paid plan automatically connects the wallet.
        ===================================================== */
 
     function setupPaymentButtons() {
@@ -2684,14 +2724,27 @@
         if (
             paymentButtonsInitialized
         ) {
+
             updatePaymentButtonsUI();
+
             return;
+
         }
 
         const buttons =
             document.querySelectorAll(
                 "[data-pay-plan]"
             );
+
+        if (!buttons.length) {
+
+            console.warn(
+                "No subscription payment buttons found."
+            );
+
+            return;
+
+        }
 
         buttons.forEach(
             function (button) {
@@ -2700,39 +2753,9 @@
                     "click",
                     async function () {
 
-                        if (
-                            paymentInProgress
-                        ) {
+                        if (paymentInProgress) {
                             return;
                         }
-
-
-                        /*
-                         * Safety check:
-                         * The user must have a connected
-                         * wallet on BNB Smart Chain.
-                         */
-
-                        if (
-                            !connectedWallet ||
-                            !walletProvider ||
-                            !walletSigner
-                        ) {
-
-                            alertBox(
-
-                                "Please connect your wallet on BNB Smart Chain first.",
-
-                                "error"
-
-                            );
-
-                            await refreshWalletState();
-
-                            return;
-
-                        }
-
 
                         const planCode =
                             button.dataset.payPlan;
@@ -2748,27 +2771,86 @@
 
                         }
 
-
                         const plan =
                             normalizePlan(
                                 planCode
                             );
 
-
                         const originalText =
                             button.textContent.trim();
-
 
                         button.disabled =
                             true;
 
                         button.textContent =
                             plan.price > 0
-                                ? "Processing..."
+                                ? "Connecting..."
                                 : "Activating...";
 
-
                         try {
+
+                            /* =================================
+                               FREE
+                               ================================= */
+
+                            if (
+                                plan.price <= 0
+                            ) {
+
+                                await payUSDT(
+                                    plan
+                                );
+
+                                return;
+
+                            }
+
+
+                            /* =================================
+                               AUTOMATIC WALLET CONNECTION
+                               ================================= */
+
+                            if (
+                                !connectedWallet ||
+                                !walletProvider ||
+                                !walletSigner
+                            ) {
+
+                                alertBox(
+                                    "Please connect your wallet..."
+                                );
+
+                                await connectWallet(
+                                    true
+                                );
+
+                            }
+
+
+                            /* =================================
+                               VERIFY WALLET
+                               ================================= */
+
+                            if (
+                                !connectedWallet ||
+                                !walletProvider ||
+                                !walletSigner
+                            ) {
+
+                                throw new Error(
+                                    "Wallet connection was not completed."
+                                );
+
+                            }
+
+
+                            button.textContent =
+                                "Processing...";
+
+
+                            /* =================================
+                               PAYMENT
+                               ================================= */
 
                             await payUSDT(
                                 plan
@@ -2814,6 +2896,9 @@
 
                             button.textContent =
                                 originalText;
+
+                            paymentInProgress =
+                                false;
 
                             updatePaymentButtonsUI();
 
@@ -3082,12 +3167,6 @@
             setupPlanUI();
 
             setupPaymentButtons();
-
-            /*
-             * Important:
-             * Initial state is recalculated after the
-             * payment buttons have been created.
-             */
 
             updatePaymentButtonsUI();
 
