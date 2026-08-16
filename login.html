@@ -20,1011 +20,737 @@
         content="#06101d"
     >
 
-    <title>
-        Login | Web3Jobs
-    </title>
+    <title>Login | Web3Jobs</title>
 
-
-    <!-- =====================================================
-         STYLES
-    ====================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="css/style.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/responsive.css"
-    >
-
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
 
     <style>
-
         .auth-page {
-
             min-height: 100vh;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             padding: 40px 20px;
-
         }
-
 
         .auth-container {
-
             width: 100%;
-
             max-width: 460px;
-
         }
-
 
         .auth-card {
-
-            background: rgba(10, 25, 42, 0.95);
-
+            background: rgba(10,25,42,0.95);
             border: 1px solid rgba(255,255,255,0.08);
-
             border-radius: 18px;
-
             padding: 32px;
-
-            box-shadow:
-                0 20px 60px rgba(0,0,0,0.35);
-
+            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
         }
-
 
         .auth-header {
-
             text-align: center;
-
             margin-bottom: 28px;
-
         }
-
 
         .auth-header h1 {
-
             margin: 0 0 10px;
-
         }
-
 
         .auth-header p {
-
             margin: 0;
-
             opacity: 0.75;
-
         }
-
 
         .auth-form-group {
-
             margin-bottom: 18px;
-
         }
-
 
         .auth-form-group label {
-
             display: block;
-
             margin-bottom: 8px;
-
             font-weight: 700;
-
         }
-
 
         .auth-form-group input {
-
             width: 100%;
-
             box-sizing: border-box;
-
             padding: 13px 14px;
-
             border-radius: 10px;
-
             border: 1px solid rgba(255,255,255,0.12);
-
             background: rgba(255,255,255,0.04);
-
             color: inherit;
-
             outline: none;
-
         }
-
 
         .auth-form-group input:focus {
-
             border-color: #6ee7b7;
-
         }
-
 
         .auth-submit {
-
             width: 100%;
-
             padding: 13px 18px;
-
             border: 0;
-
             border-radius: 10px;
-
             background: #6ee7b7;
-
             color: #06101d;
-
             font-weight: 800;
-
             cursor: pointer;
-
-            transition: opacity 0.2s ease;
-
         }
-
-
-        .auth-submit:hover {
-
-            opacity: 0.9;
-
-        }
-
 
         .auth-submit:disabled {
-
             opacity: 0.55;
-
             cursor: not-allowed;
-
         }
-
 
         .auth-links {
-
             display: flex;
-
             justify-content: space-between;
-
             gap: 12px;
-
             margin-top: 16px;
-
             font-size: 14px;
-
         }
 
-
-        .auth-links a {
-
+        .auth-links a,
+        .auth-footer a {
             color: #6ee7b7;
-
             text-decoration: none;
-
+            font-weight: 700;
         }
-
-
-        .auth-links a:hover {
-
-            text-decoration: underline;
-
-        }
-
 
         .auth-divider {
-
             display: flex;
-
             align-items: center;
-
             gap: 12px;
-
             margin: 25px 0;
-
             opacity: 0.65;
-
         }
-
 
         .auth-divider::before,
-
         .auth-divider::after {
-
             content: "";
-
             height: 1px;
-
             flex: 1;
-
             background: rgba(255,255,255,0.12);
-
         }
-
 
         .wallet-button {
-
             width: 100%;
-
             padding: 13px 18px;
-
             border-radius: 10px;
-
             border: 1px solid rgba(255,255,255,0.12);
-
             background: transparent;
-
             color: inherit;
-
             font-weight: 800;
-
             cursor: pointer;
-
         }
-
 
         .wallet-button:hover {
-
             border-color: #6ee7b7;
-
         }
-
 
         .auth-message {
-
             margin-bottom: 20px;
-
         }
-
 
         .auth-message-box {
-
             padding: 13px 15px;
-
             border-radius: 10px;
-
             line-height: 1.6;
-
         }
-
 
         .auth-message-error {
-
             background: rgba(239,68,68,0.12);
-
             border: 1px solid rgba(239,68,68,0.25);
-
         }
-
 
         .auth-message-success {
-
             background: rgba(110,231,183,0.10);
-
             border: 1px solid rgba(110,231,183,0.25);
-
         }
-
 
         .auth-message-info {
-
             background: rgba(59,130,246,0.10);
-
             border: 1px solid rgba(59,130,246,0.25);
-
         }
-
-
-        .auth-footer {
-
-            text-align: center;
-
-            margin-top: 22px;
-
-            opacity: 0.8;
-
-            font-size: 14px;
-
-        }
-
-
-        .auth-footer a {
-
-            color: #6ee7b7;
-
-            text-decoration: none;
-
-            font-weight: 700;
-
-        }
-
 
         .loading-state {
-
             display: none;
-
             text-align: center;
-
             margin-top: 14px;
-
             font-size: 14px;
-
             opacity: 0.75;
-
         }
 
+        .auth-footer {
+            text-align: center;
+            margin-top: 22px;
+            opacity: 0.8;
+            font-size: 14px;
+        }
 
         .back-home {
-
             display: inline-block;
-
             margin-bottom: 20px;
-
             color: #6ee7b7;
-
             text-decoration: none;
-
             font-size: 14px;
-
         }
 
+        .forgot-box {
+            display: none;
+            margin-top: 22px;
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .forgot-box h3 {
+            margin-top: 0;
+        }
+
+        .forgot-box p {
+            opacity: 0.75;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .forgot-cancel {
+            display: block;
+            text-align: center;
+            margin-top: 14px;
+            color: #6ee7b7;
+            cursor: pointer;
+            font-size: 14px;
+        }
     </style>
 
 </head>
 
-
 <body>
 
+<main class="auth-page">
 
-    <!-- =====================================================
-         AUTH PAGE
-    ====================================================== -->
+    <div class="auth-container">
 
-    <main class="auth-page">
+        <a
+            href="index.html"
+            class="back-home"
+        >
+            ← Back to Web3Jobs
+        </a>
 
-        <div class="auth-container">
+        <section class="auth-card">
 
+            <div class="auth-header">
 
-            <a
-                href="index.html"
-                class="back-home"
+                <h1>Welcome Back</h1>
+
+                <p>
+                    Sign in to your Web3Jobs account
+                </p>
+
+            </div>
+
+            <div
+                id="auth-message"
+                class="auth-message"
+                style="display:none;"
+            ></div>
+
+            <form
+                id="login-form"
+                novalidate
             >
-                ← Back to Web3Jobs
-            </a>
 
+                <div class="auth-form-group">
 
-            <section class="auth-card">
+                    <label for="email">
+                        Email
+                    </label>
 
-
-                <!-- =================================================
-                     HEADER
-                ================================================== -->
-
-                <div class="auth-header">
-
-                    <h1>
-                        Welcome Back
-                    </h1>
-
-                    <p>
-                        Sign in to your Web3Jobs account
-                    </p>
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="you@example.com"
+                        required
+                    >
 
                 </div>
 
+                <div class="auth-form-group">
 
-                <!-- =================================================
-                     AUTH MESSAGE
-                ================================================== -->
+                    <label for="password">
+                        Password
+                    </label>
 
-                <div
-                    id="auth-message"
-                    class="auth-message"
-                    style="display:none;"
-                ></div>
-
-
-                <!-- =================================================
-                     LOGIN FORM
-                ================================================== -->
-
-                <form
-                    id="login-form"
-                    novalidate
-                >
-
-
-                    <div class="auth-form-group">
-
-                        <label
-                            for="email"
-                        >
-                            Email
-                        </label>
-
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            autocomplete="email"
-                            placeholder="you@example.com"
-                            required
-                        >
-
-                    </div>
-
-
-                    <div class="auth-form-group">
-
-                        <label
-                            for="password"
-                        >
-                            Password
-                        </label>
-
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autocomplete="current-password"
-                            placeholder="Enter your password"
-                            required
-                        >
-
-                    </div>
-
-
-                    <button
-                        id="login-button"
-                        class="auth-submit"
-                        type="submit"
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        autocomplete="current-password"
+                        placeholder="Enter your password"
+                        required
                     >
-                        Login
-                    </button>
-
-
-                    <div
-                        id="login-loading"
-                        class="loading-state"
-                    >
-                        Signing in...
-                    </div>
-
-
-                </form>
-
-
-                <!-- =================================================
-                     LINKS
-                ================================================== -->
-
-                <div class="auth-links">
-
-                    <a
-                        href="#"
-                        id="forgot-password"
-                    >
-                        Forgot password?
-                    </a>
-
-
-                    <a
-                        href="signup.html"
-                    >
-                        Create Account
-                    </a>
 
                 </div>
-
-
-                <!-- =================================================
-                     DIVIDER
-                ================================================== -->
-
-                <div class="auth-divider">
-                    <span>OR</span>
-                </div>
-
-
-                <!-- =================================================
-                     WALLET LOGIN
-                ================================================== -->
 
                 <button
-                    type="button"
-                    id="wallet-login-button"
-                    class="wallet-button"
+                    id="login-button"
+                    class="auth-submit"
+                    type="submit"
                 >
-                    Connect Wallet
+                    Login
                 </button>
 
+                <div
+                    id="login-loading"
+                    class="loading-state"
+                >
+                    Signing in...
+                </div>
 
-                <!-- =================================================
-                     FOOTER
-                ================================================== -->
+            </form>
 
-                <div class="auth-footer">
+            <div class="auth-links">
 
-                    Don't have an account?
+                <a
+                    href="#"
+                    id="forgot-password"
+                >
+                    Forgot password?
+                </a>
 
-                    <a
-                        href="signup.html"
+                <a href="signup.html">
+                    Create Account
+                </a>
+
+            </div>
+
+            <!-- FORGOT PASSWORD -->
+
+            <div
+                id="forgot-box"
+                class="forgot-box"
+            >
+
+                <h3>
+                    Reset Your Password
+                </h3>
+
+                <p>
+                    Enter the email address associated with your account.
+                    We will send you a password reset link.
+                </p>
+
+                <div class="auth-form-group">
+
+                    <label for="reset-email">
+                        Email
+                    </label>
+
+                    <input
+                        id="reset-email"
+                        type="email"
+                        autocomplete="email"
+                        placeholder="you@example.com"
                     >
-                        Create one
-                    </a>
 
                 </div>
 
+                <button
+                    id="send-reset-button"
+                    class="auth-submit"
+                    type="button"
+                >
+                    Send Reset Link
+                </button>
 
-            </section>
+                <div
+                    id="reset-loading"
+                    class="loading-state"
+                >
+                    Sending...
+                </div>
 
-        </div>
+                <span
+                    id="forgot-cancel"
+                    class="forgot-cancel"
+                >
+                    Cancel
+                </span>
 
-    </main>
+            </div>
 
+            <div class="auth-divider">
+                <span>OR</span>
+            </div>
 
-    <!-- =====================================================
-         SUPABASE LIBRARY
-    ====================================================== -->
+            <button
+                type="button"
+                id="wallet-login-button"
+                class="wallet-button"
+            >
+                Connect Wallet
+            </button>
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-    ></script>
+            <div class="auth-footer">
 
+                Don't have an account?
 
-    <!-- =====================================================
-         UNIFIED SUPABASE CLIENT
-    ====================================================== -->
+                <a href="signup.html">
+                    Create one
+                </a>
 
-    <script
-        src="js/supabase.js?v=20260817"
-    ></script>
+            </div>
 
+        </section>
 
-    <!-- =====================================================
-         UNIFIED AUTHENTICATION
-    ====================================================== -->
+    </div>
 
-    <script
-        src="js/auth.js?v=20260817"
-    ></script>
+</main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- =====================================================
-         LOGIN PAGE ONLY
-         
-         IMPORTANT:
-         This script does NOT create another Supabase client.
-         It only calls Web3JobsAuth.login().
-    ====================================================== -->
+<script src="js/supabase.js?v=20260817"></script>
 
-    <script>
+<script src="js/auth.js?v=20260817"></script>
 
-        "use strict";
+<script>
+"use strict";
 
+document.addEventListener("DOMContentLoaded", function () {
 
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
+    const form =
+        document.getElementById("login-form");
 
+    const emailInput =
+        document.getElementById("email");
 
-                const form =
-                    document.getElementById(
-                        "login-form"
-                    );
+    const passwordInput =
+        document.getElementById("password");
 
+    const loginButton =
+        document.getElementById("login-button");
 
-                const emailInput =
-                    document.getElementById(
-                        "email"
-                    );
+    const loading =
+        document.getElementById("login-loading");
 
+    const forgotPassword =
+        document.getElementById("forgot-password");
 
-                const passwordInput =
-                    document.getElementById(
-                        "password"
-                    );
+    const forgotBox =
+        document.getElementById("forgot-box");
 
+    const resetEmail =
+        document.getElementById("reset-email");
 
-                const loginButton =
-                    document.getElementById(
-                        "login-button"
-                    );
+    const sendResetButton =
+        document.getElementById("send-reset-button");
 
+    const resetLoading =
+        document.getElementById("reset-loading");
 
-                const loading =
-                    document.getElementById(
-                        "login-loading"
-                    );
+    const forgotCancel =
+        document.getElementById("forgot-cancel");
 
+    const walletButton =
+        document.getElementById("wallet-login-button");
 
-                const forgotPassword =
-                    document.getElementById(
-                        "forgot-password"
-                    );
 
+    /* =====================================================
+       LOGIN
+    ====================================================== */
 
-                const walletButton =
-                    document.getElementById(
-                        "wallet-login-button"
-                    );
+    if (form) {
 
+        form.addEventListener("submit", async function (event) {
 
-                /* =================================================
-                   LOGIN
-                ================================================== */
+            event.preventDefault();
 
-                if (form) {
+            const email =
+                emailInput.value.trim();
 
-                    form.addEventListener(
-                        "submit",
-                        async function (event) {
+            const password =
+                passwordInput.value;
 
-                            event.preventDefault();
+            if (!email || !password) {
 
-
-                            if (
-                                !window.Web3JobsAuth ||
-                                typeof window.Web3JobsAuth.login !== "function"
-                            ) {
-
-                                console.error(
-                                    "Web3Jobs Auth is unavailable."
-                                );
-
-
-                                window.Web3JobsAuth?.showMessage?.(
-                                    "تعذر تحميل نظام تسجيل الدخول.",
-                                    "Authentication system is unavailable.",
-                                    "error"
-                                );
-
-                                return;
-                            }
-
-
-                            const email =
-                                emailInput
-                                    ?.value
-                                    ?.trim();
-
-
-                            const password =
-                                passwordInput
-                                    ?.value ||
-                                "";
-
-
-                            if (
-                                !email ||
-                                !password
-                            ) {
-
-                                window.Web3JobsAuth.showMessage(
-                                    "يرجى إدخال البريد الإلكتروني وكلمة المرور.",
-                                    "Please enter your email and password.",
-                                    "error"
-                                );
-
-                                return;
-                            }
-
-
-                            /*
-                             * Prevent duplicate requests.
-                             */
-
-                            loginButton.disabled =
-                                true;
-
-
-                            if (loading) {
-
-                                loading.style.display =
-                                    "block";
-                            }
-
-
-                            try {
-
-                                const result =
-                                    await window.Web3JobsAuth.login(
-                                        email,
-                                        password
-                                    );
-
-
-                                console.log(
-                                    "Web3Jobs Login Result:",
-                                    result
-                                );
-
-
-                                if (
-                                    !result ||
-                                    !result.success
-                                ) {
-
-                                    return;
-                                }
-
-
-                                /*
-                                 * Login succeeded.
-                                 *
-                                 * auth.js has already:
-                                 *
-                                 * - authenticated the user
-                                 * - verified email
-                                 * - detected account type
-                                 * - saved localStorage
-                                 * - generated dashboard URL
-                                 */
-
-
-                                const dashboardUrl =
-                                    result.dashboardUrl;
-
-
-                                if (
-                                    dashboardUrl
-                                ) {
-
-                                    window.location.replace(
-                                        dashboardUrl
-                                    );
-
-                                } else {
-
-                                    window.location.replace(
-                                        "index.html"
-                                    );
-
-                                }
-
-                            } catch (error) {
-
-                                console.error(
-                                    "Web3Jobs login page error:",
-                                    error
-                                );
-
-
-                                if (
-                                    window.Web3JobsAuth &&
-                                    typeof window.Web3JobsAuth.showError === "function"
-                                ) {
-
-                                    window.Web3JobsAuth.showError(
-                                        error
-                                    );
-
-                                }
-
-                            } finally {
-
-                                loginButton.disabled =
-                                    false;
-
-
-                                if (loading) {
-
-                                    loading.style.display =
-                                        "none";
-                                }
-
-                            }
-
-                        }
-                    );
-
-                }
-
-
-                /* =================================================
-                   FORGOT PASSWORD
-                ================================================== */
-
-                if (forgotPassword) {
-
-                    forgotPassword.addEventListener(
-                        "click",
-                        async function (event) {
-
-                            event.preventDefault();
-
-
-                            if (
-                                !window.Web3JobsAuth ||
-                                typeof window.Web3JobsAuth.resetPassword !== "function"
-                            ) {
-
-                                return;
-                            }
-
-
-                            const email =
-                                emailInput
-                                    ?.value
-                                    ?.trim();
-
-
-                            if (!email) {
-
-                                window.Web3JobsAuth.showMessage(
-                                    "أدخل بريدك الإلكتروني أولاً.",
-                                    "Enter your email address first.",
-                                    "error"
-                                );
-
-                                emailInput?.focus();
-
-                                return;
-                            }
-
-
-                            await window.Web3JobsAuth.resetPassword(
-                                email
-                            );
-
-                        }
-                    );
-
-                }
-
-
-                /* =================================================
-                   WALLET LOGIN
-                   
-                   Wallet authentication is intentionally
-                   separate from email/password authentication.
-                   
-                   It does NOT create another Supabase client.
-                ================================================== */
-
-                if (walletButton) {
-
-                    walletButton.addEventListener(
-                        "click",
-                        async function () {
-
-                            if (
-                                typeof window.ethereum ===
-                                "undefined"
-                            ) {
-
-                                window.Web3JobsAuth?.showMessage?.(
-                                    "يرجى تثبيت MetaMask أولاً.",
-                                    "Please install MetaMask first.",
-                                    "error"
-                                );
-
-                                return;
-                            }
-
-
-                            try {
-
-                                walletButton.disabled =
-                                    true;
-
-
-                                walletButton.textContent =
-                                    "Connecting...";
-
-
-                                const accounts =
-                                    await window.ethereum.request({
-                                        method:
-                                            "eth_requestAccounts"
-                                    });
-
-
-                                const address =
-                                    accounts?.[0];
-
-
-                                if (!address) {
-
-                                    throw new Error(
-                                        "No wallet account was returned."
-                                    );
-
-                                }
-
-
-                                console.log(
-                                    "Web3Jobs Wallet Connected:",
-                                    address
-                                );
-
-
-                                window.Web3JobsAuth?.showMessage?.(
-                                    "تم الاتصال بالمحفظة بنجاح.",
-                                    "Wallet connected successfully.",
-                                    "success"
-                                );
-
-
-                            } catch (error) {
-
-                                console.error(
-                                    "Web3Jobs wallet login:",
-                                    error
-                                );
-
-
-                                window.Web3JobsAuth?.showError?.(
-                                    error
-                                );
-
-
-                            } finally {
-
-                                walletButton.disabled =
-                                    false;
-
-
-                                walletButton.textContent =
-                                    "Connect Wallet";
-
-                            }
-
-                        }
-                    );
-
-                }
-
-
-                /* =================================================
-                   AUTO FOCUS
-                ================================================== */
-
-                if (emailInput) {
-
-                    emailInput.focus();
-
-                }
-
-
-                console.log(
-                    "Web3Jobs Login Page initialized."
+                window.Web3JobsAuth.showMessage(
+                    "يرجى إدخال البريد الإلكتروني وكلمة السر.",
+                    "Please enter your email and password.",
+                    "error"
                 );
 
+                return;
+            }
+
+            loginButton.disabled = true;
+
+            if (loading) {
+                loading.style.display = "block";
+            }
+
+            try {
+
+                const result =
+                    await window.Web3JobsAuth.login(
+                        email,
+                        password
+                    );
 
                 console.log(
-                    "Unified Authentication:",
-                    Boolean(
-                        window.Web3JobsAuth
-                    )
+                    "Web3Jobs Login Result:",
+                    result
                 );
 
+                if (!result || !result.success) {
+                    return;
+                }
 
-                console.log(
-                    "Unified Supabase:",
-                    Boolean(
-                        window.Web3JobsSupabase
-                    )
+                if (result.dashboardUrl) {
+
+                    window.location.replace(
+                        result.dashboardUrl
+                    );
+
+                } else {
+
+                    window.location.replace(
+                        "index.html"
+                    );
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Web3Jobs login page:",
+                    error
                 );
 
+                window.Web3JobsAuth.showError(
+                    error
+                );
+
+            } finally {
+
+                loginButton.disabled = false;
+
+                if (loading) {
+                    loading.style.display = "none";
+                }
+            }
+
+        });
+
+    }
+
+
+    /* =====================================================
+       SHOW FORGOT PASSWORD
+    ====================================================== */
+
+    if (forgotPassword) {
+
+        forgotPassword.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                forgotBox.style.display = "block";
+
+                resetEmail.value =
+                    emailInput.value.trim();
+
+                resetEmail.focus();
 
             }
         );
 
-    </script>
+    }
 
+
+    /* =====================================================
+       CANCEL FORGOT PASSWORD
+    ====================================================== */
+
+    if (forgotCancel) {
+
+        forgotCancel.addEventListener(
+            "click",
+            function () {
+
+                forgotBox.style.display = "none";
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       SEND RESET LINK
+    ====================================================== */
+
+    if (sendResetButton) {
+
+        sendResetButton.addEventListener(
+            "click",
+            async function () {
+
+                const email =
+                    resetEmail.value
+                        .trim()
+                        .toLowerCase();
+
+                if (!email) {
+
+                    window.Web3JobsAuth.showMessage(
+                        "أدخل بريد الحساب أولاً.",
+                        "Enter your account email first.",
+                        "error"
+                    );
+
+                    resetEmail.focus();
+
+                    return;
+                }
+
+                sendResetButton.disabled = true;
+
+                if (resetLoading) {
+                    resetLoading.style.display = "block";
+                }
+
+                try {
+
+                    const success =
+                        await window.Web3JobsAuth.resetPassword(
+                            email
+                        );
+
+                    if (success) {
+
+                        window.Web3JobsAuth.showMessage(
+                            "تم إرسال رابط إعادة تعيين كلمة السر إلى بريدك الإلكتروني. افتح البريد واضغط على الرابط لإعادة تعيين كلمة السر.",
+                            "A password reset link has been sent to your email. Open your email and click the link to reset your password.",
+                            "success"
+                        );
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Web3Jobs password reset:",
+                        error
+                    );
+
+                    window.Web3JobsAuth.showError(
+                        error
+                    );
+
+                } finally {
+
+                    sendResetButton.disabled = false;
+
+                    if (resetLoading) {
+                        resetLoading.style.display = "none";
+                    }
+                }
+
+            }
+        );
+
+    }
+
+
+    /* =====================================================
+       WALLET
+    ====================================================== */
+
+    if (walletButton) {
+
+        walletButton.addEventListener(
+            "click",
+            async function () {
+
+                if (
+                    typeof window.ethereum ===
+                    "undefined"
+                ) {
+
+                    window.Web3JobsAuth.showMessage(
+                        "يرجى تثبيت MetaMask أولاً.",
+                        "Please install MetaMask first.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+                try {
+
+                    walletButton.disabled = true;
+
+                    walletButton.textContent =
+                        "Connecting...";
+
+                    const accounts =
+                        await window.ethereum.request({
+                            method:
+                                "eth_requestAccounts"
+                        });
+
+                    const address =
+                        accounts?.[0];
+
+                    if (!address) {
+                        throw new Error(
+                            "No wallet account was returned."
+                        );
+                    }
+
+                    window.Web3JobsAuth.showMessage(
+                        "تم الاتصال بالمحفظة بنجاح.",
+                        "Wallet connected successfully.",
+                        "success"
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        "Web3Jobs wallet:",
+                        error
+                    );
+
+                    window.Web3JobsAuth.showError(
+                        error
+                    );
+
+                } finally {
+
+                    walletButton.disabled = false;
+
+                    walletButton.textContent =
+                        "Connect Wallet";
+                }
+
+            }
+        );
+
+    }
+
+
+    if (emailInput) {
+        emailInput.focus();
+    }
+
+});
+</script>
 
 </body>
-
-                    </html>
+    </html>
