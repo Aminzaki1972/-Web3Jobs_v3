@@ -179,7 +179,7 @@
         }
 
         .password-wrapper input {
-            padding-right: 48px;
+            padding-right: 60px;
         }
 
         .toggle-password {
@@ -193,11 +193,12 @@
             border: 0;
             background: transparent;
 
-            color: #94a3b8;
+            color: #64748b;
 
             cursor: pointer;
 
             font-size: 13px;
+            font-weight: 700;
 
             padding: 5px;
         }
@@ -257,7 +258,9 @@
 
         .login-button:disabled {
             opacity: 0.6;
+
             cursor: not-allowed;
+
             transform: none;
         }
 
@@ -281,11 +284,13 @@
 
         .auth-message-box div + div {
             margin-top: 4px;
+
             opacity: 0.85;
         }
 
         .auth-message-error {
-            background: rgba(239, 68, 68, 0.10);
+            background:
+                rgba(239, 68, 68, 0.10);
 
             border-color:
                 rgba(239, 68, 68, 0.25);
@@ -294,7 +299,8 @@
         }
 
         .auth-message-success {
-            background: rgba(34, 197, 94, 0.10);
+            background:
+                rgba(34, 197, 94, 0.10);
 
             border-color:
                 rgba(34, 197, 94, 0.25);
@@ -303,7 +309,8 @@
         }
 
         .auth-message-info {
-            background: rgba(59, 130, 246, 0.10);
+            background:
+                rgba(59, 130, 246, 0.10);
 
             border-color:
                 rgba(59, 130, 246, 0.25);
@@ -435,7 +442,7 @@
 
             <!-- =================================================
                  AUTH MESSAGE
-                 auth.js uses this element.
+                 Controlled by auth.js
             ================================================== -->
 
             <div
@@ -550,22 +557,46 @@
     <!-- =========================================================
          IMPORTANT SCRIPT ORDER
 
-         1. Supabase client
-         2. Unified auth.js
-         3. Login page logic
+         1. Supabase JavaScript library
+         2. Web3Jobs unified Supabase client
+         3. Web3Jobs unified authentication
+         4. Login page logic
 
-         login.html NEVER creates a Supabase client.
+         IMPORTANT:
+         login.html does NOT create a Supabase client.
     ========================================================== -->
 
+
+    <!-- =========================================================
+         1. SUPABASE LIBRARY
+    ========================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <!-- =========================================================
+         2. SINGLE WEB3JOBS SUPABASE CLIENT
+    ========================================================== -->
 
     <script
         src="js/supabase.js"
     ></script>
 
+
+    <!-- =========================================================
+         3. SINGLE WEB3JOBS AUTH SYSTEM
+    ========================================================== -->
+
     <script
         src="js/auth.js"
     ></script>
 
+
+    <!-- =========================================================
+         4. LOGIN PAGE LOGIC
+    ========================================================== -->
 
     <script>
 
@@ -606,10 +637,52 @@
                     );
 
 
+                /* =================================================
+                   CHECK REQUIRED ELEMENTS
+                ================================================== */
+
                 if (!form) {
 
                     console.error(
                         "Web3Jobs Login: login form not found."
+                    );
+
+                    return;
+                }
+
+
+                if (!emailInput || !passwordInput) {
+
+                    console.error(
+                        "Web3Jobs Login: required input fields not found."
+                    );
+
+                    return;
+                }
+
+
+                if (!loginButton) {
+
+                    console.error(
+                        "Web3Jobs Login: login button not found."
+                    );
+
+                    return;
+                }
+
+
+                /* =================================================
+                   CHECK AUTH SYSTEM
+                ================================================== */
+
+                if (
+                    !window.Web3JobsAuth ||
+                    typeof window.Web3JobsAuth.login !==
+                        "function"
+                ) {
+
+                    console.error(
+                        "Web3Jobs Login: Web3JobsAuth is unavailable."
                     );
 
                     return;
@@ -627,7 +700,8 @@
                         function () {
 
                             const isPassword =
-                                passwordInput.type === "password";
+                                passwordInput.type ===
+                                "password";
 
 
                             passwordInput.type =
@@ -656,7 +730,7 @@
 
 
                 /* =================================================
-                   LOGIN
+                   LOGIN SUBMIT
                 ================================================== */
 
                 form.addEventListener(
@@ -666,56 +740,21 @@
                         event.preventDefault();
 
 
-                        if (
-                            !window.Web3JobsAuth ||
-                            typeof window.Web3JobsAuth.login !==
-                                "function"
-                        ) {
-
-                            console.error(
-                                "Web3Jobs Login: Web3JobsAuth is unavailable."
-                            );
-
-                            if (
-                                window.Web3JobsAuth &&
-                                typeof window.Web3JobsAuth.showMessage ===
-                                    "function"
-                            ) {
-
-                                window.Web3JobsAuth.showMessage(
-                                    "نظام تسجيل الدخول غير متاح.",
-                                    "Login system is unavailable.",
-                                    "error"
-                                );
-
-                            } else {
-
-                                alert(
-                                    "Login system is unavailable."
-                                );
-
-                            }
-
-                            return;
-                        }
-
-
                         const email =
-                            emailInput
-                                ? emailInput.value.trim()
-                                : "";
+                            emailInput.value
+                                .trim()
+                                .toLowerCase();
 
 
                         const password =
-                            passwordInput
-                                ? passwordInput.value
-                                : "";
+                            passwordInput.value;
 
 
-                        if (
-                            !email ||
-                            !password
-                        ) {
+                        /* =========================================
+                           BASIC VALIDATION
+                        ========================================== */
+
+                        if (!email || !password) {
 
                             window.Web3JobsAuth.showMessage(
                                 "يرجى إدخال البريد الإلكتروني وكلمة المرور.",
@@ -727,9 +766,9 @@
                         }
 
 
-                        /* =================================================
-                           DISABLE BUTTON
-                        ================================================== */
+                        /* =========================================
+                           DISABLE LOGIN BUTTON
+                        ========================================== */
 
                         loginButton.disabled =
                             true;
@@ -746,6 +785,10 @@
 
                         try {
 
+                            /* =====================================
+                               AUTH.JS IS THE ONLY LOGIN SYSTEM
+                            ====================================== */
+
                             const result =
                                 await window.Web3JobsAuth.login(
                                     email,
@@ -759,26 +802,28 @@
                             );
 
 
+                            /* =====================================
+                               SUCCESS
+                            ====================================== */
+
                             if (
                                 result &&
-                                result.success
+                                result.success === true
                             ) {
-
-                                /*
-                                 * auth.js determines the dashboard.
-                                 *
-                                 * login.html does NOT determine whether
-                                 * the account is company, individual,
-                                 * or admin.
-                                 */
 
                                 const dashboardUrl =
                                     result.dashboardUrl;
 
 
-                                if (
-                                    dashboardUrl
-                                ) {
+                                if (dashboardUrl) {
+
+                                    /*
+                                     * auth.js already determined:
+                                     *
+                                     * admin
+                                     * company
+                                     * individual
+                                     */
 
                                     window.location.replace(
                                         dashboardUrl
@@ -794,7 +839,19 @@
                                     "error"
                                 );
 
+                                return;
                             }
+
+
+                            /* =====================================
+                               LOGIN FAILED
+                               auth.js already displays the error.
+                            ====================================== */
+
+                            console.warn(
+                                "Web3Jobs Login failed:",
+                                result
+                            );
 
                         } catch (error) {
 
@@ -819,8 +876,8 @@
                         } finally {
 
                             /*
-                             * If navigation already happened,
-                             * this page will disappear anyway.
+                             * If login succeeded and navigation
+                             * happened, the page will unload.
                              */
 
                             loginButton.disabled =
@@ -842,4 +899,4 @@
 
 </body>
 
-    </html>
+                    </html>
