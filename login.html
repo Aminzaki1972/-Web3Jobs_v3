@@ -12,7 +12,7 @@
 
     <meta
         name="description"
-        content="Web3Jobs Login - Sign in to your Web3Jobs account."
+        content="Reset your Web3Jobs password."
     >
 
     <meta
@@ -20,7 +20,7 @@
         content="#06101d"
     >
 
-    <title>Login | Web3Jobs</title>
+    <title>Reset Password | Web3Jobs</title>
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
@@ -102,52 +102,6 @@
             cursor: not-allowed;
         }
 
-        .auth-links {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-top: 16px;
-            font-size: 14px;
-        }
-
-        .auth-links a,
-        .auth-footer a {
-            color: #6ee7b7;
-            text-decoration: none;
-            font-weight: 700;
-        }
-
-        .auth-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 25px 0;
-            opacity: 0.65;
-        }
-
-        .auth-divider::before,
-        .auth-divider::after {
-            content: "";
-            height: 1px;
-            flex: 1;
-            background: rgba(255,255,255,0.12);
-        }
-
-        .wallet-button {
-            width: 100%;
-            padding: 13px 18px;
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: transparent;
-            color: inherit;
-            font-weight: 800;
-            cursor: pointer;
-        }
-
-        .wallet-button:hover {
-            border-color: #6ee7b7;
-        }
-
         .auth-message {
             margin-bottom: 20px;
         }
@@ -181,13 +135,6 @@
             opacity: 0.75;
         }
 
-        .auth-footer {
-            text-align: center;
-            margin-top: 22px;
-            opacity: 0.8;
-            font-size: 14px;
-        }
-
         .back-home {
             display: inline-block;
             margin-bottom: 20px;
@@ -196,32 +143,10 @@
             font-size: 14px;
         }
 
-        .forgot-box {
-            display: none;
-            margin-top: 22px;
-            padding: 20px;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .forgot-box h3 {
-            margin-top: 0;
-        }
-
-        .forgot-box p {
-            opacity: 0.75;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .forgot-cancel {
-            display: block;
-            text-align: center;
-            margin-top: 14px;
-            color: #6ee7b7;
-            cursor: pointer;
-            font-size: 14px;
+        .password-note {
+            font-size: 12px;
+            opacity: 0.65;
+            margin-top: 6px;
         }
     </style>
 
@@ -234,20 +159,20 @@
     <div class="auth-container">
 
         <a
-            href="index.html"
+            href="login.html"
             class="back-home"
         >
-            ← Back to Web3Jobs
+            ← Back to Login
         </a>
 
         <section class="auth-card">
 
             <div class="auth-header">
 
-                <h1>Welcome Back</h1>
+                <h1>Reset Password</h1>
 
                 <p>
-                    Sign in to your Web3Jobs account
+                    Create a new password for your Web3Jobs account
                 </p>
 
             </div>
@@ -259,7 +184,7 @@
             ></div>
 
             <form
-                id="login-form"
+                id="reset-password-form"
                 novalidate
             >
 
@@ -283,128 +208,53 @@
                 <div class="auth-form-group">
 
                     <label for="password">
-                        Password
+                        New Password
                     </label>
 
                     <input
                         id="password"
                         name="password"
                         type="password"
-                        autocomplete="current-password"
-                        placeholder="Enter your password"
+                        autocomplete="new-password"
+                        placeholder="Enter your new password"
+                        required
+                    >
+
+                </div>
+
+                <div class="auth-form-group">
+
+                    <label for="confirm-password">
+                        Confirm Password
+                    </label>
+
+                    <input
+                        id="confirm-password"
+                        name="confirm-password"
+                        type="password"
+                        autocomplete="new-password"
+                        placeholder="Re-enter your new password"
                         required
                     >
 
                 </div>
 
                 <button
-                    id="login-button"
+                    id="reset-button"
                     class="auth-submit"
                     type="submit"
                 >
-                    Login
-                </button>
-
-                <div
-                    id="login-loading"
-                    class="loading-state"
-                >
-                    Signing in...
-                </div>
-
-            </form>
-
-            <div class="auth-links">
-
-                <a
-                    href="#"
-                    id="forgot-password"
-                >
-                    Forgot password?
-                </a>
-
-                <a href="signup.html">
-                    Create Account
-                </a>
-
-            </div>
-
-            <!-- FORGOT PASSWORD -->
-
-            <div
-                id="forgot-box"
-                class="forgot-box"
-            >
-
-                <h3>
-                    Reset Your Password
-                </h3>
-
-                <p>
-                    Enter the email address associated with your account.
-                    We will send you a password reset link.
-                </p>
-
-                <div class="auth-form-group">
-
-                    <label for="reset-email">
-                        Email
-                    </label>
-
-                    <input
-                        id="reset-email"
-                        type="email"
-                        autocomplete="email"
-                        placeholder="you@example.com"
-                    >
-
-                </div>
-
-                <button
-                    id="send-reset-button"
-                    class="auth-submit"
-                    type="button"
-                >
-                    Send Reset Link
+                    Reset Password
                 </button>
 
                 <div
                     id="reset-loading"
                     class="loading-state"
                 >
-                    Sending...
+                    Updating password...
                 </div>
 
-                <span
-                    id="forgot-cancel"
-                    class="forgot-cancel"
-                >
-                    Cancel
-                </span>
-
-            </div>
-
-            <div class="auth-divider">
-                <span>OR</span>
-            </div>
-
-            <button
-                type="button"
-                id="wallet-login-button"
-                class="wallet-button"
-            >
-                Connect Wallet
-            </button>
-
-            <div class="auth-footer">
-
-                Don't have an account?
-
-                <a href="signup.html">
-                    Create one
-                </a>
-
-            </div>
+            </form>
 
         </section>
 
@@ -421,10 +271,12 @@
 <script>
 "use strict";
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async function () {
 
     const form =
-        document.getElementById("login-form");
+        document.getElementById(
+            "reset-password-form"
+        );
 
     const emailInput =
         document.getElementById("email");
@@ -432,41 +284,89 @@ document.addEventListener("DOMContentLoaded", function () {
     const passwordInput =
         document.getElementById("password");
 
-    const loginButton =
-        document.getElementById("login-button");
+    const confirmPasswordInput =
+        document.getElementById("confirm-password");
+
+    const resetButton =
+        document.getElementById("reset-button");
 
     const loading =
-        document.getElementById("login-loading");
-
-    const forgotPassword =
-        document.getElementById("forgot-password");
-
-    const forgotBox =
-        document.getElementById("forgot-box");
-
-    const resetEmail =
-        document.getElementById("reset-email");
-
-    const sendResetButton =
-        document.getElementById("send-reset-button");
-
-    const resetLoading =
         document.getElementById("reset-loading");
-
-    const forgotCancel =
-        document.getElementById("forgot-cancel");
-
-    const walletButton =
-        document.getElementById("wallet-login-button");
 
 
     /* =====================================================
-       LOGIN
+       GET SUPABASE CLIENT
     ====================================================== */
 
-    if (form) {
+    const client =
+        window.Web3JobsAuth?.getClient?.();
 
-        form.addEventListener("submit", async function (event) {
+
+    if (!client) {
+
+        window.Web3JobsAuth.showMessage(
+            "تعذر الاتصال بخدمة المصادقة.",
+            "Authentication service is unavailable.",
+            "error"
+        );
+
+        return;
+    }
+
+
+    /* =====================================================
+       CHECK CURRENT USER
+    ====================================================== */
+
+    try {
+
+        const sessionResult =
+            await client.auth.getSession();
+
+        const session =
+            sessionResult?.data?.session;
+
+        if (
+            !session ||
+            !session.user
+        ) {
+
+            window.Web3JobsAuth.showMessage(
+                "رابط إعادة تعيين كلمة السر غير صالح أو انتهت صلاحيته.",
+                "The password reset link is invalid or has expired.",
+                "error"
+            );
+
+            resetButton.disabled = true;
+
+            return;
+        }
+
+        emailInput.value =
+            session.user.email || "";
+
+    } catch (error) {
+
+        console.error(
+            "Web3Jobs reset session:",
+            error
+        );
+
+        window.Web3JobsAuth.showError(error);
+
+        resetButton.disabled = true;
+
+        return;
+    }
+
+
+    /* =====================================================
+       RESET PASSWORD
+    ====================================================== */
+
+    form.addEventListener(
+        "submit",
+        async function (event) {
 
             event.preventDefault();
 
@@ -476,57 +376,116 @@ document.addEventListener("DOMContentLoaded", function () {
             const password =
                 passwordInput.value;
 
-            if (!email || !password) {
+            const confirmPassword =
+                confirmPasswordInput.value;
+
+
+            if (!email) {
 
                 window.Web3JobsAuth.showMessage(
-                    "يرجى إدخال البريد الإلكتروني وكلمة السر.",
-                    "Please enter your email and password.",
+                    "يرجى إدخال البريد الإلكتروني.",
+                    "Please enter your email address.",
                     "error"
                 );
+
+                emailInput.focus();
 
                 return;
             }
 
-            loginButton.disabled = true;
+
+            if (!password) {
+
+                window.Web3JobsAuth.showMessage(
+                    "يرجى إدخال كلمة السر الجديدة.",
+                    "Please enter your new password.",
+                    "error"
+                );
+
+                passwordInput.focus();
+
+                return;
+            }
+
+
+            if (!confirmPassword) {
+
+                window.Web3JobsAuth.showMessage(
+                    "يرجى إعادة كتابة كلمة السر.",
+                    "Please confirm your new password.",
+                    "error"
+                );
+
+                confirmPasswordInput.focus();
+
+                return;
+            }
+
+
+            if (password !== confirmPassword) {
+
+                window.Web3JobsAuth.showMessage(
+                    "كلمتا السر غير متطابقتين.",
+                    "Passwords do not match.",
+                    "error"
+                );
+
+                confirmPasswordInput.focus();
+
+                return;
+            }
+
+
+            resetButton.disabled = true;
 
             if (loading) {
                 loading.style.display = "block";
             }
 
+
             try {
 
                 const result =
-                    await window.Web3JobsAuth.login(
-                        email,
-                        password
-                    );
+                    await client.auth.updateUser({
+                        password: password
+                    });
 
-                console.log(
-                    "Web3Jobs Login Result:",
-                    result
+
+                if (result.error) {
+                    throw result.error;
+                }
+
+
+                window.Web3JobsAuth.showMessage(
+                    "تم تغيير كلمة السر بنجاح. يمكنك الآن تسجيل الدخول.",
+                    "Your password has been changed successfully. You can now log in.",
+                    "success"
                 );
 
-                if (!result || !result.success) {
-                    return;
-                }
 
-                if (result.dashboardUrl) {
-
-                    window.location.replace(
-                        result.dashboardUrl
-                    );
-
-                } else {
-
-                    window.location.replace(
-                        "index.html"
+                try {
+                    await client.auth.signOut();
+                } catch (signOutError) {
+                    console.warn(
+                        "Web3Jobs reset signout:",
+                        signOutError
                     );
                 }
+
+
+                setTimeout(function () {
+
+                    window.location.replace(
+                        "login.html"
+                    );
+
+                }, 1800);
+
 
             } catch (error) {
 
                 console.error(
-                    "Web3Jobs login page:",
+                    "Web3Jobs password update:",
                     error
                 );
 
@@ -534,223 +493,21 @@ document.addEventListener("DOMContentLoaded", function () {
                     error
                 );
 
-            } finally {
+                resetButton.disabled = false;
 
-                loginButton.disabled = false;
+            } finally {
 
                 if (loading) {
                     loading.style.display = "none";
                 }
-            }
-
-        });
-
-    }
-
-
-    /* =====================================================
-       SHOW FORGOT PASSWORD
-    ====================================================== */
-
-    if (forgotPassword) {
-
-        forgotPassword.addEventListener(
-            "click",
-            function (event) {
-
-                event.preventDefault();
-
-                forgotBox.style.display = "block";
-
-                resetEmail.value =
-                    emailInput.value.trim();
-
-                resetEmail.focus();
 
             }
-        );
 
-    }
-
-
-    /* =====================================================
-       CANCEL FORGOT PASSWORD
-    ====================================================== */
-
-    if (forgotCancel) {
-
-        forgotCancel.addEventListener(
-            "click",
-            function () {
-
-                forgotBox.style.display = "none";
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       SEND RESET LINK
-    ====================================================== */
-
-    if (sendResetButton) {
-
-        sendResetButton.addEventListener(
-            "click",
-            async function () {
-
-                const email =
-                    resetEmail.value
-                        .trim()
-                        .toLowerCase();
-
-                if (!email) {
-
-                    window.Web3JobsAuth.showMessage(
-                        "أدخل بريد الحساب أولاً.",
-                        "Enter your account email first.",
-                        "error"
-                    );
-
-                    resetEmail.focus();
-
-                    return;
-                }
-
-                sendResetButton.disabled = true;
-
-                if (resetLoading) {
-                    resetLoading.style.display = "block";
-                }
-
-                try {
-
-                    const success =
-                        await window.Web3JobsAuth.resetPassword(
-                            email
-                        );
-
-                    if (success) {
-
-                        window.Web3JobsAuth.showMessage(
-                            "تم إرسال رابط إعادة تعيين كلمة السر إلى بريدك الإلكتروني. افتح البريد واضغط على الرابط لإعادة تعيين كلمة السر.",
-                            "A password reset link has been sent to your email. Open your email and click the link to reset your password.",
-                            "success"
-                        );
-
-                    }
-
-                } catch (error) {
-
-                    console.error(
-                        "Web3Jobs password reset:",
-                        error
-                    );
-
-                    window.Web3JobsAuth.showError(
-                        error
-                    );
-
-                } finally {
-
-                    sendResetButton.disabled = false;
-
-                    if (resetLoading) {
-                        resetLoading.style.display = "none";
-                    }
-                }
-
-            }
-        );
-
-    }
-
-
-    /* =====================================================
-       WALLET
-    ====================================================== */
-
-    if (walletButton) {
-
-        walletButton.addEventListener(
-            "click",
-            async function () {
-
-                if (
-                    typeof window.ethereum ===
-                    "undefined"
-                ) {
-
-                    window.Web3JobsAuth.showMessage(
-                        "يرجى تثبيت MetaMask أولاً.",
-                        "Please install MetaMask first.",
-                        "error"
-                    );
-
-                    return;
-                }
-
-                try {
-
-                    walletButton.disabled = true;
-
-                    walletButton.textContent =
-                        "Connecting...";
-
-                    const accounts =
-                        await window.ethereum.request({
-                            method:
-                                "eth_requestAccounts"
-                        });
-
-                    const address =
-                        accounts?.[0];
-
-                    if (!address) {
-                        throw new Error(
-                            "No wallet account was returned."
-                        );
-                    }
-
-                    window.Web3JobsAuth.showMessage(
-                        "تم الاتصال بالمحفظة بنجاح.",
-                        "Wallet connected successfully.",
-                        "success"
-                    );
-
-                } catch (error) {
-
-                    console.error(
-                        "Web3Jobs wallet:",
-                        error
-                    );
-
-                    window.Web3JobsAuth.showError(
-                        error
-                    );
-
-                } finally {
-
-                    walletButton.disabled = false;
-
-                    walletButton.textContent =
-                        "Connect Wallet";
-                }
-
-            }
-        );
-
-    }
-
-
-    if (emailInput) {
-        emailInput.focus();
-    }
+        }
+    );
 
 });
 </script>
 
 </body>
-    </html>
+</html>
