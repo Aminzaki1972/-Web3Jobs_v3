@@ -162,7 +162,7 @@
 
 
         /* =====================================================
-           METHOD TITLE
+           SECTION TITLE
         ===================================================== */
 
         .section-title {
@@ -178,7 +178,7 @@
 
 
         /* =====================================================
-           WEB3 WALLET
+           WALLET BUTTON
         ===================================================== */
 
         .wallet-button {
@@ -187,7 +187,8 @@
 
             padding: 14px 18px;
 
-            border: 1px solid
+            border:
+                1px solid
                 rgba(110, 231, 183, 0.35);
 
             border-radius: 11px;
@@ -231,6 +232,256 @@
 
 
         /* =====================================================
+           WALLET MODAL
+        ===================================================== */
+
+        .wallet-modal {
+
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 9999;
+
+            background:
+                rgba(0, 0, 0, 0.70);
+
+            padding: 20px;
+
+            align-items: center;
+
+            justify-content: center;
+
+            backdrop-filter: blur(6px);
+        }
+
+
+        .wallet-modal.active {
+
+            display: flex;
+        }
+
+
+        .wallet-modal-card {
+
+            width: 100%;
+
+            max-width: 420px;
+
+            max-height: 90vh;
+
+            overflow-y: auto;
+
+            background:
+                #0a1827;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.10);
+
+            border-radius: 18px;
+
+            padding: 24px;
+
+            box-shadow:
+                0 30px 100px
+                rgba(0,0,0,0.50);
+        }
+
+
+        .wallet-modal-header {
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 20px;
+        }
+
+
+        .wallet-modal-header h2 {
+
+            margin: 0;
+
+            font-size: 21px;
+        }
+
+
+        .close-wallet {
+
+            width: 36px;
+
+            height: 36px;
+
+            border: 0;
+
+            border-radius: 50%;
+
+            background:
+                rgba(255,255,255,0.07);
+
+            color: #cbd5e1;
+
+            font-size: 20px;
+
+            cursor: pointer;
+        }
+
+
+        .wallet-modal-description {
+
+            margin: 0 0 18px;
+
+            color: #94a3b8;
+
+            font-size: 13px;
+
+            line-height: 1.7;
+        }
+
+
+        .wallet-list {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 10px;
+        }
+
+
+        .wallet-option {
+
+            width: 100%;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            padding: 13px;
+
+            border:
+                1px solid
+                #26384b;
+
+            border-radius: 12px;
+
+            background:
+                #081522;
+
+            color: #ffffff;
+
+            cursor: pointer;
+
+            text-align: right;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.15s ease;
+        }
+
+
+        .wallet-option:hover {
+
+            background:
+                rgba(110,231,183,0.08);
+
+            border-color:
+                rgba(110,231,183,0.45);
+
+            transform: translateY(-1px);
+        }
+
+
+        .wallet-option img {
+
+            width: 42px;
+
+            height: 42px;
+
+            border-radius: 10px;
+
+            object-fit: contain;
+
+            background: #ffffff;
+
+            padding: 4px;
+
+            flex-shrink: 0;
+        }
+
+
+        .wallet-option-info {
+
+            flex: 1;
+        }
+
+
+        .wallet-option-name {
+
+            display: block;
+
+            font-size: 15px;
+
+            font-weight: 800;
+        }
+
+
+        .wallet-option-type {
+
+            display: block;
+
+            margin-top: 3px;
+
+            color: #64748b;
+
+            font-size: 11px;
+        }
+
+
+        .wallet-empty {
+
+            padding: 20px;
+
+            border-radius: 12px;
+
+            background:
+                rgba(239,68,68,0.07);
+
+            border:
+                1px solid
+                rgba(239,68,68,0.20);
+
+            color: #fecaca;
+
+            font-size: 13px;
+
+            line-height: 1.7;
+
+            text-align: center;
+        }
+
+
+        .wallet-loading {
+
+            padding: 20px;
+
+            color: #94a3b8;
+
+            text-align: center;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
            DIVIDER
         ===================================================== */
 
@@ -256,7 +507,7 @@
             height: 1px;
 
             background:
-                rgba(255, 255, 255, 0.09);
+                rgba(255,255,255,0.09);
         }
 
 
@@ -310,11 +561,13 @@
 
             text-align: center;
 
-            border: 1px solid #26384b;
+            border:
+                1px solid #26384b;
 
             border-radius: 11px;
 
-            background: #081522;
+            background:
+                #081522;
 
             color: #cbd5e1;
 
@@ -336,7 +589,7 @@
             border-color: #6ee7b7;
 
             background:
-                rgba(110, 231, 183, 0.10);
+                rgba(110,231,183,0.10);
 
             color: #6ee7b7;
         }
@@ -377,7 +630,8 @@
             border:
                 1px solid #26384b;
 
-            background: #081522;
+            background:
+                #081522;
 
             color: #ffffff;
 
@@ -403,7 +657,7 @@
 
             box-shadow:
                 0 0 0 3px
-                rgba(110, 231, 183, 0.10);
+                rgba(110,231,183,0.10);
         }
 
 
@@ -626,9 +880,7 @@
         <div class="brand">
 
             <a href="index.html">
-
                 Web3<span>Jobs</span>
-
             </a>
 
         </div>
@@ -650,7 +902,7 @@
 
 
             <!-- =================================================
-                 WEB3 WALLET
+                 WALLET
             ================================================== -->
 
             <div class="section-title">
@@ -675,7 +927,9 @@
             </button>
 
 
-            <!-- DIVIDER -->
+            <!-- =================================================
+                 DIVIDER
+            ================================================== -->
 
             <div class="divider">
 
@@ -759,8 +1013,6 @@
             >
 
 
-                <!-- FULL NAME -->
-
                 <div class="form-group">
 
                     <label for="full-name">
@@ -780,8 +1032,6 @@
                 </div>
 
 
-                <!-- EMAIL -->
-
                 <div class="form-group">
 
                     <label for="email">
@@ -800,8 +1050,6 @@
 
                 </div>
 
-
-                <!-- PASSWORD -->
 
                 <div class="form-group">
 
@@ -835,8 +1083,6 @@
                 </div>
 
 
-                <!-- CONFIRM PASSWORD -->
-
                 <div class="form-group">
 
                     <label for="confirm-password">
@@ -868,8 +1114,6 @@
 
                 </div>
 
-
-                <!-- CREATE ACCOUNT -->
 
                 <button
                     type="submit"
@@ -913,6 +1157,73 @@
     </main>
 
 
+    <!-- =====================================================
+         WALLET SELECTION MODAL
+    ====================================================== -->
+
+    <div
+        id="wallet-modal"
+        class="wallet-modal"
+        aria-hidden="true"
+    >
+
+        <div class="wallet-modal-card">
+
+
+            <div class="wallet-modal-header">
+
+                <h2>
+                    اختر محفظة Web3
+                </h2>
+
+
+                <button
+                    type="button"
+                    id="close-wallet"
+                    class="close-wallet"
+                    aria-label="إغلاق"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <p class="wallet-modal-description">
+
+                اختر المحفظة التي تريد استخدامها لإنشاء
+                حساب Web3Jobs. سيتم فتح المحفظة لطلب
+                توقيع رسالة تسجيل الدخول.
+
+            </p>
+
+
+            <div
+                id="wallet-list"
+                class="wallet-list"
+            >
+
+                <div class="wallet-loading">
+                    جاري البحث عن محافظ Web3...
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         AUTH
+    ====================================================== -->
+
+    <script src="js/supabase.js"></script>
+
+    <script src="js/auth.js"></script>
+
+
     <script>
 
         "use strict";
@@ -922,6 +1233,10 @@
             "DOMContentLoaded",
             function () {
 
+
+                /* =================================================
+                   ELEMENTS
+                ================================================= */
 
                 const form =
                     document.getElementById(
@@ -971,6 +1286,24 @@
                     );
 
 
+                const walletModal =
+                    document.getElementById(
+                        "wallet-modal"
+                    );
+
+
+                const walletList =
+                    document.getElementById(
+                        "wallet-list"
+                    );
+
+
+                const closeWallet =
+                    document.getElementById(
+                        "close-wallet"
+                    );
+
+
                 const togglePassword =
                     document.getElementById(
                         "toggle-password"
@@ -1016,6 +1349,17 @@
                         message.style.color =
                             "#bbf7d0";
 
+                    } else if (type === "info") {
+
+                        message.style.background =
+                            "rgba(59,130,246,0.10)";
+
+                        message.style.border =
+                            "1px solid rgba(59,130,246,0.25)";
+
+                        message.style.color =
+                            "#bfdbfe";
+
                     } else {
 
                         message.style.background =
@@ -1028,6 +1372,24 @@
                             "#fecaca";
                     }
 
+                }
+
+
+                /* =================================================
+                   ACCOUNT TYPE
+                ================================================== */
+
+                function getSelectedAccountType() {
+
+                    const selected =
+                        document.querySelector(
+                            'input[name="account-type"]:checked'
+                        );
+
+
+                    return selected
+                        ? selected.value
+                        : "individual";
                 }
 
 
@@ -1088,23 +1450,163 @@
 
 
                 /* =================================================
-                   WEB3 WALLET
-
-                   TEMPORARILY UI ONLY.
-
-                   We will connect this to MetaMask/Web3
-                   in a separate step.
+                   WALLET DISCOVERY
+                   -------------------------------------------------
+                   EIP-6963
                 ================================================== */
 
-                if (walletButton) {
+                let discoveredWallets = [];
 
-                    walletButton.addEventListener(
-                        "click",
-                        function () {
 
-                            showMessage(
-                                "سيتم تفعيل إنشاء الحساب بالمحفظة في الخطوة التالية.",
-                                "info"
+                function discoverWallets() {
+
+                    discoveredWallets = [];
+
+
+                    return new Promise(
+                        function (resolve) {
+
+
+                            let finished =
+                                false;
+
+
+                            function finish() {
+
+                                if (finished) {
+                                    return;
+                                }
+
+
+                                finished =
+                                    true;
+
+
+                                /*
+                                 * Fallback for older wallets
+                                 * that only expose window.ethereum.
+                                 */
+
+                                if (
+                                    discoveredWallets.length === 0 &&
+                                    window.ethereum
+                                ) {
+
+                                    discoveredWallets.push({
+
+                                        info: {
+
+                                            uuid:
+                                                "legacy-ethereum",
+
+                                            name:
+                                                "Web3 Wallet",
+
+                                            icon:
+                                                "",
+
+                                            rdns:
+                                                "legacy.ethereum"
+
+                                        },
+
+                                        provider:
+                                            window.ethereum
+
+                                    });
+
+                                }
+
+
+                                resolve(
+                                    discoveredWallets
+                                );
+
+                            }
+
+
+                            function handler(event) {
+
+                                const detail =
+                                    event.detail;
+
+
+                                if (
+                                    !detail ||
+                                    !detail.info ||
+                                    !detail.provider
+                                ) {
+
+                                    return;
+                                }
+
+
+                                const exists =
+                                    discoveredWallets.some(
+                                        function (wallet) {
+
+                                            return (
+                                                wallet.info.uuid ===
+                                                detail.info.uuid
+                                            );
+
+                                        }
+                                    );
+
+
+                                if (!exists) {
+
+                                    discoveredWallets.push({
+
+                                        info:
+                                            detail.info,
+
+                                        provider:
+                                            detail.provider
+
+                                    });
+
+                                }
+
+                            }
+
+
+                            window.addEventListener(
+                                "eip6963:announceProvider",
+                                handler
+                            );
+
+
+                            /*
+                             * Ask every installed wallet
+                             * to announce itself.
+                             */
+
+                            window.dispatchEvent(
+                                new Event(
+                                    "eip6963:requestProvider"
+                                )
+                            );
+
+
+                            /*
+                             * Give wallets a short amount
+                             * of time to respond.
+                             */
+
+                            setTimeout(
+                                function () {
+
+                                    window.removeEventListener(
+                                        "eip6963:announceProvider",
+                                        handler
+                                    );
+
+
+                                    finish();
+
+                                },
+                                700
                             );
 
                         }
@@ -1114,141 +1616,865 @@
 
 
                 /* =================================================
-                   EMAIL REGISTRATION
-
-                   TEMPORARILY VALIDATION ONLY.
-
-                   Supabase registration will be connected
-                   after we verify this page first.
+                   WALLET ICON
                 ================================================== */
 
-                if (form) {
+                function getWalletIcon(
+                    wallet
+                ) {
 
-                    form.addEventListener(
-                        "submit",
-                        function (event) {
+                    if (
+                        wallet &&
+                        wallet.info &&
+                        wallet.info.icon
+                    ) {
 
-                            event.preventDefault();
+                        return wallet.info.icon;
+                    }
 
 
-                            if (
-                                !fullName.value.trim()
-                            ) {
+                    return "";
+                }
 
-                                showMessage(
-                                    "يرجى إدخال الاسم الكامل."
+
+                /* =================================================
+                   OPEN WALLET MODAL
+                ================================================== */
+
+                async function openWalletModal() {
+
+                    walletModal.classList.add(
+                        "active"
+                    );
+
+
+                    walletModal.setAttribute(
+                        "aria-hidden",
+                        "false"
+                    );
+
+
+                    walletList.innerHTML = `
+
+                        <div class="wallet-loading">
+
+                            جاري البحث عن محافظ Web3...
+
+                        </div>
+
+                    `;
+
+
+                    const wallets =
+                        await discoverWallets();
+
+
+                    walletList.innerHTML =
+                        "";
+
+
+                    if (
+                        !wallets ||
+                        wallets.length === 0
+                    ) {
+
+                        walletList.innerHTML = `
+
+                            <div class="wallet-empty">
+
+                                لم يتم العثور على محفظة Web3
+                                مثبتة في هذا المتصفح.
+
+                                <br><br>
+
+                                إذا كنت تستخدم MetaMask أو
+                                Trust Wallet أو Binance Wallet،
+                                افتح الموقع من متصفح المحفظة
+                                نفسه ثم حاول مرة أخرى.
+
+                            </div>
+
+                        `;
+
+
+                        return;
+                    }
+
+
+                    wallets.forEach(
+                        function (wallet) {
+
+                            const button =
+                                document.createElement(
+                                    "button"
                                 );
 
-                                fullName.focus();
 
-                                return;
+                            button.type =
+                                "button";
+
+
+                            button.className =
+                                "wallet-option";
+
+
+                            const icon =
+                                document.createElement(
+                                    "img"
+                                );
+
+
+                            const iconUrl =
+                                getWalletIcon(
+                                    wallet
+                                );
+
+
+                            if (iconUrl) {
+
+                                icon.src =
+                                    iconUrl;
+
+                            } else {
+
+                                icon.src =
+                                    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23102032'/%3E%3Ctext x='50' y='63' font-size='45' text-anchor='middle' fill='%236ee7b7'%3EW3%3C/text%3E%3C/svg%3E";
+
                             }
 
 
-                            if (
-                                !email.value.trim()
-                            ) {
-
-                                showMessage(
-                                    "يرجى إدخال البريد الإلكتروني."
-                                );
-
-                                email.focus();
-
-                                return;
-                            }
+                            icon.alt =
+                                wallet.info.name ||
+                                "Web3 Wallet";
 
 
-                            if (
-                                !password.value
-                            ) {
-
-                                showMessage(
-                                    "يرجى إدخال كلمة السر."
-                                );
-
-                                password.focus();
-
-                                return;
-                            }
-
-
-                            if (
-                                password.value.length < 6
-                            ) {
-
-                                showMessage(
-                                    "كلمة السر يجب أن تحتوي على 6 أحرف على الأقل."
-                                );
-
-                                password.focus();
-
-                                return;
-                            }
-
-
-                            if (
-                                password.value !==
-                                confirmPassword.value
-                            ) {
-
-                                showMessage(
-                                    "كلمتا السر غير متطابقتين."
-                                );
-
-                                confirmPassword.focus();
-
-                                return;
-                            }
-
-
-                            const selectedType =
-                                document.querySelector(
-                                    'input[name="account-type"]:checked'
+                            const info =
+                                document.createElement(
+                                    "div"
                                 );
 
 
-                            if (!selectedType) {
+                            info.className =
+                                "wallet-option-info";
 
-                                showMessage(
-                                    "يرجى اختيار نوع الحساب."
+
+                            const name =
+                                document.createElement(
+                                    "span"
                                 );
 
-                                return;
-                            }
+
+                            name.className =
+                                "wallet-option-name";
 
 
-                            /*
-                             * لا يتم إنشاء الحساب فعليًا الآن.
-                             *
-                             * سنربط Supabase في الخطوة التالية
-                             * بعد التأكد أن واجهة التسجيل تعمل.
-                             */
+                            name.textContent =
+                                wallet.info.name ||
+                                "Web3 Wallet";
 
-                            showMessage(
-                                "تم التحقق من البيانات. سيتم ربط إنشاء الحساب بقاعدة البيانات في الخطوة التالية.",
-                                "success"
+
+                            const type =
+                                document.createElement(
+                                    "span"
+                                );
+
+
+                            type.className =
+                                "wallet-option-type";
+
+
+                            type.textContent =
+                                "Ethereum Wallet";
+
+
+                            info.appendChild(
+                                name
                             );
 
 
-                            console.log(
-                                "Registration data:",
-                                {
-                                    accountType:
-                                        selectedType.value,
+                            info.appendChild(
+                                type
+                            );
 
-                                    fullName:
-                                        fullName.value.trim(),
 
-                                    email:
-                                        email.value.trim()
+                            button.appendChild(
+                                icon
+                            );
+
+
+                            button.appendChild(
+                                info
+                            );
+
+
+                            button.addEventListener(
+                                "click",
+                                async function () {
+
+                                    await connectWallet(
+                                        wallet
+                                    );
+
                                 }
+                            );
+
+
+                            walletList.appendChild(
+                                button
                             );
 
                         }
                     );
 
                 }
+
+
+                /* =================================================
+                   CLOSE WALLET MODAL
+                ================================================== */
+
+                function closeWalletModal() {
+
+                    walletModal.classList.remove(
+                        "active"
+                    );
+
+
+                    walletModal.setAttribute(
+                        "aria-hidden",
+                        "true"
+                    );
+
+                }
+
+
+                closeWallet.addEventListener(
+                    "click",
+                    closeWalletModal
+                );
+
+
+                walletModal.addEventListener(
+                    "click",
+                    function (event) {
+
+                        if (
+                            event.target ===
+                            walletModal
+                        ) {
+
+                            closeWalletModal();
+
+                        }
+
+                    }
+                );
+
+
+                /* =================================================
+                   CONNECT + SUPABASE WEB3 LOGIN
+                ================================================== */
+
+                async function connectWallet(
+                    wallet
+                ) {
+
+                    if (
+                        !wallet ||
+                        !wallet.provider
+                    ) {
+
+                        showMessage(
+                            "تعذر العثور على مزود المحفظة.",
+                            "Wallet provider is unavailable.",
+                            "error"
+                        );
+
+                        return;
+                    }
+
+
+                    const accountType =
+                        getSelectedAccountType();
+
+
+                    if (!accountType) {
+
+                        showMessage(
+                            "يرجى اختيار نوع الحساب أولاً.",
+                            "Please choose an account type first.",
+                            "error"
+                        );
+
+                        closeWalletModal();
+
+                        return;
+                    }
+
+
+                    try {
+
+                        closeWalletModal();
+
+
+                        showMessage(
+                            "جاري الاتصال بالمحفظة...",
+                            "Connecting to wallet...",
+                            "info"
+                        );
+
+
+                        /*
+                         * Request wallet connection.
+                         */
+
+                        const accounts =
+                            await wallet.provider.request({
+
+                                method:
+                                    "eth_requestAccounts"
+
+                            });
+
+
+                        if (
+                            !accounts ||
+                            !accounts.length
+                        ) {
+
+                            throw new Error(
+                                "لم يتم اختيار أي حساب من المحفظة."
+                            );
+                        }
+
+
+                        /*
+                         * IMPORTANT:
+                         *
+                         * Supabase Sign in with Web3
+                         * uses the selected wallet provider.
+                         */
+
+                        const client =
+                            window.Web3JobsAuth &&
+                            typeof window.Web3JobsAuth.getClient ===
+                                "function"
+                                ? window.Web3JobsAuth.getClient()
+                                : null;
+
+
+                        if (!client) {
+
+                            throw new Error(
+                                "تعذر الاتصال بـ Supabase."
+                            );
+                        }
+
+
+                        const result =
+                            await client.auth.signInWithWeb3({
+
+                                chain:
+                                    "ethereum",
+
+                                statement:
+                                    "أوافق على إنشاء حساب واستخدام Web3Jobs.",
+
+                                wallet:
+                                    wallet.provider
+
+                            });
+
+
+                        if (result.error) {
+
+                            throw result.error;
+                        }
+
+
+                        const user =
+                            result.data?.user;
+
+
+                        const session =
+                            result.data?.session;
+
+
+                        if (!user || !session) {
+
+                            throw new Error(
+                                "تم توقيع الرسالة ولكن لم يتم إنشاء جلسة."
+                            );
+                        }
+
+
+                        /*
+                         * Save account type in profiles.
+                         *
+                         * Your profiles.id is already linked
+                         * to auth.users.id.
+                         */
+
+                        const profileResult =
+                            await client
+                                .from("profiles")
+                                .upsert(
+                                    {
+                                        id:
+                                            user.id,
+
+                                        account_type:
+                                            accountType,
+
+                                        role:
+                                            accountType
+
+                                    },
+                                    {
+                                        onConflict:
+                                            "id"
+                                    }
+                                );
+
+
+                        if (
+                            profileResult.error
+                        ) {
+
+                            console.error(
+                                "Web3Jobs profile upsert error:",
+                                profileResult.error
+                            );
+
+
+                            /*
+                             * Authentication itself succeeded.
+                             * Do not destroy the session because
+                             * of a profile write problem.
+                             */
+
+                            console.warn(
+                                "Wallet authentication succeeded, but profile type could not be saved."
+                            );
+
+                        }
+
+
+                        try {
+
+                            localStorage.setItem(
+                                "web3jobs_account_type",
+                                accountType
+                            );
+
+
+                            localStorage.setItem(
+                                "web3jobs_user_id",
+                                user.id
+                            );
+
+
+                            localStorage.setItem(
+                                "web3jobs_wallet_auth",
+                                "true"
+                            );
+
+                        } catch (storageError) {
+
+                            console.warn(
+                                "Web3Jobs localStorage:",
+                                storageError
+                            );
+
+                        }
+
+
+                        showMessage(
+                            "تم إنشاء الحساب بالمحفظة بنجاح. جاري فتح لوحة التحكم...",
+                            "Wallet account created successfully. Opening dashboard...",
+                            "success"
+                        );
+
+
+                        let dashboardUrl =
+                            "dashboard.html";
+
+
+                        if (
+                            accountType ===
+                            "company"
+                        ) {
+
+                            dashboardUrl =
+                                "company-dashboard.html";
+
+                        } else if (
+                            accountType ===
+                            "admin"
+                        ) {
+
+                            dashboardUrl =
+                                "admin-dashboard.html";
+
+                        }
+
+
+                        setTimeout(
+                            function () {
+
+                                window.location.href =
+                                    dashboardUrl;
+
+                            },
+                            700
+                        );
+
+
+                    } catch (error) {
+
+                        console.error(
+                            "Web3Jobs wallet registration error:",
+                            error
+                        );
+
+
+                        let text =
+                            error?.message ||
+                            String(error);
+
+
+                        if (
+                            text
+                                .toLowerCase()
+                                .includes(
+                                    "user rejected"
+                                )
+                        ) {
+
+                            text =
+                                "تم إلغاء طلب التوقيع من المحفظة.";
+
+                        }
+
+
+                        showMessage(
+                            text,
+                            text,
+                            "error"
+                        );
+
+                    }
+
+                }
+
+
+                /* =================================================
+                   WALLET BUTTON
+                ================================================== */
+
+                walletButton.addEventListener(
+                    "click",
+                    async function () {
+
+                        await openWalletModal();
+
+                    }
+                );
+
+
+                /* =================================================
+                   EMAIL REGISTRATION
+                ================================================== */
+
+                form.addEventListener(
+                    "submit",
+                    async function (event) {
+
+                        event.preventDefault();
+
+
+                        const name =
+                            fullName.value.trim();
+
+
+                        const userEmail =
+                            email.value
+                                .trim()
+                                .toLowerCase();
+
+
+                        const userPassword =
+                            password.value;
+
+
+                        const confirm =
+                            confirmPassword.value;
+
+
+                        const accountType =
+                            getSelectedAccountType();
+
+
+                        if (!name) {
+
+                            showMessage(
+                                "يرجى إدخال الاسم الكامل.",
+                                "Please enter your full name.",
+                                "error"
+                            );
+
+                            fullName.focus();
+
+                            return;
+                        }
+
+
+                        if (!userEmail) {
+
+                            showMessage(
+                                "يرجى إدخال البريد الإلكتروني.",
+                                "Please enter your email address.",
+                                "error"
+                            );
+
+                            email.focus();
+
+                            return;
+                        }
+
+
+                        if (!userPassword) {
+
+                            showMessage(
+                                "يرجى إدخال كلمة السر.",
+                                "Please enter your password.",
+                                "error"
+                            );
+
+                            password.focus();
+
+                            return;
+                        }
+
+
+                        if (
+                            userPassword.length <
+                            6
+                        ) {
+
+                            showMessage(
+                                "كلمة السر يجب أن تحتوي على 6 أحرف على الأقل.",
+                                "Password must contain at least 6 characters.",
+                                "error"
+                            );
+
+                            password.focus();
+
+                            return;
+                        }
+
+
+                        if (
+                            userPassword !==
+                            confirm
+                        ) {
+
+                            showMessage(
+                                "كلمتا السر غير متطابقتين.",
+                                "Passwords do not match.",
+                                "error"
+                            );
+
+                            confirmPassword.focus();
+
+                            return;
+                        }
+
+
+                        if (!accountType) {
+
+                            showMessage(
+                                "يرجى اختيار نوع الحساب.",
+                                "Please choose an account type.",
+                                "error"
+                            );
+
+                            return;
+                        }
+
+
+                        const client =
+                            window.Web3JobsAuth &&
+                            typeof window.Web3JobsAuth.getClient ===
+                                "function"
+                                ? window.Web3JobsAuth.getClient()
+                                : null;
+
+
+                        if (!client) {
+
+                            showMessage(
+                                "تعذر الاتصال بـ Supabase.",
+                                "Supabase connection is unavailable.",
+                                "error"
+                            );
+
+                            return;
+                        }
+
+
+                        try {
+
+                            createButton.disabled =
+                                true;
+
+
+                            createButton.textContent =
+                                "جاري إنشاء الحساب...";
+
+
+                            const result =
+                                await client.auth.signUp({
+
+                                    email:
+                                        userEmail,
+
+                                    password:
+                                        userPassword,
+
+                                    options: {
+
+                                        data: {
+
+                                            full_name:
+                                                name,
+
+                                            role:
+                                                accountType,
+
+                                            account_type:
+                                                accountType
+
+                                        },
+
+                                        emailRedirectTo:
+                                            window.location.origin +
+                                            window.location.pathname
+
+                                    }
+
+                                });
+
+
+                            if (result.error) {
+
+                                throw result.error;
+                            }
+
+
+                            const user =
+                                result.data?.user;
+
+
+                            /*
+                             * If Supabase returned a user,
+                             * try to create/update profiles.
+                             */
+
+                            if (user) {
+
+                                const profileResult =
+                                    await client
+                                        .from("profiles")
+                                        .upsert(
+                                            {
+
+                                                id:
+                                                    user.id,
+
+                                                email:
+                                                    userEmail,
+
+                                                full_name:
+                                                    name,
+
+                                                account_type:
+                                                    accountType,
+
+                                                role:
+                                                    accountType
+
+                                            },
+                                            {
+                                                onConflict:
+                                                    "id"
+                                            }
+                                        );
+
+
+                                if (
+                                    profileResult.error
+                                ) {
+
+                                    console.warn(
+                                        "Web3Jobs profile creation warning:",
+                                        profileResult.error
+                                    );
+
+                                }
+
+                            }
+
+
+                            showMessage(
+                                "تم إنشاء الحساب بنجاح. إذا كان تأكيد البريد الإلكتروني مفعلاً، تحقق من بريدك الإلكتروني.",
+                                "Account created successfully. Check your email if confirmation is required.",
+                                "success"
+                            );
+
+
+                            form.reset();
+
+
+                            document.getElementById(
+                                "account-individual"
+                            ).checked =
+                                true;
+
+
+                        } catch (error) {
+
+                            console.error(
+                                "Web3Jobs email registration error:",
+                                error
+                            );
+
+
+                            const raw =
+                                error?.message ||
+                                String(error);
+
+
+                            showMessage(
+                                raw,
+                                raw,
+                                "error"
+                            );
+
+                        } finally {
+
+                            createButton.disabled =
+                                false;
+
+
+                            createButton.textContent =
+                                "إنشاء الحساب";
+
+                        }
+
+                    }
+                );
+
 
             }
         );
@@ -1258,4 +2484,4 @@
 
 </body>
 
-                        </html>
+    </html>
