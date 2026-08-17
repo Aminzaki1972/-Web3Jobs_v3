@@ -2,16 +2,14 @@
    Web3Jobs v3
    File: js/auth.js
 
-   Unified Authentication
-   Session-Safe Version
+   SIMPLE / STABLE AUTHENTICATION
    ---------------------------------------------------------
-   IMPORTANT:
-   - Uses ONLY js/supabase.js client.
-   - Never creates another Supabase client.
-   - Never redirects from getCurrentUser().
-   - Never redirects from getCurrentSession().
-   - Dashboard protection redirects ONLY when a protected
-     dashboard actually requires authentication.
+   - Uses ONLY js/supabase.js
+   - NO second Supabase client
+   - NO company_profiles
+   - Uses profiles.role for account type
+   - Login does NOT depend on dashboard queries
+   - No automatic redirect during normal login checks
    ========================================================= */
 
 "use strict";
@@ -19,15 +17,10 @@
 (function () {
 
     /* =====================================================
-       SUPABASE CLIENT
-    ===================================================== */
+       GET SUPABASE CLIENT
+       ===================================================== */
 
     function getClient() {
-
-        /*
-         * PRIMARY:
-         * Use the single client created by supabase.js.
-         */
 
         if (
             window.Web3JobsSupabase &&
@@ -41,18 +34,10 @@
                 client &&
                 typeof client.from === "function"
             ) {
-
                 return client;
             }
         }
 
-
-        /*
-         * COMPATIBILITY:
-         * Reuse the existing global client.
-         *
-         * NEVER create another client here.
-         */
 
         if (
             window.supabaseClient &&
@@ -64,7 +49,7 @@
 
 
         console.error(
-            "Web3Jobs Auth: Unified Supabase client is unavailable."
+            "Web3Jobs Auth: Supabase client unavailable."
         );
 
         return null;
@@ -77,42 +62,37 @@
 
     async function getCurrentSession() {
 
-        const client =
-            getClient();
-
+        const client = getClient();
 
         if (!client) {
             return null;
         }
 
-
         try {
 
-            const result =
-                await client.auth.getSession();
+            const {
+                data,
+                error
+            } = await client.auth.getSession();
 
 
-            if (
-                result &&
-                result.data &&
-                result.data.session
-            ) {
+            if (error) {
 
-                return result.data.session;
+                console.error(
+                    "Web3Jobs getSession:",
+                    error
+                );
+
+                return null;
             }
 
 
-            return null;
+            return data?.session || null;
 
         } catch (error) {
 
-            /*
-             * IMPORTANT:
-             * Never redirect here.
-             */
-
-            console.warn(
-                "Web3Jobs: Unable to read current session:",
+            console.error(
+                "Web3Jobs getSession exception:",
                 error
             );
 
@@ -127,97 +107,20 @@
 
     async function getCurrentUser() {
 
-        const client =
-            getClient();
+        const session =
+            await getCurrentSession();
 
 
-        if (!client) {
-            return null;
-        }
+        if (
+            session &&
+            session.user
+        ) {
 
-
-        /*
-         * First use the existing session.
-         *
-         * This avoids unnecessary auth requests.
-         */
-
-        try {
-
-            const session =
-                await getCurrentSession();
-
-
-            if (
-                session &&
-                session.user
-            ) {
-
-                return session.user;
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs: Session read failed:",
-                error
-            );
-        }
-
-
-        /*
-         * Fallback to getUser().
-         */
-
-        try {
-
-            const result =
-                await client.auth.getUser();
-
-
-            if (
-                result &&
-                result.data &&
-                result.data.user
-            ) {
-
-                return result.data.user;
-            }
-
-
-        } catch (error) {
-
-            /*
-             * IMPORTANT:
-             * No redirect.
-             */
-
-            console.warn(
-                "Web3Jobs: getUser failed:",
-                error
-            );
+            return session.user;
         }
 
 
         return null;
-    }
-
-
-    /* =====================================================
-       EMAIL CONFIRMATION
-       ===================================================== */
-
-    function isEmailConfirmed(user) {
-
-        if (!user) {
-            return false;
-        }
-
-
-        return Boolean(
-            user.email_confirmed_at ||
-            user.confirmed_at
-        );
     }
 
 
@@ -231,7 +134,6 @@
             value === null ||
             value === undefined
         ) {
-
             return null;
         }
 
@@ -247,8 +149,7 @@
                 "admin",
                 "administrator",
                 "superadmin",
-                "super_admin",
-                "admin_account"
+                "super_admin"
             ].includes(type)
         ) {
 
@@ -259,7 +160,6 @@
         if (
             [
                 "company",
-                "companies",
                 "business",
                 "employer",
                 "organization",
@@ -275,7 +175,6 @@
         if (
             [
                 "individual",
-                "individuals",
                 "person",
                 "user",
                 "candidate",
@@ -294,170 +193,12 @@
 
 
     /* =====================================================
-       FIND ACCOUNT TYPE
-       ===================================================== */
-
-    function findAccountType(object) {
-
-        if (!object) {
-            return null;
-        }
-
-
-        const values = [
-
-            object.account_type,
-            object.accountType,
-            object.role,
-            object.user_type,
-            object.userType,
-            object.type
-
-        ];
-
-
-        for (const value of values) {
-
-            const type =
-                normalizeAccountType(value);
-
-
-            if (type) {
-                return type;
-            }
-        }
-
-
-        return null;
-    }
-
-
-    /* =====================================================
-       ADMIN CHECK
-       ===================================================== */
-
-    async function isAdmin(userId = null) {
-
-        const client =
-            getClient();
-
-
-        if (!client) {
-            return false;
-        }
-
-
-        let user =
-            null;
-
-
-        if (!userId) {
-
-            user =
-                await getCurrentUser();
-
-        }
-
-
-        const id =
-            userId ||
-            user?.id;
-
-
-        if (!id) {
-            return false;
-        }
-
-
-        /* =================================================
-           CHECK PROFILES BY ID
-        ================================================= */
-
-        try {
-
-            const result =
-                await client
-                    .from("profiles")
-                    .select("id,role")
-                    .eq("id", id)
-                    .maybeSingle();
-
-
-            if (
-                !result.error &&
-                result.data
-            ) {
-
-                if (
-                    normalizeAccountType(
-                        result.data.role
-                    ) === "admin"
-                ) {
-
-                    return true;
-                }
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs admin profiles check:",
-                error
-            );
-        }
-
-
-        /* =================================================
-           CHECK PROFILES BY USER ID
-        ================================================= */
-
-        try {
-
-            const result =
-                await client
-                    .from("profiles")
-                    .select("id,user_id,role")
-                    .eq("user_id", id)
-                    .maybeSingle();
-
-
-            if (
-                !result.error &&
-                result.data
-            ) {
-
-                if (
-                    normalizeAccountType(
-                        result.data.role
-                    ) === "admin"
-                ) {
-
-                    return true;
-                }
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs admin user_id check:",
-                error
-            );
-        }
-
-
-        return false;
-    }
-
-
-    /* =====================================================
        ACCOUNT TYPE
        ===================================================== */
 
     async function getAccountType(userId = null) {
 
-        const client =
-            getClient();
-
+        const client = getClient();
 
         if (!client) {
             return null;
@@ -479,101 +220,20 @@
 
 
         /* =================================================
-           1. ADMIN
-        ================================================= */
-
-        if (
-            await isAdmin(id)
-        ) {
-
-            return "admin";
-        }
-
-
-        /* =================================================
-           2. COMPANY PROFILE BY USER ID
-        ================================================= */
-
-        try {
-
-            const result =
-                await client
-                    .from("company_profiles")
-                    .select(
-                        "id,user_id,company_name"
-                    )
-                    .eq(
-                        "user_id",
-                        id
-                    )
-                    .maybeSingle();
-
-
-            if (
-                !result.error &&
-                result.data
-            ) {
-
-                return "company";
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs company_profiles user_id:",
-                error
-            );
-        }
-
-
-        /* =================================================
-           3. COMPANY PROFILE BY ID
-        ================================================= */
-
-        try {
-
-            const result =
-                await client
-                    .from("company_profiles")
-                    .select(
-                        "id,user_id,company_name"
-                    )
-                    .eq(
-                        "id",
-                        id
-                    )
-                    .maybeSingle();
-
-
-            if (
-                !result.error &&
-                result.data
-            ) {
-
-                return "company";
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs company_profiles id:",
-                error
-            );
-        }
-
-
-        /* =================================================
-           4. USER METADATA
+           1. CHECK USER METADATA
         ================================================= */
 
         const metadata =
-            user?.user_metadata ||
-            {};
+            user?.user_metadata || {};
 
 
         const metadataType =
-            findAccountType(
-                metadata
+            normalizeAccountType(
+                metadata.role ||
+                metadata.account_type ||
+                metadata.accountType ||
+                metadata.user_type ||
+                metadata.userType
             );
 
 
@@ -584,7 +244,11 @@
 
 
         /* =================================================
-           5. PROFILES BY ID
+           2. CHECK PROFILES TABLE
+           -------------------------------------------------
+           IMPORTANT:
+           We use ONLY profiles.
+           NO company_profiles.
         ================================================= */
 
         try {
@@ -593,10 +257,7 @@
                 await client
                     .from("profiles")
                     .select("*")
-                    .eq(
-                        "id",
-                        id
-                    )
+                    .eq("id", id)
                     .maybeSingle();
 
 
@@ -605,28 +266,44 @@
                 result.data
             ) {
 
+                const profile =
+                    result.data;
+
+
                 const type =
-                    findAccountType(
-                        result.data
+                    normalizeAccountType(
+                        profile.role ||
+                        profile.account_type ||
+                        profile.accountType ||
+                        profile.user_type ||
+                        profile.userType ||
+                        profile.type
                     );
 
 
                 if (type) {
+
                     return type;
                 }
             }
 
+
+            /*
+             * Some older databases may use user_id
+             * instead of id.
+             */
+
         } catch (error) {
 
             console.warn(
-                "Web3Jobs profiles id:",
+                "Web3Jobs profiles ID lookup:",
                 error
             );
         }
 
 
         /* =================================================
-           6. PROFILES BY USER ID
+           3. OPTIONAL PROFILES USER_ID
         ================================================= */
 
         try {
@@ -635,10 +312,7 @@
                 await client
                     .from("profiles")
                     .select("*")
-                    .eq(
-                        "user_id",
-                        id
-                    )
+                    .eq("user_id", id)
                     .maybeSingle();
 
 
@@ -647,75 +321,84 @@
                 result.data
             ) {
 
+                const profile =
+                    result.data;
+
+
                 const type =
-                    findAccountType(
-                        result.data
+                    normalizeAccountType(
+                        profile.role ||
+                        profile.account_type ||
+                        profile.accountType ||
+                        profile.user_type ||
+                        profile.userType ||
+                        profile.type
                     );
 
 
                 if (type) {
+
                     return type;
                 }
             }
 
         } catch (error) {
 
+            /*
+             * user_id may not exist.
+             * This must NOT prevent login.
+             */
+
             console.warn(
-                "Web3Jobs profiles user_id:",
+                "Web3Jobs profiles user_id lookup skipped:",
                 error
             );
         }
 
 
         /* =================================================
-           7. JOBS FALLBACK
+           4. SAFE DEFAULT
+           =================================================
+           
+           If Supabase authentication succeeded but the
+           profile does not yet contain a role, we allow
+           the user to enter the normal individual dashboard.
+
+           This prevents a successful login from being
+           incorrectly treated as a failed login.
         ================================================= */
 
-        try {
-
-            const result =
-                await client
-                    .from("jobs")
-                    .select("id")
-                    .eq(
-                        "user_id",
-                        id
-                    )
-                    .limit(1);
-
-
-            if (
-                !result.error &&
-                Array.isArray(result.data) &&
-                result.data.length > 0
-            ) {
-
-                return "company";
-            }
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs jobs account detection:",
-                error
-            );
-        }
-
-
-        /*
-         * IMPORTANT:
-         *
-         * Do NOT automatically assume individual here
-         * because an unknown account should not accidentally
-         * receive the wrong permissions.
-         */
-
-        return null;
+        return "individual";
     }
 
 
     /* =====================================================
-       BASE URL
+       EMAIL CONFIRMATION
+       ===================================================== */
+
+    function isEmailConfirmed(user) {
+
+        /*
+         * We do NOT block login here.
+         *
+         * Supabase itself handles email confirmation
+         * according to the project's Auth settings.
+         */
+
+        if (!user) {
+            return false;
+        }
+
+
+        return Boolean(
+            user.email_confirmed_at ||
+            user.confirmed_at
+        );
+    }
+
+
+    /* =====================================================
+       DASHBOARD URL
        ===================================================== */
 
     function getBaseUrl() {
@@ -744,10 +427,6 @@
     }
 
 
-    /* =====================================================
-       LOGIN URL
-       ===================================================== */
-
     function getLoginUrl() {
 
         return (
@@ -757,13 +436,7 @@
     }
 
 
-    /* =====================================================
-       DASHBOARD URL
-       ===================================================== */
-
-    function getDashboardUrl(
-        accountType
-    ) {
+    function getDashboardUrl(accountType) {
 
         const type =
             normalizeAccountType(
@@ -789,18 +462,9 @@
         }
 
 
-        if (type === "individual") {
-
-            return (
-                getBaseUrl() +
-                "dashboard.html"
-            );
-        }
-
-
         return (
             getBaseUrl() +
-            "index.html"
+            "dashboard.html"
         );
     }
 
@@ -821,7 +485,7 @@
         if (!client) {
 
             showAuthMessage(
-                "تعذر الاتصال بقاعدة البيانات.",
+                "تعذر الاتصال بـ Supabase.",
                 "Supabase connection is unavailable.",
                 "error"
             );
@@ -863,29 +527,56 @@
         }
 
 
+        console.log(
+            "Web3Jobs: attempting login:",
+            email
+        );
+
+
         try {
+
+            /* =================================================
+               SUPABASE LOGIN
+            ================================================= */
 
             const result =
                 await client.auth.signInWithPassword({
-                    email,
-                    password
+
+                    email:
+                        email,
+
+                    password:
+                        password
+
                 });
 
 
             if (result.error) {
 
+                console.error(
+                    "Web3Jobs Supabase login error:",
+                    result.error
+                );
+
+
                 showAuthError(
                     result.error
                 );
 
+
                 return {
-                    success: false,
-                    error: result.error
+
+                    success:
+                        false,
+
+                    error:
+                        result.error
+
                 };
             }
 
 
-            const loggedUser =
+            const user =
                 result.data?.user;
 
 
@@ -893,14 +584,18 @@
                 result.data?.session;
 
 
+            /* =================================================
+               LOGIN SUCCESS
+            ================================================= */
+
             if (
-                !loggedUser ||
+                !user ||
                 !session
             ) {
 
                 showAuthMessage(
-                    "تعذر إنشاء جلسة تسجيل الدخول.",
-                    "Could not create a login session.",
+                    "تم تسجيل الدخول ولكن لم يتم إنشاء جلسة.",
+                    "Login succeeded but no session was created.",
                     "error"
                 );
 
@@ -910,43 +605,13 @@
             }
 
 
-            /* =================================================
-               EMAIL CONFIRMATION
-            ================================================= */
-
-            if (
-                !isEmailConfirmed(
-                    loggedUser
-                )
-            ) {
-
-                /*
-                 * Sign out only because the account is not
-                 * allowed to continue until email confirmation.
-                 */
-
-                try {
-                    await client.auth.signOut();
-                } catch (signOutError) {
-                    console.warn(
-                        "Web3Jobs signout after unconfirmed email:",
-                        signOutError
-                    );
+            console.log(
+                "Web3Jobs: Supabase login SUCCESS",
+                {
+                    id: user.id,
+                    email: user.email
                 }
-
-
-                showAuthMessage(
-                    "البريد الإلكتروني غير مؤكد. يرجى تأكيد البريد أولاً.",
-                    "Your email is not confirmed. Please confirm it first.",
-                    "error"
-                );
-
-
-                return {
-                    success: false,
-                    emailNotConfirmed: true
-                };
-            }
+            );
 
 
             /* =================================================
@@ -955,40 +620,14 @@
 
             const accountType =
                 await getAccountType(
-                    loggedUser.id
+                    user.id
                 );
 
 
             console.log(
-                "Web3Jobs LOGIN:",
-                {
-                    userId:
-                        loggedUser.id,
-
-                    email:
-                        loggedUser.email,
-
-                    accountType
-                }
+                "Web3Jobs account type:",
+                accountType
             );
-
-
-            if (!accountType) {
-
-                showAuthMessage(
-                    "تم تسجيل الدخول ولكن لم يتم تحديد نوع الحساب.",
-                    "Login succeeded but the account type could not be determined.",
-                    "error"
-                );
-
-
-                return {
-                    success: false,
-                    accountTypeMissing: true,
-                    user: loggedUser,
-                    session
-                };
-            }
 
 
             /* =================================================
@@ -1005,20 +644,20 @@
 
                 localStorage.setItem(
                     "web3jobs_user_id",
-                    loggedUser.id
+                    user.id
                 );
 
             } catch (error) {
 
                 console.warn(
-                    "Web3Jobs localStorage:",
+                    "Web3Jobs localStorage error:",
                     error
                 );
             }
 
 
             /* =================================================
-               DASHBOARD URL
+               DASHBOARD
             ================================================= */
 
             const dashboardUrl =
@@ -1029,10 +668,11 @@
 
             return {
 
-                success: true,
+                success:
+                    true,
 
                 user:
-                    loggedUser,
+                    user,
 
                 session:
                     session,
@@ -1059,8 +699,13 @@
 
 
             return {
-                success: false,
-                error
+
+                success:
+                    false,
+
+                error:
+                    error
+
             };
         }
     }
@@ -1074,16 +719,14 @@
         requiredAccountType = null
     ) {
 
-        const client =
-            getClient();
+        const session =
+            await getCurrentSession();
 
 
-        if (!client) {
-
-            /*
-             * This function is only for protected pages.
-             * Therefore redirect is allowed here.
-             */
+        if (
+            !session ||
+            !session.user
+        ) {
 
             window.location.replace(
                 getLoginUrl()
@@ -1093,178 +736,90 @@
         }
 
 
-        try {
-
-            const session =
-                await getCurrentSession();
+        const user =
+            session.user;
 
 
-            /*
-             * NO SESSION
-             *
-             * Redirect only because this is a protected
-             * dashboard.
-             */
-
-            if (
-                !session ||
-                !session.user
-            ) {
-
-                window.location.replace(
-                    getLoginUrl()
-                );
-
-                return false;
-            }
-
-
-            const currentUser =
-                session.user;
-
-
-            /* =================================================
-               EMAIL CONFIRMATION
-            ================================================= */
-
-            if (
-                !isEmailConfirmed(
-                    currentUser
-                )
-            ) {
-
-                try {
-
-                    await client.auth.signOut();
-
-                } catch (signOutError) {
-
-                    console.warn(
-                        "Web3Jobs dashboard signout:",
-                        signOutError
-                    );
-                }
-
-
-                window.location.replace(
-                    getLoginUrl()
-                );
-
-
-                return false;
-            }
-
-
-            /* =================================================
-               ACCOUNT TYPE
-            ================================================= */
-
-            const accountType =
-                await getAccountType(
-                    currentUser.id
-                );
-
-
-            if (!accountType) {
-
-                showDashboardAccessError();
-
-                return false;
-            }
-
-
-            /* =================================================
-               REQUIRED ACCOUNT TYPE
-            ================================================= */
-
-            if (requiredAccountType) {
-
-                const required =
-                    normalizeAccountType(
-                        requiredAccountType
-                    );
-
-
-                if (
-                    required &&
-                    accountType !== required
-                ) {
-
-                    /*
-                     * Redirect only when the authenticated
-                     * user is opening the wrong dashboard.
-                     */
-
-                    window.location.replace(
-                        getDashboardUrl(
-                            accountType
-                        )
-                    );
-
-                    return false;
-                }
-            }
-
-
-            /*
-             * Dashboard successfully authenticated.
-             */
-
-            try {
-
-                localStorage.setItem(
-                    "web3jobs_account_type",
-                    accountType
-                );
-
-
-                localStorage.setItem(
-                    "web3jobs_user_id",
-                    currentUser.id
-                );
-
-            } catch (error) {
-
-                console.warn(
-                    "Web3Jobs dashboard localStorage:",
-                    error
-                );
-            }
-
-
-            return {
-
-                authenticated:
-                    true,
-
-                emailConfirmed:
-                    true,
-
-                user:
-                    currentUser,
-
-                accountType:
-                    accountType
-
-            };
-
-        } catch (error) {
-
-            console.error(
-                "Web3Jobs dashboard protection:",
-                error
+        const accountType =
+            await getAccountType(
+                user.id
             );
 
+
+        if (!accountType) {
 
             showDashboardAccessError();
 
             return false;
         }
+
+
+        if (requiredAccountType) {
+
+            const required =
+                normalizeAccountType(
+                    requiredAccountType
+                );
+
+
+            if (
+                required &&
+                accountType !== required
+            ) {
+
+                window.location.replace(
+                    getDashboardUrl(
+                        accountType
+                    )
+                );
+
+                return false;
+            }
+        }
+
+
+        try {
+
+            localStorage.setItem(
+                "web3jobs_account_type",
+                accountType
+            );
+
+
+            localStorage.setItem(
+                "web3jobs_user_id",
+                user.id
+            );
+
+        } catch (error) {
+
+            console.warn(
+                "Web3Jobs dashboard storage:",
+                error
+            );
+        }
+
+
+        return {
+
+            authenticated:
+                true,
+
+            emailConfirmed:
+                isEmailConfirmed(user),
+
+            user:
+                user,
+
+            accountType:
+                accountType
+
+        };
     }
 
 
     /* =====================================================
-       ADMIN DASHBOARD
+       DASHBOARD TYPES
        ===================================================== */
 
     async function protectAdminDashboard() {
@@ -1275,10 +830,6 @@
     }
 
 
-    /* =====================================================
-       COMPANY DASHBOARD
-       ===================================================== */
-
     async function protectCompanyDashboard() {
 
         return await protectDashboard(
@@ -1286,10 +837,6 @@
         );
     }
 
-
-    /* =====================================================
-       INDIVIDUAL DASHBOARD
-       ===================================================== */
 
     async function protectIndividualDashboard() {
 
@@ -1325,10 +872,6 @@
         }
 
 
-        /*
-         * Remove only Web3Jobs helper data.
-         */
-
         try {
 
             localStorage.removeItem(
@@ -1358,12 +901,87 @@
 
 
     /* =====================================================
+       RESET PASSWORD
+       ===================================================== */
+
+    async function resetPassword(email) {
+
+        const client =
+            getClient();
+
+
+        if (!client) {
+            return false;
+        }
+
+
+        email =
+            String(
+                email || ""
+            )
+                .trim()
+                .toLowerCase();
+
+
+        if (!email) {
+
+            showAuthMessage(
+                "يرجى إدخال البريد الإلكتروني.",
+                "Please enter your email address.",
+                "error"
+            );
+
+            return false;
+        }
+
+
+        try {
+
+            const result =
+                await client.auth.resetPasswordForEmail(
+                    email,
+                    {
+                        redirectTo:
+                            getLoginUrl()
+                    }
+                );
+
+
+            if (result.error) {
+
+                showAuthError(
+                    result.error
+                );
+
+                return false;
+            }
+
+
+            showAuthMessage(
+                "تم إرسال رابط إعادة تعيين كلمة المرور.",
+                "Password reset link has been sent.",
+                "success"
+            );
+
+
+            return true;
+
+        } catch (error) {
+
+            showAuthError(
+                error
+            );
+
+            return false;
+        }
+    }
+
+
+    /* =====================================================
        RESEND CONFIRMATION
        ===================================================== */
 
-    async function resendConfirmationEmail(
-        email
-    ) {
+    async function resendConfirmationEmail(email) {
 
         const client =
             getClient();
@@ -1439,85 +1057,6 @@
 
 
     /* =====================================================
-       RESET PASSWORD
-       ===================================================== */
-
-    async function resetPassword(
-        email
-    ) {
-
-        const client =
-            getClient();
-
-
-        if (!client) {
-            return false;
-        }
-
-
-        email =
-            String(
-                email || ""
-            )
-                .trim()
-                .toLowerCase();
-
-
-        if (!email) {
-
-            showAuthMessage(
-                "يرجى إدخال البريد الإلكتروني.",
-                "Please enter your email address.",
-                "error"
-            );
-
-            return false;
-        }
-
-
-        try {
-
-            const result =
-                await client.auth.resetPasswordForEmail(
-                    email,
-                    {
-                        redirectTo:
-                            getLoginUrl()
-                    }
-                );
-
-
-            if (result.error) {
-
-                showAuthError(
-                    result.error
-                );
-
-                return false;
-            }
-
-
-            showAuthMessage(
-                "تم إرسال رابط إعادة تعيين كلمة المرور.",
-                "Password reset link has been sent.",
-                "success"
-            );
-
-
-            return true;
-
-        } catch (error) {
-
-            showAuthError(
-                error
-            );
-
-            return false;
-        }
-    }
-
-
-    /* =====================================================
        AUTH ERROR
        ===================================================== */
 
@@ -1565,23 +1104,8 @@
         ) {
 
             showAuthMessage(
-                "البريد الإلكتروني غير مؤكد.",
-                "Email address is not confirmed.",
-                "error"
-            );
-
-            return;
-        }
-
-
-        if (
-            text.includes("too many") ||
-            text.includes("rate limit")
-        ) {
-
-            showAuthMessage(
-                "تم تجاوز عدد المحاولات. انتظر قليلاً ثم حاول مرة أخرى.",
-                "Too many attempts. Please wait and try again.",
+                "البريد الإلكتروني غير مؤكد في Supabase.",
+                "Email address is not confirmed in Supabase.",
                 "error"
             );
 
@@ -1598,6 +1122,21 @@
             showAuthMessage(
                 "تعذر الاتصال بخادم Supabase.",
                 "Could not connect to Supabase.",
+                "error"
+            );
+
+            return;
+        }
+
+
+        if (
+            text.includes("too many") ||
+            text.includes("rate limit")
+        ) {
+
+            showAuthMessage(
+                "تم تجاوز عدد المحاولات. انتظر قليلاً ثم حاول مرة أخرى.",
+                "Too many attempts. Please wait and try again.",
                 "error"
             );
 
@@ -1689,7 +1228,7 @@
 
 
     /* =====================================================
-       DASHBOARD ACCESS ERROR
+       DASHBOARD ERROR
        ===================================================== */
 
     function showDashboardAccessError() {
@@ -1717,8 +1256,7 @@
                     </h2>
 
                     <p>
-                        We could not verify your account type.
-                        Please return to login and try again.
+                        We could not verify your account.
                     </p>
 
                     <a
@@ -1760,9 +1298,6 @@
 
     window.Web3JobsAuth = {
 
-        initialize:
-            getClient,
-
         getClient:
             getClient,
 
@@ -1774,9 +1309,6 @@
 
         getAccountType:
             getAccountType,
-
-        isAdmin:
-            isAdmin,
 
         login:
             loginUser,
@@ -1790,11 +1322,11 @@
         logoutUser:
             logoutUser,
 
-        resendConfirmation:
-            resendConfirmationEmail,
-
         resetPassword:
             resetPassword,
+
+        resendConfirmation:
+            resendConfirmationEmail,
 
         protectDashboard:
             protectDashboard,
@@ -1842,9 +1374,6 @@
     window.getAccountType =
         getAccountType;
 
-    window.isAdmin =
-        isAdmin;
-
     window.protectDashboard =
         protectDashboard;
 
@@ -1859,90 +1388,10 @@
 
 
     /* =====================================================
-       AUTH STATE LISTENER
-       ===================================================== */
-
-    function initializeAuthStateListener() {
-
-        const client =
-            getClient();
-
-
-        if (
-            !client ||
-            !client.auth
-        ) {
-
-            return;
-        }
-
-
-        /*
-         * IMPORTANT:
-         *
-         * This listener ONLY observes authentication.
-         *
-         * It does NOT redirect when the user visits jobs.
-         *
-         * It does NOT sign the user out.
-         */
-
-        try {
-
-            client.auth.onAuthStateChange(
-                function (event, session) {
-
-                    console.log(
-                        "Web3Jobs Auth State:",
-                        event
-                    );
-
-
-                    if (
-                        session &&
-                        session.user
-                    ) {
-
-                        try {
-
-                            localStorage.setItem(
-                                "web3jobs_user_id",
-                                session.user.id
-                            );
-
-                        } catch (error) {
-
-                            console.warn(
-                                "Web3Jobs auth storage:",
-                                error
-                            );
-                        }
-                    }
-
-                }
-            );
-
-        } catch (error) {
-
-            console.warn(
-                "Web3Jobs auth listener:",
-                error
-            );
-        }
-    }
-
-
-    /* =====================================================
        INITIALIZE
        ===================================================== */
 
     function initializeAuth() {
-
-        /*
-         * Do not create a new Supabase client.
-         *
-         * Just connect to the existing unified client.
-         */
 
         const client =
             getClient();
@@ -1951,25 +1400,18 @@
         if (!client) {
 
             console.error(
-                "Web3Jobs Auth: Supabase client unavailable."
+                "Web3Jobs Auth: Supabase unavailable."
             );
 
             return;
         }
 
 
-        initializeAuthStateListener();
-
-
         console.log(
-            "Web3Jobs Auth System loaded successfully."
+            "Web3Jobs Auth System loaded."
         );
     }
 
-
-    /* =====================================================
-       START
-       ===================================================== */
 
     if (
         document.readyState ===
