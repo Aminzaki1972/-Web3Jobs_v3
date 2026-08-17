@@ -2,7 +2,6 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -22,24 +21,18 @@
 
     <title>Login | Web3Jobs</title>
 
-
     <style>
-
         * {
             box-sizing: border-box;
-        }
-
-        html,
-        body {
             margin: 0;
             padding: 0;
-            min-height: 100%;
         }
 
         body {
+            min-height: 100vh;
+
             font-family:
                 Inter,
-                system-ui,
                 -apple-system,
                 BlinkMacSystemFont,
                 "Segoe UI",
@@ -48,474 +41,336 @@
             background:
                 radial-gradient(
                     circle at top,
-                    #10263d 0%,
-                    #06101d 48%,
+                    #102d4a 0%,
+                    #06101d 45%,
                     #030912 100%
                 );
 
-            color: #f8fafc;
+            color: #ffffff;
 
             display: flex;
             align-items: center;
             justify-content: center;
 
-            min-height: 100vh;
-
-            padding: 24px;
+            padding: 20px;
         }
 
-        .login-wrapper {
+        .login-container {
             width: 100%;
-            max-width: 460px;
+            max-width: 430px;
         }
 
-        .brand {
+        .logo {
             text-align: center;
             margin-bottom: 24px;
         }
 
-        .brand a {
+        .logo a {
             color: #ffffff;
             text-decoration: none;
+
             font-size: 30px;
-            font-weight: 900;
-            letter-spacing: -1px;
+            font-weight: 800;
         }
 
-        .brand span {
-            color: #6ee7b7;
+        .logo span {
+            color: #3b9cff;
         }
 
         .login-card {
-            width: 100%;
-
-            background:
-                rgba(10, 24, 39, 0.92);
+            background: rgba(8, 22, 38, 0.97);
 
             border:
-                1px solid rgba(255, 255, 255, 0.08);
+                1px solid rgba(80, 150, 220, 0.18);
 
-            border-radius: 18px;
+            border-radius: 20px;
 
             padding: 32px;
 
             box-shadow:
-                0 24px 70px rgba(0, 0, 0, 0.35);
-
-            backdrop-filter: blur(14px);
+                0 25px 70px rgba(0, 0, 0, 0.45);
         }
 
-        .login-card h1 {
-            margin: 0 0 8px;
+        .login-header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
 
+        .login-header h1 {
             font-size: 28px;
-            line-height: 1.2;
-
-            text-align: center;
+            margin-bottom: 8px;
         }
 
-        .login-subtitle {
-            margin: 0 0 28px;
-
-            text-align: center;
-
-            color: #94a3b8;
-
+        .login-header p {
+            color: #91a5ba;
             font-size: 14px;
-            line-height: 1.6;
         }
 
-        .form-group {
+        .field {
             margin-bottom: 18px;
         }
 
-        label {
+        .field label {
             display: block;
 
             margin-bottom: 8px;
 
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 600;
 
-            color: #e2e8f0;
+            color: #dce9f5;
         }
 
-        input {
+        .field input {
             width: 100%;
+            height: 48px;
 
-            padding: 14px 15px;
+            border: 1px solid #20384f;
 
             border-radius: 10px;
 
-            border:
-                1px solid #26384b;
+            background: #071727;
 
-            background: #081522;
+            color: #ffffff;
+
+            padding: 0 14px;
+
+            font-size: 14px;
+
+            outline: none;
+        }
+
+        .field input:focus {
+            border-color: #3b9cff;
+
+            box-shadow:
+                0 0 0 3px rgba(59, 156, 255, 0.10);
+        }
+
+        .field input::placeholder {
+            color: #60778d;
+        }
+
+        .wallet-button {
+            width: 100%;
+            height: 52px;
+
+            border: 1px solid #20384f;
+
+            border-radius: 10px;
+
+            background: #0a1b2d;
+
+            color: #ffffff;
+
+            font-size: 14px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: 0.2s ease;
+
+            margin-bottom: 24px;
+        }
+
+        .wallet-button:hover {
+            border-color: #3b9cff;
+            background: #0c2035;
+        }
+
+        .email-title {
+            font-size: 14px;
+            font-weight: 700;
+
+            color: #dce9f5;
+
+            margin-bottom: 16px;
+        }
+
+        .login-button {
+            width: 100%;
+            height: 50px;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #248cff,
+                    #1769c7
+                );
 
             color: #ffffff;
 
             font-size: 15px;
-
-            outline: none;
-
-            transition:
-                border-color 0.2s ease,
-                box-shadow 0.2s ease;
-        }
-
-        input::placeholder {
-            color: #64748b;
-        }
-
-        input:focus {
-            border-color: #6ee7b7;
-
-            box-shadow:
-                0 0 0 3px
-                rgba(110, 231, 183, 0.10);
-        }
-
-        .password-wrapper {
-            position: relative;
-        }
-
-        .password-wrapper input {
-            padding-right: 65px;
-        }
-
-        .toggle-password {
-            position: absolute;
-
-            right: 12px;
-            top: 50%;
-
-            transform: translateY(-50%);
-
-            border: 0;
-
-            background: transparent;
-
-            color: #94a3b8;
+            font-weight: 700;
 
             cursor: pointer;
 
-            font-size: 13px;
-
-            padding: 5px;
+            margin-top: 2px;
         }
 
-        .toggle-password:hover {
-            color: #ffffff;
+        .login-button:hover {
+            box-shadow:
+                0 10px 25px rgba(36, 140, 255, 0.25);
         }
 
         .forgot-password {
-            display: flex;
+            text-align: center;
 
-            justify-content: flex-end;
-
-            margin-top: -5px;
-            margin-bottom: 20px;
+            margin-top: 18px;
         }
 
         .forgot-password a {
-            color: #6ee7b7;
-
-            text-decoration: none;
+            color: #4da3ff;
 
             font-size: 13px;
-            font-weight: 700;
+            font-weight: 600;
+
+            text-decoration: none;
         }
 
         .forgot-password a:hover {
             text-decoration: underline;
         }
 
-        .login-button {
-            width: 100%;
-
-            border: 0;
-
-            border-radius: 10px;
-
-            padding: 14px 18px;
-
-            background: #6ee7b7;
-
-            color: #06101d;
-
-            font-size: 15px;
-            font-weight: 900;
-
-            cursor: pointer;
-
-            transition:
-                transform 0.15s ease,
-                opacity 0.15s ease;
-        }
-
-        .login-button:hover {
-            transform: translateY(-1px);
-        }
-
-        .login-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .auth-message {
+        .status-message {
             display: none;
 
             margin-bottom: 18px;
-        }
 
-        .auth-message-box {
-            border-radius: 10px;
+            padding: 12px;
 
-            padding: 13px 14px;
+            border-radius: 9px;
 
             font-size: 13px;
-
-            line-height: 1.6;
-
-            border: 1px solid transparent;
         }
 
-        .auth-message-box div + div {
-            margin-top: 4px;
-            opacity: 0.85;
-        }
+        .status-message.error {
+            display: block;
 
-        .auth-message-error {
-            background:
-                rgba(239, 68, 68, 0.10);
+            color: #ff8c8c;
 
-            border-color:
-                rgba(239, 68, 68, 0.25);
-
-            color: #fecaca;
-        }
-
-        .auth-message-success {
-            background:
-                rgba(34, 197, 94, 0.10);
-
-            border-color:
-                rgba(34, 197, 94, 0.25);
-
-            color: #bbf7d0;
-        }
-
-        .auth-message-info {
-            background:
-                rgba(59, 130, 246, 0.10);
-
-            border-color:
-                rgba(59, 130, 246, 0.25);
-
-            color: #bfdbfe;
-        }
-
-        .register-link {
-            margin-top: 24px;
-
-            text-align: center;
-
-            color: #94a3b8;
-
-            font-size: 14px;
-        }
-
-        .register-link a {
-            color: #6ee7b7;
-
-            font-weight: 800;
-
-            text-decoration: none;
-        }
-
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-
-        .back-home {
-            text-align: center;
-
-            margin-top: 18px;
-        }
-
-        .back-home a {
-            color: #64748b;
-
-            font-size: 13px;
-
-            text-decoration: none;
-        }
-
-        .back-home a:hover {
-            color: #cbd5e1;
-        }
-
-        .loading-spinner {
-            width: 16px;
-            height: 16px;
+            background: rgba(220, 60, 60, 0.10);
 
             border:
-                2px solid rgba(6, 16, 29, 0.25);
-
-            border-top-color:
-                #06101d;
-
-            border-radius: 50%;
-
-            display: inline-block;
-
-            vertical-align: middle;
-
-            animation:
-                login-spin 0.7s linear infinite;
-
-            margin-right: 7px;
+                1px solid rgba(220, 60, 60, 0.25);
         }
 
-        @keyframes login-spin {
+        .status-message.success {
+            display: block;
 
-            from {
-                transform: rotate(0deg);
-            }
+            color: #78e0a4;
 
-            to {
-                transform: rotate(360deg);
-            }
+            background: rgba(40, 180, 100, 0.10);
 
+            border:
+                1px solid rgba(40, 180, 100, 0.25);
         }
 
-        @media (max-width: 520px) {
-
-            body {
-                padding: 16px;
-            }
+        @media (max-width: 500px) {
 
             .login-card {
-                padding: 24px 20px;
+                padding: 25px 18px;
             }
 
-            .brand a {
-                font-size: 26px;
-            }
-
-            .login-card h1 {
+            .login-header h1 {
                 font-size: 24px;
             }
-
         }
-
     </style>
-
 </head>
-
 
 <body>
 
-    <main class="login-wrapper">
+    <main class="login-container">
 
-        <div class="brand">
-
+        <div class="logo">
             <a href="index.html">
                 Web3<span>Jobs</span>
             </a>
-
         </div>
-
 
         <section class="login-card">
 
-            <h1>
-                Login
-            </h1>
+            <div class="login-header">
+                <h1>Login</h1>
 
-            <p class="login-subtitle">
-                Sign in to your Web3Jobs account.
-            </p>
-
-
-            <!-- AUTH MESSAGE -->
+                <p>
+                    Login to your Web3Jobs account
+                </p>
+            </div>
 
             <div
-                id="auth-message"
-                class="auth-message"
+                id="loginStatus"
+                class="status-message"
                 aria-live="polite"
             ></div>
 
 
-            <!-- LOGIN FORM -->
+            <!-- Wallet Login -->
+
+            <button
+                type="button"
+                id="walletLoginButton"
+                class="wallet-button"
+            >
+                Login with Web3 Wallet
+            </button>
+
+
+            <!-- Email Login -->
+
+            <div class="email-title">
+                Login with Email
+            </div>
 
             <form
-                id="login-form"
-                novalidate
+                id="loginForm"
+                autocomplete="on"
             >
 
-                <div class="form-group">
+                <div class="field">
 
                     <label for="email">
-                        Email Address
+                        Email
                     </label>
 
                     <input
+                        type="email"
                         id="email"
                         name="email"
-                        type="email"
+                        placeholder="Enter your email"
                         autocomplete="email"
-                        placeholder="you@example.com"
                         required
                     >
 
                 </div>
 
 
-                <div class="form-group">
+                <div class="field">
 
                     <label for="password">
                         Password
                     </label>
 
-                    <div class="password-wrapper">
-
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            autocomplete="current-password"
-                            placeholder="Enter your password"
-                            required
-                        >
-
-                        <button
-                            type="button"
-                            id="toggle-password"
-                            class="toggle-password"
-                            aria-label="Show password"
-                        >
-                            Show
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <div class="forgot-password">
-
-                    <a href="reset-password.html">
-                        Forgot your password?
-                    </a>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
 
                 </div>
 
 
                 <button
                     type="submit"
-                    id="login-button"
+                    id="loginButton"
                     class="login-button"
                 >
                     Login
@@ -524,21 +379,12 @@
             </form>
 
 
-            <div class="register-link">
+            <!-- Forgot Password -->
 
-                Don't have an account?
+            <div class="forgot-password">
 
-                <a href="register.html">
-                    Create an account
-                </a>
-
-            </div>
-
-
-            <div class="back-home">
-
-                <a href="index.html">
-                    ← Back to Web3Jobs
+                <a href="reset-password.html">
+                    Forgot your password?
                 </a>
 
             </div>
@@ -548,324 +394,13 @@
     </main>
 
 
-    <!-- =========================================================
-         IMPORTANT SCRIPT ORDER
-
-         1. Supabase JavaScript library
-         2. Web3Jobs unified Supabase client
-         3. Web3Jobs unified authentication
-         4. Login page logic
-
-         login.html DOES NOT create another Supabase client.
-    ========================================================== -->
-
-
-    <!-- SUPABASE LIBRARY -->
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
-    ></script>
-
-
-    <!-- WEB3JOBS SINGLE SUPABASE CLIENT -->
-
-    <script
-        src="js/supabase.js"
-    ></script>
-
-
-    <!-- WEB3JOBS UNIFIED AUTH -->
-
-    <script
-        src="js/auth.js"
-    ></script>
-
-
-    <!-- LOGIN PAGE -->
-
-    <script>
-
-        "use strict";
-
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            function () {
-
-                const form =
-                    document.getElementById(
-                        "login-form"
-                    );
-
-
-                const emailInput =
-                    document.getElementById(
-                        "email"
-                    );
-
-
-                const passwordInput =
-                    document.getElementById(
-                        "password"
-                    );
-
-
-                const loginButton =
-                    document.getElementById(
-                        "login-button"
-                    );
-
-
-                const togglePassword =
-                    document.getElementById(
-                        "toggle-password"
-                    );
-
-
-                if (!form) {
-
-                    console.error(
-                        "Web3Jobs Login: login form not found."
-                    );
-
-                    return;
-                }
-
-
-                /* =================================================
-                   VERIFY AUTH SYSTEM
-                ================================================== */
-
-                if (
-                    !window.Web3JobsAuth ||
-                    typeof window.Web3JobsAuth.login !==
-                        "function"
-                ) {
-
-                    console.error(
-                        "Web3Jobs Login: Web3JobsAuth is unavailable."
-                    );
-
-                    return;
-                }
-
-
-                /* =================================================
-                   PASSWORD VISIBILITY
-                ================================================== */
-
-                if (
-                    togglePassword &&
-                    passwordInput
-                ) {
-
-                    togglePassword.addEventListener(
-                        "click",
-                        function () {
-
-                            const isPassword =
-                                passwordInput.type ===
-                                "password";
-
-
-                            passwordInput.type =
-                                isPassword
-                                    ? "text"
-                                    : "password";
-
-
-                            togglePassword.textContent =
-                                isPassword
-                                    ? "Hide"
-                                    : "Show";
-
-
-                            togglePassword.setAttribute(
-                                "aria-label",
-                                isPassword
-                                    ? "Hide password"
-                                    : "Show password"
-                            );
-
-                        }
-                    );
-
-                }
-
-
-                /* =================================================
-                   LOGIN SUBMIT
-                ================================================== */
-
-                form.addEventListener(
-                    "submit",
-                    async function (event) {
-
-                        event.preventDefault();
-
-
-                        if (
-                            !emailInput ||
-                            !passwordInput ||
-                            !loginButton
-                        ) {
-
-                            return;
-                        }
-
-
-                        const email =
-                            emailInput.value
-                                .trim()
-                                .toLowerCase();
-
-
-                        const password =
-                            passwordInput.value;
-
-
-                        /* =================================================
-                           VALIDATION
-                        ================================================== */
-
-                        if (!email) {
-
-                            window.Web3JobsAuth.showMessage(
-                                "يرجى إدخال البريد الإلكتروني.",
-                                "Please enter your email address.",
-                                "error"
-                            );
-
-                            emailInput.focus();
-
-                            return;
-                        }
-
-
-                        if (!password) {
-
-                            window.Web3JobsAuth.showMessage(
-                                "يرجى إدخال كلمة المرور.",
-                                "Please enter your password.",
-                                "error"
-                            );
-
-                            passwordInput.focus();
-
-                            return;
-                        }
-
-
-                        /* =================================================
-                           DISABLE LOGIN BUTTON
-                        ================================================== */
-
-                        loginButton.disabled =
-                            true;
-
-
-                        loginButton.innerHTML = `
-                            <span
-                                class="loading-spinner"
-                                aria-hidden="true"
-                            ></span>
-                            Signing in...
-                        `;
-
-
-                        try {
-
-                            const result =
-                                await window.Web3JobsAuth.login(
-                                    email,
-                                    password
-                                );
-
-
-                            console.log(
-                                "Web3Jobs Login Result:",
-                                result
-                            );
-
-
-                            /* =================================================
-                               SUCCESS
-                            ================================================== */
-
-                            if (
-                                result &&
-                                result.success &&
-                                result.dashboardUrl
-                            ) {
-
-                                window.location.replace(
-                                    result.dashboardUrl
-                                );
-
-                                return;
-                            }
-
-
-                            /* =================================================
-                               LOGIN FAILED
-                            ================================================== */
-
-                            if (
-                                result &&
-                                result.error
-                            ) {
-
-                                console.error(
-                                    "Web3Jobs Login Failed:",
-                                    result.error
-                                );
-
-                            }
-
-                        } catch (error) {
-
-                            console.error(
-                                "Web3Jobs Login Page Error:",
-                                error
-                            );
-
-
-                            if (
-                                window.Web3JobsAuth &&
-                                typeof window.Web3JobsAuth.showError ===
-                                    "function"
-                            ) {
-
-                                window.Web3JobsAuth.showError(
-                                    error
-                                );
-
-                            }
-
-                        } finally {
-
-                            /*
-                             * If login succeeded and the browser
-                             * is navigating, this page will disappear.
-                             */
-
-                            loginButton.disabled =
-                                false;
-
-
-                            loginButton.textContent =
-                                "Login";
-
-                        }
-
-                    }
-                );
-
-            }
-        );
-
-    </script>
+    <!--
+        auth.js is the only authentication controller.
+    -->
+
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
 
 </body>
 
-                        </html>
+</html>
