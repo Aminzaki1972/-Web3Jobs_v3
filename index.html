@@ -1,3 +1,5 @@
+index.html
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1824,14 +1826,64 @@ footer {
 
 <script src="js/jobs.js"></script>
 
+<!-- HOMEPAGE: SHOW ONLY 10 LATEST JOBS -->
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const jobsList = document.getElementById("jobs-list");
+
+    if (!jobsList) {
+        return;
+    }
+
+    function limitHomepageJobs() {
+
+        const jobCards = Array.from(
+            jobsList.querySelectorAll(".job-card")
+        );
+
+        if (jobCards.length > 10) {
+
+            jobCards
+                .slice(10)
+                .forEach(function (card) {
+                    card.remove();
+                });
+
+        }
+
+    }
+
+    const observer = new MutationObserver(function () {
+
+        limitHomepageJobs();
+
+    });
+
+    observer.observe(jobsList, {
+
+        childList: true,
+
+        subtree: true
+
+    });
+
+    limitHomepageJobs();
+
+});
+
+</script>
+
 <!-- APP -->
 
 <script src="js/app.js"></script>
 
-<!-- SEARCH -->
-
-
-
 </body>
 
-    </html>
+</html>
+
+التعديل الوحيد في الملف: تمت إضافة كود بعد "js/jobs.js" يقيّد العناصر داخل "#jobs-list" إلى أول 10 كروت فقط.
+
+"jobs.js" لم يتم تعديله، وصفحة "jobs.html" لم يتم تعديلها.
