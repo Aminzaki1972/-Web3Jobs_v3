@@ -2,657 +2,238 @@
    Web3Jobs v3
    File: js/supabase.js
 
-   Unified Supabase Client
-   Session-Safe Version
-   ---------------------------------------------------------
-   IMPORTANT:
-   - This is the ONLY Supabase client used by Web3Jobs.
-   - Do NOT create another Supabase client in auth.js
-     or jobs.js.
-   - Uses the same persistent authentication session.
-   - Never redirects the user.
+   Unified Supabase Client + Web3 Wallet Auth
    ========================================================= */
 
 "use strict";
 
-
-/* =========================================================
-   SUPABASE CONFIGURATION
-   ========================================================= */
-
-const SUPABASE_URL =
-    "https://jqhemwskrnlycximjpag.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
-
-/*
- * One fixed storage key for the whole application.
- *
- * IMPORTANT:
- * auth.js
- * jobs.js
- * dashboard files
- *
- * must all use this same Supabase client.
- */
-
-const SUPABASE_STORAGE_KEY =
-    "web3jobs-auth";
-
-
-/* =========================================================
-   SINGLE CLIENT
-   ========================================================= */
+const SUPABASE_URL = "https://jqhemwskrnlycximjpag.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
+const SUPABASE_STORAGE_KEY = "web3jobs-auth";
+const SUPABASE_JS_CDN = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.110.0";
 
 let web3jobsSupabaseClient = null;
+let supabaseLibraryReady = null;
 
+function loadSupabaseLibrary() {
+    if (window.supabase && typeof window.supabase.createClient === "function") return Promise.resolve(true);
+    if (supabaseLibraryReady) return supabaseLibraryReady;
 
-/* =========================================================
-   INITIALIZE SUPABASE
-   ========================================================= */
+    supabaseLibraryReady = new Promise(function (resolve) {
+        const existing = document.querySelector('script[data-web3jobs-supabase="true"]');
+        if (existing) {
+            existing.addEventListener("load", () => resolve(Boolean(window.supabase?.createClient)), { once: true });
+            existing.addEventListener("error", () => resolve(false), { once: true });
+            return;
+        }
+        const script = document.createElement("script");
+        script.src = SUPABASE_JS_CDN;
+        script.async = true;
+        script.dataset.web3jobsSupabase = "true";
+        script.onload = () => resolve(Boolean(window.supabase?.createClient));
+        script.onerror = () => resolve(false);
+        document.head.appendChild(script);
+    });
+    return supabaseLibraryReady;
+}
 
 function initializeSupabase() {
-
-    /*
-     * IMPORTANT:
-     * If the client already exists, return it.
-     *
-     * This prevents jobs.js / auth.js / dashboard
-     * from creating additional authentication sessions.
-     */
-
-    if (
-        web3jobsSupabaseClient &&
-        typeof web3jobsSupabaseClient.from === "function"
-    ) {
-
-        return web3jobsSupabaseClient;
-    }
-
-
-    /*
-     * Check Supabase library.
-     */
-
-    if (
-        typeof window === "undefined" ||
-        !window.supabase ||
-        typeof window.supabase.createClient !== "function"
-    ) {
-
-        console.error(
-            "Web3Jobs: Supabase library is not loaded."
-        );
-
+    if (web3jobsSupabaseClient?.from) return web3jobsSupabaseClient;
+    if (!window.supabase?.createClient) {
+        loadSupabaseLibrary().then(ready => { if (ready) initializeSupabase(); });
         return null;
     }
-
-
     try {
-
-        /*
-         * Create ONE client only.
-         */
-
-        web3jobsSupabaseClient =
-            window.supabase.createClient(
-                SUPABASE_URL,
-                SUPABASE_PUBLISHABLE_KEY,
-                {
-
-                    auth: {
-
-                        /*
-                         * Keep login session.
-                         */
-                        persistSession: true,
-
-                        /*
-                         * Refresh access token automatically.
-                         */
-                        autoRefreshToken: true,
-
-                        /*
-                         * IMPORTANT:
-                         *
-                         * Supabase may process authentication
-                         * tokens from the URL after email confirmation.
-                         *
-                         * This does NOT redirect the user.
-                         */
-                        detectSessionInUrl: true,
-
-                        /*
-                         * Same storage key everywhere.
-                         */
-                        storageKey:
-                            SUPABASE_STORAGE_KEY
-
-                    }
-
-                }
-            );
-
-
-        /*
-         * Expose the actual client globally.
-         *
-         * This is important because some older files in
-         * Web3Jobs use window.supabaseClient.
-         */
-
-        window.supabaseClient =
-            web3jobsSupabaseClient;
-
-
-        /*
-         * Also expose the actual client through
-         * Web3JobsSupabase.getClient().
-         */
-
-        console.log(
-            "Web3Jobs: Supabase client initialized successfully."
+        web3jobsSupabaseClient = window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_PUBLISHABLE_KEY,
+            { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: SUPABASE_STORAGE_KEY } }
         );
-
-
+        window.supabaseClient = web3jobsSupabaseClient;
         return web3jobsSupabaseClient;
-
     } catch (error) {
-
-        console.error(
-            "Web3Jobs: Supabase initialization failed:",
-            error
-        );
-
-        web3jobsSupabaseClient =
-            null;
-
-        window.supabaseClient =
-            null;
-
+        console.error("Web3Jobs: Supabase initialization failed:", error);
+        web3jobsSupabaseClient = null;
+        window.supabaseClient = null;
         return null;
     }
 }
-
-
-/* =========================================================
-   GET CLIENT
-   ========================================================= */
 
 function getSupabaseClient() {
-
-    /*
-     * First use our single client.
-     */
-
-    if (
-        web3jobsSupabaseClient &&
-        typeof web3jobsSupabaseClient.from === "function"
-    ) {
-
+    if (web3jobsSupabaseClient?.from) return web3jobsSupabaseClient;
+    if (window.supabaseClient?.from) {
+        web3jobsSupabaseClient = window.supabaseClient;
         return web3jobsSupabaseClient;
     }
-
-
-    /*
-     * Compatibility:
-     * If another file already initialized the same client,
-     * reuse it instead of creating another client.
-     */
-
-    if (
-        window.supabaseClient &&
-        typeof window.supabaseClient.from === "function"
-    ) {
-
-        web3jobsSupabaseClient =
-            window.supabaseClient;
-
-        return web3jobsSupabaseClient;
-    }
-
-
-    /*
-     * Initialize only when necessary.
-     */
-
     return initializeSupabase();
 }
-
-
-/* =========================================================
-   BACKWARD COMPATIBILITY
-   ========================================================= */
-
-function getClient() {
-
-    return getSupabaseClient();
-}
-
-
-/* =========================================================
-   CURRENT SESSION
-   ========================================================= */
+function getClient() { return getSupabaseClient(); }
 
 async function getSupabaseSession() {
-
-    const client =
-        getSupabaseClient();
-
-
-    if (!client) {
-
-        console.error(
-            "Web3Jobs: Supabase client unavailable."
-        );
-
-        return null;
-    }
-
-
+    const client = getSupabaseClient();
+    if (!client) return null;
     try {
-
-        const {
-            data,
-            error
-        } =
-            await client.auth.getSession();
-
-
-        if (error) {
-
-            console.error(
-                "Web3Jobs: getSession error:",
-                error
-            );
-
-            return null;
-        }
-
-
-        return (
-            data &&
-            data.session
-                ? data.session
-                : null
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Web3Jobs: getSession exception:",
-            error
-        );
-
-        return null;
-    }
+        const { data, error } = await client.auth.getSession();
+        if (error) return null;
+        return data?.session || null;
+    } catch (_) { return null; }
 }
-
-
-/* =========================================================
-   CURRENT USER
-   ========================================================= */
 
 async function getSupabaseUser() {
-
-    const client =
-        getSupabaseClient();
-
-
-    if (!client) {
-
-        console.error(
-            "Web3Jobs: Supabase client unavailable."
-        );
-
-        return null;
-    }
-
-
+    const client = getSupabaseClient();
+    if (!client) return null;
     try {
-
-        const {
-            data,
-            error
-        } =
-            await client.auth.getUser();
-
-
-        if (error) {
-
-            console.error(
-                "Web3Jobs: getUser error:",
-                error
-            );
-
-            return null;
-        }
-
-
-        return (
-            data &&
-            data.user
-                ? data.user
-                : null
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Web3Jobs: getUser exception:",
-            error
-        );
-
-        return null;
-    }
+        const { data, error } = await client.auth.getUser();
+        if (error) return null;
+        return data?.user || null;
+    } catch (_) { return null; }
 }
-
-
-/* =========================================================
-   AUTH STATE CHANGE
-   ========================================================= */
 
 function onAuthStateChange(callback) {
-
-    const client =
-        getSupabaseClient();
-
-
-    if (
-        !client ||
-        !client.auth ||
-        typeof callback !== "function"
-    ) {
-
-        return null;
-    }
-
-
-    try {
-
-        return client.auth.onAuthStateChange(
-            callback
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Web3Jobs: auth state listener error:",
-            error
-        );
-
-        return null;
-    }
+    const client = getSupabaseClient();
+    if (!client?.auth || typeof callback !== "function") return null;
+    return client.auth.onAuthStateChange(callback);
 }
-
-
-/* =========================================================
-   SIGN OUT
-   ========================================================= */
 
 async function signOutSupabase() {
+    const client = getSupabaseClient();
+    if (!client) return false;
+    try {
+        const { error } = await client.auth.signOut();
+        if (error) return false;
+        try {
+            localStorage.removeItem("web3jobs_account_type");
+            localStorage.removeItem("web3jobs_user_id");
+            localStorage.removeItem("web3jobs_wallet_auth");
+        } catch (_) {}
+        return true;
+    } catch (_) { return false; }
+}
 
-    const client =
-        getSupabaseClient();
+async function hasActiveSession() { return Boolean((await getSupabaseSession())?.user); }
+async function getAuthenticatedUserId() { return (await getSupabaseSession())?.user?.id || null; }
 
+/* =========================================================
+   WEB3 WALLET AUTH
+   ========================================================= */
 
-    if (!client) {
+function selectedSignupAccountType() {
+    const selected = document.querySelector('input[name="account-type"]:checked');
+    return selected?.value === "company" ? "company" : "individual";
+}
 
-        return false;
+async function signInWithWeb3Wallet() {
+    const client = getSupabaseClient();
+    if (!client?.auth?.signInWithWeb3) {
+        throw new Error("Supabase Web3 Wallet authentication is not available. Enable Ethereum Web3 authentication in Supabase Auth Providers.");
     }
+    const provider = window.ethereum;
+    if (!provider) {
+        throw new Error("لم يتم العثور على محفظة Ethereum. افتح الموقع من MetaMask أو محفظة تدعم Ethereum.");
+    }
+    const accounts = await provider.request({ method: "eth_requestAccounts" });
+    if (!Array.isArray(accounts) || !accounts[0]) throw new Error("لم يتم اختيار حساب من المحفظة.");
 
+    const { data, error } = await client.auth.signInWithWeb3({
+        chain: "ethereum",
+        statement: "I accept the Web3Jobs Terms of Service and Privacy Policy.",
+        wallet: provider
+    });
+    if (error) throw error;
+    if (!data?.user || !data?.session) throw new Error("تم توقيع الرسالة ولكن لم يتم إنشاء جلسة Web3.");
+    return data;
+}
+
+async function saveWalletProfile(client, user, accountType) {
+    if (!client || !user?.id) return;
+    const { error } = await client.from("profiles").upsert({
+        id: user.id,
+        account_type: accountType,
+        role: accountType
+    }, { onConflict: "id" });
+    if (error) console.warn("Web3Jobs wallet profile warning:", error.message || error);
+}
+
+function showWalletMessage(isSignup, text, type) {
+    const element = document.getElementById(isSignup ? "register-message" : "loginStatus");
+    if (!element) return;
+    element.textContent = text;
+    element.style.display = "block";
+    element.className = isSignup ? "register-message" : `status-message ${type || "info"}`;
+}
+
+async function handleWalletButton() {
+    const isSignup = Boolean(document.getElementById("wallet-register-button"));
+    const button = document.getElementById(isSignup ? "wallet-register-button" : "walletLoginButton");
+    if (!button) return;
+
+    const original = button.textContent;
+    button.disabled = true;
 
     try {
-
-        const {
-            error
-        } =
-            await client.auth.signOut();
-
-
-        if (error) {
-
-            console.error(
-                "Web3Jobs: signOut error:",
-                error
-            );
-
-            return false;
-        }
-
-
-        /*
-         * Clear only Web3Jobs local account information.
-         *
-         * Do NOT manually destroy the Supabase storage here.
-         * Supabase handles the authentication session itself.
-         */
+        showWalletMessage(isSignup, "جاري الاتصال بالمحفظة...", "info");
+        const data = await signInWithWeb3Wallet();
+        const accountType = isSignup ? selectedSignupAccountType() : "individual";
+        await saveWalletProfile(getSupabaseClient(), data.user, accountType);
 
         try {
+            localStorage.setItem("web3jobs_user_id", data.user.id);
+            localStorage.setItem("web3jobs_account_type", accountType);
+            localStorage.setItem("web3jobs_wallet_auth", "true");
+        } catch (_) {}
 
-            localStorage.removeItem(
-                "web3jobs_account_type"
-            );
-
-            localStorage.removeItem(
-                "web3jobs_user_id"
-            );
-
-        } catch (storageError) {
-
-            console.warn(
-                "Web3Jobs: localStorage cleanup failed:",
-                storageError
-            );
-        }
-
-
-        return true;
-
+        showWalletMessage(isSignup, isSignup ? "تم إنشاء الحساب بالمحفظة بنجاح. جاري فتح لوحة التحكم..." : "تم تسجيل الدخول بالمحفظة بنجاح. جاري فتح لوحة التحكم...", "success");
+        const target = accountType === "company" ? "company-dashboard.html" : "dashboard.html";
+        setTimeout(() => window.location.replace(target), 300);
     } catch (error) {
-
-        console.error(
-            "Web3Jobs: signOut exception:",
-            error
-        );
-
-        return false;
+        const raw = String(error?.message || error || "Web3 wallet authentication failed.");
+        const message = /user rejected|rejected the request/i.test(raw) ? "تم إلغاء طلب التوقيع من المحفظة." : raw;
+        showWalletMessage(isSignup, message, "error");
+        console.error("Web3Jobs wallet authentication failed:", raw);
+    } finally {
+        button.disabled = false;
+        button.textContent = original;
     }
 }
 
-
-/* =========================================================
-   AUTH SESSION HELPER
-   ========================================================= */
-
-async function hasActiveSession() {
-
-    const session =
-        await getSupabaseSession();
-
-
-    return Boolean(
-        session &&
-        session.user
-    );
-}
-
-
-/* =========================================================
-   AUTH USER ID HELPER
-   ========================================================= */
-
-async function getAuthenticatedUserId() {
-
-    const session =
-        await getSupabaseSession();
-
-
-    if (
-        !session ||
-        !session.user
-    ) {
-
-        return null;
-    }
-
-
-    return session.user.id || null;
-}
-
-
-/* =========================================================
-   GLOBAL API
-   ========================================================= */
+/* Intercept the old inline wallet handlers so both pages use one flow. */
+document.addEventListener("click", function (event) {
+    const target = event.target instanceof Element ? event.target.closest("#walletLoginButton, #wallet-register-button") : null;
+    if (!target) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    handleWalletButton();
+}, true);
 
 window.Web3JobsSupabase = {
-
-    /*
-     * Configuration
-     */
-
-    url:
-        SUPABASE_URL,
-
-    publishableKey:
-        SUPABASE_PUBLISHABLE_KEY,
-
-    storageKey:
-        SUPABASE_STORAGE_KEY,
-
-
-    /*
-     * Main client
-     */
-
-    initialize:
-        initializeSupabase,
-
-    getClient:
-        getSupabaseClient,
-
-    getSupabaseClient:
-        getSupabaseClient,
-
-
-    /*
-     * Session
-     */
-
-    getSession:
-        getSupabaseSession,
-
-    getSupabaseSession:
-        getSupabaseSession,
-
-    hasActiveSession:
-        hasActiveSession,
-
-    getAuthenticatedUserId:
-        getAuthenticatedUserId,
-
-
-    /*
-     * User
-     */
-
-    getUser:
-        getSupabaseUser,
-
-    getSupabaseUser:
-        getSupabaseUser,
-
-
-    /*
-     * Auth events
-     */
-
-    onAuthStateChange:
-        onAuthStateChange,
-
-
-    /*
-     * Logout
-     */
-
-    signOut:
-        signOutSupabase
+    url: SUPABASE_URL,
+    publishableKey: SUPABASE_PUBLISHABLE_KEY,
+    storageKey: SUPABASE_STORAGE_KEY,
+    initialize: initializeSupabase,
+    getClient: getSupabaseClient,
+    getSupabaseClient: getSupabaseClient,
+    getSession: getSupabaseSession,
+    getSupabaseSession: getSupabaseSession,
+    hasActiveSession,
+    getAuthenticatedUserId,
+    getUser: getSupabaseUser,
+    getSupabaseUser,
+    onAuthStateChange,
+    signOut: signOutSupabase,
+    signInWithWeb3Wallet
 };
 
+/* Current signup.html expects this name. */
+window.Web3JobsAuth = {
+    getClient: getSupabaseClient,
+    signInWithWeb3Wallet
+};
 
-/* =========================================================
-   GLOBAL COMPATIBILITY
-   ========================================================= */
+window.getSupabaseClient = getSupabaseClient;
+window.getSupabaseSession = getSupabaseSession;
+window.getSupabaseUser = getSupabaseUser;
+window.hasActiveSupabaseSession = hasActiveSession;
 
-/*
- * Older Web3Jobs files may use:
- *
- * window.supabaseClient
- *
- * Make sure it points to the SAME client.
- */
+loadSupabaseLibrary().then(ready => { if (ready) initializeSupabase(); });
 
-const initialSupabaseClient =
-    initializeSupabase();
-
-
-if (
-    initialSupabaseClient &&
-    typeof initialSupabaseClient.from === "function"
-) {
-
-    window.supabaseClient =
-        initialSupabaseClient;
-}
-
-
-/* =========================================================
-   GLOBAL HELPER FUNCTIONS
-   ========================================================= */
-
-window.getSupabaseClient =
-    getSupabaseClient;
-
-window.getSupabaseSession =
-    getSupabaseSession;
-
-window.getSupabaseUser =
-    getSupabaseUser;
-
-window.hasActiveSupabaseSession =
-    hasActiveSession;
-
-
-/* =========================================================
-   DEBUG INFORMATION
-   ========================================================= */
-
-console.log(
-    "================================================="
-);
-
-console.log(
-    "Web3Jobs Supabase System Loaded"
-);
-
-console.log(
-    "Supabase URL:",
-    SUPABASE_URL
-);
-
-console.log(
-    "Storage Key:",
-    SUPABASE_STORAGE_KEY
-);
-
-console.log(
-    "Single Client:",
-    Boolean(
-        web3jobsSupabaseClient
-    )
-);
-
-console.log(
-    "================================================="
-);
+console.log("Web3Jobs Supabase + Web3 Wallet authentication loaded.");
