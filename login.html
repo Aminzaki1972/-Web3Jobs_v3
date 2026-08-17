@@ -68,7 +68,6 @@
         .logo a {
             color: #ffffff;
             text-decoration: none;
-
             font-size: 30px;
             font-weight: 800;
         }
@@ -106,6 +105,174 @@
             font-size: 14px;
         }
 
+        /* =========================
+           STATUS
+        ========================== */
+
+        .status-message {
+            display: none;
+
+            margin-bottom: 18px;
+
+            padding: 12px;
+
+            border-radius: 9px;
+
+            font-size: 13px;
+
+            line-height: 1.5;
+        }
+
+        .status-message.error {
+            display: block;
+
+            color: #ff8c8c;
+
+            background:
+                rgba(220, 60, 60, 0.10);
+
+            border:
+                1px solid rgba(220, 60, 60, 0.25);
+        }
+
+        .status-message.success {
+            display: block;
+
+            color: #78e0a4;
+
+            background:
+                rgba(40, 180, 100, 0.10);
+
+            border:
+                1px solid rgba(40, 180, 100, 0.25);
+        }
+
+        /* =========================
+           WALLET LOGIN
+        ========================== */
+
+        .wallet-section {
+            margin-bottom: 26px;
+        }
+
+        .wallet-button {
+            width: 100%;
+
+            min-height: 54px;
+
+            border:
+                1px solid #31516d;
+
+            border-radius: 11px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #102b45,
+                    #0a1b2d
+                );
+
+            color: #ffffff;
+
+            font-size: 15px;
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition:
+                background 0.2s ease,
+                border-color 0.2s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .wallet-button:hover {
+            border-color: #3b9cff;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #153a5d,
+                    #0c2238
+                );
+
+            box-shadow:
+                0 10px 25px rgba(59, 156, 255, 0.12);
+        }
+
+        .wallet-button:active {
+            transform: translateY(1px);
+        }
+
+        .wallet-icon {
+            width: 24px;
+            height: 24px;
+
+            border-radius: 6px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #f6851b,
+                    #e2761b
+                );
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 13px;
+            font-weight: 900;
+
+            color: #ffffff;
+        }
+
+        /* =========================
+           DIVIDER
+        ========================== */
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            margin: 4px 0 24px;
+
+            color: #60778d;
+
+            font-size: 12px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+
+            flex: 1;
+
+            height: 1px;
+
+            background:
+                #20384f;
+        }
+
+        /* =========================
+           EMAIL LOGIN
+        ========================== */
+
+        .email-title {
+            font-size: 14px;
+            font-weight: 700;
+
+            color: #dce9f5;
+
+            margin-bottom: 16px;
+        }
+
         .field {
             margin-bottom: 18px;
         }
@@ -125,7 +292,8 @@
             width: 100%;
             height: 48px;
 
-            border: 1px solid #20384f;
+            border:
+                1px solid #20384f;
 
             border-radius: 10px;
 
@@ -133,62 +301,37 @@
 
             color: #ffffff;
 
-            padding: 0 14px;
+            padding:
+                0 14px;
 
             font-size: 14px;
 
             outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         .field input:focus {
             border-color: #3b9cff;
 
             box-shadow:
-                0 0 0 3px rgba(59, 156, 255, 0.10);
+                0 0 0 3px
+                rgba(59, 156, 255, 0.10);
         }
 
         .field input::placeholder {
             color: #60778d;
         }
 
-        .wallet-button {
-            width: 100%;
-            height: 52px;
-
-            border: 1px solid #20384f;
-
-            border-radius: 10px;
-
-            background: #0a1b2d;
-
-            color: #ffffff;
-
-            font-size: 14px;
-            font-weight: 700;
-
-            cursor: pointer;
-
-            transition: 0.2s ease;
-
-            margin-bottom: 24px;
-        }
-
-        .wallet-button:hover {
-            border-color: #3b9cff;
-            background: #0c2035;
-        }
-
-        .email-title {
-            font-size: 14px;
-            font-weight: 700;
-
-            color: #dce9f5;
-
-            margin-bottom: 16px;
-        }
+        /* =========================
+           LOGIN BUTTON
+        ========================== */
 
         .login-button {
             width: 100%;
+
             height: 50px;
 
             border: 0;
@@ -210,17 +353,40 @@
             cursor: pointer;
 
             margin-top: 2px;
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease,
+                opacity 0.2s ease;
         }
 
         .login-button:hover {
             box-shadow:
-                0 10px 25px rgba(36, 140, 255, 0.25);
+                0 10px 25px
+                rgba(36, 140, 255, 0.25);
         }
+
+        .login-button:active {
+            transform: translateY(1px);
+        }
+
+        .login-button:disabled,
+        .wallet-button:disabled {
+            opacity: 0.6;
+
+            cursor: not-allowed;
+
+            box-shadow: none;
+        }
+
+        /* =========================
+           FORGOT PASSWORD
+        ========================== */
 
         .forgot-password {
             text-align: center;
 
-            margin-top: 18px;
+            margin-top: 20px;
         }
 
         .forgot-password a {
@@ -236,48 +402,58 @@
             text-decoration: underline;
         }
 
-        .status-message {
-            display: none;
+        /* =========================
+           REGISTER
+        ========================== */
 
-            margin-bottom: 18px;
+        .register-link {
+            text-align: center;
 
-            padding: 12px;
+            margin-top: 24px;
 
-            border-radius: 9px;
+            padding-top: 20px;
+
+            border-top:
+                1px solid #20384f;
+
+            color: #71869a;
 
             font-size: 13px;
         }
 
-        .status-message.error {
-            display: block;
+        .register-link a {
+            color: #4da3ff;
 
-            color: #ff8c8c;
+            font-weight: 600;
 
-            background: rgba(220, 60, 60, 0.10);
-
-            border:
-                1px solid rgba(220, 60, 60, 0.25);
+            text-decoration: none;
         }
 
-        .status-message.success {
-            display: block;
-
-            color: #78e0a4;
-
-            background: rgba(40, 180, 100, 0.10);
-
-            border:
-                1px solid rgba(40, 180, 100, 0.25);
+        .register-link a:hover {
+            text-decoration: underline;
         }
+
+        /* =========================
+           MOBILE
+        ========================== */
 
         @media (max-width: 500px) {
 
+            body {
+                padding: 14px;
+            }
+
             .login-card {
-                padding: 25px 18px;
+                padding:
+                    25px 18px;
             }
 
             .login-header h1 {
                 font-size: 24px;
+            }
+
+            .logo a {
+                font-size: 27px;
             }
         }
     </style>
@@ -287,21 +463,35 @@
 
     <main class="login-container">
 
+        <!-- Logo -->
+
         <div class="logo">
             <a href="index.html">
                 Web3<span>Jobs</span>
             </a>
         </div>
 
+
+        <!-- Login Card -->
+
         <section class="login-card">
 
+            <!-- Header -->
+
             <div class="login-header">
-                <h1>Login</h1>
+
+                <h1>
+                    Login
+                </h1>
 
                 <p>
                     Login to your Web3Jobs account
                 </p>
+
             </div>
+
+
+            <!-- Status -->
 
             <div
                 id="loginStatus"
@@ -310,27 +500,56 @@
             ></div>
 
 
-            <!-- Wallet Login -->
+            <!-- =========================
+                 WALLET LOGIN
+            ========================== -->
 
-            <button
-                type="button"
-                id="walletLoginButton"
-                class="wallet-button"
-            >
-                Login with Web3 Wallet
-            </button>
+            <div class="wallet-section">
+
+                <button
+                    type="button"
+                    id="walletLoginButton"
+                    class="wallet-button"
+                >
+
+                    <span
+                        class="wallet-icon"
+                        aria-hidden="true"
+                    >
+                        W
+                    </span>
+
+                    <span>
+                        Login with Web3 Wallet
+                    </span>
+
+                </button>
+
+            </div>
 
 
-            <!-- Email Login -->
+            <!-- Divider -->
+
+            <div class="divider">
+                <span>OR</span>
+            </div>
+
+
+            <!-- =========================
+                 EMAIL LOGIN
+            ========================== -->
 
             <div class="email-title">
                 Login with Email
             </div>
 
+
             <form
                 id="loginForm"
                 autocomplete="on"
             >
+
+                <!-- Email -->
 
                 <div class="field">
 
@@ -350,6 +569,8 @@
                 </div>
 
 
+                <!-- Password -->
+
                 <div class="field">
 
                     <label for="password">
@@ -367,6 +588,8 @@
 
                 </div>
 
+
+                <!-- Login -->
 
                 <button
                     type="submit"
@@ -389,13 +612,36 @@
 
             </div>
 
+
+            <!-- Register -->
+
+            <div class="register-link">
+
+                Don't have an account?
+
+                <a href="register.html">
+                    Create an account
+                </a>
+
+            </div>
+
         </section>
 
     </main>
 
 
     <!--
-        auth.js is the only authentication controller.
+        Web3Jobs Authentication
+
+        auth.js is the ONLY authentication controller.
+
+        It handles:
+        - Email Login
+        - Wallet Login
+        - Session
+        - Account Type
+        - Redirect
+        - Logout
     -->
 
     <script src="js/supabase.js"></script>
@@ -403,4 +649,4 @@
 
 </body>
 
-</html>
+                        </html>
