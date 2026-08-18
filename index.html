@@ -44,7 +44,10 @@ a { color: inherit; text-decoration: none; }
 button, input, select { font: inherit; }
 button { cursor: pointer; }
 
-.container { width: min(var(--max-width), 92%); margin: auto; }
+.container {
+    width: min(var(--max-width), 92%);
+    margin: auto;
+}
 
 /* HEADER */
 
@@ -97,7 +100,9 @@ nav a {
     font-weight: 650;
 }
 
-nav a:hover { color: var(--accent); }
+nav a:hover {
+    color: var(--accent);
+}
 
 .nav-buttons {
     display: flex;
@@ -121,7 +126,9 @@ nav a:hover { color: var(--accent); }
     transition: .2s;
 }
 
-.btn:hover { transform: translateY(-2px); }
+.btn:hover {
+    transform: translateY(-2px);
+}
 
 .btn-primary {
     background: var(--accent);
@@ -239,12 +246,14 @@ nav a:hover { color: var(--accent); }
     font-size: 13px;
 }
 
+/* VIDEO PLAYER */
+
 .platform-video {
     display: block;
     width: 100%;
     max-height: 560px;
     aspect-ratio: 16 / 9;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 14px;
     background: #020810;
     border: 1px solid #1d3553;
@@ -279,11 +288,15 @@ nav a:hover { color: var(--accent); }
 }
 
 .search-box input:focus,
-.search-box select:focus { border-color: var(--blue); }
+.search-box select:focus {
+    border-color: var(--blue);
+}
 
 /* JOBS */
 
-.jobs-section { padding: 30px 0 90px; }
+.jobs-section {
+    padding: 30px 0 90px;
+}
 
 .section-heading {
     max-width: 720px;
@@ -330,8 +343,16 @@ nav a:hover { color: var(--accent); }
     border-color: #355979;
 }
 
-.job-card h3 { margin-bottom: 6px; font-size: 18px; }
-.job-company { color: var(--accent); font-size: 13px; font-weight: 700; }
+.job-card h3 {
+    margin-bottom: 6px;
+    font-size: 18px;
+}
+
+.job-company {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+}
 
 .job-meta {
     display: flex;
@@ -359,7 +380,9 @@ nav a:hover { color: var(--accent); }
     overflow: hidden;
 }
 
-.job-card-actions { margin-top: 18px; }
+.job-card-actions {
+    margin-top: 18px;
+}
 
 .job-view-button {
     width: 100%;
@@ -380,12 +403,20 @@ nav a:hover { color: var(--accent); }
     background: rgba(13, 27, 46, .6);
 }
 
-.no-jobs h3 { margin-bottom: 8px; }
-.no-jobs p { color: var(--muted); font-size: 13px; }
+.no-jobs h3 {
+    margin-bottom: 8px;
+}
+
+.no-jobs p {
+    color: var(--muted);
+    font-size: 13px;
+}
 
 /* FEATURES */
 
-.section { padding: 90px 0; }
+.section {
+    padding: 90px 0;
+}
 
 .features-grid {
     display: grid;
@@ -412,7 +443,10 @@ nav a:hover { color: var(--accent); }
     font-size: 22px;
 }
 
-.feature-card h3 { margin-bottom: 8px; font-size: 18px; }
+.feature-card h3 {
+    margin-bottom: 8px;
+    font-size: 18px;
+}
 
 .feature-card p {
     color: var(--muted);
@@ -442,7 +476,10 @@ nav a:hover { color: var(--accent); }
     font-size: 30px;
 }
 
-.stat span { color: var(--muted); font-size: 11px; }
+.stat span {
+    color: var(--muted);
+    font-size: 11px;
+}
 
 /* ROADMAP */
 
@@ -479,8 +516,13 @@ nav a:hover { color: var(--accent); }
     min-height: 190px;
 }
 
-.roadmap-step:nth-child(odd) { text-align: right; }
-.roadmap-step:nth-child(even) { text-align: left; }
+.roadmap-step:nth-child(odd) {
+    text-align: right;
+}
+
+.roadmap-step:nth-child(even) {
+    text-align: left;
+}
 
 .roadmap-number {
     position: absolute;
@@ -513,8 +555,13 @@ nav a:hover { color: var(--accent); }
     background: rgba(13, 27, 46, .88);
 }
 
-.roadmap-step:nth-child(odd) .roadmap-content { grid-column: 1; }
-.roadmap-step:nth-child(even) .roadmap-content { grid-column: 2; }
+.roadmap-step:nth-child(odd) .roadmap-content {
+    grid-column: 1;
+}
+
+.roadmap-step:nth-child(even) .roadmap-content {
+    grid-column: 2;
+}
 
 .roadmap-status {
     display: inline-block;
@@ -527,8 +574,14 @@ nav a:hover { color: var(--accent); }
     font-weight: 850;
 }
 
-.roadmap-step.active .roadmap-status { color: var(--accent); }
-.roadmap-content h3 { margin-bottom: 8px; font-size: 18px; }
+.roadmap-step.active .roadmap-status {
+    color: var(--accent);
+}
+
+.roadmap-content h3 {
+    margin-bottom: 8px;
+    font-size: 18px;
+}
 
 .roadmap-content p {
     color: var(--muted);
@@ -543,7 +596,9 @@ nav a:hover { color: var(--accent); }
     margin-top: 14px;
 }
 
-.roadmap-step:nth-child(odd) .roadmap-tags { justify-content: flex-end; }
+.roadmap-step:nth-child(odd) .roadmap-tags {
+    justify-content: flex-end;
+}
 
 .roadmap-tags span {
     padding: 4px 7px;
@@ -556,7 +611,10 @@ nav a:hover { color: var(--accent); }
 
 /* CTA */
 
-.cta { padding: 100px 0; text-align: center; }
+.cta {
+    padding: 100px 0;
+    text-align: center;
+}
 
 .cta-box {
     padding: 55px 25px;
@@ -627,7 +685,10 @@ footer {
     gap: 20px;
 }
 
-.footer-text { color: #71869e; font-size: 11px; }
+.footer-text {
+    color: #71869e;
+    font-size: 11px;
+}
 
 .footer-links {
     display: flex;
@@ -635,52 +696,88 @@ footer {
     flex-wrap: wrap;
 }
 
-.footer-links a { color: #9db0c8; font-size: 11px; }
+.footer-links a {
+    color: #9db0c8;
+    font-size: 11px;
+}
 
 /* MOBILE */
 
 @media (max-width: 900px) {
 
-    nav { display: none; }
+    nav {
+        display: none;
+    }
 
-    .features-grid { grid-template-columns: repeat(2, 1fr); }
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-    .search-box { grid-template-columns: 1fr 1fr; }
+    .search-box {
+        grid-template-columns: 1fr 1fr;
+    }
 
-    .search-box .btn { grid-column: 1 / -1; }
+    .search-box .btn {
+        grid-column: 1 / -1;
+    }
 
-    #jobs-list { grid-template-columns: repeat(2, 1fr); }
+    #jobs-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
-    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 760px) {
 
-    .hero { padding: 75px 0 70px; }
+    .hero {
+        padding: 75px 0 70px;
+    }
 
-    .video-section { padding-bottom: 50px; }
+    .video-section {
+        padding-bottom: 50px;
+    }
 
-    .video-card { padding: 9px; border-radius: 17px; }
+    .video-card {
+        padding: 9px;
+        border-radius: 17px;
+    }
 
-    .video-heading { padding: 8px 8px 15px; }
+    .video-heading {
+        padding: 8px 8px 15px;
+    }
 
-    .platform-video { border-radius: 10px; }
+    .platform-video {
+        border-radius: 10px;
+    }
 
     .search-box {
         grid-template-columns: 1fr;
         margin-top: -10px;
     }
 
-    .search-box .btn { grid-column: auto; }
+    .search-box .btn {
+        grid-column: auto;
+    }
 
     .features-grid,
-    #jobs-list { grid-template-columns: 1fr; }
+    #jobs-list {
+        grid-template-columns: 1fr;
+    }
 
-    .roadmap { padding: 70px 0; }
+    .roadmap {
+        padding: 70px 0;
+    }
 
-    .roadmap-timeline { padding-left: 30px; }
+    .roadmap-timeline {
+        padding-left: 30px;
+    }
 
-    .roadmap-timeline::before { left: 10px; }
+    .roadmap-timeline::before {
+        left: 10px;
+    }
 
     .roadmap-step {
         display: block;
@@ -695,12 +792,18 @@ footer {
         height: 40px;
     }
 
-    .roadmap-content { margin-left: 25px; }
+    .roadmap-content {
+        margin-left: 25px;
+    }
 
     .roadmap-step:nth-child(odd) .roadmap-content,
-    .roadmap-step:nth-child(even) .roadmap-content { grid-column: auto; }
+    .roadmap-step:nth-child(even) .roadmap-content {
+        grid-column: auto;
+    }
 
-    .roadmap-step:nth-child(odd) .roadmap-tags { justify-content: flex-start; }
+    .roadmap-step:nth-child(odd) .roadmap-tags {
+        justify-content: flex-start;
+    }
 
     .footer-inner {
         flex-direction: column;
@@ -710,21 +813,27 @@ footer {
 
 @media (max-width: 500px) {
 
-    .header-inner { min-height: 64px; }
+    .header-inner {
+        min-height: 64px;
+    }
 
     .brand-logo-image {
         width: 40px;
         height: 40px;
     }
 
-    .brand { font-size: 18px; }
+    .brand {
+        font-size: 18px;
+    }
 
     .nav-buttons .btn {
         padding: 9px 11px;
         font-size: 11px;
     }
 
-    .stats { grid-template-columns: 1fr; }
+    .stats {
+        grid-template-columns: 1fr;
+    }
 }
 
 </style>
@@ -831,14 +940,16 @@ footer {
 
 </div>
 
+<!-- VIDEO -->
+
 <video
     class="platform-video"
     controls
     preload="metadata"
     playsinline
-    poster=""
+    width="100%"
 >
-    <source src="1000170530.mp4" type="video/mp4">
+    <source src="./1000170530.mp4" type="video/mp4">
     Your browser does not support HTML5 video.
 </video>
 
@@ -1310,4 +1421,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
 </body>
 
-</html>
+    </html>
