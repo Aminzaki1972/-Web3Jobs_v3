@@ -1,89 +1,37 @@
+"use strict";
+
 /* =========================================================
    Web3Jobs v3
    File: js/profile.js
-
-   Individual Profile Management
-   ---------------------------------------------------------
-   - Uses central Supabase client
-   - Uses central Web3JobsAuth
-   - Loads current authenticated user
-   - Loads profile from profiles table
-   - Updates ONLY allowed profile fields
-   - Does NOT allow changing:
-       id
-       email
-       account_type
-       role
-       created_at
+   Individual Profile
    ========================================================= */
 
-"use strict";
+let currentUser = null;
+let currentProfile = null;
 
 
 /* =========================================================
-   STATE
+   GET SUPABASE CLIENT
    ========================================================= */
 
-const ProfileSystem = {
-
-    user: null,
-
-    profile: null,
-
-    initialized: false
-
-};
-
-
-/* =========================================================
-   SUPABASE CLIENT
-   ========================================================= */
-
-function getProfileSupabase() {
+function getProfileClient() {
 
     if (
         window.Web3JobsSupabase &&
-        typeof
-            window.Web3JobsSupabase.getClient
-            === "function"
+        typeof window.Web3JobsSupabase.getClient === "function"
     ) {
-
-        const client =
-            window.Web3JobsSupabase.getClient();
-
-        if (client) {
-            return client;
-        }
+        return window.Web3JobsSupabase.getClient();
     }
 
-
     if (
-        window.Web3JobsSupabase &&
-        typeof
-            window.Web3JobsSupabase.getSupabaseClient
-            === "function"
+        window.supabaseClient &&
+        typeof window.supabaseClient.from === "function"
     ) {
-
-        const client =
-            window.Web3JobsSupabase
-                .getSupabaseClient();
-
-        if (client) {
-            return client;
-        }
-    }
-
-
-    if (
-        window.supabaseClient
-    ) {
-
         return window.supabaseClient;
     }
 
-
     console.error(
-        "Web3Jobs Profile: Supabase client unavailable."
+        "Web3Jobs Profile: Supabase client not available."
     );
 
     return null;
@@ -94,29 +42,18 @@ function getProfileSupabase() {
    MESSAGE
    ========================================================= */
 
-function showProfileMessage(
-    message,
-    type = "info"
-) {
+function showMessage(message, type) {
 
     const box =
-        document.getElementById(
-            "profile-message"
-        );
+        document.getElementById("profile-message");
 
+    if (!box) return;
 
-    if (!box) {
-        return;
-    }
-
-
-    box.textContent =
-        message;
-
+    box.textContent = message;
 
     box.className =
         "profile-message " +
-        type;
+        (type || "info");
 }
 
 
@@ -124,90 +61,44 @@ function showProfileMessage(
    GET CURRENT USER
    ========================================================= */
 
-async function getProfileUser() {
+async function getCurrentProfileUser() {
 
-    /* -----------------------------------------------------
-       Prefer central authentication system
-    ----------------------------------------------------- */
+    const client =
+        getProfileClient();
 
-    if (
-        window.Web3JobsAuth &&
-        typeof
-            window.Web3JobsAuth.getCurrentUser
-            === "function"
-    ) {
-
-        try {
-
-            const user =
-                await window.Web3JobsAuth
-                    .getCurrentUser();
-
-            ProfileSystem.user =
-                user || null;
-
-            return ProfileSystem.user;
-
-        } catch (error) {
-
-            console.error(
-                "Profile getCurrentUser error:",
-                error
-            );
-        }
+    if (!client) {
+        throw new Error(
+            "Supabase client is not available."
+        );
     }
 
 
-    /* -----------------------------------------------------
-       Fallback to Supabase
-    ----------------------------------------------------- */
-
-    const supabase =
-        getProfileSupabase();
+    const {
+        data,
+        error
+    } = await client.auth.getUser();
 
 
-    if (!supabase) {
-        return null;
-    }
-
-
-    try {
-
-        const {
-            data,
-            error
-        } =
-            await supabase
-                .auth
-                .getUser();
-
-
-        if (error) {
-
-            console.error(
-                "Profile getUser error:",
-                error
-            );
-
-            return null;
-        }
-
-
-        ProfileSystem.user =
-            data?.user || null;
-
-
-        return ProfileSystem.user;
-
-    } catch (error) {
+    if (error) {
 
         console.error(
-            "Profile getUser exception:",
+            "Supabase getUser error:",
             error
         );
 
-        return null;
+        throw error;
     }
+
+
+    if (!data || !data.user) {
+
+        throw new Error(
+            "No authenticated user found."
+        );
+    }
+
+
+    return data.user;
 }
 
 
@@ -215,100 +106,86 @@ async function getProfileUser() {
    LOAD PROFILE
    ========================================================= */
 
-async function loadProfile() {
+async function loadUserProfile() {
 
-    const supabase =
-        getProfileSupabase();
+    const client =
+        getProfileClient();
 
-
-    if (
-        !supabase ||
-        !ProfileSystem.user
-    ) {
-
-        return null;
+    if (!client) {
+        throw new Error(
+            "Supabase client is not available."
+        );
     }
 
 
-    try {
+    if (!currentUser || !currentUser.id) {
 
-        const {
-            data,
-            error
-        } =
-            await supabase
-
-                .from("profiles")
-
-                .select(
-                    [
-                        "id",
-                        "email",
-                        "full_name",
-                        "account_type",
-                        "avatar_url",
-                        "bio",
-                        "location",
-                        "website",
-                        "created_at",
-                        "updated_at",
-                        "role"
-                    ].join(",")
-                )
-
-                .eq(
-                    "id",
-                    ProfileSystem.user.id
-                )
-
-                .maybeSingle();
+        throw new Error(
+            "User ID is missing."
+        );
+    }
 
 
-        if (error) {
-
-            console.error(
-                "Profile loading error:",
-                error
-            );
-
-            return null;
-        }
+    console.log(
+        "Web3Jobs Profile: loading profile for:",
+        currentUser.id
+    );
 
 
-        ProfileSystem.profile =
-            data || null;
+    const {
+        data,
+        error
+    } = await client
+
+        .from("profiles")
+
+        .select(
+            "id,email,full_name,account_type,avatar_url,bio,location,website,created_at,updated_at,role"
+        )
+
+        .eq(
+            "id",
+            currentUser.id
+        )
+
+        .maybeSingle();
 
 
-        return ProfileSystem.profile;
-
-    } catch (error) {
+    if (error) {
 
         console.error(
-            "Profile loading exception:",
+            "Supabase profile error:",
             error
         );
 
-        return null;
+        throw error;
     }
+
+
+    if (!data) {
+
+        throw new Error(
+            "Profile record was not found."
+        );
+    }
+
+
+    currentProfile =
+        data;
+
+
+    return data;
 }
 
 
 /* =========================================================
-   LOAD FORM
+   DISPLAY PROFILE
    ========================================================= */
 
-function populateProfileForm() {
-
-    const profile =
-        ProfileSystem.profile;
+function displayProfile(profile) {
 
     const user =
-        ProfileSystem.user;
-
-
-    if (!profile) {
-        return;
-    }
+        currentUser;
 
 
     const fullName =
@@ -347,10 +224,6 @@ function populateProfileForm() {
         );
 
 
-    /* -----------------------------------------------------
-       FULL NAME
-    ----------------------------------------------------- */
-
     if (fullName) {
 
         fullName.value =
@@ -359,10 +232,6 @@ function populateProfileForm() {
             "";
     }
 
-
-    /* -----------------------------------------------------
-       EMAIL
-    ----------------------------------------------------- */
 
     if (email) {
 
@@ -373,10 +242,6 @@ function populateProfileForm() {
     }
 
 
-    /* -----------------------------------------------------
-       AVATAR
-    ----------------------------------------------------- */
-
     if (avatarUrl) {
 
         avatarUrl.value =
@@ -384,10 +249,6 @@ function populateProfileForm() {
             "";
     }
 
-
-    /* -----------------------------------------------------
-       LOCATION
-    ----------------------------------------------------- */
 
     if (location) {
 
@@ -397,10 +258,6 @@ function populateProfileForm() {
     }
 
 
-    /* -----------------------------------------------------
-       WEBSITE
-    ----------------------------------------------------- */
-
     if (website) {
 
         website.value =
@@ -408,10 +265,6 @@ function populateProfileForm() {
             "";
     }
 
-
-    /* -----------------------------------------------------
-       BIO
-    ----------------------------------------------------- */
 
     if (bio) {
 
@@ -421,85 +274,63 @@ function populateProfileForm() {
     }
 
 
-    /* -----------------------------------------------------
-       ACCOUNT TYPE
-    ----------------------------------------------------- */
-
     if (accountType) {
 
         accountType.value =
             profile.account_type ||
-            profile.role ||
             "individual";
     }
 
 
-    updateAvatarPreview(
+    updateAvatar(
         profile.avatar_url,
-        profile.full_name ||
-        user?.user_metadata?.full_name
+        profile.full_name
     );
 }
 
 
 /* =========================================================
-   AVATAR PREVIEW
+   AVATAR
    ========================================================= */
 
-function updateAvatarPreview(
-    url,
-    name
-) {
+function updateAvatar(url, name) {
 
     const preview =
         document.getElementById(
             "avatar-preview"
         );
 
-
-    if (!preview) {
-        return;
-    }
+    if (!preview) return;
 
 
-    preview.innerHTML =
-        "";
+    preview.innerHTML = "";
 
 
-    const cleanUrl =
-        String(
-            url || ""
-        ).trim();
+    if (
+        url &&
+        String(url).trim()
+    ) {
 
-
-    if (cleanUrl) {
-
-        const image =
+        const img =
             document.createElement(
                 "img"
             );
 
+        img.src =
+            String(url).trim();
 
-        image.src =
-            cleanUrl;
-
-
-        image.alt =
+        img.alt =
             "Profile image";
 
-
-        image.onerror =
+        img.onerror =
             function () {
 
-                preview.innerHTML =
-                    getInitial(
-                        name
-                    );
+                preview.textContent =
+                    getInitial(name);
             };
 
-
         preview.appendChild(
-            image
+            img
         );
 
         return;
@@ -507,30 +338,18 @@ function updateAvatarPreview(
 
 
     preview.textContent =
-        getInitial(
-            name
-        );
+        getInitial(name);
 }
 
 
-/* =========================================================
-   INITIAL
-   ========================================================= */
-
-function getInitial(
-    name
-) {
+function getInitial(name) {
 
     const value =
-        String(
-            name || ""
-        ).trim();
-
+        String(name || "").trim();
 
     if (!value) {
         return "?";
     }
-
 
     return value
         .charAt(0)
@@ -539,62 +358,20 @@ function getInitial(
 
 
 /* =========================================================
-   VALIDATE URL
-   ========================================================= */
-
-function validateOptionalUrl(
-    value
-) {
-
-    const url =
-        String(
-            value || ""
-        ).trim();
-
-
-    if (!url) {
-        return true;
-    }
-
-
-    try {
-
-        const parsed =
-            new URL(
-                url
-            );
-
-
-        return (
-            parsed.protocol === "http:" ||
-            parsed.protocol === "https:"
-        );
-
-    } catch (error) {
-
-        return false;
-    }
-}
-
-
-/* =========================================================
    SAVE PROFILE
    ========================================================= */
 
-async function saveProfile(
-    event
-) {
+async function handleProfileSave(event) {
 
     event.preventDefault();
 
 
-    const supabase =
-        getProfileSupabase();
+    const client =
+        getProfileClient();
 
+    if (!client) {
 
-    if (!supabase) {
-
-        showProfileMessage(
+        showMessage(
             "Supabase connection is unavailable.",
             "error"
         );
@@ -603,10 +380,10 @@ async function saveProfile(
     }
 
 
-    if (!ProfileSystem.user) {
+    if (!currentUser) {
 
-        showProfileMessage(
-            "Your session has expired. Please log in again.",
+        showMessage(
+            "You are not logged in.",
             "error"
         );
 
@@ -614,85 +391,48 @@ async function saveProfile(
     }
 
 
-    /* -----------------------------------------------------
-       FORM VALUES
-    ----------------------------------------------------- */
-
     const fullName =
         document
-            .getElementById(
-                "full-name"
-            )
+            .getElementById("full-name")
             ?.value
             .trim() || "";
 
 
     const avatarUrl =
         document
-            .getElementById(
-                "avatar-url"
-            )
+            .getElementById("avatar-url")
             ?.value
             .trim() || "";
 
 
     const location =
         document
-            .getElementById(
-                "location"
-            )
+            .getElementById("location")
             ?.value
             .trim() || "";
 
 
     const website =
         document
-            .getElementById(
-                "website"
-            )
+            .getElementById("website")
             ?.value
             .trim() || "";
 
 
     const bio =
         document
-            .getElementById(
-                "bio"
-            )
+            .getElementById("bio")
             ?.value
             .trim() || "";
 
 
-    /* -----------------------------------------------------
-       VALIDATION
-    ----------------------------------------------------- */
+    if (
+        avatarUrl &&
+        !isValidUrl(avatarUrl)
+    ) {
 
-    if (fullName.length > 100) {
-
-        showProfileMessage(
-            "Full name is too long.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (location.length > 150) {
-
-        showProfileMessage(
-            "Location is too long.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (bio.length > 1000) {
-
-        showProfileMessage(
-            "Bio is too long.",
+        showMessage(
+            "Please enter a valid image URL.",
             "error"
         );
 
@@ -701,27 +441,11 @@ async function saveProfile(
 
 
     if (
-        !validateOptionalUrl(
-            avatarUrl
-        )
+        website &&
+        !isValidUrl(website)
     ) {
 
-        showProfileMessage(
-            "Please enter a valid profile image URL.",
-            "error"
-        );
-
-        return;
-    }
-
-
-    if (
-        !validateOptionalUrl(
-            website
-        )
-    ) {
-
-        showProfileMessage(
+        showMessage(
             "Please enter a valid website URL.",
             "error"
         );
@@ -730,94 +454,82 @@ async function saveProfile(
     }
 
 
-    /* -----------------------------------------------------
-       BUTTON
-    ----------------------------------------------------- */
-
-    const saveButton =
+    const button =
         document.getElementById(
             "save-button"
         );
 
 
-    if (saveButton) {
+    if (button) {
 
-        saveButton.disabled =
+        button.disabled =
             true;
 
-        saveButton.textContent =
+        button.textContent =
             "Saving...";
     }
 
 
-    showProfileMessage(
+    showMessage(
         "Saving your profile...",
         "info"
     );
 
 
-    /* -----------------------------------------------------
-       UPDATE
-       IMPORTANT:
-       Only allowed fields are updated.
-       id/account_type/role/email are NOT updated.
-    ----------------------------------------------------- */
-
     try {
+
+        /*
+         * IMPORTANT:
+         * We intentionally update ONLY these fields.
+         *
+         * We do NOT update:
+         * id
+         * email
+         * account_type
+         * role
+         * created_at
+         */
 
         const {
             data,
             error
-        } =
-            await supabase
+        } = await client
 
-                .from("profiles")
+            .from("profiles")
 
-                .update({
+            .update({
 
-                    full_name:
-                        fullName || null,
+                full_name:
+                    fullName || null,
 
-                    avatar_url:
-                        avatarUrl || null,
+                avatar_url:
+                    avatarUrl || null,
 
-                    bio:
-                        bio || null,
+                bio:
+                    bio || null,
 
-                    location:
-                        location || null,
+                location:
+                    location || null,
 
-                    website:
-                        website || null,
+                website:
+                    website || null,
 
-                    updated_at:
-                        new Date()
-                            .toISOString()
+                updated_at:
+                    new Date()
+                        .toISOString()
 
-                })
+            })
 
-                .eq(
-                    "id",
-                    ProfileSystem.user.id
-                )
+            .eq(
+                "id",
+                currentUser.id
+            )
 
-                .select(
-                    [
-                        "id",
-                        "email",
-                        "full_name",
-                        "account_type",
-                        "avatar_url",
-                        "bio",
-                        "location",
-                        "website",
-                        "created_at",
-                        "updated_at",
-                        "role"
-                    ].join(",")
-                )
+            .select(
+                "id,email,full_name,account_type,avatar_url,bio,location,website,created_at,updated_at,role"
+            )
 
-                .maybeSingle();
+            .maybeSingle();
 
 
         if (error) {
@@ -827,56 +539,53 @@ async function saveProfile(
                 error
             );
 
-
-            showProfileMessage(
-                "Unable to save your profile: " +
+            showMessage(
+                "Unable to save profile: " +
                 error.message,
                 "error"
             );
-
 
             return;
         }
 
 
-        ProfileSystem.profile =
-            data ||
-            ProfileSystem.profile;
+        currentProfile =
+            data;
 
 
-        /* -------------------------------------------------
-           Update local Auth metadata name if possible
-           ------------------------------------------------- */
+        /*
+         * Also update Auth metadata name.
+         * This is not required for the database update,
+         * but keeps the dashboard name synchronized.
+         */
 
         try {
 
-            await supabase
-                .auth
-                .updateUser({
+            await client.auth.updateUser({
 
-                    data: {
-                        full_name:
-                            fullName
-                    }
+                data: {
+                    full_name:
+                        fullName
+                }
 
-                });
+            });
 
         } catch (metadataError) {
 
             console.warn(
-                "Auth metadata update skipped:",
+                "Auth metadata update warning:",
                 metadataError
             );
         }
 
 
-        updateAvatarPreview(
+        updateAvatar(
             avatarUrl,
             fullName
         );
 
 
-        showProfileMessage(
+        showMessage(
             "Profile saved successfully.",
             "success"
         );
@@ -889,21 +598,20 @@ async function saveProfile(
             error
         );
 
-
-        showProfileMessage(
-            "An unexpected error occurred while saving your profile.",
+        showMessage(
+            "An unexpected error occurred.",
             "error"
         );
 
 
     } finally {
 
-        if (saveButton) {
+        if (button) {
 
-            saveButton.disabled =
+            button.disabled =
                 false;
 
-            saveButton.textContent =
+            button.textContent =
                 "Save Profile";
         }
     }
@@ -911,10 +619,33 @@ async function saveProfile(
 
 
 /* =========================================================
-   BACK TO DASHBOARD
+   URL VALIDATION
    ========================================================= */
 
-function goBackToDashboard() {
+function isValidUrl(value) {
+
+    try {
+
+        const url =
+            new URL(value);
+
+        return (
+            url.protocol === "http:" ||
+            url.protocol === "https:"
+        );
+
+    } catch (error) {
+
+        return false;
+    }
+}
+
+
+/* =========================================================
+   BACK
+   ========================================================= */
+
+function backToDashboard() {
 
     window.location.href =
         "dashboard.html";
@@ -925,88 +656,64 @@ function goBackToDashboard() {
    INITIALIZE
    ========================================================= */
 
-async function initializeProfilePage() {
+async function initializeProfile() {
 
-    if (
-        ProfileSystem.initialized
-    ) {
-        return;
-    }
-
-
-    ProfileSystem.initialized =
-        true;
+    console.log(
+        "Web3Jobs Profile: initializing..."
+    );
 
 
     try {
 
-        /* -------------------------------------------------
-           Get authenticated user
-        ------------------------------------------------- */
+        /*
+         * Step 1
+         * Get authenticated user
+         */
 
-        const user =
-            await getProfileUser();
-
-
-        if (!user) {
-
-            showProfileMessage(
-                "Please log in to edit your profile.",
-                "error"
-            );
+        currentUser =
+            await getCurrentProfileUser();
 
 
-            setTimeout(
-                function () {
-
-                    window.location.href =
-                        "login.html";
-
-                },
-                1200
-            );
+        console.log(
+            "Web3Jobs Profile: user found:",
+            currentUser.id
+        );
 
 
-            return;
-        }
-
-
-        /* -------------------------------------------------
-           Load profile
-        ------------------------------------------------- */
+        /*
+         * Step 2
+         * Load profile
+         */
 
         const profile =
-            await loadProfile();
+            await loadUserProfile();
 
 
-        if (!profile) {
-
-            showProfileMessage(
-                "Your profile could not be found.",
-                "error"
-            );
+        console.log(
+            "Web3Jobs Profile: profile loaded:",
+            profile
+        );
 
 
-            return;
-        }
+        /*
+         * Step 3
+         * Fill form
+         */
+
+        displayProfile(
+            profile
+        );
 
 
-        /* -------------------------------------------------
-           Populate
-        ------------------------------------------------- */
-
-        populateProfileForm();
-
-
-        /* -------------------------------------------------
-           Show form
-        ------------------------------------------------- */
+        /*
+         * Step 4
+         * Show form
+         */
 
         const loading =
             document.getElementById(
                 "profile-loading"
             );
-
 
         const form =
             document.getElementById(
@@ -1031,21 +738,35 @@ async function initializeProfilePage() {
     } catch (error) {
 
         console.error(
-            "Profile initialization error:",
+            "Web3Jobs Profile initialization failed:",
             error
         );
 
 
-        showProfileMessage(
+        showMessage(
+            error.message ||
             "Unable to load your profile.",
             "error"
         );
+
+
+        const loading =
+            document.getElementById(
+                "profile-loading"
+            );
+
+
+        if (loading) {
+
+            loading.style.display =
+                "none";
+        }
     }
 }
 
 
 /* =========================================================
-   EVENT LISTENERS
+   EVENTS
    ========================================================= */
 
 document.addEventListener(
@@ -1062,35 +783,35 @@ document.addEventListener(
 
             form.addEventListener(
                 "submit",
-                saveProfile
+                handleProfileSave
             );
         }
 
 
-        const backButton =
+        const back =
             document.getElementById(
                 "back-button"
             );
 
 
-        if (backButton) {
+        if (back) {
 
-            backButton.addEventListener(
+            back.addEventListener(
                 "click",
-                goBackToDashboard
+                backToDashboard
             );
         }
 
 
-        const avatarInput =
+        const avatar =
             document.getElementById(
                 "avatar-url"
             );
 
 
-        if (avatarInput) {
+        if (avatar) {
 
-            avatarInput.addEventListener(
+            avatar.addEventListener(
                 "input",
                 function () {
 
@@ -1099,4 +820,17 @@ document.addEventListener(
                             .getElementById(
                                 "full-name"
                             )
-                            ?.v
+                            ?.value || "";
+
+                    updateAvatar(
+                        avatar.value,
+                        name
+                    );
+                }
+            );
+        }
+
+
+        initializeProfile();
+    }
+);
