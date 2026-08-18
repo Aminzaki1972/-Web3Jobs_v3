@@ -1,31 +1,25 @@
 "use strict";
 
 /* Web3Jobs - Company Profile Editor */
-
 (function () {
-
     let client = null;
     let currentUser = null;
     let currentCompany = null;
 
     function getClient() {
         if (client) return client;
-
         if (window.Web3JobsSupabase && typeof window.Web3JobsSupabase.getClient === "function") {
             client = window.Web3JobsSupabase.getClient();
             return client;
         }
-
         if (window.__web3jobsSupabase && typeof window.__web3jobsSupabase.from === "function") {
             client = window.__web3jobsSupabase;
             return client;
         }
-
         if (window.supabaseClient && typeof window.supabaseClient.from === "function") {
             client = window.supabaseClient;
             return client;
         }
-
         return null;
     }
 
@@ -55,18 +49,14 @@
         const preview = document.getElementById("logo-preview");
         if (!preview) return;
         preview.innerHTML = "";
-
         if (url) {
             const img = document.createElement("img");
             img.src = url;
             img.alt = "Company logo";
-            img.onerror = function () {
-                preview.textContent = initial(name);
-            };
+            img.onerror = function () { preview.textContent = initial(name); };
             preview.appendChild(img);
             return;
         }
-
         preview.textContent = initial(name);
     }
 
@@ -78,14 +68,12 @@
     async function getUser() {
         const sb = getClient();
         if (!sb || !sb.auth) throw new Error("Supabase connection is not initialized.");
-
         const { data, error } = await sb.auth.getUser();
         if (error) throw error;
         if (!data?.user) {
             window.location.href = "login.html";
             return null;
         }
-
         currentUser = data.user;
         return currentUser;
     }
@@ -93,16 +81,13 @@
     async function loadCompany() {
         const sb = getClient();
         if (!sb || !currentUser) throw new Error("Supabase connection is not initialized.");
-
         const { data, error } = await sb
             .from("company_profiles")
             .select("id,user_id,company_name,website,logo_url,description,industry,location,wallet_address,created_at,updated_at")
             .eq("user_id", currentUser.id)
             .maybeSingle();
-
         if (error) throw error;
         currentCompany = data || null;
-
         setValue("company-name", currentCompany?.company_name || currentUser.user_metadata?.company_name || currentUser.user_metadata?.name || "");
         setValue("industry", currentCompany?.industry);
         setValue("location", currentCompany?.location);
@@ -110,13 +95,22 @@
         setValue("logo-url", currentCompany?.logo_url);
         setValue("description", currentCompany?.description);
         setValue("wallet-address", currentCompany?.wallet_address);
-
         updateLogo(currentCompany?.logo_url, currentCompany?.company_name);
+    }
+
+    async function syncDashboardProfile(sb, companyName) {
+        const { error } = await sb
+            .from("profiles")
+            .update({
+                full_name: companyName,
+                updated_at: new Date().toISOString()
+            })
+            .eq("id", currentUser.id);
+        if (error) throw error;
     }
 
     async function saveCompany(event) {
         event.preventDefault();
-
         const sb = getClient();
         if (!sb || !currentUser) {
             message("You are not logged in.", "error");
@@ -134,12 +128,10 @@
             message("Company name is required.", "error");
             return;
         }
-
         if (!validUrl(website)) {
             message("Please enter a valid website URL.", "error");
             return;
         }
-
         if (!validUrl(logoUrl)) {
             message("Please enter a valid logo URL.", "error");
             return;
@@ -150,7 +142,6 @@
             button.disabled = true;
             button.textContent = "Saving...";
         }
-
         message("Saving company profile...", "info");
 
         const payload = {
@@ -167,7 +158,6 @@
 
         try {
             let result;
-
             if (currentCompany?.id) {
                 result = await sb
                     .from("company_profiles")
@@ -183,10 +173,13 @@
                     .select("*")
                     .single();
             }
-
             if (result.error) throw result.error;
 
             currentCompany = result.data;
+
+            /* Keep the existing profiles-based company dashboard name synchronized. */
+            await syncDashboardProfile(sb, companyName);
+
             updateLogo(logoUrl, companyName);
 
             try {
@@ -220,9 +213,7 @@
         const name = document.getElementById("company-name");
 
         if (form) form.addEventListener("submit", saveCompany);
-        if (back) back.addEventListener("click", () => {
-            window.location.href = "company-dashboard.html";
-        });
+        if (back) back.addEventListener("click", () => { window.location.href = "company-dashboard.html"; });
         if (logo) logo.addEventListener("input", () => updateLogo(logo.value.trim(), name?.value));
         if (name) name.addEventListener("input", () => updateLogo(logo?.value.trim(), name.value));
 
