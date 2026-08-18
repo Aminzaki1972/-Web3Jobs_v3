@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Edit your Web3Jobs profile."
+    >
+
+    <meta
+        name="theme-color"
+        content="#06101d"
+    >
+
+    <title>Edit Profile | Web3Jobs</title>
+
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100%;
+        }
+
+
+        body {
+
+            font-family:
+                Inter,
+                system-ui,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                sans-serif;
+
+            background:
+                radial-gradient(
+                    circle at top,
+                    #10263d 0%,
+                    #06101d 48%,
+                    #030912 100%
+                );
+
+            color: #f8fafc;
+
+            min-height: 100vh;
+
+            padding: 30px 16px;
+        }
+
+
+        .page {
+
+            width: 100%;
+
+            max-width: 720px;
+
+            margin: 0 auto;
+        }
+
+
+        /* BRAND */
+
+        .brand {
+
+            text-align: center;
+
+            margin-bottom: 25px;
+        }
+
+
+        .brand a {
+
+            color: #ffffff;
+
+            text-decoration: none;
+
+            font-size: 30px;
+
+            font-weight: 900;
+
+            letter-spacing: -1px;
+        }
+
+
+        .brand span {
+
+            color: #6ee7b7;
+        }
+
+
+        /* CARD */
+
+        .profile-card {
+
+            background:
+                rgba(10, 24, 39, 0.94);
+
+            border:
+                1px solid
+                rgba(255,255,255,0.08);
+
+            border-radius: 18px;
+
+            padding: 30px;
+
+            box-shadow:
+                0 24px 70px
+                rgba(0,0,0,0.35);
+
+            backdrop-filter: blur(14px);
+        }
+
+
+        .profile-header {
+
+            margin-bottom: 28px;
+
+            text-align: center;
+        }
+
+
+        .profile-header h1 {
+
+            margin: 0 0 8px;
+
+            font-size: 28px;
+        }
+
+
+        .profile-header p {
+
+            margin: 0;
+
+            color: #94a3b8;
+
+            font-size: 14px;
+
+            line-height: 1.6;
+        }
+
+
+        /* AVATAR */
+
+        .avatar-section {
+
+            text-align: center;
+
+            margin-bottom: 28px;
+        }
+
+
+        .avatar-preview {
+
+            width: 100px;
+
+            height: 100px;
+
+            margin: 0 auto 14px;
+
+            border-radius: 50%;
+
+            overflow: hidden;
+
+            background:
+                #13283d;
+
+            border:
+                2px solid
+                rgba(110,231,183,0.35);
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            color: #6ee7b7;
+
+            font-size: 36px;
+
+            font-weight: 900;
+        }
+
+
+        .avatar-preview img {
+
+            width: 100%;
+
+            height: 100%;
+
+            object-fit: cover;
+        }
+
+
+        /* FORM */
+
+        .form-group {
+
+            margin-bottom: 19px;
+        }
+
+
+        .form-group label {
+
+            display: block;
+
+            margin-bottom: 8px;
+
+            color: #e2e8f0;
+
+            font-size: 14px;
+
+            font-weight: 700;
+        }
+
+
+        input,
+        textarea {
+
+            width: 100%;
+
+            padding: 13px 14px;
+
+            border:
+                1px solid
+                #26384b;
+
+            border-radius: 10px;
+
+            background:
+                #081522;
+
+            color: #ffffff;
+
+            font-family: inherit;
+
+            font-size: 15px;
+
+            outline: none;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+
+        input:focus,
+        textarea:focus {
+
+            border-color:
+                #6ee7b7;
+
+            box-shadow:
+                0 0 0 3px
+                rgba(110,231,183,0.10);
+        }
+
+
+        input::placeholder,
+        textarea::placeholder {
+
+            color: #64748b;
+        }
+
+
+        textarea {
+
+            min-height: 130px;
+
+            resize: vertical;
+
+            line-height: 1.6;
+        }
+
+
+        input[readonly] {
+
+            opacity: 0.65;
+
+            cursor: not-allowed;
+        }
+
+
+        .help-text {
+
+            margin-top: 6px;
+
+            color: #64748b;
+
+            font-size: 11px;
+
+            line-height: 1.5;
+        }
+
+
+        /* BUTTONS */
+
+        .actions {
+
+            display: flex;
+
+            gap: 12px;
+
+            margin-top: 28px;
+        }
+
+
+        button {
+
+            flex: 1;
+
+            border: 0;
+
+            border-radius: 10px;
+
+            padding: 14px 18px;
+
+            font-family: inherit;
+
+            font-size: 15px;
+
+            font-weight: 900;
+
+            cursor: pointer;
+
+            transition:
+                transform 0.15s ease,
+                opacity 0.15s ease;
+        }
+
+
+        button:hover {
+
+            transform:
+                translateY(-1px);
+        }
+
+
+        button:disabled {
+
+            opacity: 0.55;
+
+            cursor: not-allowed;
+
+            transform: none;
+        }
+
+
+        .save-button {
+
+            background:
+                #6ee7b7;
+
+            color:
+                #06101d;
+        }
+
+
+        .back-button {
+
+            background:
+                rgba(255,255,255,0.07);
+
+            color:
+                #e2e8f0;
+
+            border:
+                1px solid
+                rgba(255,255,255,0.10);
+        }
+
+
+        /* MESSAGE */
+
+        .profile-message {
+
+            display: none;
+
+            margin-bottom: 20px;
+
+            padding: 13px 14px;
+
+            border-radius: 10px;
+
+            font-size: 13px;
+
+            line-height: 1.6;
+        }
+
+
+        .profile-message.success {
+
+            display: block;
+
+            background:
+                rgba(25,135,84,0.15);
+
+            border:
+                1px solid
+                rgba(25,135,84,0.35);
+
+            color:
+                #86efac;
+        }
+
+
+        .profile-message.error {
+
+            display: block;
+
+            background:
+                rgba(220,53,69,0.15);
+
+            border:
+                1px solid
+                rgba(220,53,69,0.35);
+
+            color:
+                #fca5a5;
+        }
+
+
+        .profile-message.info {
+
+            display: block;
+
+            background:
+                rgba(59,130,246,0.12);
+
+            border:
+                1px solid
+                rgba(59,130,246,0.25);
+
+            color:
+                #93c5fd;
+        }
+
+
+        /* LOADING */
+
+        .loading {
+
+            text-align: center;
+
+            padding: 40px 20px;
+
+            color: #94a3b8;
+        }
+
+
+        .profile-form {
+
+            display: none;
+        }
+
+
+        /* MOBILE */
+
+        @media (max-width: 600px) {
+
+            body {
+                padding: 20px 12px;
+            }
+
+            .profile-card {
+                padding: 22px 18px;
+            }
+
+            .profile-header h1 {
+                font-size: 24px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .brand a {
+                font-size: 26px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <main class="page">
+
+
+        <!-- BRAND -->
+
+        <div class="brand">
+
+            <a href="index.html">
+                Web3<span>Jobs</span>
+            </a>
+
+        </div>
+
+
+        <!-- CARD -->
+
+        <section class="profile-card">
+
+
+            <div class="profile-header">
+
+                <h1>
+                    Edit Profile
+                </h1>
+
+                <p>
+                    Update your personal information
+                    on Web3Jobs.
+                </p>
+
+            </div>
+
+
+            <!-- MESSAGE -->
+
+            <div
+                id="profile-message"
+                class="profile-message"
+            ></div>
+
+
+            <!-- LOADING -->
+
+            <div
+                id="profile-loading"
+                class="loading"
+            >
+                Loading your profile...
+            </div>
+
+
+            <!-- FORM -->
+
+            <form
+                id="profile-form"
+                class="profile-form"
+            >
+
+
+                <!-- AVATAR -->
+
+                <div class="avatar-section">
+
+                    <div
+                        id="avatar-preview"
+                        class="avatar-preview"
+                    >
+                        ?
+                    </div>
+
+                </div>
+
+
+                <!-- FULL NAME -->
+
+                <div class="form-group">
+
+                    <label for="full-name">
+                        Full Name
+                    </label>
+
+                    <input
+                        id="full-name"
+                        name="full_name"
+                        type="text"
+                        maxlength="100"
+                        placeholder="Your full name"
+                        autocomplete="name"
+                    >
+
+                </div>
+
+
+                <!-- EMAIL -->
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email
+                    </label>
+
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        readonly
+                    >
+
+                    <div class="help-text">
+                        Your email is managed by
+                        your Web3Jobs authentication account.
+                    </div>
+
+                </div>
+
+
+                <!-- AVATAR URL -->
+
+                <div class="form-group">
+
+                    <label for="avatar-url">
+                        Profile Image URL
+                    </label>
+
+                    <input
+                        id="avatar-url"
+                        name="avatar_url"
+                        type="url"
+                        maxlength="1000"
+                        placeholder="https://example.com/avatar.jpg"
+                    >
+
+                    <div class="help-text">
+                        Enter a public image URL.
+                    </div>
+
+                </div>
+
+
+                <!-- LOCATION -->
+
+                <div class="form-group">
+
+                    <label for="location">
+                        Location
+                    </label>
+
+                    <input
+                        id="location"
+                        name="location"
+                        type="text"
+                        maxlength="150"
+                        placeholder="Country / City"
+                        autocomplete="address-level2"
+                    >
+
+                </div>
+
+
+                <!-- WEBSITE -->
+
+                <div class="form-group">
+
+                    <label for="website">
+                        Website
+                    </label>
+
+                    <input
+                        id="website"
+                        name="website"
+                        type="url"
+                        maxlength="500"
+                        placeholder="https://yourwebsite.com"
+                    >
+
+                </div>
+
+
+                <!-- BIO -->
+
+                <div class="form-group">
+
+                    <label for="bio">
+                        Bio
+                    </label>
+
+                    <textarea
+                        id="bio"
+                        name="bio"
+                        maxlength="1000"
+                        placeholder="Tell employers about yourself..."
+                    ></textarea>
+
+                </div>
+
+
+                <!-- ACCOUNT TYPE -->
+
+                <div class="form-group">
+
+                    <label>
+                        Account Type
+                    </label>
+
+                    <input
+                        id="account-type"
+                        type="text"
+                        readonly
+                    >
+
+                    <div class="help-text">
+                        Account type cannot be changed
+                        from this page.
+                    </div>
+
+                </div>
+
+
+                <!-- ACTIONS -->
+
+                <div class="actions">
+
+                    <button
+                        type="button"
+                        id="back-button"
+                        class="back-button"
+                    >
+                        Back to Dashboard
+                    </button>
+
+                    <button
+                        type="submit"
+                        id="save-button"
+                        class="save-button"
+                    >
+                        Save Profile
+                    </button>
+
+                </div>
+
+
+            </form>
+
+
+        </section>
+
+
+    </main>
+
+
+    <!-- SUPABASE -->
+
+    <script src="js/supabase.js"></script>
+
+    <!-- AUTH -->
+
+    <script src="js/auth.js"></script>
+
+    <!-- PROFILE -->
+
+    <script src="js/profile.js"></script>
+
+
+</body>
+
+  </html>
