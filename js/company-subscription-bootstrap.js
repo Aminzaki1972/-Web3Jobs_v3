@@ -2,8 +2,8 @@
 "use strict";
 (() => {
   const files = [
-    "js/company-subscription-v2.js?v=20260819-4",
-    "js/company-subscription-ui.js?v=20260819-4"
+    "js/company-subscription-v2.js?v=20260819-5",
+    "js/company-subscription-ui.js?v=20260819-5"
   ];
 
   let started = false;
@@ -13,7 +13,6 @@
       const key = src.split("?")[0];
       const existing = document.querySelector(`script[data-web3jobs-subscription="${key}"]`);
       if (existing) return resolve();
-
       const s = document.createElement("script");
       s.src = src;
       s.async = false;
@@ -29,32 +28,22 @@
     started = true;
     try {
       for (const src of files) await load(src);
-
-      // company-subscription-v2 used to rely only on DOMContentLoaded.
-      // This bootstrap can itself be injected during DOMContentLoaded, so
-      // explicitly initialize plans here as well.
       const api = window.Web3JobsCompanySubscription;
       if (api?.loadPlans) {
         try {
           const plans = await api.loadPlans();
-          window.dispatchEvent(new CustomEvent("web3jobs:company-plans-loaded", {
-            detail: plans || []
-          }));
+          window.dispatchEvent(new CustomEvent("web3jobs:company-plans-loaded", { detail: plans || [] }));
         } catch (error) {
           console.error("Web3Jobs: company subscription plans failed to load:", error);
-          window.dispatchEvent(new CustomEvent("web3jobs:company-plans-error", {
-            detail: { message: error?.message || String(error) }
-          }));
+          window.dispatchEvent(new CustomEvent("web3jobs:company-plans-error", { detail: { message: error?.message || String(error) } }));
         }
       }
+      await load("js/company-subscription-hotfix.js?v=20260819-1");
     } catch (error) {
       console.error("Web3Jobs subscription bootstrap:", error);
     }
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init, { once: true });
-  } else {
-    init();
-  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+  else init();
 })();
