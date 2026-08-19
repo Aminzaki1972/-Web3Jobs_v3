@@ -16,7 +16,9 @@
   async function fetchJobs(sb) {
     const rows = [];
     for (let from = 0; ; from += PAGE_SIZE) {
-      const { data, error } = await sb.from("jobs").select("company,company_name,title,location,type,created_at").order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1);
+      // jobs.company is the real column in the current schema.
+      // Do not request the removed/nonexistent company_name column.
+      const { data, error } = await sb.from("jobs").select("company,title,location,type,created_at,is_active").eq("is_active", true).order("created_at", { ascending: false }).range(from, from + PAGE_SIZE - 1);
       if (error) throw error;
       rows.push(...(data || []));
       if (!data || data.length < PAGE_SIZE) break;
@@ -28,7 +30,7 @@
   function buildCompanies(rows) {
     const map = new Map();
     rows.forEach(job => {
-      const name = text(job.company || job.company_name);
+      const name = text(job.company);
       if (!name) return;
       const key = name.toLowerCase().replace(/\s+/g," ").trim();
       const existing = map.get(key) || { name, jobs: 0, locations: new Set(), types: new Set(), latest: job.created_at || null };
