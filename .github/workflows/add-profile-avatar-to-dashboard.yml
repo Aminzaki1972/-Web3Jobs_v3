@@ -1,0 +1,61 @@
+name: Add profile avatar to individual dashboard
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  add-avatar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Add dashboard profile photo
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path("dashboard.html")
+          html = path.read_text(encoding="utf-8")
+
+          marker = "<!-- WEB3JOBS-PROFILE-AVATAR-START -->"
+          if marker in html:
+              print("Dashboard avatar is already installed.")
+              raise SystemExit(0)
+
+          css = '''\n        /* Personal profile photo at the top of the individual dashboard */\n        .dashboard-profile-hero {\n            display:flex;\n            align-items:center;\n            gap:20px;\n            margin-bottom:25px;\n            padding:22px 25px;\n            border:1px solid var(--line-light);\n            border-radius:20px;\n            background:linear-gradient(135deg,#10243a,#0b192b);\n            box-shadow:var(--shadow);\n        }\n        .dashboard-profile-avatar {\n            width:92px;\n            height:92px;\n            flex:0 0 92px;\n            border-radius:50%;\n            overflow:hidden;\n            display:grid;\n            place-items:center;\n            background:#13283d;\n            border:3px solid rgba(110,231,183,.55);\n            color:#6ee7b7;\n            font-size:30px;\n            font-weight:900;\n            box-shadow:0 10px 30px rgba(0,0,0,.25);\n        }\n        .dashboard-profile-avatar img {\n            width:100%;\n            height:100%;\n            object-fit:cover;\n            display:block;\n        }\n        .dashboard-profile-copy { min-width:0; }\n        .dashboard-profile-copy h2 {\n            margin:0 0 5px;\n            font-size:22px;\n            line-height:1.2;\n        }\n        .dashboard-profile-copy p {\n            margin:0 0 10px;\n            color:var(--muted);\n            font-size:12px;\n            word-break:break-word;\n        }\n        .dashboard-profile-copy a {\n            display:inline-flex;\n            align-items:center;\n            justify-content:center;\n            padding:8px 12px;\n            border-radius:9px;\n            background:rgba(110,231,183,.08);\n            border:1px solid rgba(110,231,183,.25);\n            color:var(--accent);\n            text-decoration:none;\n            font-size:11px;\n            font-weight:800;\n        }\n        @media (max-width:600px) {\n            .dashboard-profile-hero {\n                flex-direction:column;\n                text-align:center;\n                padding:22px 18px;\n            }\n            .dashboard-profile-copy { width:100%; }\n        }\n'''
+
+          html = html.replace("\n    </style>", css + "\n    </style>", 1)
+
+          hero = '''\n            <!-- WEB3JOBS-PROFILE-AVATAR-START -->\n            <section class="dashboard-profile-hero" aria-label="Personal profile">\n                <div id="dashboard-profile-avatar" class="dashboard-profile-avatar" aria-hidden="true">?</div>\n                <div class="dashboard-profile-copy">\n                    <h2 id="dashboard-profile-name">Your Profile</h2>\n                    <p id="dashboard-profile-email"></p>\n                    <a href="profile.html">Edit Profile</a>\n                </div>\n            </section>\n            <!-- WEB3JOBS-PROFILE-AVATAR-END -->\n'''
+
+          target = '<div id="dashboard-content">'
+          if target not in html:
+              raise SystemExit("dashboard-content container not found")
+          html = html.replace(target, target + hero, 1)
+
+          script = '''\n<script>\n(function () {\n    "use strict";\n\n    async function loadDashboardProfileAvatar() {\n        try {\n            const getClient = window.Web3JobsSupabase && window.Web3JobsSupabase.getSupabaseClient;\n            if (typeof getClient !== "function") return;\n\n            const supabase = getClient();\n            if (!supabase) return;\n\n            const { data: authData, error: authError } = await supabase.auth.getUser();\n            if (authError || !authData || !authData.user) return;\n\n            const user = authData.user;\n            const { data: profile, error: profileError } = await supabase\n                .from("profiles")\n                .select("full_name,email,avatar_url,account_type,role")\n                .eq("id", user.id)\n                .maybeSingle();\n\n            if (profileError) {\n                console.warn("Dashboard profile photo error:", profileError);\n                return;\n            }\n\n            const name = (profile && profile.full_name) || (user.user_metadata && user.user_metadata.full_name) || user.email || "User";\n            const email = user.email || (profile && profile.email) || "";\n            const avatar = profile && profile.avatar_url;\n\n            const nameEl = document.getElementById("dashboard-profile-name");\n            const emailEl = document.getElementById("dashboard-profile-email");\n            const avatarEl = document.getElementById("dashboard-profile-avatar");\n\n            if (nameEl) nameEl.textContent = name;\n            if (emailEl) emailEl.textContent = email;\n\n            if (avatarEl && avatar) {\n                avatarEl.innerHTML = "";\n                const img = document.createElement("img");\n                img.src = avatar;\n                img.alt = "Profile photo";\n                img.loading = "eager";\n                img.referrerPolicy = "no-referrer";\n                avatarEl.appendChild(img);\n            } else if (avatarEl) {\n                avatarEl.textContent = String(name).trim().charAt(0).toUpperCase() || "?";\n            }\n        } catch (error) {\n            console.warn("Unable to load dashboard profile photo:", error);\n        }\n    }\n\n    if (document.readyState === "loading") {\n        document.addEventListener("DOMContentLoaded", loadDashboardProfileAvatar, { once: true });\n    } else {\n        loadDashboardProfileAvatar();\n    }\n})();\n</script>\n'''
+
+          if "dashboard-profile-avatar" not in html[html.find("</body>"):]:
+              html = html.replace("</body>", script + "\n</body>", 1)
+
+          path.write_text(html, encoding="utf-8")
+          print("Dashboard profile avatar installed.")
+
+      - name: Commit dashboard change
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add dashboard.html
+          if git diff --cached --quiet; then
+            echo 'No dashboard change needed.'
+            exit 0
+          fi
+          git commit -m 'Add personal profile photo to individual dashboard'
+          git push
