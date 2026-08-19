@@ -2,6 +2,11 @@
 "use strict";
 (() => {
   const PLANS = ["starter", "professional", "enterprise"];
+  const FALLBACK_PLANS = {
+    starter: { plan_code: "starter", plan_name: "Starter", price: 19, currency: "USDT", duration_days: 30 },
+    professional: { plan_code: "professional", plan_name: "Professional", price: 49, currency: "USDT", duration_days: 30 },
+    enterprise: { plan_code: "enterprise", plan_name: "Enterprise", price: 99, currency: "USDT", duration_days: 30 }
+  };
   const CONFIG = {
     usdt: "0x55d398326f99059fF775485246999027B3197955",
     treasury: "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36"
@@ -18,7 +23,7 @@
 
   function getPlan(code) {
     const plans = window.Web3JobsCompanySubscription?.plans || [];
-    return plans.find(p => String(p.plan_code).toLowerCase() === code) || null;
+    return plans.find(p => String(p.plan_code).toLowerCase() === code) || FALLBACK_PLANS[code] || null;
   }
 
   function ensureModal() {
@@ -37,11 +42,11 @@
 
   function show(button, code, plan) {
     const m = ensureModal();
-    const price = Number(plan?.price ?? 0);
+    const price = Number(plan?.price ?? FALLBACK_PLANS[code]?.price ?? 0);
     const currency = String(plan?.currency || "USDT").toUpperCase();
     const duration = Number(plan?.duration_days || 30);
     m.querySelector("#wj-title").textContent = `${plan?.plan_name || code} — monthly subscription`;
-    m.querySelector("#wj-details").innerHTML = `<div class="wj-row"><span>Amount</span><strong>$${price.toFixed(price % 1 ? 2 : 0)} ${currency}</strong></div><div class="wj-row"><span>Network</span><strong>BNB Smart Chain (BSC)</strong></div><div class="wj-row"><span>USDT token contract</span><span class="wj-address">${CONFIG.usdt}</span></div><div class="wj-row"><span>Payment wallet</span><span class="wj-address">${CONFIG.treasury}</span></div><div class="wj-row"><span>Duration</span><strong>${duration} days</strong></div>`;
+    m.querySelector("#wj-details").innerHTML = `<div class="wj-row"><span>Amount</span><strong>${price} ${currency} / month</strong></div><div class="wj-row"><span>Network</span><strong>BNB Smart Chain (BSC)</strong></div><div class="wj-row"><span>USDT token contract</span><span class="wj-address">${CONFIG.usdt}</span></div><div class="wj-row"><span>Payment wallet</span><span class="wj-address">${CONFIG.treasury}</span></div><div class="wj-row"><span>Duration</span><strong>${duration} days</strong></div>`;
     m.style.display = "flex";
     const pay = m.querySelector(".wj-pay");
     pay.disabled = false;
@@ -55,8 +60,8 @@
       pay.disabled = true;
       pay.textContent = "Processing...";
       try {
-        m.style.display = "none";
         await api.pay(code);
+        m.style.display = "none";
       } catch (e) {
         m.style.display = "flex";
         alert(e?.message || String(e));
@@ -76,12 +81,6 @@
       const code = codeFrom(button);
       if (!code) return;
       const plan = getPlan(code);
-      if (!plan) {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        alert("Company subscription plans are still loading. Please wait a moment and try again.");
-        return;
-      }
       event.preventDefault();
       event.stopImmediatePropagation();
       show(button, code, plan);
