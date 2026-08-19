@@ -1,0 +1,44 @@
+name: Enable Company Profile
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  enable-company-profile:
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Add Company Profile script
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('company-dashboard.html')
+          s = p.read_text(encoding='utf-8')
+          marker = 'js/company-profile-link.js'
+          if marker not in s:
+              tag = '<script src="js/company-profile-link.js" defer></script>'
+              if '</head>' not in s.lower():
+                  raise SystemExit('company-dashboard.html has no closing head tag')
+              pos = s.lower().rfind('</head>')
+              s = s[:pos] + '\n    ' + tag + '\n' + s[pos:]
+              p.write_text(s, encoding='utf-8')
+
+      - name: Commit change if needed
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if git diff --quiet -- company-dashboard.html; then
+            echo 'Company Profile already enabled.'
+            exit 0
+          fi
+          git add company-dashboard.html
+          git commit -m 'Enable Company Profile in company dashboard'
+          git push
