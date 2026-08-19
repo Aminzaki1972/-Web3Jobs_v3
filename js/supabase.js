@@ -226,4 +226,17 @@ window.waitForSupabase = waitForSupabase;
   else boot();
 })();
 
+/* Homepage: remove the legacy search form. The advanced job search belongs on jobs.html. */
+(function removeLegacyHomepageSearch() {
+  function remove() {
+    const form = document.getElementById("jobSearchForm");
+    if (form) {
+      form.remove();
+      console.log("Web3Jobs: legacy homepage job search removed; use Jobs page filters.");
+    }
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", remove, { once: true });
+  else remove();
+})();
+
 console.log("Web3Jobs Supabase System Loaded");
