@@ -1,0 +1,40 @@
+name: Enable company UI enhancements
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'js/company-ui-enhancements.js'
+      - '.github/workflows/enable-company-ui-enhancements.yml'
+permissions:
+  contents: write
+jobs:
+  patch-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load enhancement script on company pages
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          changes=[]
+          targets=[
+            ('company-profile.html','<script src="js/company-profile.js"></script>','<script src="js/company-profile.js"></script>\n<script src="js/company-ui-enhancements.js"></script>'),
+            ('company-dashboard.html','<script\n        src="js/company-dashboard.js"\n        defer\n    ></script>','<script\n        src="js/company-dashboard.js"\n        defer\n    ></script>\n\n    <script src="js/company-ui-enhancements.js" defer></script>')
+          ]
+          for name, old, new in targets:
+              p=Path(name); text=p.read_text(encoding='utf-8')
+              if 'js/company-ui-enhancements.js' not in text and old in text:
+                  p.write_text(text.replace(old,new,1),encoding='utf-8'); changes.append(name)
+          print('Patched:', changes)
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add company-profile.html company-dashboard.html
+          if git diff --cached --quiet; then
+            echo 'No changes needed.'
+          else
+            git commit -m 'Load company logo and social profile enhancements'
+            git push
+          fi
