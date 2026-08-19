@@ -2,8 +2,9 @@
 "use strict";
 (() => {
   const files = [
-    "js/company-subscription-v2.js?v=20260819-5",
-    "js/company-subscription-ui.js?v=20260819-5"
+    "js/company-subscription-v2.js?v=20260819-6",
+    "js/company-subscription-hotfix.js?v=20260819-2",
+    "js/company-subscription-ui.js?v=20260819-6"
   ];
 
   let started = false;
@@ -27,7 +28,12 @@
     if (started) return;
     started = true;
     try {
-      for (const src of files) await load(src);
+      // Load the payment API first, then install the hard capture handler
+      // before the legacy subscription UI can consume the click.
+      await load(files[0]);
+      await load(files[1]);
+      await load(files[2]);
+
       const api = window.Web3JobsCompanySubscription;
       if (api?.loadPlans) {
         try {
@@ -38,7 +44,6 @@
           window.dispatchEvent(new CustomEvent("web3jobs:company-plans-error", { detail: { message: error?.message || String(error) } }));
         }
       }
-      await load("js/company-subscription-hotfix.js?v=20260819-1");
     } catch (error) {
       console.error("Web3Jobs subscription bootstrap:", error);
     }
