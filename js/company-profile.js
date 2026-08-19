@@ -6,21 +6,31 @@
     let currentUser = null;
     let currentCompany = null;
 
-    function getClient() {
-        if (client) return client;
-        if (window.Web3JobsSupabase && typeof window.Web3JobsSupabase.getClient === "function") {
-            client = window.Web3JobsSupabase.getClient();
+    async function getClient() {
+        if (client && client.auth) return client;
+
+        try {
+            if (window.Web3JobsSupabase?.waitForClient) {
+                client = await window.Web3JobsSupabase.waitForClient(15000);
+            }
+
+            if (!client && window.getSupabaseClient) {
+                client = window.getSupabaseClient();
+            }
+
+            if (!client && window.__web3jobsSupabase?.from) {
+                client = window.__web3jobsSupabase;
+            }
+
+            if (!client && window.supabaseClient?.from) {
+                client = window.supabaseClient;
+            }
+
             return client;
+        } catch (error) {
+            console.error("Web3Jobs: unable to initialize Supabase", error);
+            return null;
         }
-        if (window.__web3jobsSupabase && typeof window.__web3jobsSupabase.from === "function") {
-            client = window.__web3jobsSupabase;
-            return client;
-        }
-        if (window.supabaseClient && typeof window.supabaseClient.from === "function") {
-            client = window.supabaseClient;
-            return client;
-        }
-        return null;
     }
 
     function message(text, type = "info") {
@@ -66,36 +76,43 @@
     }
 
     async function getUser() {
-        const sb = getClient();
-        if (!sb || !sb.auth) throw new Error("Supabase connection is not initialized.");
+        const sb = await getClient();
+        if (!sb?.auth) throw new Error("Supabase connection is not initialized.");
+
         const { data, error } = await sb.auth.getUser();
         if (error) throw error;
+
         if (!data?.user) {
             window.location.href = "login.html";
             return null;
         }
+
         currentUser = data.user;
         return currentUser;
     }
 
     async function loadCompany() {
-        const sb = getClient();
+        const sb = await getClient();
         if (!sb || !currentUser) throw new Error("Supabase connection is not initialized.");
+
         const { data, error } = await sb
             .from("company_profiles")
             .select("id,user_id,company_name,website,logo_url,description,industry,location,wallet_address,created_at,updated_at")
             .eq("user_id", currentUser.id)
             .maybeSingle();
+
         if (error) throw error;
+
         currentCompany = data || null;
+
         setValue("company-name", currentCompany?.company_name || currentUser.user_metadata?.company_name || currentUser.user_metadata?.name || "");
         setValue("industry", currentCompany?.industry);
         setValue("location", currentCompany?.location);
         setValue("website", currentCompany?.website);
         setValue("logo-url", currentCompany?.logo_url);
         setValue("description", currentCompany?.description);
-        setValue("wallet-address", currentCompany?.wallet_address);
-        updateLogo(currentCompany?.logo_url, currentCompany?.company_name);
+        setValue("wallet-address", currentCompany?.wallet_address || currentUser.user_metadata?.wallet_address || "");
+        updateLogo(currentCompany?.logo_url, currentCompany?.company_name || currentUser.user_metadata?.company_name);
     }
 
     async function syncDashboardProfile(sb, companyName) {
@@ -106,12 +123,17 @@
                 updated_at: new Date().toISOString()
             })
             .eq("id", currentUser.id);
-        if (error) throw error;
+
+        /* Profile synchronization must never make company_profiles saving fail. */
+        if (error) {
+            console.warn("Dashboard profile sync warning:", error);
+        }
     }
 
     async function saveCompany(event) {
         event.preventDefault();
-        const sb = getClient();
+
+        const sb = await getClient();
         if (!sb || !currentUser) {
             message("You are not logged in.", "error");
             return;
@@ -152,12 +174,13 @@
             description: description || null,
             industry: industry || null,
             location: location || null,
-            wallet_address: currentCompany?.wallet_address || null,
+            wallet_address: currentCompany?.wallet_address || currentUser.user_metadata?.wallet_address || null,
             updated_at: new Date().toISOString()
         };
 
         try {
             let result;
+
             if (currentCompany?.id) {
                 result = await sb
                     .from("company_profiles")
@@ -173,11 +196,12 @@
                     .select("*")
                     .single();
             }
+
             if (result.error) throw result.error;
+            if (!result.data) throw new Error("Company profile was not saved. No record was returned.");
 
             currentCompany = result.data;
 
-            /* Keep the existing profiles-based company dashboard name synchronized. */
             await syncDashboardProfile(sb, companyName);
 
             updateLogo(logoUrl, companyName);
@@ -226,6 +250,7 @@
             } catch (error) {
                 console.error("Company profile initialization error:", error);
                 if (loading) loading.style.display = "none";
+                if (form) form.style.display = "none";
                 message(error?.message || "Unable to load company profile.", "error");
             }
         })();
