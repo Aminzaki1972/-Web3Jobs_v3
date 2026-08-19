@@ -1,106 +1,57 @@
-/* =========================================================
-   Web3Jobs v3 - Company Subscription UI Bridge
-   ---------------------------------------------------------
-   Reads company plans from payment_plans and connects the
-   existing Starter / Professional / Enterprise buttons to
-   company-subscription-v2.js.
-   ========================================================= */
-
+/* Web3Jobs v3 - Live Company Subscription UI */
 "use strict";
-
 (() => {
-  const PLAN_CODES = ["starter", "professional", "enterprise"];
-
-  function formatPrice(plan) {
-    const price = Number(plan?.price ?? 0);
-    const currency = String(plan?.currency || "USD").toUpperCase();
-    return `$${price.toFixed(price % 1 ? 2 : 0)} USDT / month`;
+  const CODES=["starter","professional","enterprise"];
+  const api=()=>window.Web3JobsCompanySubscription;
+  function codeFrom(el){
+    let n=el;
+    for(let i=0;i<5&&n;i++,n=n.parentElement){
+      const raw=String(n.dataset?.payPlan||n.dataset?.plan||"").toLowerCase();
+      if(CODES.includes(raw)) return raw;
+      const id=String(n.id||"").toLowerCase();
+      for(const c of CODES) if(id.includes(c)) return c;
+    }
+    const text=String(el.textContent||"").toLowerCase();
+    if(text.includes("enterprise")) return "enterprise";
+    if(text.includes("professional")) return "professional";
+    if(text.includes("starter")) return "starter";
+    return null;
   }
-
-  function findPlan(code) {
-    const plans = window.Web3JobsCompanySubscription?.plans || [];
-    return plans.find(plan => plan.plan_code === code) || null;
-  }
-
-  function showPlan(code) {
-    document.querySelectorAll("[data-plan-details]").forEach(el => {
-      el.classList.toggle("active", el.dataset.planDetails === code);
-    });
-
-    document.querySelectorAll(".plan-button[data-plan]").forEach(el => {
-      el.classList.toggle("active", el.dataset.plan === code);
-    });
-  }
-
-  function syncPrices() {
-    PLAN_CODES.forEach(code => {
-      const plan = findPlan(code);
-      if (!plan) return;
-
-      document.querySelectorAll(`[data-plan="${code}"] .plan-button-price`).forEach(el => {
-        el.textContent = formatPrice(plan);
-      });
-
-      document.querySelectorAll(`[data-plan-details="${code}"] .plan-details-price`).forEach(el => {
-        el.textContent = formatPrice(plan);
-      });
-
-      document.querySelectorAll(`[data-pay-plan="${code}"]`).forEach(button => {
-        button.dataset.paymentPlanId = String(plan.id);
-        button.dataset.planCode = plan.plan_code;
-      });
+  function findPlan(code){return api()?.plans?.find(p=>p.plan_code===code)||null;}
+  function formatPrice(p){return `$${Number(p.price).toFixed(Number(p.price)%1?2:0)} USDT / month`;}
+  function syncPrices(){
+    CODES.forEach(code=>{
+      const p=findPlan(code); if(!p)return;
+      document.querySelectorAll(`[data-plan="${code}"] .plan-button-price,[data-plan-details="${code}"] .plan-details-price`).forEach(e=>e.textContent=formatPrice(p));
+      document.querySelectorAll(`.plan-button[data-plan="${code}"]`).forEach(e=>e.title=`${formatPrice(p)}`);
     });
   }
-
-  async function handlePayment(code, button) {
-    const api = window.Web3JobsCompanySubscription;
-    if (!api) {
-      alert("Subscription module is not loaded yet. Please refresh the page.");
-      return;
-    }
-
-    const plan = findPlan(code);
-    if (!plan) {
-      alert("The selected company plan is not available.");
-      return;
-    }
-
-    const original = button.textContent;
-    button.disabled = true;
-    button.textContent = "Preparing...";
-
-    try {
-      // The module itself blocks live payment until the verified treasury
-      // wallet is configured. No subscription is activated client-side.
-      const result = await api.pay(code);
-      console.log("Web3Jobs payment result:", result);
-      alert(`Transaction confirmed. TX Hash:\n${result.transactionHash}\n\nSubscription activation will occur after server-side verification.`);
-    } catch (error) {
-      console.error("Web3Jobs subscription payment:", error);
-      alert(error?.message || String(error));
-    } finally {
-      button.disabled = false;
-      button.textContent = original;
-    }
+  async function pay(code,button){
+    const a=api(); const p=findPlan(code);
+    if(!a||!p){alert("The selected company plan is not available.");return;}
+    const old=button.textContent; button.disabled=true; button.textContent="Processing...";
+    try{
+      const result=await a.pay(code);
+      alert(`${p.plan_name} activated successfully.\n\n${formatPrice(p)}\nTransaction: ${result.transactionHash}`);
+      location.reload();
+    }catch(e){console.error(e);alert(e?.message||String(e));}
+    finally{button.disabled=false;button.textContent=old;}
   }
-
-  function initialize() {
+  function capturePaymentClick(event){
+    const button=event.target.closest?.("button,a");
+    if(!button)return;
+    const container=button.closest(".subscription-section,.plan-details,[data-plan-details]");
+    if(!container)return;
+    const label=String(button.textContent||"").toLowerCase();
+    if(!/(pay|upgrade|subscribe|purchase|choose|select)/.test(label))return;
+    const code=codeFrom(button); if(!code)return;
+    event.preventDefault(); event.stopImmediatePropagation();
+    pay(code,button);
+  }
+  function initialize(){
     syncPrices();
-
-    document.querySelectorAll(".plan-button[data-plan]").forEach(button => {
-      button.addEventListener("click", () => showPlan(button.dataset.plan));
-    });
-
-    document.querySelectorAll("[data-pay-plan]").forEach(button => {
-      button.addEventListener("click", () => handlePayment(button.dataset.payPlan, button));
-    });
+    document.addEventListener("click",capturePaymentClick,true);
+    window.addEventListener("web3jobs:company-plans-loaded",syncPrices);
   }
-
-  window.addEventListener("web3jobs:company-plans-loaded", syncPrices);
-
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initialize, { once: true });
-  } else {
-    initialize();
-  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",initialize,{once:true}); else initialize();
 })();
