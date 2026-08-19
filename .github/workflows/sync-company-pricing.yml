@@ -23,7 +23,6 @@ jobs:
 
           path = Path('js/company-dashboard.js')
           text = path.read_text(encoding='utf-8')
-
           block = re.search(r'(const PLANS = \{.*?\n\s*\};)', text, re.S)
           if not block:
               raise SystemExit('PLANS block not found')
@@ -67,12 +66,12 @@ jobs:
           text = text[:block.start()] + new_block + text[block.end():]
           path.write_text(text, encoding='utf-8')
 
-          # Keep visible legacy dashboard price labels aligned when present.
+          # Align legacy visible price labels when present.
           html = Path('company-dashboard.html')
           h = html.read_text(encoding='utf-8')
-          h = re.sub(r'(Starter.{0,120}?)(?:\$\s*)2(?:\s*(?:USDT|USD))?', r'\\1$19 USDT', h, flags=re.I|re.S)
-          h = re.sub(r'(Professional.{0,120}?)(?:\$\s*)5(?:\s*(?:USDT|USD))?', r'\\1$49 USDT', h, flags=re.I|re.S)
-          h = re.sub(r'(Enterprise.{0,120}?)(?:\$\s*)10(?:\s*(?:USDT|USD))?', r'\\1$99 USDT', h, flags=re.I|re.S)
+          h = re.sub(r'(Starter.{0,120}?)(?:\$\s*)2(?:\s*(?:USDT|USD))?', r'\1$19 USDT', h, flags=re.I|re.S)
+          h = re.sub(r'(Professional.{0,120}?)(?:\$\s*)5(?:\s*(?:USDT|USD))?', r'\1$49 USDT', h, flags=re.I|re.S)
+          h = re.sub(r'(Enterprise.{0,120}?)(?:\$\s*)10(?:\s*(?:USDT|USD))?', r'\1$99 USDT', h, flags=re.I|re.S)
           html.write_text(h, encoding='utf-8')
           PY
 
@@ -84,3 +83,5 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "Update company subscription pricing"
           git push
+
+# One-time synchronization workflow for the commercial pricing update.
