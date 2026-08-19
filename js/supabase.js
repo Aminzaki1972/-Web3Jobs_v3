@@ -33,12 +33,27 @@ window.Web3JobsSupabase={url:SUPABASE_URL,publishableKey:SUPABASE_PUBLISHABLE_KE
 const initialSupabaseClient=initializeSupabase();
 if(initialSupabaseClient)window.supabaseClient=initialSupabaseClient;
 window.getSupabaseClient=getSupabaseClient;window.getSupabaseSession=getSupabaseSession;window.getSupabaseUser=getSupabaseUser;window.hasActiveSupabaseSession=hasActiveSession;
-/* Load the live company subscription system from the same trusted repository. */
-(function loadCompanySubscriptionBootstrap(){
-  function add(){
-    if(document.querySelector('script[data-web3jobs-subscription-bootstrap]')) return;
-    const s=document.createElement('script');s.src='js/company-subscription-bootstrap.js';s.dataset.web3jobsSubscriptionBootstrap='1';s.defer=false;document.head.appendChild(s);
+
+/* Load shared auth systems once. */
+(function loadWeb3JobsAuthBootstrap(){
+  function add(path, marker){
+    if(document.querySelector('script['+marker+']')) return;
+    const s=document.createElement('script');
+    s.src=path;
+    s.dataset.web3jobsAuthBootstrap='1';
+    s.defer=false;
+    document.head.appendChild(s);
   }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',add,{once:true}); else add();
+  function boot(){
+    add('js/auth.js','data-web3jobs-auth-bootstrap');
+    if(!document.querySelector('script[data-web3jobs-subscription-bootstrap]')){
+      const s=document.createElement('script');
+      s.src='js/company-subscription-bootstrap.js';
+      s.dataset.web3jobsSubscriptionBootstrap='1';
+      s.defer=false;
+      document.head.appendChild(s);
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
 })();
 console.log("Web3Jobs Supabase System Loaded");
