@@ -193,14 +193,11 @@ window.getSupabaseUser = getSupabaseUser;
 window.hasActiveSupabaseSession = hasActiveSession;
 window.waitForSupabase = waitForSupabase;
 
-// Start loading the SDK immediately. This fixes pages that previously showed
-// "تعذر الاتصال بـ Supabase" because the CDN SDK was not loaded before auth.js.
 (async function bootstrapSupabase() {
   const sdk = await loadSupabaseSdk();
   if (sdk) initializeSupabase();
 })();
 
-/* Load shared auth systems once. */
 (function loadWeb3JobsAuthBootstrap() {
   function add(path, marker) {
     if (document.querySelector("script[" + marker + "]")) return;
@@ -226,7 +223,6 @@ window.waitForSupabase = waitForSupabase;
   else boot();
 })();
 
-/* Homepage: remove the legacy search form. The advanced job search belongs on jobs.html. */
 (function removeLegacyHomepageSearch() {
   function remove() {
     const form = document.getElementById("jobSearchForm");
@@ -237,6 +233,113 @@ window.waitForSupabase = waitForSupabase;
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", remove, { once: true });
   else remove();
+})();
+
+/* =========================================================
+   COMPANY SUBSCRIPTION PAYMENT GATE
+   ---------------------------------------------------------
+   This capture-phase handler is intentionally installed from the
+   earliest shared script. It prevents the legacy dashboard payment
+   listener from bypassing the subscription confirmation screen.
+   ========================================================= */
+(function installSubscriptionPaymentGate() {
+  const CONFIG = {
+    chain: "BNB Smart Chain",
+    chainId: "0x38",
+    token: "USDT",
+    tokenContract: "0x55d398326f99059fF775485246999027B3197955",
+    receivingWallet: "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36",
+    duration: "30 days"
+  };
+
+  const PRICES = {
+    free: 0,
+    starter: 19,
+    professional: 49,
+    enterprise: 99
+  };
+
+  let open = false;
+
+  function esc(value) {
+    return String(value ?? "").replace(/[&<>\"']/g, c => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;"
+    })[c]);
+  }
+
+  function closeModal() {
+    const modal = document.getElementById("web3jobs-payment-confirm-modal");
+    if (modal) modal.remove();
+    open = false;
+  }
+
+  function showModal(code) {
+    if (open) return;
+    open = true;
+    const price = PRICES[code] ?? 0;
+    const name = code.charAt(0).toUpperCase() + code.slice(1);
+
+    const modal = document.createElement("div");
+    modal.id = "web3jobs-payment-confirm-modal";
+    modal.style.cssText = "position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);font-family:Inter,system-ui,sans-serif";
+    modal.innerHTML = `
+      <div style="width:min(100%,520px);background:#0b1727;border:1px solid #294663;border-radius:18px;padding:24px;color:#f5f8ff;box-shadow:0 25px 90px rgba(0,0,0,.55)">
+        <h2 style="margin:0 0 6px;font-size:21px">Confirm monthly subscription</h2>
+        <p style="margin:0 0 18px;color:#8ea3bc;font-size:12px">Review the payment details before connecting your wallet.</p>
+        <div style="display:grid;gap:9px;font-size:12px">
+          <div><strong>Plan:</strong> ${esc(name)}</div>
+          <div><strong>Price:</strong> ${price} USDT / month</div>
+          <div><strong>Network:</strong> ${CONFIG.chain}</div>
+          <div><strong>USDT contract:</strong><br><code style="word-break:break-all;color:#6ee7b7">${CONFIG.tokenContract}</code></div>
+          <div><strong>Receiving wallet:</strong><br><code style="word-break:break-all;color:#60a5fa">${CONFIG.receivingWallet}</code></div>
+          <div><strong>Duration:</strong> ${CONFIG.duration}</div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:22px">
+          <button id="web3jobs-payment-cancel" style="flex:1;padding:12px;border:1px solid #294663;border-radius:10px;background:#0d1d31;color:#f5f8ff;cursor:pointer">Cancel</button>
+          <button id="web3jobs-payment-confirm" style="flex:1;padding:12px;border:0;border-radius:10px;background:#6ee7b7;color:#06101d;font-weight:800;cursor:pointer">Connect Wallet & Pay</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+
+    modal.querySelector("#web3jobs-payment-cancel").onclick = closeModal;
+    modal.querySelector("#web3jobs-payment-confirm").onclick = async () => {
+      const button = modal.querySelector("#web3jobs-payment-confirm");
+      button.disabled = true;
+      button.textContent = "Opening wallet...";
+      try {
+        if (price <= 0) {
+          if (window.Web3JobsCompanyDashboard?.payUSDT) {
+            await window.Web3JobsCompanyDashboard.payUSDT({code,name,price,limit:2,durationDays:30});
+          }
+        } else if (window.Web3JobsCompanyDashboard?.payUSDT) {
+          await window.Web3JobsCompanyDashboard.payUSDT({code,name,price,limit:code === "enterprise" ? Infinity : code === "professional" ? 20 : 5,durationDays:30});
+        } else {
+          throw new Error("Subscription payment system is still loading. Please try again.");
+        }
+        closeModal();
+      } catch (error) {
+        button.disabled = false;
+        button.textContent = "Connect Wallet & Pay";
+        console.error("Web3Jobs subscription payment:", error);
+        if (typeof window.showDashboardAlert === "function") {
+          window.showDashboardAlert(error?.message || "Unable to complete subscription.", "error");
+        } else {
+          alert(error?.message || "Unable to complete subscription.");
+        }
+      }
+    };
+  }
+
+  document.addEventListener("click", function (event) {
+    const button = event.target.closest?.("[data-pay-plan]");
+    if (!button) return;
+    const code = String(button.dataset.payPlan || "").trim().toLowerCase();
+    if (!PRICES.hasOwnProperty(code)) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    showModal(code);
+  }, true);
 })();
 
 console.log("Web3Jobs Supabase System Loaded");
