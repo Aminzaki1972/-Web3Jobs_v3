@@ -1,0 +1,86 @@
+name: Sync company subscription pricing
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync-company-pricing.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-pricing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Update company plan constants
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('js/company-dashboard.js')
+          text = path.read_text(encoding='utf-8')
+
+          block = re.search(r'(const PLANS = \{.*?\n\s*\};)', text, re.S)
+          if not block:
+              raise SystemExit('PLANS block not found')
+
+          new_block = '''const PLANS = {
+
+        free: {
+            code: "free",
+            name: "Free",
+            price: 0,
+            limit: 1,
+            durationDays: 30
+        },
+
+        starter: {
+            code: "starter",
+            name: "Starter",
+            price: 19,
+            limit: 1,
+            durationDays: 30
+        },
+
+        professional: {
+            code: "professional",
+            name: "Professional",
+            price: 49,
+            limit: 5,
+            durationDays: 30
+        },
+
+        enterprise: {
+            code: "enterprise",
+            name: "Enterprise",
+            price: 99,
+            limit: 20,
+            durationDays: 30
+        }
+
+    };'''
+
+          text = text[:block.start()] + new_block + text[block.end():]
+          path.write_text(text, encoding='utf-8')
+
+          # Keep visible legacy dashboard price labels aligned when present.
+          html = Path('company-dashboard.html')
+          h = html.read_text(encoding='utf-8')
+          h = re.sub(r'(Starter.{0,120}?)(?:\$\s*)2(?:\s*(?:USDT|USD))?', r'\\1$19 USDT', h, flags=re.I|re.S)
+          h = re.sub(r'(Professional.{0,120}?)(?:\$\s*)5(?:\s*(?:USDT|USD))?', r'\\1$49 USDT', h, flags=re.I|re.S)
+          h = re.sub(r'(Enterprise.{0,120}?)(?:\$\s*)10(?:\s*(?:USDT|USD))?', r'\\1$99 USDT', h, flags=re.I|re.S)
+          html.write_text(h, encoding='utf-8')
+          PY
+
+      - name: Commit synchronized pricing
+        run: |
+          git config user.name "web3jobs-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/company-dashboard.js company-dashboard.html
+          git diff --cached --quiet && exit 0
+          git commit -m "Update company subscription pricing"
+          git push
