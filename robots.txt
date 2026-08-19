@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin-
+Disallow: /admin/
+Disallow: /company-dashboard.html
+Disallow: /company-jobs.html
+Disallow: /dashboard.html
+Disallow: /profile.html
+Sitemap: https://aminzaki1972.github.io/-Web3Jobs_v3/sitemap.xml
