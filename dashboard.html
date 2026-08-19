@@ -413,6 +413,73 @@
             }
         }
 
+        /* Personal profile photo at the top of the individual dashboard */
+        .dashboard-profile-hero {
+            display:flex;
+            align-items:center;
+            gap:20px;
+            margin-bottom:25px;
+            padding:22px 25px;
+            border:1px solid var(--line-light);
+            border-radius:20px;
+            background:linear-gradient(135deg,#10243a,#0b192b);
+            box-shadow:var(--shadow);
+        }
+        .dashboard-profile-avatar {
+            width:92px;
+            height:92px;
+            flex:0 0 92px;
+            border-radius:50%;
+            overflow:hidden;
+            display:grid;
+            place-items:center;
+            background:#13283d;
+            border:3px solid rgba(110,231,183,.55);
+            color:#6ee7b7;
+            font-size:30px;
+            font-weight:900;
+            box-shadow:0 10px 30px rgba(0,0,0,.25);
+        }
+        .dashboard-profile-avatar img {
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            display:block;
+        }
+        .dashboard-profile-copy { min-width:0; }
+        .dashboard-profile-copy h2 {
+            margin:0 0 5px;
+            font-size:22px;
+            line-height:1.2;
+        }
+        .dashboard-profile-copy p {
+            margin:0 0 10px;
+            color:var(--muted);
+            font-size:12px;
+            word-break:break-word;
+        }
+        .dashboard-profile-copy a {
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            padding:8px 12px;
+            border-radius:9px;
+            background:rgba(110,231,183,.08);
+            border:1px solid rgba(110,231,183,.25);
+            color:var(--accent);
+            text-decoration:none;
+            font-size:11px;
+            font-weight:800;
+        }
+        @media (max-width:600px) {
+            .dashboard-profile-hero {
+                flex-direction:column;
+                text-align:center;
+                padding:22px 18px;
+            }
+            .dashboard-profile-copy { width:100%; }
+        }
+
     </style>
 
 </head>
@@ -525,6 +592,17 @@
 
 
         <div id="dashboard-content">
+            <!-- WEB3JOBS-PROFILE-AVATAR-START -->
+            <section class="dashboard-profile-hero" aria-label="Personal profile">
+                <div id="dashboard-profile-avatar" class="dashboard-profile-avatar" aria-hidden="true">?</div>
+                <div class="dashboard-profile-copy">
+                    <h2 id="dashboard-profile-name">Your Profile</h2>
+                    <p id="dashboard-profile-email"></p>
+                    <a href="profile.html">Edit Profile</a>
+                </div>
+            </section>
+            <!-- WEB3JOBS-PROFILE-AVATAR-END -->
+
 
 
             <!-- WELCOME -->
@@ -2230,6 +2308,69 @@ loadDashboard();
 
 </script>
 
+
+
+<script>
+(function () {
+    "use strict";
+
+    async function loadDashboardProfileAvatar() {
+        try {
+            const getClient = window.Web3JobsSupabase && window.Web3JobsSupabase.getSupabaseClient;
+            if (typeof getClient !== "function") return;
+
+            const supabase = getClient();
+            if (!supabase) return;
+
+            const { data: authData, error: authError } = await supabase.auth.getUser();
+            if (authError || !authData || !authData.user) return;
+
+            const user = authData.user;
+            const { data: profile, error: profileError } = await supabase
+                .from("profiles")
+                .select("full_name,email,avatar_url,account_type,role")
+                .eq("id", user.id)
+                .maybeSingle();
+
+            if (profileError) {
+                console.warn("Dashboard profile photo error:", profileError);
+                return;
+            }
+
+            const name = (profile && profile.full_name) || (user.user_metadata && user.user_metadata.full_name) || user.email || "User";
+            const email = user.email || (profile && profile.email) || "";
+            const avatar = profile && profile.avatar_url;
+
+            const nameEl = document.getElementById("dashboard-profile-name");
+            const emailEl = document.getElementById("dashboard-profile-email");
+            const avatarEl = document.getElementById("dashboard-profile-avatar");
+
+            if (nameEl) nameEl.textContent = name;
+            if (emailEl) emailEl.textContent = email;
+
+            if (avatarEl && avatar) {
+                avatarEl.innerHTML = "";
+                const img = document.createElement("img");
+                img.src = avatar;
+                img.alt = "Profile photo";
+                img.loading = "eager";
+                img.referrerPolicy = "no-referrer";
+                avatarEl.appendChild(img);
+            } else if (avatarEl) {
+                avatarEl.textContent = String(name).trim().charAt(0).toUpperCase() || "?";
+            }
+        } catch (error) {
+            console.warn("Unable to load dashboard profile photo:", error);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadDashboardProfileAvatar, { once: true });
+    } else {
+        loadDashboardProfileAvatar();
+    }
+})();
+</script>
 
 </body>
 
