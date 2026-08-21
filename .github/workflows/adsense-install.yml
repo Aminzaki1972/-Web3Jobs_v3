@@ -15,48 +15,83 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install AdSense verification script on public pages
+      - name: Install AdSense and SEO metadata on public pages
         shell: python
         run: |
           from pathlib import Path
 
           publisher = "ca-pub-8596907100362110"
-          script = f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={publisher}" crossorigin="anonymous"></script>'
+          ad_script = f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={publisher}" crossorigin="anonymous"></script>'
 
-          targets = [Path("index.html"), Path("jobs.html")]
+          pages = {
+              "index.html": "/",
+              "jobs.html": "/jobs.html",
+              "companies.html": "/companies.html",
+              "about.html": "/about.html",
+              "contact.html": "/contact.html",
+              "privacy.html": "/privacy.html",
+              "terms.html": "/terms.html",
+              "cookies.html": "/cookies.html",
+              "disclaimer.html": "/disclaimer.html",
+              "web3-career-guide.html": "/web3-career-guide.html",
+              "roadmap.html": "/roadmap.html",
+          }
+
           changed = []
-
-          for path in targets:
-              if not path.exists():
-                  print(f"Skipping missing {path}")
+          for filename, path in pages.items():
+              file = Path(filename)
+              if not file.exists():
+                  print(f"Skipping missing {file}")
                   continue
 
-              text = path.read_text(encoding="utf-8")
-              if publisher in text:
-                  print(f"Already installed: {path}")
+              text = file.read_text(encoding="utf-8")
+              lower = text.lower()
+              additions = []
+
+              if publisher not in text:
+                  additions.append(ad_script)
+
+              canonical = f'<link rel="canonical" href="https://web3jbos.xyz{path}">' 
+              if 'rel="canonical"' not in lower:
+                  additions.append(canonical)
+
+              if 'name="robots"' not in lower:
+                  additions.append('<meta name="robots" content="index,follow,max-image-preview:large">')
+
+              if filename == "index.html" and 'property="og:title"' not in lower:
+                  additions.extend([
+                      '<meta property="og:title" content="Web3Jobs - Find Your Future in Web3">',
+                      '<meta property="og:description" content="Discover Web3, blockchain and crypto career opportunities from companies around the world.">',
+                      '<meta property="og:url" content="https://web3jbos.xyz/">',
+                      '<meta property="og:type" content="website">',
+                  ])
+
+              if not additions:
+                  print(f"Already ready: {file}")
                   continue
 
               marker = "</head>"
-              if marker not in text.lower():
-                  raise SystemExit(f"Missing </head> in {path}")
+              idx = lower.find(marker)
+              if idx == -1:
+                  raise SystemExit(f"Missing </head> in {file}")
 
-              # Preserve the existing page byte-for-byte except for one insertion.
-              idx = text.lower().find(marker)
-              text = text[:idx] + "\n" + script + "\n" + text[idx:]
-              path.write_text(text, encoding="utf-8")
-              changed.append(str(path))
+              block = "\n" + "\n".join(additions) + "\n"
+              text = text[:idx] + block + text[idx:]
+              file.write_text(text, encoding="utf-8")
+              changed.append(str(file))
 
           print("Updated:", ", ".join(changed) if changed else "none")
 
-      - name: Commit AdSense changes
+      - name: Commit AdSense and SEO changes
         shell: bash
         run: |
-          if git diff --quiet -- index.html jobs.html; then
+          files=(index.html jobs.html companies.html about.html contact.html privacy.html terms.html cookies.html disclaimer.html web3-career-guide.html roadmap.html)
+          if git diff --quiet -- "${files[@]}"; then
             echo "No page changes required."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html jobs.html
-          git commit -m "chore: add Google AdSense to public pages [skip ci]"
+          git add -- "${files[@]}"
+          git commit -m "chore: finalize AdSense and SEO metadata [skip ci]"
           git push
