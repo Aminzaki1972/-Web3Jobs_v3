@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install AdSense verification script on public pages
+      - name: Install AdSense verification script on public content pages
         shell: python
         run: |
           from pathlib import Path
@@ -23,9 +23,21 @@ jobs:
           publisher = "ca-pub-8596907100362110"
           script = f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={publisher}" crossorigin="anonymous"></script>'
 
-          targets = [Path("index.html"), Path("jobs.html")]
-          changed = []
+          targets = [
+              Path("index.html"),
+              Path("jobs.html"),
+              Path("companies.html"),
+              Path("about.html"),
+              Path("contact.html"),
+              Path("privacy.html"),
+              Path("terms.html"),
+              Path("cookies.html"),
+              Path("disclaimer.html"),
+              Path("web3-career-guide.html"),
+              Path("roadmap.html"),
+          ]
 
+          changed = []
           for path in targets:
               if not path.exists():
                   print(f"Skipping missing {path}")
@@ -37,11 +49,11 @@ jobs:
                   continue
 
               marker = "</head>"
-              if marker not in text.lower():
+              lower = text.lower()
+              idx = lower.find(marker)
+              if idx == -1:
                   raise SystemExit(f"Missing </head> in {path}")
 
-              # Preserve the existing page byte-for-byte except for one insertion.
-              idx = text.lower().find(marker)
               text = text[:idx] + "\n" + script + "\n" + text[idx:]
               path.write_text(text, encoding="utf-8")
               changed.append(str(path))
@@ -51,12 +63,13 @@ jobs:
       - name: Commit AdSense changes
         shell: bash
         run: |
-          if git diff --quiet -- index.html jobs.html; then
+          files=(index.html jobs.html companies.html about.html contact.html privacy.html terms.html cookies.html disclaimer.html web3-career-guide.html roadmap.html)
+          if git diff --quiet -- "${files[@]}"; then
             echo "No page changes required."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html jobs.html
-          git commit -m "chore: add Google AdSense to public pages [skip ci]"
+          git add -- "${files[@]}"
+          git commit -m "chore: install AdSense on public content pages [skip ci]"
           git push
