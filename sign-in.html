@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="refresh" content="0;url=login.html">
+  <title>Web3Jobs — Redirecting</title>
+  <script>
+    (function () {
+      var target = new URL("login.html", window.location.href);
+      target.search = window.location.search;
+      target.hash = window.location.hash;
+      window.location.replace(target.href);
+    })();
+  </script>
+</head>
+<body>
+  <p>Redirecting to Web3Jobs login…</p>
+  <p><a href="login.html">Continue to Login</a></p>
+</body>
+</html>
