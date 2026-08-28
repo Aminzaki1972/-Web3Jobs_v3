@@ -1,11 +1,10 @@
 /* Web3Jobs — single canonical company subscription controller
    Signature is GASLESS and is NEVER a blockchain transaction.
    Payment is a separate USDT transaction after successful signature.
-   Architecture: one canonical subscription module.
 */
 "use strict";
 (() => {
-  const PLANS={starter:{name:"Starter",price:19,duration:30},professional:{name:"Professional",price:25,duration:30},enterprise:{name:"Enterprise",price:50,duration:30}};
+  const PLANS={starter:{name:"Starter",price:19,duration:30},professional:{name:"Professional",price:49,duration:30},enterprise:{name:"Enterprise",price:99,duration:30}};
   const BSC="0x38",USDT="0x55d398326f99059ff775485246999027b3197955",RECEIVER="0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36";
   const ABI=["function balanceOf(address) view returns (uint256)","function transfer(address,uint256) returns (bool)"];
   let verified=null;
