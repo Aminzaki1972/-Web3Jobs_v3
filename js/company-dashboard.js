@@ -2,12 +2,16 @@
 "use strict";
 (() => {
   const modules = [
-    "js/company-dashboard-core.js?v=20260828-1",
-    "js/company-subscription-canonical.js?v=20260828-3"
+    "js/company-dashboard-core.js?v=20260828-2",
+    "js/company-subscription-canonical.js?v=20260828-4"
   ];
   const load = src => new Promise((resolve, reject) => {
     const key = src.split("?")[0];
-    if (document.querySelector(`script[data-wj-module="${key}"]`)) return resolve();
+    const existing = document.querySelector(`script[data-wj-module="${key}"]`);
+    if (existing) {
+      if (existing.src.includes(src.split("?")[1])) return resolve();
+      existing.remove();
+    }
     const s = document.createElement("script");
     s.src = src;
     s.async = false;
