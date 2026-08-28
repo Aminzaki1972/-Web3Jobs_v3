@@ -1,140 +1,29 @@
-/* Web3Jobs v3 - reliable company subscription UI */
+/* Web3Jobs v3 — subscription UI with STRICTLY SEPARATE signing and payment */
 "use strict";
 (() => {
   const CODES = ["starter", "professional", "enterprise"];
   const api = () => window.Web3JobsCompanySubscription;
-
   function codeFrom(el) {
-    let n = el;
-    for (let i = 0; i < 8 && n; i++, n = n.parentElement) {
-      const raw = String(n.dataset?.payPlan || n.dataset?.plan || "").toLowerCase();
-      if (CODES.includes(raw)) return raw;
-      const id = String(n.id || "").toLowerCase();
-      for (const c of CODES) if (id.includes(c)) return c;
+    let n=el;
+    for(let i=0;i<8&&n;i++,n=n.parentElement){
+      const raw=String(n.dataset?.payPlan||n.dataset?.plan||"").toLowerCase();
+      if(CODES.includes(raw)) return raw;
+      const id=String(n.id||"").toLowerCase();
+      for(const c of CODES) if(id.includes(c)) return c;
     }
-    const text = String(el.textContent || "").toLowerCase();
-    if (text.includes("enterprise")) return "enterprise";
-    if (text.includes("professional")) return "professional";
-    if (text.includes("starter")) return "starter";
-    return null;
+    const t=String(el.textContent||"").toLowerCase();
+    return CODES.find(c=>t.includes(c))||null;
   }
-
-  function findPlan(code) { return api()?.plans?.find(p => p.plan_code === code) || null; }
-
-  function formatPrice(p) {
-    const currency = String(p?.currency || "USDT").toUpperCase();
-    return `$${Number(p?.price || 0).toFixed(Number(p?.price || 0) % 1 ? 2 : 0)} ${currency} / month`;
+  function findPlan(code){return api()?.plans?.find(p=>p.plan_code===code)||null;}
+  function formatPrice(p){return `${Number(p?.price||0).toFixed(Number(p?.price||0)%1?2:0)} ${String(p?.currency||"USDT").toUpperCase()} / month`;}
+  function syncPrices(){CODES.forEach(code=>{const p=findPlan(code);if(!p)return;document.querySelectorAll(`[data-plan="${code}"] .plan-button-price,[data-plan-details="${code}"] .plan-details-price`).forEach(e=>e.textContent=formatPrice(p));});}
+  function ensureStyles(){if(document.getElementById("wj-separated-style"))return;const s=document.createElement("style");s.id="wj-separated-style";s.textContent=`#wj-separated{position:fixed;inset:0;z-index:2147483647;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.78)}#wj-separated .card{width:min(560px,100%);padding:24px;border-radius:18px;background:#081423;color:#f5f8ff;border:1px solid #294663;font-family:Arial,sans-serif}#wj-separated h3{margin:0 0 8px}.wj-sub{color:#9cafc5;font-size:12px;margin-bottom:16px}.wj-row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px}.wj-row strong{color:#6ee7b7}.wj-actions{display:flex;gap:10px;margin-top:18px}.wj-actions button{flex:1;min-height:44px;border:0;border-radius:10px;font-weight:800;cursor:pointer}.wj-cancel{background:#17263a;color:#fff}.wj-main{background:#1c765a;color:#fff}.wj-stage{margin-top:14px;padding:12px;border-radius:10px;background:#0d1d31;color:#b9c9dc;font-size:12px;line-height:1.5}.wj-error{display:none;margin-top:14px;padding:12px;border-radius:10px;background:#3a1520;color:#ffb4c0;font-size:12px}`;document.head.appendChild(s);}
+  function openModal(code,p){ensureStyles();let m=document.getElementById("wj-separated");if(!m){m=document.createElement("div");m.id="wj-separated";m.innerHTML=`<div class="card"><h3 id="wj-title"></h3><div class="wj-sub">Wallet ownership verification and payment are separate steps.</div><div id="wj-details"></div><div id="wj-stage" class="wj-stage" style="display:none"></div><div id="wj-error" class="wj-error"></div><div class="wj-actions"><button class="wj-cancel">Cancel</button><button class="wj-main" id="wj-main">Verify Wallet & Continue</button></div></div>`;document.body.appendChild(m);m.querySelector(".wj-cancel").onclick=()=>m.style.display="none";}
+    m.style.display="flex";m.querySelector("#wj-title").textContent=`${p.plan_name||code} — Monthly Subscription`;m.querySelector("#wj-details").innerHTML=`<div class="wj-row"><span>Amount</span><strong>${formatPrice(p)}</strong></div><div class="wj-row"><span>Network</span><strong>BNB Smart Chain (BSC)</strong></div><div class="wj-row"><span>USDT Contract</span><span style="font-family:monospace;font-size:10px;word-break:break-all">${api()?.CONFIG?.usdtAddress||""}</span></div><div class="wj-row"><span>Payment Wallet</span><span style="font-family:monospace;font-size:10px;word-break:break-all">${api()?.CONFIG?.receivingWallet||""}</span></div><div class="wj-row"><span>Duration</span><strong>${Number(p.duration_days||30)} days</strong></div>`;
+    const stage=m.querySelector("#wj-stage"),err=m.querySelector("#wj-error"),btn=m.querySelector("#wj-main");stage.style.display="none";err.style.display="none";btn.disabled=false;btn.textContent="Verify Wallet & Continue";
+    btn.onclick=async()=>{const a=api();if(!a?.verifySelectedWallet)throw new Error("Wallet verification service is unavailable. Refresh the page.");btn.disabled=true;stage.style.display="block";stage.textContent="Signature request — no transaction, no USDT, no gas.";try{await a.verifySelectedWallet();stage.textContent="Wallet verified ✓ — 0 USDT / 0 gas. Payment is NOT authorized by the signature.";btn.disabled=false;btn.textContent=`Pay ${formatPrice(p).replace(" / month","")}`;btn.onclick=async()=>{btn.disabled=true;stage.textContent="Opening separate USDT payment transaction...";try{const result=await a.payAfterVerification(code,(k,label)=>stage.textContent=label+"...");stage.textContent=`Payment submitted ✓ Transaction: ${result.transactionHash}`;btn.textContent="Done";setTimeout(()=>{m.style.display="none";location.reload();},700);}catch(e){err.textContent=e?.message||String(e);err.style.display="block";btn.disabled=false;btn.textContent=`Pay ${formatPrice(p).replace(" / month","")}`;}};}catch(e){err.textContent=e?.message||String(e);err.style.display="block";btn.disabled=false;btn.textContent="Verify Wallet & Continue";}};
   }
-
-  function syncPrices() {
-    CODES.forEach(code => {
-      const p = findPlan(code);
-      if (!p) return;
-      document.querySelectorAll(`[data-plan="${code}"] .plan-button-price,[data-plan-details="${code}"] .plan-details-price`).forEach(e => e.textContent = formatPrice(p));
-      document.querySelectorAll(`.plan-button[data-plan="${code}"]`).forEach(e => e.title = `${formatPrice(p)} — View payment details`);
-      document.querySelectorAll(`[data-pay-plan="${code}"], .plan-details[data-plan="${code}"] .plan-pay-button`).forEach(e => {
-        e.disabled = false;
-        e.textContent = "Subscribe & Pay";
-      });
-    });
-  }
-
-  function ensureStyles() {
-    if (document.getElementById("web3jobs-payment-modal-style")) return;
-    const s = document.createElement("style");
-    s.id = "web3jobs-payment-modal-style";
-    s.textContent = `#web3jobs-payment-modal{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.72);backdrop-filter:blur(8px)}#web3jobs-payment-modal .wj-payment-card{width:min(100%,540px);max-height:90vh;overflow:auto;padding:24px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:#081423;color:#f5f8ff;box-shadow:0 25px 80px rgba(0,0,0,.5)}#web3jobs-payment-modal h3{margin:0 0 8px;font-size:20px}#web3jobs-payment-modal p{margin:0 0 16px;color:#9cafc5;font-size:12px}.wj-payment-row{display:flex;justify-content:space-between;gap:15px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:12px}.wj-payment-row strong{color:#6ee7b7}.wj-payment-address{font-family:monospace;font-size:11px;word-break:break-all;text-align:right}.wj-payment-actions{display:flex;gap:10px;margin-top:18px}.wj-payment-actions button{flex:1;min-height:44px;border:0;border-radius:10px;font-weight:800;cursor:pointer}.wj-payment-confirm{background:#1c765a;color:#fff}.wj-payment-cancel{background:#17263a;color:#dbe7f5}`;
-    document.head.appendChild(s);
-  }
-
-  function modal() {
-    let m = document.getElementById("web3jobs-payment-modal");
-    if (m) return m;
-    m = document.createElement("div");
-    m.id = "web3jobs-payment-modal";
-    m.innerHTML = `<div class="wj-payment-card"><h3 id="wj-payment-title">Monthly subscription</h3><p>Review the payment details before opening your wallet.</p><div id="wj-payment-details"></div><div class="wj-payment-actions"><button type="button" class="wj-payment-cancel" id="wj-payment-cancel">Cancel</button><button type="button" class="wj-payment-confirm" id="wj-payment-confirm">Connect Wallet & Pay</button></div></div>`;
-    document.body.appendChild(m);
-    m.addEventListener("click", e => { if (e.target === m) m.style.display = "none"; });
-    m.querySelector("#wj-payment-cancel").onclick = () => m.style.display = "none";
-    return m;
-  }
-
-  function showPaymentDetails(code, p, button) {
-    ensureStyles();
-    const m = modal();
-    const cfg = api()?.CONFIG || {};
-    const token = cfg.usdtAddress || "0x55d398326f99059fF775485246999027B3197955";
-    const treasury = cfg.paymentWallet || cfg.receivingWallet || "Not configured";
-    const currency = String(p.currency || "USDT").toUpperCase();
-    m.querySelector("#wj-payment-title").textContent = `${p.plan_name || code} — monthly subscription`;
-    m.querySelector("#wj-payment-details").innerHTML = `<div class="wj-payment-row"><span>Amount</span><strong>${formatPrice(p)}</strong></div><div class="wj-payment-row"><span>Network</span><strong>BNB Smart Chain (BSC)</strong></div><div class="wj-payment-row"><span>Token</span><strong>${currency}</strong></div><div class="wj-payment-row"><span>USDT token contract</span><span class="wj-payment-address">${token}</span></div><div class="wj-payment-row"><span>Payment wallet</span><span class="wj-payment-address">${treasury}</span></div><div class="wj-payment-row"><span>Duration</span><strong>${Number(p.duration_days || 30)} days</strong></div>`;
-    m.style.display = "flex";
-    const confirm = m.querySelector("#wj-payment-confirm");
-    confirm.disabled = false;
-    confirm.textContent = "Connect Wallet & Pay";
-    confirm.onclick = async () => {
-      confirm.disabled = true;
-      confirm.textContent = "Processing...";
-      try {
-        m.style.display = "none";
-        await pay(code, button);
-      } catch (e) {
-        console.error(e);
-        alert(e?.message || String(e));
-      } finally {
-        confirm.disabled = false;
-        confirm.textContent = "Connect Wallet & Pay";
-      }
-    };
-  }
-
-  async function pay(code, button) {
-    const a = api();
-    const p = findPlan(code);
-    if (!a || typeof a.pay !== "function") {
-      throw new Error("Subscription payment system is still loading. Please refresh the page and try again.");
-    }
-    if (!p) throw new Error("The selected company plan is not available yet. Please wait for plans to load.");
-    const old = button?.textContent || "Subscribe & Pay";
-    if (button) { button.disabled = true; button.textContent = "Processing..."; }
-    try {
-      const result = await a.pay(code);
-      alert(`${p.plan_name} payment confirmed.\n\n${formatPrice(p)}\nTransaction: ${result.transactionHash}`);
-      location.reload();
-      return result;
-    } finally {
-      if (button) { button.disabled = false; button.textContent = old; }
-    }
-  }
-
-  function capturePaymentClick(event) {
-    const button = event.target.closest?.("[data-pay-plan], .plan-pay-button");
-    if (!button) return;
-    const code = button.dataset?.payPlan || codeFrom(button);
-    if (!code || !CODES.includes(code)) return;
-    event.preventDefault();
-    event.stopImmediatePropagation();
-    const p = findPlan(code);
-    if (!p) {
-      alert("Company subscription plans are still loading. Please wait a moment and try again.");
-      return;
-    }
-    showPaymentDetails(code, p, button);
-  }
-
-  async function initialize() {
-    ensureStyles();
-    document.addEventListener("click", capturePaymentClick, true);
-    window.addEventListener("web3jobs:company-plans-loaded", syncPrices);
-    window.addEventListener("web3jobs:company-plans-error", e => console.error("Company plans error:", e.detail));
-    syncPrices();
-    const a = api();
-    if (a?.loadPlans && (!a.plans || !a.plans.length)) {
-      try { await a.loadPlans(); } catch (e) { console.error("Company subscription plans load failed:", e); }
-    }
-    syncPrices();
-  }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initialize, { once: true });
-  else initialize();
+  function capture(e){const b=e.target.closest?.("[data-pay-plan],.plan-pay-button");if(!b)return;const code=b.dataset?.payPlan||codeFrom(b);if(!CODES.includes(code))return;e.preventDefault();e.stopImmediatePropagation();const p=findPlan(code);if(!p){alert("Company subscription plans are still loading.");return;}openModal(code,p);}
+  function init(){document.addEventListener("click",capture,true);window.addEventListener("web3jobs:company-plans-loaded",syncPrices);syncPrices();const a=api();if(a?.loadPlans&&(!a.plans||!a.plans.length))a.loadPlans().catch(console.error);}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init,{once:true});else init();
 })();
