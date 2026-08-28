@@ -1,67 +1,39 @@
 name: Fix company subscription live flow
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  fix-subscription:
+  subscription:
     runs-on: ubuntu-latest
-    if: github.actor != 'github-actions[bot]'
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Restore dashboard logic and patch subscription integration
+      - name: Install canonical subscription controller
         shell: bash
         run: |
           set -euo pipefail
-
-          # Restore the full company dashboard controller from the last known-good
-          # subscription baseline. Earlier hotfix attempts accidentally replaced it.
-          git checkout 783bbe2c11eebdfd81683be8cb073d5c31d156aa -- js/company-dashboard.js
-
           python3 - <<'PY'
           from pathlib import Path
           p = Path('company-dashboard.html')
           s = p.read_text(encoding='utf-8')
-
-          # Load the canonical payment module and its modal bridge in the live page.
           marker = '</body>'
-          scripts = '''\n    <script src="js/company-subscription-v2.js?v=20260819-10"></script>\n    <script src="js/company-subscription-hotfix.js?v=20260819-10"></script>\n'''
-          if 'company-subscription-v2.js?v=20260819-10' not in s:
-              if marker in s:
-                  s = s.replace(marker, scripts + marker, 1)
-              else:
-                  s += scripts
-
-          # Keep visible pricing synchronized with the active monthly plans.
-          replacements = {
-              '$2 USDT / month': '$19 USDT / month',
-              '$5 USDT / month': '$49 USDT / month',
-              '$10 USDT / month': '$99 USDT / month',
-              'Payment: 2 USDT on BNB Smart Chain.': 'Payment: 19 USDT on BNB Smart Chain.',
-              'Payment: 5 USDT on BNB Smart Chain.': 'Payment: 49 USDT on BNB Smart Chain.',
-              'Payment: 10 USDT on BNB Smart Chain.': 'Payment: 99 USDT on BNB Smart Chain.'
-          }
-          for old, new in replacements.items():
-              s = s.replace(old, new)
-
+          tag = '<script src="js/company-subscription-canonical.js?v=20260828-1"></script>'
+          # Remove all previous subscription bootstrap/hotfix script tags from the live page.
+          lines = s.splitlines()
+          lines = [x for x in lines if 'company-subscription-' not in x]
+          s = '\n'.join(lines) + ('\n' if s.endswith('\n') else '')
+          if tag not in s:
+              s = s.replace(marker, '    ' + tag + '\n' + marker, 1) if marker in s else s + '\n' + tag + '\n'
           p.write_text(s, encoding='utf-8')
           PY
-
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add js/company-dashboard.js company-dashboard.html
-          if git diff --cached --quiet; then
-            echo 'No changes needed.'
-            exit 0
-          fi
-          git commit -m 'Fix live company monthly subscription flow'
+          git add company-dashboard.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Install canonical company subscription controller'
           git push
