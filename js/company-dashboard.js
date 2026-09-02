@@ -4,7 +4,7 @@
   const modules = [
     "js/company-dashboard-core.js?v=20260902-2",
     "js/subscription-catalog.js?v=20260902-1",
-    "js/company-subscription-canonical.js?v=20260902-7",
+    "js/company-subscription-canonical.js?v=20260902-8",
     "js/payment-single-path-guard.js?v=20260902-1",
     "js/application-management.js?v=20260902-1"
   ];
