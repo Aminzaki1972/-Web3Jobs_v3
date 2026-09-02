@@ -9,10 +9,10 @@
   let jobs = [];
 
   const PLANS = Object.freeze({
-    free: { code: "free", name: "Free", limit: 2 },
-    starter: { code: "starter", name: "Starter", limit: 10 },
-    professional: { code: "professional", name: "Professional", limit: 30 },
-    enterprise: { code: "enterprise", name: "Enterprise", limit: Infinity }
+    free: { code: "free", name: "Free", price: 0, limit: 2 },
+    starter: { code: "starter", name: "Starter", price: 19, limit: 10 },
+    professional: { code: "professional", name: "Professional", price: 45, limit: 30 },
+    enterprise: { code: "enterprise", name: "Enterprise", price: 99, limit: Infinity }
   });
 
   const getClient = () => {
@@ -60,10 +60,7 @@
     updateCompanyName();
   };
 
-  const companyName = () => company?.company_name || company?.name || profile?.company_name ||
-    profile?.name || profile?.full_name || user?.user_metadata?.company_name ||
-    user?.user_metadata?.name || user?.email?.split("@")[0] || "Company";
-
+  const companyName = () => company?.company_name || company?.name || profile?.company_name || profile?.name || profile?.full_name || user?.user_metadata?.company_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "Company";
   const updateCompanyName = () => {
     const name = companyName();
     const input = document.getElementById("job-company");
@@ -83,8 +80,7 @@
     plan = { ...PLANS.free, used: 0 };
     if (!user) return;
     try {
-      const { data, error } = await getClient().from("subscriptions").select("plan_name,status,current_period_end,current_period_start,started_at,amount,currency")
-        .eq("user_id", user.id).in("status", ["active", "trialing"]).order("current_period_end", { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
+      const { data, error } = await getClient().from("subscriptions").select("plan_name,status,current_period_end,current_period_start,started_at,amount,currency").eq("user_id", user.id).in("status", ["active", "trialing"]).order("current_period_end", { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
       if (!error && data) {
         const end = data.current_period_end ? new Date(data.current_period_end) : null;
         if (!end || end > new Date()) {
@@ -92,12 +88,9 @@
           plan = { ...PLANS[code], used: 0, periodEnd: data.current_period_end || null };
         }
       }
-      const { count, error: countError } = await getClient().from("jobs").select("id", { count: "exact", head: true })
-        .eq("company_id", user.id).gte("created_at", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
+      const { count, error: countError } = await getClient().from("jobs").select("id", { count: "exact", head: true }).eq("company_id", user.id).gte("created_at", new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString());
       if (!countError) plan.used = Number(count || 0);
-    } catch (_) {
-      plan = { ...PLANS.free, used: 0 };
-    }
+    } catch (_) { plan = { ...PLANS.free, used: 0 }; }
     updatePlanUI();
   };
 
@@ -141,63 +134,33 @@
     if (plan.limit !== Infinity && plan.used >= plan.limit) throw new Error(`Your ${plan.name} plan has reached its monthly limit of ${plan.limit} job postings. Please upgrade your plan.`);
     const fd = new FormData(form);
     const payload = {
-      title: String(fd.get("title") || "").trim(),
-      company: String(fd.get("company") || companyName()).trim(),
-      location: String(fd.get("location") || "").trim(),
-      type: String(fd.get("type") || "Full-time").trim(),
-      apply_link: String(fd.get("apply_link") || fd.get("application_url") || "").trim(),
-      description: String(fd.get("description") || "").trim(),
-      company_id: user.id,
-      user_id: user.id,
-      is_active: true,
-      published_at: new Date().toISOString()
+      title: String(fd.get("title") || "").trim(), company: String(fd.get("company") || companyName()).trim(), location: String(fd.get("location") || "").trim(), type: String(fd.get("type") || "Full-time").trim(), apply_link: String(fd.get("apply_link") || fd.get("application_url") || "").trim(), description: String(fd.get("description") || "").trim(), company_id: user.id, user_id: user.id, is_active: true, published_at: new Date().toISOString()
     };
     if (!payload.title || !payload.company || !payload.description) throw new Error("Please complete all required fields.");
     const { error } = await getClient().from("jobs").insert(payload);
     if (error) throw error;
-    form.reset();
-    updateCompanyName();
-    alertBox("Job published successfully.");
-    await loadJobs();
-    await loadSubscription();
+    form.reset(); updateCompanyName(); alertBox("Job published successfully."); await loadJobs(); await loadSubscription();
   };
 
   const loadApplications = async () => {
     const body = document.getElementById("applications-table-body");
     if (!user || !body) return;
     const { data, error } = await getClient().rpc("get_company_applications");
-    if (error || !Array.isArray(data) || !data.length) {
-      body.innerHTML = '<tr><td colspan="5" class="empty-state">No applications yet.</td></tr>';
-      return;
-    }
+    if (error || !Array.isArray(data) || !data.length) { body.innerHTML = '<tr><td colspan="5" class="empty-state">No applications yet.</td></tr>'; return; }
     body.innerHTML = data.map(a => `<tr><td>${esc(a.candidate_name || a.candidate_email || a.user_id || "Candidate")}</td><td>${esc(a.job_title || "Job")}</td><td><span class="status">${esc(a.status || "submitted")}</span></td><td>${esc(a.created_at ? new Date(a.created_at).toLocaleDateString() : "—")}</td><td>${a.candidate_cv_url ? "CV available" : (a.resume_url ? "CV available" : "No CV")}</td></tr>`).join("");
   };
 
   const init = async () => {
     try {
-      getClient();
-      await getUser();
-      if (!user) return;
-      await loadProfile();
-      await loadCompany();
-      await loadSubscription();
-      await loadJobs();
-      await loadApplications();
+      getClient(); await getUser(); if (!user) return;
+      await loadProfile(); await loadCompany(); await loadSubscription(); await loadJobs(); await loadApplications();
       const form = document.getElementById("post-job-form");
       if (form && !form.dataset.wjBound) {
         form.dataset.wjBound = "1";
-        form.addEventListener("submit", async e => {
-          e.preventDefault();
-          const button = document.getElementById("publish-job-button");
-          if (button) button.disabled = true;
-          try { await addJob(form); } catch (error) { alertBox(error?.message || "Unable to publish the job.", "error"); }
-          finally { if (button) button.disabled = false; }
-        });
+        form.addEventListener("submit", async e => { e.preventDefault(); const button = document.getElementById("publish-job-button"); if (button) button.disabled = true; try { await addJob(form); } catch (error) { alertBox(error?.message || "Unable to publish the job.", "error"); } finally { if (button) button.disabled = false; } });
       }
-      const loader = document.getElementById("loading-spinner");
-      const dashboard = document.getElementById("dashboard-content");
-      if (loader) loader.style.display = "none";
-      if (dashboard) dashboard.style.display = "block";
+      const loader = document.getElementById("loading-spinner"); const dashboard = document.getElementById("dashboard-content");
+      if (loader) loader.style.display = "none"; if (dashboard) dashboard.style.display = "block";
     } catch (error) {
       console.error("Company dashboard initialization error:", error);
       const loader = document.getElementById("loading-spinner");
@@ -205,18 +168,8 @@
     }
   };
 
-  window.Web3JobsCompanyDashboard = {
-    getCurrentPlan: () => plan,
-    getConnectedWallet: () => null,
-    plans: PLANS,
-    connectWallet: () => window.Web3JobsCanonicalSubscription?.verifyWallet?.(),
-    payUSDT: () => { throw new Error("Legacy payment path disabled. Use the canonical subscription controller."); }
-  };
-  window.handlePlanSelection = code => {
-    const button = document.querySelector(`.plan-button[data-plan="${CSS.escape(String(code).toLowerCase())}"], [data-pay-plan="${CSS.escape(String(code).toLowerCase())}"]`);
-    if (button) { button.click(); return; }
-    throw new Error("Use the canonical subscription controller.");
-  };
+  window.Web3JobsCompanyDashboard = { getCurrentPlan: () => plan, getConnectedWallet: () => null, plans: PLANS, connectWallet: () => window.Web3JobsCanonicalSubscription?.verifyWallet?.(), payUSDT: () => { throw new Error("Legacy payment path disabled. Use the canonical subscription controller."); } };
+  window.handlePlanSelection = code => { const safe = String(code).toLowerCase().replace(/[^a-z]/g, ""); const button = document.querySelector(`.plan-button[data-plan="${safe}"], [data-pay-plan="${safe}"]`); if (button) { button.click(); return; } throw new Error("Use the canonical subscription controller."); };
   window.selectPlan = window.handlePlanSelection;
   window.connectPaymentWallet = () => window.Web3JobsCanonicalSubscription?.verifyWallet?.();
 
