@@ -9,9 +9,50 @@
   let cachedPlans = new Map();
 
   const getSupabase = async () => {
-    if (typeof window.waitForSupabase === "function") return window.waitForSupabase();
+    if (typeof window.waitForSupabase === "function") {
+      const client = await window.waitForSupabase();
+      if (client) return client;
+    }
     if (window.supabaseClient?.functions) return window.supabaseClient;
     throw new Error("Supabase connection is not initialized.");
+  };
+
+  const ensureSession = async sb => {
+    try {
+      const { data, error } = await sb.auth.getSession();
+      if (error) throw error;
+      if (!data?.session?.user) {
+        throw new Error("Please log in to Web3Jobs before verifying your wallet.");
+      }
+      return data.session;
+    } catch (e) {
+      throw new Error(e?.message || "Your Web3Jobs login session is unavailable. Please log in again.");
+    }
+  };
+
+  const functionError = async (error, fallback) => {
+    if (!error) return new Error(fallback);
+    try {
+      const response = error.context;
+      if (response && typeof response.clone === "function") {
+        const copy = response.clone();
+        const text = await copy.text();
+        if (text) {
+          try {
+            const body = JSON.parse(text);
+            if (body?.error) return new Error(String(body.error));
+            if (body?.message) return new Error(String(body.message));
+          } catch (_) {
+            if (text.length < 500) return new Error(text);
+          }
+        }
+        if (response.status === 401) return new Error("Web3Jobs login session is invalid or expired. Please log in again.");
+        if (response.status === 403) return new Error("Wallet verification is not authorized for this account.");
+        if (response.status === 404) return new Error("Wallet verification service was not found.");
+        if (response.status >= 500) return new Error("Wallet verification service encountered a server error. Please try again.");
+      }
+    } catch (_) {}
+    return new Error(error.message || fallback);
   };
 
   const connect = async () => {
@@ -30,11 +71,12 @@
   const verifyWallet = async () => {
     const { provider, address } = await connect();
     const sb = await getSupabase();
+    await ensureSession(sb);
 
     const { data: challenge, error: challengeError } = await sb.functions.invoke("wallet-auth", {
       body: { action: "challenge", wallet: address }
     });
-    if (challengeError) throw challengeError;
+    if (challengeError) throw await functionError(challengeError, "Unable to start wallet verification.");
     if (!challenge?.success || !challenge.message || !challenge.nonce) {
       throw new Error(challenge?.error || "Unable to start wallet verification.");
     }
@@ -50,7 +92,7 @@
         signature
       }
     });
-    if (verifyError) throw verifyError;
+    if (verifyError) throw await functionError(verifyError, "Wallet verification request failed.");
     if (!result?.success) throw new Error(result?.error || "Wallet verification failed.");
 
     verified = { address: result.wallet || address };
@@ -78,10 +120,11 @@
 
   const createIntent = async (planCode, wallet) => {
     const sb = await getSupabase();
+    await ensureSession(sb);
     const { data, error } = await sb.functions.invoke(FUNCTION_CREATE, {
       body: { planCode, wallet }
     });
-    if (error) throw error;
+    if (error) throw await functionError(error, "Unable to create payment intent.");
     if (!data?.success || !data.paymentIntent) throw new Error(data?.error || "Unable to create payment intent.");
     return data;
   };
@@ -108,6 +151,7 @@
     if (!receipt || receipt.status !== 1) throw new Error("USDT transaction failed or was not confirmed.");
 
     const sb = await getSupabase();
+    await ensureSession(sb);
     const { data: result, error } = await sb.functions.invoke(FUNCTION_VERIFY, {
       body: {
         paymentIntentId: intent.id,
@@ -115,7 +159,7 @@
         wallet: address
       }
     });
-    if (error) throw error;
+    if (error) throw await functionError(error, "On-chain payment verification request failed.");
     if (!result?.success) throw new Error(result?.error || "On-chain payment verification failed.");
     return result;
   };
