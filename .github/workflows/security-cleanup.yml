@@ -20,12 +20,18 @@ jobs:
           set -e
           changed=0
 
-          telegram_files=$(grep -RIl --exclude-dir=.git --exclude='security-cleanup.yml' 'https://t.me/web3jop' . || true)
+          telegram_files=$(grep -RIl --exclude-dir=.git --exclude='security-cleanup.yml' 'Telegram\|https://t.me/web3jop' . || true)
           if [ -n "$telegram_files" ]; then
             while IFS= read -r f; do
               [ -z "$f" ] && continue
-              sed -i '/https:\/\/t\.me\/web3jop/d' "$f"
-              changed=1
+              if grep -q 'https://t.me/web3jop' "$f"; then
+                sed -i '/https:\/\/t\.me\/web3jop/d' "$f"
+                changed=1
+              fi
+              if grep -qi 'Telegram' "$f"; then
+                perl -0pi -e 's#<a\s+target="_blank"\s+rel="noopener noreferrer"\s+class="social-link"\s*>\s*Telegram\s*</a>\s*##gi' "$f"
+                if ! git diff --quiet -- "$f"; then changed=1; fi
+              fi
             done <<< "$telegram_files"
           fi
 
@@ -42,7 +48,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -A
-            git commit -m 'security: remove Telegram IoC and pin Supabase CDN'
+            git commit -m 'security: remove Telegram button from homepage'
             git push
           else
             echo 'No cleanup changes required.'
