@@ -1,1174 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <meta
-        name="description"
-        content="Web3Jobs Roadmap - The future vision and development roadmap of Web3Jobs."
-    >
-
-    <meta
-        name="keywords"
-        content="Web3Jobs roadmap, Web3, Blockchain, Crypto, Jobs"
-    >
-
-    <title>Web3Jobs - Roadmap</title>
-
-
-    <!-- =====================================================
-         MAIN CSS
-         ===================================================== -->
-
-    <link
-        rel="stylesheet"
-        href="css/style.css"
-    >
-
-    <link
-        rel="stylesheet"
-        href="css/responsive.css"
-    >
-
-
-    <!-- =====================================================
-         PAGE STYLE
-         ===================================================== -->
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web3Jobs Roadmap — current platform capabilities, active development and future vision for a global Web3 employment marketplace.">
+    <meta name="keywords" content="Web3Jobs roadmap, Web3 jobs, blockchain jobs, crypto jobs, Web3 marketplace, USDT BSC">
+    <meta name="robots" content="index,follow,max-image-preview:large">
+    <link rel="canonical" href="https://web3jbos.xyz/roadmap.html">
+    <title>Web3Jobs — Roadmap</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8596907100362110" crossorigin="anonymous"></script>
     <style>
-
-        .roadmap-page {
-            min-height: 100vh;
-        }
-
-
-        /* =====================================================
-           HERO
-           ===================================================== */
-
-        .roadmap-hero {
-
-            padding:
-                90px 20px 60px;
-
-            text-align:
-                center;
-        }
-
-
-        .roadmap-hero h1 {
-
-            margin:
-                0 0 15px;
-
-            font-size:
-                clamp(36px, 6vw, 64px);
-
-            font-weight:
-                800;
-        }
-
-
-        .roadmap-hero p {
-
-            max-width:
-                750px;
-
-            margin:
-                0 auto;
-
-            font-size:
-                18px;
-
-            line-height:
-                1.7;
-
-            opacity:
-                .8;
-        }
-
-
-        /* =====================================================
-           ROADMAP SECTION
-           ===================================================== */
-
-        .roadmap-section {
-
-            width:
-                min(
-                    1050px,
-                    calc(100% - 40px)
-                );
-
-            margin:
-                0 auto 90px;
-        }
-
-
-        /* =====================================================
-           ROADMAP TIMELINE
-           ===================================================== */
-
-        .roadmap {
-
-            position:
-                relative;
-        }
-
-
-        .roadmap::before {
-
-            content:
-                "";
-
-            position:
-                absolute;
-
-            top:
-                0;
-
-            bottom:
-                0;
-
-            left:
-                50%;
-
-            width:
-                2px;
-
-            background:
-                rgba(99,102,241,.35);
-
-            transform:
-                translateX(-50%);
-        }
-
-
-        /* =====================================================
-           ROADMAP ITEM
-           ===================================================== */
-
-        .roadmap-item {
-
-            position:
-                relative;
-
-            display:
-                flex;
-
-            width:
-                50%;
-
-            margin-bottom:
-                45px;
-
-            box-sizing:
-                border-box;
-        }
-
-
-        .roadmap-item:nth-child(odd) {
-
-            padding-right:
-                45px;
-
-            justify-content:
-                flex-end;
-
-            text-align:
-                right;
-        }
-
-
-        .roadmap-item:nth-child(even) {
-
-            margin-left:
-                50%;
-
-            padding-left:
-                45px;
-
-            text-align:
-                left;
-        }
-
-
-        /* =====================================================
-           DOT
-           ===================================================== */
-
-        .roadmap-dot {
-
-            position:
-                absolute;
-
-            top:
-                28px;
-
-            width:
-                16px;
-
-            height:
-                16px;
-
-            border-radius:
-                50%;
-
-            background:
-                #6366f1;
-
-            border:
-                4px solid
-                #111827;
-
-            box-shadow:
-                0 0 0 3px
-                rgba(99,102,241,.25);
-
-            box-sizing:
-                content-box;
-
-            z-index:
-                2;
-        }
-
-
-        .roadmap-item:nth-child(odd)
-        .roadmap-dot {
-
-            right:
-                -10px;
-        }
-
-
-        .roadmap-item:nth-child(even)
-        .roadmap-dot {
-
-            left:
-                -10px;
-        }
-
-
-        /* =====================================================
-           CARD
-           ===================================================== */
-
-        .roadmap-card {
-
-            width:
-                100%;
-
-            max-width:
-                440px;
-
-            padding:
-                28px;
-
-            border-radius:
-                18px;
-
-            background:
-                rgba(255,255,255,.05);
-
-            border:
-                1px solid
-                rgba(255,255,255,.10);
-
-            box-sizing:
-                border-box;
-
-            transition:
-                transform .2s ease,
-                border-color .2s ease,
-                box-shadow .2s ease;
-        }
-
-
-        .roadmap-card:hover {
-
-            transform:
-                translateY(-4px);
-
-            border-color:
-                rgba(99,102,241,.6);
-
-            box-shadow:
-                0 15px 40px
-                rgba(0,0,0,.18);
-        }
-
-
-        /* =====================================================
-           PHASE
-           ===================================================== */
-
-        .roadmap-phase {
-
-            display:
-                inline-block;
-
-            margin-bottom:
-                12px;
-
-            padding:
-                6px 10px;
-
-            border-radius:
-                8px;
-
-            background:
-                rgba(99,102,241,.14);
-
-            color:
-                #818cf8;
-
-            font-size:
-                12px;
-
-            font-weight:
-                800;
-
-            text-transform:
-                uppercase;
-
-            letter-spacing:
-                .5px;
-        }
-
-
-        .roadmap-card h2 {
-
-            margin:
-                0 0 12px;
-
-            font-size:
-                24px;
-        }
-
-
-        .roadmap-card p {
-
-            margin:
-                0 0 18px;
-
-            line-height:
-                1.7;
-
-            opacity:
-                .75;
-        }
-
-
-        /* =====================================================
-           FEATURES
-           ===================================================== */
-
-        .roadmap-features {
-
-            margin:
-                0;
-
-            padding:
-                0;
-
-            list-style:
-                none;
-        }
-
-
-        .roadmap-features li {
-
-            position:
-                relative;
-
-            margin-bottom:
-                9px;
-
-            line-height:
-                1.5;
-
-            font-size:
-                14px;
-
-            opacity:
-                .85;
-        }
-
-
-        .roadmap-item:nth-child(odd)
-        .roadmap-features li {
-
-            padding-right:
-                20px;
-        }
-
-
-        .roadmap-item:nth-child(even)
-        .roadmap-features li {
-
-            padding-left:
-                20px;
-        }
-
-
-        .roadmap-item:nth-child(odd)
-        .roadmap-features li::after {
-
-            content:
-                "✓";
-
-            position:
-                absolute;
-
-            right:
-                0;
-
-            top:
-                0;
-
-            color:
-                #818cf8;
-
-            font-weight:
-                800;
-        }
-
-
-        .roadmap-item:nth-child(even)
-        .roadmap-features li::before {
-
-            content:
-                "✓";
-
-            position:
-                absolute;
-
-            left:
-                0;
-
-            top:
-                0;
-
-            color:
-                #818cf8;
-
-            font-weight:
-                800;
-        }
-
-
-        /* =====================================================
-           STATUS
-           ===================================================== */
-
-        .roadmap-status {
-
-            display:
-                inline-flex;
-
-            align-items:
-                center;
-
-            gap:
-                7px;
-
-            margin-top:
-                18px;
-
-            padding:
-                6px 10px;
-
-            border-radius:
-                8px;
-
-            background:
-                rgba(255,255,255,.06);
-
-            font-size:
-                12px;
-
-            font-weight:
-                700;
-        }
-
-
-        .status-dot {
-
-            width:
-                7px;
-
-            height:
-                7px;
-
-            border-radius:
-                50%;
-
-            background:
-                #818cf8;
-        }
-
-
-        /* =====================================================
-           VISION
-           ===================================================== */
-
-        .roadmap-vision {
-
-            margin-top:
-                70px;
-
-            padding:
-                40px;
-
-            text-align:
-                center;
-
-            border-radius:
-                20px;
-
-            background:
-                rgba(255,255,255,.05);
-
-            border:
-                1px solid
-                rgba(255,255,255,.10);
-        }
-
-
-        .roadmap-vision h2 {
-
-            margin:
-                0 0 15px;
-
-            font-size:
-                30px;
-        }
-
-
-        .roadmap-vision p {
-
-            max-width:
-                750px;
-
-            margin:
-                0 auto;
-
-            line-height:
-                1.8;
-
-            opacity:
-                .75;
-        }
-
-
-        /* =====================================================
-           MOBILE
-           ===================================================== */
-
-        @media (max-width: 750px) {
-
-            .roadmap-hero {
-
-                padding-top:
-                    60px;
-            }
-
-
-            .roadmap-section {
-
-                width:
-                    calc(100% - 24px);
-            }
-
-
-            .roadmap::before {
-
-                left:
-                    12px;
-
-                transform:
-                    none;
-            }
-
-
-            .roadmap-item,
-            .roadmap-item:nth-child(even) {
-
-                width:
-                    100%;
-
-                margin-left:
-                    0;
-
-                padding-left:
-                    45px;
-
-                padding-right:
-                    0;
-
-                justify-content:
-                    flex-start;
-
-                text-align:
-                    left;
-            }
-
-
-            .roadmap-item:nth-child(odd)
-            .roadmap-dot,
-            .roadmap-item:nth-child(even)
-            .roadmap-dot {
-
-                left:
-                    2px;
-
-                right:
-                    auto;
-            }
-
-
-            .roadmap-item:nth-child(odd)
-            .roadmap-features li {
-
-                padding-left:
-                    20px;
-
-                padding-right:
-                    0;
-            }
-
-
-            .roadmap-item:nth-child(odd)
-            .roadmap-features li::after {
-
-                display:
-                    none;
-            }
-
-
-            .roadmap-item:nth-child(odd)
-            .roadmap-features li::before {
-
-                content:
-                    "✓";
-
-                position:
-                    absolute;
-
-                left:
-                    0;
-
-                top:
-                    0;
-
-                color:
-                    #818cf8;
-
-                font-weight:
-                    800;
-            }
-
-
-            .roadmap-card {
-
-                max-width:
-                    none;
-            }
-
-
-            .roadmap-vision {
-
-                padding:
-                    28px 20px;
-            }
-
-        }
-
+        .roadmap-page{min-height:100vh}
+        .roadmap-hero{padding:90px 20px 55px;text-align:center}
+        .roadmap-hero h1{margin:0 0 15px;font-size:clamp(36px,6vw,64px);font-weight:800}
+        .roadmap-hero p{max-width:780px;margin:0 auto;font-size:18px;line-height:1.7;opacity:.8}
+        .roadmap-legend{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:25px auto 0}
+        .legend{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:12px;font-weight:700}
+        .roadmap-section{width:min(1050px,calc(100% - 40px));margin:0 auto 90px}
+        .roadmap{position:relative}
+        .roadmap:before{content:"";position:absolute;top:0;bottom:0;left:50%;width:2px;background:rgba(99,102,241,.35);transform:translateX(-50%)}
+        .roadmap-item{position:relative;display:flex;width:50%;margin-bottom:45px;box-sizing:border-box}
+        .roadmap-item:nth-child(odd){padding-right:45px;justify-content:flex-end;text-align:right}
+        .roadmap-item:nth-child(even){margin-left:50%;padding-left:45px;text-align:left}
+        .roadmap-dot{position:absolute;top:28px;width:16px;height:16px;border-radius:50%;background:#6366f1;border:4px solid #111827;box-shadow:0 0 0 3px rgba(99,102,241,.25);box-sizing:content-box;z-index:2}
+        .roadmap-item:nth-child(odd) .roadmap-dot{right:-10px}.roadmap-item:nth-child(even) .roadmap-dot{left:-10px}
+        .roadmap-card{width:100%;max-width:440px;padding:28px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);box-sizing:border-box;transition:.2s ease}
+        .roadmap-card:hover{transform:translateY(-4px);border-color:rgba(99,102,241,.6);box-shadow:0 15px 40px rgba(0,0,0,.18)}
+        .roadmap-phase{display:inline-block;margin-bottom:12px;padding:6px 10px;border-radius:8px;background:rgba(99,102,241,.14);color:#818cf8;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+        .roadmap-card h2{margin:0 0 12px;font-size:24px}.roadmap-card p{margin:0 0 18px;line-height:1.7;opacity:.75}
+        .roadmap-features{margin:0;padding:0;list-style:none}.roadmap-features li{position:relative;margin-bottom:9px;line-height:1.5;font-size:14px;opacity:.85}
+        .roadmap-item:nth-child(odd) .roadmap-features li{padding-right:20px}.roadmap-item:nth-child(even) .roadmap-features li{padding-left:20px}
+        .roadmap-item:nth-child(odd) .roadmap-features li:after{content:"✓";position:absolute;right:0;top:0;color:#818cf8;font-weight:800}
+        .roadmap-item:nth-child(even) .roadmap-features li:before{content:"✓";position:absolute;left:0;top:0;color:#818cf8;font-weight:800}
+        .roadmap-status{display:inline-flex;align-items:center;gap:7px;margin-top:18px;padding:7px 11px;border-radius:8px;background:rgba(255,255,255,.06);font-size:12px;font-weight:800}
+        .status-dot{width:7px;height:7px;border-radius:50%;background:#818cf8}
+        .status-live{background:rgba(34,197,94,.14)}.status-live .status-dot{background:#22c55e}
+        .status-progress{background:rgba(245,158,11,.14)}.status-progress .status-dot{background:#f59e0b}
+        .status-planned{background:rgba(99,102,241,.14)}
+        .roadmap-vision{margin-top:70px;padding:40px;text-align:center;border-radius:20px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1)}
+        .roadmap-vision h2{margin:0 0 15px;font-size:30px}.roadmap-vision p{max-width:780px;margin:0 auto;line-height:1.8;opacity:.75}
+        @media(max-width:750px){.roadmap-hero{padding-top:60px}.roadmap-section{width:calc(100% - 24px)}.roadmap:before{left:12px;transform:none}.roadmap-item,.roadmap-item:nth-child(even){width:100%;margin-left:0;padding-left:45px;padding-right:0;justify-content:flex-start;text-align:left}.roadmap-item:nth-child(odd) .roadmap-dot,.roadmap-item:nth-child(even) .roadmap-dot{left:2px;right:auto}.roadmap-item:nth-child(odd) .roadmap-features li{padding-left:20px;padding-right:0}.roadmap-item:nth-child(odd) .roadmap-features li:after{display:none}.roadmap-item:nth-child(odd) .roadmap-features li:before{content:"✓";position:absolute;left:0;top:0;color:#818cf8;font-weight:800}.roadmap-card{max-width:none}.roadmap-vision{padding:28px 20px}}
     </style>
-
-
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8596907100362110" crossorigin="anonymous"></script>
-<link rel="canonical" href="https://web3jbos.xyz/roadmap.html">
-<meta name="robots" content="index,follow,max-image-preview:large">
 </head>
-
-
 <body>
-
-
-    <!-- =====================================================
-         HEADER
-         ===================================================== -->
-
-    <header class="site-header">
-
-        <div class="container">
-
-            <a
-                href="index.html"
-                class="logo"
-            >
-                Web3Jobs
-            </a>
-
-
-            <nav class="main-nav">
-
-                <a href="index.html">
-                    Home
-                </a>
-
-
-                <a href="jobs.html">
-                    Jobs
-                </a>
-
-
-                <a href="companies.html">
-                    Companies
-                </a>
-
-
-                <a
-                    href="roadmap.html"
-                    class="active"
-                >
-                    Roadmap
-                </a>
-
-
-                <a href="login.html">
-                    Login
-                </a>
-
-            </nav>
-
+<header class="site-header">
+    <div class="container">
+        <a href="index.html" class="logo">Web3Jobs</a>
+        <nav class="main-nav">
+            <a href="index.html">Home</a>
+            <a href="jobs.html">Jobs</a>
+            <a href="companies.html">Companies</a>
+            <a href="roadmap.html" class="active">Roadmap</a>
+            <a href="login.html">Login</a>
+        </nav>
+    </div>
+</header>
+<main class="roadmap-page">
+<section class="roadmap-hero">
+    <h1>Web3Jobs Roadmap</h1>
+    <p>Building a professional global employment marketplace connecting Web3 talent, companies and opportunities — with secure account infrastructure and blockchain-powered payments.</p>
+    <div class="roadmap-legend" aria-label="Roadmap status legend">
+        <span class="legend">✓ Live</span><span class="legend">● In Progress</span><span class="legend">○ Planned</span>
+    </div>
+</section>
+<section class="roadmap-section">
+<div class="roadmap">
+    <article class="roadmap-item">
+        <span class="roadmap-dot"></span>
+        <div class="roadmap-card">
+            <span class="roadmap-phase">Phase 1</span>
+            <h2>Core Platform</h2>
+            <p>Establish the production foundation for Web3 hiring and connect candidates with real Web3 opportunities.</p>
+            <ul class="roadmap-features">
+                <li>Web3Jobs platform</li><li>Live Web3 job listings</li><li>User registration and authentication</li><li>Company accounts</li><li>Candidate profiles</li><li>External job-source integrations</li>
+            </ul>
+            <div class="roadmap-status status-live"><span class="status-dot"></span>Live</div>
         </div>
-
-    </header>
-
-
-    <!-- =====================================================
-         MAIN
-         ===================================================== -->
-
-    <main class="roadmap-page">
-
-
-        <!-- =================================================
-             HERO
-             ================================================= -->
-
-        <section class="roadmap-hero">
-
-            <h1>
-                Web3Jobs Roadmap
-            </h1>
-
-
-            <p>
-                Our vision is to build a professional,
-                decentralized and global ecosystem connecting
-                Web3 talent, companies and opportunities.
-            </p>
-
-        </section>
-
-
-        <!-- =================================================
-             ROADMAP
-             ================================================= -->
-
-        <section class="roadmap-section">
-
-
-            <div class="roadmap">
-
-
-                <!-- =================================================
-                     PHASE 1
-                     ================================================= -->
-
-                <article class="roadmap-item">
-
-                    <span class="roadmap-dot"></span>
-
-
-                    <div class="roadmap-card">
-
-                        <span class="roadmap-phase">
-                            Phase 1
-                        </span>
-
-
-                        <h2>
-                            Foundation
-                        </h2>
-
-
-                        <p>
-                            Establish the core Web3Jobs
-                            platform and create a reliable
-                            foundation for the ecosystem.
-                        </p>
-
-
-                        <ul class="roadmap-features">
-
-                            <li>
-                                Web3Jobs platform
-                            </li>
-
-                            <li>
-                                Web3 job listings
-                            </li>
-
-                            <li>
-                                User registration
-                            </li>
-
-                            <li>
-                                Company accounts
-                            </li>
-
-                            <li>
-                                Candidate profiles
-                            </li>
-
-                        </ul>
-
-
-                        <div class="roadmap-status">
-
-                            <span class="status-dot"></span>
-
-                            In Progress
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- =================================================
-                     PHASE 2
-                     ================================================= -->
-
-                <article class="roadmap-item">
-
-                    <span class="roadmap-dot"></span>
-
-
-                    <div class="roadmap-card">
-
-                        <span class="roadmap-phase">
-                            Phase 2
-                        </span>
-
-
-                        <h2>
-                            Marketplace
-                        </h2>
-
-
-                        <p>
-                            Expand Web3Jobs into a broader
-                            marketplace connecting Web3
-                            professionals and organizations.
-                        </p>
-
-
-                        <ul class="roadmap-features">
-
-                            <li>
-                                Advanced job search
-                            </li>
-
-                            <li>
-                                Company profiles
-                            </li>
-
-                            <li>
-                                Candidate discovery
-                            </li>
-
-                            <li>
-                                Job applications
-                            </li>
-
-                            <li>
-                                Saved jobs
-                            </li>
-
-                        </ul>
-
-
-                        <div class="roadmap-status">
-
-                            <span class="status-dot"></span>
-
-                            Planned
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- =================================================
-                     PHASE 3
-                     ================================================= -->
-
-                <article class="roadmap-item">
-
-                    <span class="roadmap-dot"></span>
-
-
-                    <div class="roadmap-card">
-
-                        <span class="roadmap-phase">
-                            Phase 3
-                        </span>
-
-
-                        <h2>
-                            Web3 Payments
-                        </h2>
-
-
-                        <p>
-                            Introduce blockchain-powered
-                            payments and subscription services
-                            for companies using Web3Jobs.
-                        </p>
-
-
-                        <ul class="roadmap-features">
-
-                            <li>
-                                Crypto payments
-                            </li>
-
-                            <li>
-                                USDT payments
-                            </li>
-
-                            <li>
-                                BNB Smart Chain integration
-                            </li>
-
-                            <li>
-                                Company subscriptions
-                            </li>
-
-                            <li>
-                                Blockchain transaction verification
-                            </li>
-
-                        </ul>
-
-
-                        <div class="roadmap-status">
-
-                            <span class="status-dot"></span>
-
-                            Planned
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- =================================================
-                     PHASE 4
-                     ================================================= -->
-
-                <article class="roadmap-item">
-
-                    <span class="roadmap-dot"></span>
-
-
-                    <div class="roadmap-card">
-
-                        <span class="roadmap-phase">
-                            Phase 4
-                        </span>
-
-
-                        <h2>
-                            Web3 Identity
-                        </h2>
-
-
-                        <p>
-                            Build a stronger identity and
-                            reputation layer for Web3
-                            professionals and organizations.
-                        </p>
-
-
-                        <ul class="roadmap-features">
-
-                            <li>
-                                Wallet-connected profiles
-                            </li>
-
-                            <li>
-                                Web3 identity
-                            </li>
-
-                            <li>
-                                Reputation system
-                            </li>
-
-                            <li>
-                                Verified companies
-                            </li>
-
-                            <li>
-                                On-chain credentials
-                            </li>
-
-                        </ul>
-
-
-                        <div class="roadmap-status">
-
-                            <span class="status-dot"></span>
-
-                            Future
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-                <!-- =================================================
-                     PHASE 5
-                     ================================================= -->
-
-                <article class="roadmap-item">
-
-                    <span class="roadmap-dot"></span>
-
-
-                    <div class="roadmap-card">
-
-                        <span class="roadmap-phase">
-                            Phase 5
-                        </span>
-
-
-                        <h2>
-                            Global Web3 Ecosystem
-                        </h2>
-
-
-                        <p>
-                            Transform Web3Jobs into a global
-                            ecosystem for Web3 employment,
-                            services, companies and opportunities.
-                        </p>
-
-
-                        <ul class="roadmap-features">
-
-                            <li>
-                                Global Web3 talent network
-                            </li>
-
-                            <li>
-                                Decentralized services marketplace
-                            </li>
-
-                            <li>
-                                Web3 company ecosystem
-                            </li>
-
-                            <li>
-                                Global blockchain infrastructure
-                            </li>
-
-                            <li>
-                                Community-driven growth
-                            </li>
-
-                        </ul>
-
-
-                        <div class="roadmap-status">
-
-                            <span class="status-dot"></span>
-
-                            Long Term Vision
-
-                        </div>
-
-                    </div>
-
-                </article>
-
-
-            </div>
-
-
-            <!-- =================================================
-                 VISION
-                 ================================================= -->
-
-            <div class="roadmap-vision">
-
-                <h2>
-                    The Web3Jobs Vision
-                </h2>
-
-
-                <p>
-                    Web3Jobs aims to become more than a job
-                    board. The long-term vision is to create
-                    an open global infrastructure connecting
-                    people, companies, skills, opportunities
-                    and blockchain technology in one ecosystem.
-                </p>
-
-            </div>
-
-
-        </section>
-
-    </main>
-
-
-    <!-- =====================================================
-         FOOTER
-         ===================================================== -->
-
-    <footer class="site-footer">
-
-        <div class="container">
-
-            <p>
-                © 2026 Web3Jobs. All rights reserved.
-            </p>
-
+    </article>
+    <article class="roadmap-item">
+        <span class="roadmap-dot"></span>
+        <div class="roadmap-card">
+            <span class="roadmap-phase">Phase 2</span>
+            <h2>Hiring Marketplace</h2>
+            <p>Turn the job board into a complete hiring workflow for companies and candidates.</p>
+            <ul class="roadmap-features">
+                <li>Advanced job discovery</li><li>Company profiles</li><li>Candidate discovery</li><li>Job applications</li><li>Application management</li><li>Saved jobs and hiring workflow</li>
+            </ul>
+            <div class="roadmap-status status-live"><span class="status-dot"></span>Live</div>
         </div>
-
-    </footer>
-
-
+    </article>
+    <article class="roadmap-item">
+        <span class="roadmap-dot"></span>
+        <div class="roadmap-card">
+            <span class="roadmap-phase">Phase 3</span>
+            <h2>Web3 Payments &amp; Subscriptions</h2>
+            <p>Provide a secure blockchain-based subscription flow for companies using Web3Jobs.</p>
+            <ul class="roadmap-features">
+                <li>Wallet connection</li><li>Wallet ownership verification</li><li>Server-side payment intents</li><li>USDT payments on BNB Smart Chain</li><li>On-chain transaction verification</li><li>Subscription activation</li>
+            </ul>
+            <div class="roadmap-status status-live"><span class="status-dot"></span>Live Infrastructure</div>
+        </div>
+    </article>
+    <article class="roadmap-item">
+        <span class="roadmap-dot"></span>
+        <div class="roadmap-card">
+            <span class="roadmap-phase">Phase 4</span>
+            <h2>Hiring Infrastructure</h2>
+            <p>Expand the platform from job discovery into deeper employer and talent tools.</p>
+            <ul class="roadmap-features">
+                <li>Improved employer workspace</li><li>Talent search and matching</li><li>Candidate verification features</li><li>Premium employer tools</li><li>Analytics and hiring insights</li><li>Scalable recruitment workflows</li>
+            </ul>
+            <div class="roadmap-status status-progress"><span class="status-dot"></span>In Progress</div>
+        </div>
+    </article>
+    <article class="roadmap-item">
+        <span class="roadmap-dot"></span>
+        <div class="roadmap-card">
+            <span class="roadmap-phase">Phase 5</span>
+            <h2>Global Web3 Employment Network</h2>
+            <p>Build a trusted global network for Web3 employment, recruiting and professional opportunities.</p>
+            <ul class="roadmap-features">
+                <li>Global employer growth</li><li>Large-scale talent network</li><li>AI-assisted job and talent matching</li><li>International hiring support</li><li>Expanded Web3 payment options</li><li>Partnerships and ecosystem integrations</li>
+            </ul>
+            <div class="roadmap-status status-planned"><span class="status-dot"></span>Planned</div>
+        </div>
+    </article>
+    <section class="roadmap-vision">
+        <h2>Long-Term Vision</h2>
+        <p>Web3Jobs aims to evolve from a specialized Web3 job platform into a trusted employment marketplace where companies can discover talent, manage hiring and access premium services, while professionals can discover opportunities and build long-term careers in the Web3 economy.</p>
+    </section>
+</div>
+</section>
+</main>
 </body>
-
-  </html>
+</html>
