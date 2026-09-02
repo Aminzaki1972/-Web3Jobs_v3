@@ -3,7 +3,8 @@
 (() => {
   const modules = [
     "js/company-dashboard-core.js?v=20260828-2",
-    "js/company-subscription-canonical.js?v=20260902-5",
+    "js/company-subscription-canonical.js?v=20260902-6",
+    "js/payment-single-path-guard.js?v=20260902-1",
     "js/application-management.js?v=20260902-1"
   ];
   const load = src => new Promise((resolve, reject) => {
