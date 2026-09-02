@@ -22,9 +22,13 @@
     const { data, error } = await client.rpc("get_company_applications");
     if (error) {
       console.error("Company applications load failed:", error);
+      body.innerHTML = `<tr><td colspan="5">Unable to load applications.</td></tr>`;
       return;
     }
-    if (!data?.length) return;
+    if (!Array.isArray(data) || !data.length) {
+      body.innerHTML = `<tr><td colspan="5">No applications yet.</td></tr>`;
+      return;
+    }
     body.innerHTML = data.map(a => `
       <tr>
         <td>${esc(a.candidate_name || a.candidate_email || a.user_id || "Candidate")}</td>
