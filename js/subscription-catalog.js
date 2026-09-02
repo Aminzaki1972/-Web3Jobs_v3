@@ -22,11 +22,28 @@
       if (name) name.textContent = plan.name;
       if (price) price.textContent = plan.price === 0 ? "$0 / month" : `${plan.price} USDT / month`;
       if (limit) limit.textContent = plan.limit === Infinity ? "Unlimited jobs" : `${plan.limit} jobs / month`;
-      button.dataset.payPlan = plan.code;
+      if (plan.price > 0) button.dataset.payPlan = plan.code;
+      else delete button.dataset.payPlan;
     });
     window.Web3JobsSubscriptionCatalog = CATALOG;
   };
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply, { once: true });
-  else apply();
+  const handleFree = event => {
+    const button = event.target?.closest?.('.plan-button[data-plan="free"]');
+    if (!button) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    document.querySelectorAll(".plan-button").forEach(b => b.classList.toggle("active", b === button));
+    const current = document.getElementById("current-plan-name");
+    if (current) current.textContent = "Free";
+    const note = document.getElementById("publish-note");
+    if (note) note.textContent = "Free plan: 2 jobs / month";
+  };
+
+  const init = () => {
+    apply();
+    document.addEventListener("click", handleFree, true);
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
+  else init();
 })();
