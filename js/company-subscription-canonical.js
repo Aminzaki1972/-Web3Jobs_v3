@@ -1,62 +1,135 @@
 /* Web3Jobs — single canonical company subscription controller */
 "use strict";
 (() => {
-  const PLANS = {
-    starter: { name: "Starter", price: 19, duration: 30 },
-    professional: { name: "Professional", price: 49, duration: 30 },
-    enterprise: { name: "Enterprise", price: 99, duration: 30 }
-  };
   const BSC = "0x38";
   const USDT = "0x55d398326f99059fF775485246999027B3197955";
-  const RECEIVER = "0x17dDE403631e0fbe7cf9194d25f5ee212Ca71B36";
-  const ABI = ["function balanceOf(address) view returns (uint256)", "function transfer(address,uint256) returns (bool)"];
+  const FUNCTION_CREATE = "create-payment-intent";
+  const FUNCTION_VERIFY = "verify-payment";
   let verified = null;
+  let cachedPlans = new Map();
+
+  const getSupabase = async () => {
+    if (typeof window.waitForSupabase === "function") return window.waitForSupabase();
+    if (window.supabaseClient?.functions) return window.supabaseClient;
+    throw new Error("Supabase connection is not initialized.");
+  };
 
   const connect = async () => {
     if (!window.ethereum) throw new Error("Please open MetaMask or a compatible Web3 wallet.");
-    if (await ethereum.request({ method: "eth_chainId" }) !== BSC) {
+    const chain = await ethereum.request({ method: "eth_chainId" });
+    if (chain !== BSC) {
       await ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BSC }] });
     }
+    if (!window.ethers?.BrowserProvider) throw new Error("Web3 wallet library is not available.");
     const provider = new ethers.BrowserProvider(ethereum);
     const accounts = await provider.send("eth_requestAccounts", []);
     if (!accounts?.[0]) throw new Error("No wallet account was selected.");
     return { provider, address: ethers.getAddress(accounts[0]) };
   };
 
-  const signOnly = async () => {
+  const verifyWallet = async () => {
     const { provider, address } = await connect();
+    const sb = await getSupabase();
+
+    const { data: challenge, error: challengeError } = await sb.functions.invoke("wallet-auth", {
+      body: { action: "challenge", wallet: address }
+    });
+    if (challengeError) throw challengeError;
+    if (!challenge?.success || !challenge.message || !challenge.nonce) {
+      throw new Error(challenge?.error || "Unable to start wallet verification.");
+    }
+
     const signer = await provider.getSigner();
-    const message = `Web3Jobs Wallet Verification\n\nWallet: ${address}\nPurpose: Verify wallet ownership only.\nNo payment is authorized by this signature.`;
-    const signature = await signer.signMessage(message);
-    verified = { address, message, signature };
+    const signature = await signer.signMessage(challenge.message);
+    const { data: result, error: verifyError } = await sb.functions.invoke("wallet-auth", {
+      body: {
+        action: "verify",
+        wallet: address,
+        nonce: challenge.nonce,
+        message: challenge.message,
+        signature
+      }
+    });
+    if (verifyError) throw verifyError;
+    if (!result?.success) throw new Error(result?.error || "Wallet verification failed.");
+
+    verified = { address: result.wallet || address };
     return verified;
   };
 
-  const payOnly = async code => {
-    if (!verified) throw new Error("Wallet verification is required before payment.");
-    const plan = PLANS[code];
-    if (!plan) throw new Error("Invalid subscription plan.");
+  const loadPlan = async code => {
+    const key = String(code || "").trim().toLowerCase();
+    if (cachedPlans.has(key)) return cachedPlans.get(key);
+    const sb = await getSupabase();
+    const { data, error } = await sb
+      .from("payment_plans")
+      .select("id,plan_code,plan_name,description,price,currency,duration_days,is_active,plan_type")
+      .eq("plan_code", key)
+      .eq("plan_type", "company_subscription")
+      .eq("is_active", true)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) throw new Error("Subscription plan is not active.");
+    if (String(data.currency).toUpperCase() !== "USDT") throw new Error("This subscription is not configured for USDT.");
+    if (Number(data.price) <= 0) throw new Error("Invalid subscription price.");
+    cachedPlans.set(key, data);
+    return data;
+  };
+
+  const createIntent = async (planCode, wallet) => {
+    const sb = await getSupabase();
+    const { data, error } = await sb.functions.invoke(FUNCTION_CREATE, {
+      body: { planCode, wallet }
+    });
+    if (error) throw error;
+    if (!data?.success || !data.paymentIntent) throw new Error(data?.error || "Unable to create payment intent.");
+    return data;
+  };
+
+  const payAndVerify = async (intent, wallet) => {
+    if (!window.ethers?.BrowserProvider) throw new Error("Web3 wallet library is not available.");
     const { provider, address } = await connect();
-    if (address.toLowerCase() !== verified.address.toLowerCase()) throw new Error("The wallet changed after verification. Please verify again.");
-    const signer = await provider.getSigner();
-    const token = new ethers.Contract(USDT, ABI, signer);
-    const amount = ethers.parseUnits(String(plan.price), 18);
+    if (address.toLowerCase() !== wallet.toLowerCase()) {
+      verified = null;
+      throw new Error("The wallet changed after verification. Please verify again.");
+    }
+    if (String(intent.chain_id) !== "56" || intent.token_address.toLowerCase() !== USDT.toLowerCase()) {
+      throw new Error("Payment intent network or token is invalid.");
+    }
+
+    const amount = ethers.parseUnits(String(intent.amount), 18);
+    const abi = ["function balanceOf(address) view returns (uint256)", "function transfer(address,uint256) returns (bool)"];
+    const token = new ethers.Contract(intent.token_address, abi, await provider.getSigner());
     const balance = await token.balanceOf(address);
-    if (balance < amount) throw new Error(`Insufficient USDT balance. Required: ${plan.price} USDT`);
-    const tx = await token.transfer(RECEIVER, amount);
+    if (balance < amount) throw new Error(`Insufficient USDT balance. Required: ${intent.amount} USDT.`);
+
+    const tx = await token.transfer(intent.merchant_wallet, amount);
     const receipt = await tx.wait();
-    if (!receipt || receipt.status !== 1) throw new Error("USDT payment was not confirmed.");
-    return receipt.hash;
+    if (!receipt || receipt.status !== 1) throw new Error("USDT transaction failed or was not confirmed.");
+
+    const sb = await getSupabase();
+    const { data: result, error } = await sb.functions.invoke(FUNCTION_VERIFY, {
+      body: {
+        paymentIntentId: intent.id,
+        txHash: receipt.hash,
+        wallet: address
+      }
+    });
+    if (error) throw error;
+    if (!result?.success) throw new Error(result?.error || "On-chain payment verification failed.");
+    return result;
   };
 
   const getPlanCode = el => {
     let n = el;
     for (let i = 0; n && i < 10; i++, n = n.parentElement) {
       const explicit = String(n.dataset?.payPlan || n.dataset?.plan || "").toLowerCase().trim();
-      if (PLANS[explicit]) return explicit;
+      if (explicit) return explicit;
       const id = String(n.id || "").toLowerCase();
-      const idMatch = Object.keys(PLANS).find(k => id === k || id.includes(`-${k}`) || id.includes(`${k}-`));
-      if (idMatch) return idMatch;
+      if (id) {
+        const match = ["starter", "professional", "enterprise"].find(k => id === k || id.includes(`-${k}`) || id.includes(`${k}-`));
+        if (match) return match;
+      }
     }
     return null;
   };
@@ -69,41 +142,61 @@
     document.head.appendChild(s);
   };
 
-  const open = code => {
-    const plan = PLANS[code];
-    if (!plan) return;
+  const open = async code => {
     css();
     document.getElementById("wj-canonical-sub")?.remove();
     verified = null;
+
+    let plan;
+    try {
+      plan = await loadPlan(code);
+    } catch (e) {
+      alert(e?.message || String(e));
+      return;
+    }
+
     const m = document.createElement("div");
     m.id = "wj-canonical-sub";
-    m.innerHTML = `<div class="box"><h2>${plan.name} — Monthly Subscription</h2><p>Wallet ownership verification and payment are separate steps.</p><div class="wjc-row"><span>Amount</span><strong class="wjc-green">${plan.price} USDT / month</strong></div><div class="wjc-row"><span>Network</span><strong>BNB Smart Chain (BSC)</strong></div><div class="wjc-row"><span>USDT Contract</span><span style="font-size:10px;word-break:break-all">${USDT}</span></div><div class="wjc-row"><span>Payment Wallet</span><span style="font-size:10px;word-break:break-all">${RECEIVER}</span></div><div class="wjc-row"><span>Duration</span><strong>${plan.duration} days</strong></div><div id="wjc-status" class="wjc-status">Step 1 — Verify wallet ownership. <b>FREE: 0 USDT / 0 Gas.</b></div><div id="wjc-error" class="wjc-error"></div><div class="wjc-actions"><button class="wjc-cancel" type="button">Cancel</button><button id="wjc-action" class="wjc-action" type="button">Verify Wallet & Continue</button></div></div>`;
+    m.innerHTML = `<div class="box"><h2>${String(plan.plan_name)} — Monthly Subscription</h2><p>One secure flow: wallet verification → payment intent → USDT transfer → on-chain verification → activation.</p><div class="wjc-row"><span>Amount</span><strong class="wjc-green">${Number(plan.price)} USDT / month</strong></div><div class="wjc-row"><span>Network</span><strong>BNB Smart Chain (BSC)</strong></div><div class="wjc-row"><span>USDT Contract</span><span style="font-size:10px;word-break:break-all">${USDT}</span></div><div class="wjc-row"><span>Duration</span><strong>${Number(plan.duration_days || 30)} days</strong></div><div id="wjc-status" class="wjc-status">Step 1 — Verify wallet ownership. <b>0 USDT payment</b>.</div><div id="wjc-error" class="wjc-error"></div><div class="wjc-actions"><button class="wjc-cancel" type="button">Cancel</button><button id="wjc-action" class="wjc-action" type="button">Verify Wallet & Continue</button></div></div>`;
     document.body.appendChild(m);
-    const status = m.querySelector("#wjc-status"), error = m.querySelector("#wjc-error"), btn = m.querySelector("#wjc-action");
+
+    const status = m.querySelector("#wjc-status");
+    const error = m.querySelector("#wjc-error");
+    const btn = m.querySelector("#wjc-action");
     m.querySelector(".wjc-cancel").onclick = () => m.remove();
+
     btn.onclick = async () => {
       btn.disabled = true;
       error.style.display = "none";
       try {
         if (!verified) {
-          status.innerHTML = "Opening <b>Signature Request</b> — <b>0 USDT / 0 Gas</b>...";
-          await signOnly();
-          status.innerHTML = "Wallet verified ✓ — <b>0 USDT / 0 Gas</b>. No payment was made.";
+          status.innerHTML = "Opening <b>free wallet signature</b> — <b>0 USDT / 0 Gas</b>...";
+          verified = await verifyWallet();
+          status.innerHTML = "Wallet verified ✓ — now creating a server-side payment intent.";
+          const intentResponse = await createIntent(plan.plan_code, verified.address);
+          const intent = intentResponse.paymentIntent;
+          plan = intentResponse.plan || plan;
+          status.innerHTML = `Payment intent created ✓ — ${Number(intent.amount)} USDT. Review the wallet transaction to continue.`;
+          btn.textContent = `Pay ${Number(intent.amount)} USDT`;
+          btn.dataset.intent = intent.id;
+          btn._intent = intent;
           btn.disabled = false;
-          btn.textContent = `Pay ${plan.price} USDT`;
-        } else {
-          status.textContent = `Opening separate ${plan.price} USDT payment transaction...`;
-          const hash = await payOnly(code);
-          status.textContent = `Payment confirmed ✓ ${hash}`;
-          btn.textContent = "Done";
-          btn.disabled = false;
-          btn.onclick = () => m.remove();
+          return;
         }
+
+        const intent = btn._intent;
+        if (!intent) throw new Error("Payment intent is missing. Please restart the payment flow.");
+        status.textContent = `Sending exactly ${Number(intent.amount)} USDT to the configured treasury...`;
+        const result = await payAndVerify(intent, verified.address);
+        status.innerHTML = `Payment verified on-chain ✓<br>Subscription activated ✓<br><span style="font-size:10px;word-break:break-all">${result.payment?.transaction_hash || intent.tx_hash || "Confirmed"}</span>`;
+        btn.textContent = "Done";
+        btn.disabled = false;
+        btn.onclick = () => { m.remove(); window.location.reload(); };
       } catch (e) {
         error.textContent = e?.code === 4001 ? "Wallet request was cancelled." : (e?.message || String(e));
         error.style.display = "block";
         btn.disabled = false;
-        btn.textContent = verified ? `Pay ${plan.price} USDT` : "Verify Wallet & Continue";
+        btn.textContent = verified && btn._intent ? `Pay ${Number(btn._intent.amount)} USDT` : "Verify Wallet & Continue";
       }
     };
   };
@@ -125,7 +218,7 @@
     }, true);
   };
 
-  window.Web3JobsCanonicalSubscription = { signOnly, payOnly, PLANS };
+  window.Web3JobsCanonicalSubscription = { verifyWallet, createIntent, payAndVerify, loadPlan };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
   else init();
 })();
