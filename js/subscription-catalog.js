@@ -3,9 +3,9 @@
 (() => {
   const CATALOG = Object.freeze({
     free: { code: "free", name: "Free", price: 0, currency: "USDT", durationDays: 30, limit: 2 },
-    starter: { code: "starter", name: "Starter", price: 10, currency: "USDT", durationDays: 30, limit: 10 },
-    professional: { code: "professional", name: "Professional", price: 25, currency: "USDT", durationDays: 30, limit: 30 },
-    enterprise: { code: "enterprise", name: "Enterprise", price: 50, currency: "USDT", durationDays: 30, limit: Infinity }
+    starter: { code: "starter", name: "Starter", price: 19, currency: "USDT", durationDays: 30, limit: 10 },
+    professional: { code: "professional", name: "Professional", price: 45, currency: "USDT", durationDays: 30, limit: 30 },
+    enterprise: { code: "enterprise", name: "Enterprise", price: 99, currency: "USDT", durationDays: 30, limit: Infinity }
   });
 
   const apply = () => {
@@ -17,7 +17,7 @@
       const price = button.querySelector(".plan-button-price");
       const limit = button.querySelector(".plan-button-limit");
       if (name) name.textContent = plan.name;
-      if (price) price.textContent = plan.price === 0 ? "$0 / month" : `${plan.price} USDT / month`;
+      if (price) price.textContent = plan.price === 0 ? "$0 / month" : `$${plan.price} USDT / month`;
       if (limit) limit.textContent = plan.limit === Infinity ? "Unlimited jobs" : `${plan.limit} jobs / month`;
       if (plan.price > 0) button.dataset.payPlan = plan.code;
       else delete button.dataset.payPlan;
