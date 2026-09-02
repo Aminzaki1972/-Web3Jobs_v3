@@ -3,19 +3,16 @@
 (() => {
   const CATALOG = Object.freeze({
     free: { code: "free", name: "Free", price: 0, currency: "USDT", durationDays: 30, limit: 2 },
-    starter: { code: "starter", name: "Starter", price: 19, currency: "USDT", durationDays: 30, limit: 5 },
-    professional: { code: "professional", name: "Professional", price: 45, currency: "USDT", durationDays: 30, limit: 20 },
-    enterprise: { code: "enterprise", name: "Enterprise", price: 99, currency: "USDT", durationDays: 30, limit: Infinity }
+    starter: { code: "starter", name: "Starter", price: 10, currency: "USDT", durationDays: 30, limit: 10 },
+    professional: { code: "professional", name: "Professional", price: 25, currency: "USDT", durationDays: 30, limit: 30 },
+    enterprise: { code: "enterprise", name: "Enterprise", price: 50, currency: "USDT", durationDays: 30, limit: Infinity }
   });
 
   const apply = () => {
     document.querySelectorAll(".plan-button").forEach(button => {
       const code = String(button.dataset.plan || button.dataset.payPlan || "").toLowerCase().trim();
       const plan = CATALOG[code];
-      if (!plan) {
-        button.hidden = true;
-        return;
-      }
+      if (!plan) return;
       const name = button.querySelector(".plan-button-name");
       const price = button.querySelector(".plan-button-price");
       const limit = button.querySelector(".plan-button-limit");
