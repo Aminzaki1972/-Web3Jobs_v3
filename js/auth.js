@@ -1,348 +1,112 @@
-/* =========================================================
-   Web3Jobs v3 - Unified Authentication
-   - Email/password auth
-   - Supabase Sign in with Web3 (EIP-4361)
-   - Ethereum + Solana wallet support
-   - Wallet account provisioning in profiles
-   - No client-controlled admin authorization
-   ========================================================= */
+/* Web3Jobs v3 - unified authentication */
 "use strict";
-
 (function () {
-    function getClient() {
-        const client = window.Web3JobsSupabase?.getClient?.() || window.supabaseClient;
-        if (client && client.auth) return client;
-        console.error("Web3Jobs Auth: Supabase client unavailable.");
-        return null;
+  const WALLET_AUTH_URL = "https://jqhemwskrnlycximjpag.supabase.co/functions/v1/wallet-auth";
+
+  function getClient() {
+    return window.Web3JobsSupabase?.getClient?.() || window.supabaseClient || null;
+  }
+  async function getCurrentSession() {
+    const c = getClient(); if (!c) return null;
+    try { const {data,error}=await c.auth.getSession(); if(error) throw error; return data?.session||null; } catch(e){ console.warn("Web3Jobs session unavailable"); return null; }
+  }
+  async function getCurrentUser(){ return (await getCurrentSession())?.user||null; }
+  function normalizeAccountType(v){
+    const t=String(v||"").trim().toLowerCase();
+    if(["admin","administrator","superadmin","super_admin"].includes(t)) return "admin";
+    if(["company","business","employer","organization","company_account","company-account"].includes(t)) return "company";
+    if(["individual","person","user","candidate","freelancer","individual_account","individual-account"].includes(t)) return "individual";
+    return null;
+  }
+  async function getAccountType(userId=null){
+    const c=getClient(), u=await getCurrentUser(), id=userId||u?.id; if(!c||!id) return "individual";
+    try{
+      const {data,error}=await c.from("profiles").select("account_type,role").eq("id",id).maybeSingle();
+      if(!error&&data){ if(normalizeAccountType(data.role)==="admin") return "admin"; return normalizeAccountType(data.account_type)||normalizeAccountType(data.role)||"individual"; }
+    }catch(_){ }
+    return "individual";
+  }
+  function getBaseUrl(){ const p=location.pathname, i=p.lastIndexOf("/"); return location.origin+(i>=0?p.slice(0,i+1):"/"); }
+  function getLoginUrl(){ return getBaseUrl()+"login.html"; }
+  function getDashboardUrl(type){ type=normalizeAccountType(type); return getBaseUrl()+(type==="admin"?"admin-dashboard.html":type==="company"?"company-dashboard.html":"dashboard.html"); }
+  function showAuthMessage(ar,en,type="info"){
+    const el=document.getElementById("auth-message")||document.getElementById("register-message")||document.getElementById("loginStatus");
+    if(!el){ console.warn(en); return; }
+    el.textContent=ar+" "+en; el.className=(el.id==="loginStatus"?"status-message ":"auth-message-box ")+"auth-message-"+type; el.style.display="block";
+  }
+  function showAuthError(e){
+    const raw=String(e?.message||e?.error_description||e||"Authentication failed");
+    const t=raw.toLowerCase();
+    if(t.includes("invalid login credentials")) return showAuthMessage("البريد الإلكتروني أو كلمة المرور غير صحيحة.","Invalid email or password.","error");
+    if(t.includes("email not confirmed")) return showAuthMessage("البريد الإلكتروني غير مؤكد.","Email address is not confirmed.","error");
+    if(t.includes("rate limit")||t.includes("too many")) return showAuthMessage("تم تجاوز عدد المحاولات. حاول لاحقًا.","Too many attempts. Please try again later.","error");
+    showAuthMessage("تعذر إتمام تسجيل الدخول.","Authentication could not be completed.","error");
+    console.error("Web3Jobs auth:",e);
+  }
+  async function loginUser(email,password){
+    const c=getClient(); if(!c) return {success:false};
+    try{
+      const {data,error}=await c.auth.signInWithPassword({email:String(email||"").trim().toLowerCase(),password:String(password||"")});
+      if(error) throw error; const u=data?.user,s=data?.session; if(!u||!s) return {success:false};
+      const accountType=await getAccountType(u.id); localStorage.setItem("web3jobs_account_type",accountType); localStorage.setItem("web3jobs_user_id",u.id);
+      return {success:true,user:u,session:s,accountType,dashboardUrl:getDashboardUrl(accountType)};
+    }catch(e){showAuthError(e);return {success:false,error:e};}
+  }
+  async function getEthereumAddress(){
+    if(!window.ethereum) return "";
+    try{ const a=await window.ethereum.request({method:"eth_accounts"}); return a?.[0]||""; }catch(_){return "";}
+  }
+  async function switchToBsc(){
+    if(!window.ethereum) return;
+    try{ await window.ethereum.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x38"}]}); }
+    catch(e){
+      if(e?.code===4902){ await window.ethereum.request({method:"wallet_addEthereumChain",params:[{chainId:"0x38",chainName:"BNB Smart Chain",nativeCurrency:{name:"BNB",symbol:"BNB",decimals:18},rpcUrls:["https://bsc-dataseed.binance.org/"],blockExplorerUrls:["https://bscscan.com/"]}]}); }
+      else throw e;
     }
-
-    async function getCurrentSession() {
-        const client = getClient();
-        if (!client) return null;
-        try {
-            const { data, error } = await client.auth.getSession();
-            if (error) throw error;
-            return data?.session || null;
-        } catch (error) {
-            console.error("Web3Jobs getSession:", error);
-            return null;
-        }
-    }
-
-    async function getCurrentUser() {
-        const session = await getCurrentSession();
-        return session?.user || null;
-    }
-
-    function normalizeAccountType(value) {
-        const type = String(value || "").trim().toLowerCase();
-        if (["admin", "administrator", "superadmin", "super_admin"].includes(type)) return "admin";
-        if (["company", "business", "employer", "organization", "company_account", "company-account"].includes(type)) return "company";
-        if (["individual", "person", "user", "candidate", "freelancer", "individual_account", "individual-account"].includes(type)) return "individual";
-        return null;
-    }
-
-    /* Never use user-editable metadata as the authoritative role source. */
-    async function getAccountType(userId = null) {
-        const client = getClient();
-        const user = await getCurrentUser();
-        const id = userId || user?.id;
-        if (!client || !id) return null;
-
-        try {
-            const { data, error } = await client
-                .from("profiles")
-                .select("account_type,role")
-                .eq("id", id)
-                .maybeSingle();
-
-            if (!error && data) {
-                if (normalizeAccountType(data.role) === "admin") return "admin";
-                return normalizeAccountType(data.account_type) || normalizeAccountType(data.role) || "individual";
-            }
-        } catch (error) {
-            console.warn("Web3Jobs profile role lookup:", error);
-        }
-
-        /* Admin is verified by the database function, never by metadata/localStorage. */
-        try {
-            const { data, error } = await client.rpc("is_admin");
-            if (!error && data === true) return "admin";
-        } catch (error) {
-            console.warn("Web3Jobs admin check:", error);
-        }
-
-        return "individual";
-    }
-
-    function isEmailConfirmed(user) {
-        return Boolean(user?.email_confirmed_at || user?.confirmed_at);
-    }
-
-    function getBaseUrl() {
-        const path = window.location.pathname;
-        const index = path.lastIndexOf("/");
-        return window.location.origin + (index >= 0 ? path.substring(0, index + 1) : "/");
-    }
-
-    function getLoginUrl() { return getBaseUrl() + "login.html"; }
-
-    function getDashboardUrl(accountType) {
-        const type = normalizeAccountType(accountType);
-        if (type === "admin") return getBaseUrl() + "admin-dashboard.html";
-        if (type === "company") return getBaseUrl() + "company-dashboard.html";
-        return getBaseUrl() + "dashboard.html";
-    }
-
-    function showAuthMessage(arabic, english, type = "info") {
-        const element = document.getElementById("auth-message") || document.getElementById("register-message");
-        if (!element) return console.log(arabic, english);
-        element.innerHTML = "";
-        const box = document.createElement("div");
-        box.className = "auth-message-box auth-message-" + type;
-        const ar = document.createElement("div");
-        ar.textContent = arabic;
-        const en = document.createElement("div");
-        en.textContent = english;
-        box.append(ar, en);
-        element.appendChild(box);
-        element.style.display = "block";
-    }
-
-    function showAuthError(error) {
-        const raw = String(error?.message || error?.error_description || error || "Authentication failed.");
-        const text = raw.toLowerCase();
-        if (text.includes("invalid login credentials")) return showAuthMessage("البريد الإلكتروني أو كلمة المرور غير صحيحة.", "Invalid email or password.", "error");
-        if (text.includes("email not confirmed")) return showAuthMessage("البريد الإلكتروني غير مؤكد.", "Email address is not confirmed.", "error");
-        if (text.includes("failed to fetch") || text.includes("network") || text.includes("fetch")) return showAuthMessage("تعذر الاتصال بخادم Supabase.", "Could not connect to Supabase.", "error");
-        if (text.includes("too many") || text.includes("rate limit")) return showAuthMessage("تم تجاوز عدد المحاولات. حاول لاحقًا.", "Too many attempts. Please try again later.", "error");
-        if (text.includes("web3") || text.includes("wallet") || text.includes("provider") || text.includes("disabled")) return showAuthMessage("تسجيل الدخول بالمحفظة غير مفعّل أو غير مدعوم حاليًا في Supabase.", "Web3 wallet authentication is not enabled or supported by the current Supabase Auth configuration.", "error");
-        showAuthMessage("حدث خطأ: " + raw, "Authentication error: " + raw, "error");
-    }
-
-    async function loginUser(email, password) {
-        const client = getClient();
-        if (!client) return { success: false };
-        email = String(email || "").trim().toLowerCase();
-        password = String(password || "");
-        if (!email || !password) {
-            showAuthMessage("يرجى إدخال البريد الإلكتروني وكلمة المرور.", "Please enter your email and password.", "error");
-            return { success: false };
-        }
-        try {
-            const { data, error } = await client.auth.signInWithPassword({ email, password });
-            if (error) { showAuthError(error); return { success: false, error }; }
-            const user = data?.user;
-            const session = data?.session;
-            if (!user || !session) return { success: false };
-            const accountType = await getAccountType(user.id);
-            try {
-                localStorage.setItem("web3jobs_account_type", accountType);
-                localStorage.setItem("web3jobs_user_id", user.id);
-            } catch (_) {}
-            return { success: true, user, session, accountType, dashboardUrl: getDashboardUrl(accountType) };
-        } catch (error) {
-            showAuthError(error);
-            return { success: false, error };
-        }
-    }
-
-    async function ensureWalletProfile(user, accountType) {
-        const client = getClient();
-        if (!client || !user?.id) return false;
-
-        const { data: existing, error: readError } = await client
-            .from("profiles")
-            .select("id,account_type,role,full_name,email")
-            .eq("id", user.id)
-            .maybeSingle();
-
-        if (readError) {
-            console.error("Web3Jobs wallet profile lookup:", readError);
-            return false;
-        }
-
-        if (existing) return true;
-
-        const identity = user.identities?.find(i => i.provider === "ethereum" || i.provider === "solana");
-        const walletAddress = identity?.identity_data?.address || identity?.identity_data?.sub || "";
-        const safeType = accountType === "company" ? "company" : "individual";
-        const { error } = await client.from("profiles").insert({
-            id: user.id,
-            email: user.email || null,
-            full_name: walletAddress ? `Wallet ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}` : "Web3 Wallet User",
-            account_type: safeType,
-            role: safeType
-        });
-
-        if (error) {
-            console.error("Web3Jobs wallet profile creation:", error);
-            showAuthMessage("تم تسجيل المحفظة لكن تعذر إنشاء ملف الحساب. تحقق من صلاحيات profiles.", "Wallet authentication succeeded, but the profile could not be created.", "error");
-            return false;
-        }
-        return true;
-    }
-
-    async function signInWithWallet(accountType = "individual") {
-        const client = getClient();
-        if (!client) {
-            showAuthMessage("تعذر الاتصال بـ Supabase.", "Supabase connection is unavailable.", "error");
-            return { success: false };
-        }
-
-        if (!client.auth || typeof client.auth.signInWithWeb3 !== "function") {
-            showAuthMessage("إصدار مكتبة Supabase في الصفحة لا يدعم Web3. سيتم تحديثه عند نشر الإصلاح.", "The loaded Supabase client does not expose signInWithWeb3.", "error");
-            return { success: false };
-        }
-
-        accountType = accountType === "company" ? "company" : "individual";
-
-        try {
-            let chain = null;
-            if (window.ethereum) chain = "ethereum";
-            else if (window.solana || window.phantom?.solana) chain = "solana";
-
-            if (!chain) {
-                showAuthMessage("لم يتم العثور على محفظة Web3. ثبّت MetaMask أو محفظة Ethereum/Solana ثم أعد المحاولة.", "No Web3 wallet was detected. Install MetaMask or a compatible Ethereum/Solana wallet and try again.", "error");
-                return { success: false };
-            }
-
-            const wallet = chain === "solana" ? (window.phantom?.solana || window.solana) : undefined;
-            const result = await client.auth.signInWithWeb3({
-                chain,
-                statement: "I accept the Web3Jobs Terms of Service.",
-                ...(wallet ? { wallet } : {})
-            });
-
-            if (result.error) {
-                showAuthError(result.error);
-                return { success: false, error: result.error };
-            }
-
-            const user = result.data?.user;
-            const session = result.data?.session;
-            if (!user || !session) {
-                showAuthMessage("تم توقيع الرسالة ولكن لم يتم إنشاء جلسة.", "The wallet signature was accepted but no session was created.", "error");
-                return { success: false };
-            }
-
-            const profileReady = await ensureWalletProfile(user, accountType);
-            if (!profileReady) return { success: false };
-
-            const realAccountType = await getAccountType(user.id);
-            try {
-                localStorage.setItem("web3jobs_account_type", realAccountType || accountType);
-                localStorage.setItem("web3jobs_user_id", user.id);
-            } catch (_) {}
-
-            const dashboardUrl = getDashboardUrl(realAccountType || accountType);
-            window.location.replace(dashboardUrl);
-            return { success: true, user, session, accountType: realAccountType || accountType, dashboardUrl };
-        } catch (error) {
-            console.error("Web3Jobs Web3 authentication:", error);
-            showAuthError(error);
-            return { success: false, error };
-        }
-    }
-
-    async function protectDashboard(requiredAccountType = null) {
-        const session = await getCurrentSession();
-        if (!session?.user) {
-            window.location.replace(getLoginUrl());
-            return false;
-        }
-        const accountType = await getAccountType(session.user.id);
-        if (requiredAccountType) {
-            const required = normalizeAccountType(requiredAccountType);
-            if (required && accountType !== required) {
-                window.location.replace(getDashboardUrl(accountType));
-                return false;
-            }
-        }
-        try {
-            localStorage.setItem("web3jobs_account_type", accountType);
-            localStorage.setItem("web3jobs_user_id", session.user.id);
-        } catch (_) {}
-        return { authenticated: true, emailConfirmed: isEmailConfirmed(session.user), user: session.user, accountType };
-    }
-
-    async function logoutUser() {
-        const client = getClient();
-        try { if (client) await client.auth.signOut(); } catch (error) { console.error(error); }
-        try { localStorage.removeItem("web3jobs_account_type"); localStorage.removeItem("web3jobs_user_id"); } catch (_) {}
-        window.location.replace(getLoginUrl());
-    }
-
-    async function resetPassword(email) {
-        const client = getClient();
-        if (!client) return false;
-        try {
-            const { error } = await client.auth.resetPasswordForEmail(String(email || "").trim().toLowerCase(), { redirectTo: getLoginUrl() });
-            if (error) { showAuthError(error); return false; }
-            showAuthMessage("تم إرسال رابط إعادة تعيين كلمة المرور.", "Password reset link has been sent.", "success");
-            return true;
-        } catch (error) { showAuthError(error); return false; }
-    }
-
-    async function resendConfirmationEmail(email) {
-        const client = getClient();
-        if (!client) return false;
-        try {
-            const { error } = await client.auth.resend({ type: "signup", email: String(email || "").trim().toLowerCase(), options: { emailRedirectTo: getLoginUrl() } });
-            if (error) { showAuthError(error); return false; }
-            showAuthMessage("تم إرسال رسالة تأكيد جديدة.", "A new confirmation email has been sent.", "success");
-            return true;
-        } catch (error) { showAuthError(error); return false; }
-    }
-
-    function initializeWalletButtons() {
-        const buttons = [
-            ...document.querySelectorAll("#wallet-register-button"),
-            ...document.querySelectorAll(".wallet-button")
-        ];
-        const unique = [...new Set(buttons)];
-        unique.forEach(button => {
-            if (button.dataset.web3jobsWalletBound === "1") return;
-            button.dataset.web3jobsWalletBound = "1";
-            button.addEventListener("click", async event => {
-                event.preventDefault();
-                event.stopImmediatePropagation();
-                const selected = document.querySelector('input[name="account-type"]:checked')?.value || "individual";
-                button.disabled = true;
-                const original = button.textContent;
-                button.textContent = "جاري الاتصال بالمحفظة...";
-                try { await signInWithWallet(selected); }
-                finally { button.disabled = false; button.textContent = original; }
-            }, true);
-        });
-    }
-
-    function initializeAuth() {
-        if (!getClient()) return;
-        initializeWalletButtons();
-        console.log("Web3Jobs Auth System loaded.");
-    }
-
-    window.Web3JobsAuth = {
-        getClient, getCurrentUser, getCurrentSession, getAccountType,
-        login: loginUser, loginUser, logout: logoutUser, logoutUser,
-        resetPassword, resendConfirmation: resendConfirmationEmail,
-        signInWithWallet, protectDashboard,
-        protectAdminDashboard: () => protectDashboard("admin"),
-        protectCompanyDashboard: () => protectDashboard("company"),
-        protectIndividualDashboard: () => protectDashboard("individual"),
-        getDashboardUrl, getLoginUrl, isEmailConfirmed,
-        normalizeAccountType, showMessage: showAuthMessage, showError: showAuthError
-    };
-
-    window.getCurrentUser = getCurrentUser;
-    window.getCurrentSession = getCurrentSession;
-    window.getAccountType = getAccountType;
-    window.protectDashboard = protectDashboard;
-    window.protectAdminDashboard = () => protectDashboard("admin");
-    window.protectCompanyDashboard = () => protectDashboard("company");
-    window.protectIndividualDashboard = () => protectDashboard("individual");
-
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initializeAuth, { once: true });
-    else initializeAuth();
+  }
+  async function provisionWalletProfile(session,wallet,accountType){
+    if(!session?.access_token||!wallet) return false;
+    const r=await fetch(WALLET_AUTH_URL,{method:"POST",headers:{Authorization:"Bearer "+session.access_token,"Content-Type":"application/json"},body:JSON.stringify({action:"provision",wallet,accountType:accountType==="company"?"company":"individual"})});
+    let body={}; try{body=await r.json();}catch(_){ }
+    if(!r.ok||body.success!==true){ console.error("Web3Jobs wallet provisioning failed",body); return false; }
+    return true;
+  }
+  async function signInWithWallet(accountType="individual"){
+    const c=getClient(); if(!c) return {success:false};
+    if(!window.ethereum){ showAuthMessage("لم يتم العثور على محفظة.","No Web3 wallet detected.","error"); return {success:false}; }
+    accountType=accountType==="company"?"company":"individual";
+    try{
+      await switchToBsc();
+      await window.ethereum.request({method:"eth_requestAccounts"});
+      const wallet=await getEthereumAddress(); if(!wallet) return {success:false};
+      if(typeof c.auth.signInWithWeb3!=="function") throw new Error("Web3 authentication is unavailable.");
+      const {data,error}=await c.auth.signInWithWeb3({chain:"ethereum",statement:"I accept the Web3Jobs Terms of Service."});
+      if(error) throw error;
+      const user=data?.user, session=data?.session; if(!user||!session) throw new Error("No authenticated session was created.");
+      const ok=await provisionWalletProfile(session,wallet,accountType);
+      if(!ok) return {success:false};
+      const realType=await getAccountType(user.id)||accountType;
+      localStorage.setItem("web3jobs_account_type",realType); localStorage.setItem("web3jobs_user_id",user.id);
+      location.replace(getDashboardUrl(realType));
+      return {success:true,user,session,accountType:realType,dashboardUrl:getDashboardUrl(realType)};
+    }catch(e){showAuthError(e);return {success:false,error:e};}
+  }
+  async function protectDashboard(required=null){
+    const s=await getCurrentSession(); if(!s?.user){location.replace(getLoginUrl());return false;}
+    const type=await getAccountType(s.user.id); if(required&&normalizeAccountType(required)!==type){location.replace(getDashboardUrl(type));return false;}
+    return {authenticated:true,user:s.user,session:s,accountType:type,emailConfirmed:Boolean(s.user.email_confirmed_at||s.user.confirmed_at)};
+  }
+  async function logoutUser(){const c=getClient();try{await c?.auth.signOut();}catch(_){} try{localStorage.removeItem("web3jobs_account_type");localStorage.removeItem("web3jobs_user_id");}catch(_){} location.replace(getLoginUrl());}
+  async function resetPassword(email){const c=getClient();if(!c)return false;try{const {error}=await c.auth.resetPasswordForEmail(String(email||"").trim().toLowerCase(),{redirectTo:getLoginUrl()});if(error)throw error;showAuthMessage("تم إرسال رابط إعادة تعيين كلمة المرور.","Password reset link sent.","success");return true;}catch(e){showAuthError(e);return false;}}
+  async function resendConfirmation(email){const c=getClient();if(!c)return false;try{const {error}=await c.auth.resend({type:"signup",email:String(email||"").trim().toLowerCase(),options:{emailRedirectTo:getLoginUrl()}});if(error)throw error;showAuthMessage("تم إرسال رسالة تأكيد جديدة.","A new confirmation email has been sent.","success");return true;}catch(e){showAuthError(e);return false;}}
+  function initializeWalletButtons(){
+    document.querySelectorAll("#wallet-register-button,.wallet-button").forEach(b=>{
+      if(b.dataset.web3jobsWalletBound==="1") return; b.dataset.web3jobsWalletBound="1";
+      b.addEventListener("click",async ev=>{ev.preventDefault();ev.stopImmediatePropagation();b.disabled=true;const old=b.textContent;b.textContent="جاري الاتصال بالمحفظة...";try{const selected=document.querySelector('input[name="account-type"]:checked')?.value||"individual";await signInWithWallet(selected);}finally{b.disabled=false;b.textContent=old;}},true);
+    });
+  }
+  const api={getClient,getCurrentUser,getCurrentSession,getAccountType,login:loginUser,loginUser,logout:logoutUser,logoutUser,resetPassword,resendConfirmation,signInWithWallet,protectDashboard,protectAdminDashboard:()=>protectDashboard("admin"),protectCompanyDashboard:()=>protectDashboard("company"),protectIndividualDashboard:()=>protectDashboard("individual"),getDashboardUrl,getLoginUrl,isEmailConfirmed:u=>Boolean(u?.email_confirmed_at||u?.confirmed_at),normalizeAccountType,showMessage:showAuthMessage,showError:showAuthError};
+  window.Web3JobsAuth=api; window.getCurrentUser=getCurrentUser; window.getCurrentSession=getCurrentSession; window.getAccountType=getAccountType; window.protectDashboard=protectDashboard; window.protectAdminDashboard=api.protectAdminDashboard; window.protectCompanyDashboard=api.protectCompanyDashboard; window.protectIndividualDashboard=api.protectIndividualDashboard;
+  function init(){if(getClient()) initializeWalletButtons();}
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",init,{once:true}); else init();
 })();
