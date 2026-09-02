@@ -4,7 +4,7 @@
 const SUPABASE_URL = "https://jqhemwskrnlycximjpag.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_JZuODPmD72gqSauHBTGNYg_cbN7gVsp";
 const SUPABASE_STORAGE_KEY = "web3jobs-auth";
-const SUPABASE_SDK_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4.112.4/dist/umd/supabase.min.js";
+const SUPABASE_SDK_URL = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4.112.4.112.4/dist/umd/supabase.min.js";
 
 let web3jobsSupabaseClient = null;
 let supabaseSdkPromise = null;
