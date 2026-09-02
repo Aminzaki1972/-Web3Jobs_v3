@@ -14,12 +14,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Remove flagged Telegram IoC and pin Supabase CDN
+      - name: Normalize third-party security references
         shell: bash
         run: |
           set -e
           changed=0
 
+          # Remove the flagged Telegram IoC and any matching inactive Telegram button.
           telegram_files=$(grep -RIl --exclude-dir=.git --exclude='security-cleanup.yml' 'Telegram\|https://t.me/web3jop' . || true)
           if [ -n "$telegram_files" ]; then
             while IFS= read -r f; do
@@ -35,12 +36,13 @@ jobs:
             done <<< "$telegram_files"
           fi
 
+          # Normalize every Supabase JS CDN reference to the exact pinned version.
           cdn_files=$(grep -RIl --exclude-dir=.git --exclude='security-cleanup.yml' 'cdn.jsdelivr.net/npm/@supabase/supabase-js@2' . || true)
           if [ -n "$cdn_files" ]; then
             while IFS= read -r f; do
               [ -z "$f" ] && continue
-              sed -i 's#cdn.jsdelivr.net/npm/@supabase/supabase-js@2#cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4#g' "$f"
-              changed=1
+              perl -0pi -e 's#cdn\.jsdelivr\.net/npm/\@supabase/supabase-js\@2(?:\.\d+){0,3}#cdn.jsdelivr.net/npm/\@supabase/supabase-js\@2.112.4#g' "$f"
+              if ! git diff --quiet -- "$f"; then changed=1; fi
             done <<< "$cdn_files"
           fi
 
@@ -48,7 +50,7 @@ jobs:
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
             git add -A
-            git commit -m 'security: remove Telegram button from homepage'
+            git commit -m 'security: normalize third-party references'
             git push
           else
             echo 'No cleanup changes required.'
