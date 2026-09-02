@@ -7,6 +7,7 @@
   const FUNCTION_VERIFY = "verify-payment";
   let verified = null;
   let cachedPlans = new Map();
+  let discoveredProviders = [];
 
   const getSupabase = async () => {
     if (typeof window.waitForSupabase === "function") {
@@ -24,9 +25,6 @@
       if (!data?.session?.user) {
         throw new Error("Please log in to Web3Jobs before verifying your wallet.");
       }
-      // Refresh the access token immediately before protected Edge Function calls.
-      // This prevents an expired/stale JWT from reaching wallet-auth and returning
-      // the generic "Edge Function returned a non-2xx status code" message.
       const refreshed = await sb.auth.refreshSession();
       if (refreshed.error) throw refreshed.error;
       if (!refreshed.data?.session?.user) {
@@ -63,17 +61,67 @@
     return new Error(error.message || fallback);
   };
 
-  const connect = async () => {
-    if (!window.ethereum) throw new Error("Please open MetaMask or a compatible Web3 wallet.");
-    const chain = await ethereum.request({ method: "eth_chainId" });
-    if (chain !== BSC) {
-      await ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BSC }] });
+  // EIP-6963 discovers multiple injected wallets without hard-coding MetaMask.
+  // This supports wallets such as MetaMask, Coinbase Wallet, Trust/OKX/Rabby and
+  // Safe-compatible injected providers when they expose an EIP-1193 provider.
+  const discoverWalletProviders = () => {
+    if (typeof window === "undefined") return [];
+    const found = new Map();
+    const add = detail => {
+      const provider = detail?.provider;
+      if (!provider || typeof provider.request !== "function") return;
+      const info = detail?.info || {};
+      const key = info.rdns || info.uuid || info.name || String(found.size);
+      found.set(key, { provider, info });
+    };
+    try {
+      window.dispatchEvent(new CustomEvent("eip6963:requestProvider"));
+    } catch (_) {}
+    const listener = e => add(e.detail);
+    window.addEventListener("eip6963:announceProvider", listener);
+    try {
+      window.dispatchEvent(new CustomEvent("eip6963:requestProvider"));
+    } catch (_) {}
+    window.removeEventListener("eip6963:announceProvider", listener);
+    if (window.ethereum?.providers && Array.isArray(window.ethereum.providers)) {
+      window.ethereum.providers.forEach(provider => add({ provider, info: { name: provider.isMetaMask ? "MetaMask" : "Web3 Wallet" } }));
     }
+    if (window.ethereum) add({ provider: window.ethereum, info: { name: window.ethereum.isMetaMask ? "MetaMask" : "Web3 Wallet" } });
+    discoveredProviders = Array.from(found.values());
+    return discoveredProviders;
+  };
+
+  const chooseProvider = async () => {
+    const providers = discoverWalletProviders();
+    if (!providers.length) {
+      throw new Error("No Web3 wallet was detected. Open this site inside your wallet app/browser, or use a wallet that supports EIP-1193/EIP-6963.");
+    }
+    if (providers.length === 1) return providers[0];
+    const names = providers.map((p, i) => `${i + 1}. ${p.info?.name || "Web3 Wallet"}`).join("\n");
+    const answer = window.prompt(`Choose your Web3 wallet:\n${names}\n\nEnter the wallet number:`);
+    const index = Number(answer) - 1;
+    if (!Number.isInteger(index) || !providers[index]) throw new Error("No wallet was selected.");
+    return providers[index];
+  };
+
+  const connect = async () => {
+    const selected = await chooseProvider();
+    const providerLike = selected.provider;
+    let chain = await providerLike.request({ method: "eth_chainId" });
+    if (chain !== BSC) {
+      try {
+        await providerLike.request({ method: "wallet_switchEthereumChain", params: [{ chainId: BSC }] });
+      } catch (e) {
+        throw new Error("Please switch your wallet to BNB Smart Chain (BSC) and try again.");
+      }
+      chain = await providerLike.request({ method: "eth_chainId" });
+    }
+    if (chain !== BSC) throw new Error("Wallet is not connected to BNB Smart Chain (BSC).");
     if (!window.ethers?.BrowserProvider) throw new Error("Web3 wallet library is not available.");
-    const provider = new ethers.BrowserProvider(ethereum);
+    const provider = new ethers.BrowserProvider(providerLike);
     const accounts = await provider.send("eth_requestAccounts", []);
     if (!accounts?.[0]) throw new Error("No wallet account was selected.");
-    return { provider, address: ethers.getAddress(accounts[0]) };
+    return { provider, address: ethers.getAddress(accounts[0]), walletName: selected.info?.name || "Web3 Wallet" };
   };
 
   const verifyWallet = async () => {
@@ -185,7 +233,7 @@
       error.style.display = "none";
       try {
         if (!verified) {
-          status.innerHTML = "Opening <b>free wallet signature</b> — <b>0 USDT / 0 Gas</b>...";
+          status.innerHTML = "Choose your Web3 wallet — <b>free signature</b>, no USDT is charged at this step.";
           verified = await verifyWallet();
           status.innerHTML = "Wallet verified ✓ — now creating a server-side payment intent.";
           const intentResponse = await createIntent(plan.plan_code, verified.address);
@@ -228,6 +276,6 @@
     }, true);
   };
 
-  window.Web3JobsCanonicalSubscription = { verifyWallet, createIntent, payAndVerify, loadPlan };
+  window.Web3JobsCanonicalSubscription = { verifyWallet, createIntent, payAndVerify, loadPlan, discoverWalletProviders };
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true }); else init();
 })();
