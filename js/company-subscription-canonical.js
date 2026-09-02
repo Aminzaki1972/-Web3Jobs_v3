@@ -19,12 +19,20 @@
 
   const ensureSession = async sb => {
     try {
-      const { data, error } = await sb.auth.getSession();
+      let { data, error } = await sb.auth.getSession();
       if (error) throw error;
       if (!data?.session?.user) {
         throw new Error("Please log in to Web3Jobs before verifying your wallet.");
       }
-      return data.session;
+      // Refresh the access token immediately before protected Edge Function calls.
+      // This prevents an expired/stale JWT from reaching wallet-auth and returning
+      // the generic "Edge Function returned a non-2xx status code" message.
+      const refreshed = await sb.auth.refreshSession();
+      if (refreshed.error) throw refreshed.error;
+      if (!refreshed.data?.session?.user) {
+        throw new Error("Your Web3Jobs login session could not be refreshed. Please log in again.");
+      }
+      return refreshed.data.session;
     } catch (e) {
       throw new Error(e?.message || "Your Web3Jobs login session is unavailable. Please log in again.");
     }
@@ -72,7 +80,6 @@
     const { provider, address } = await connect();
     const sb = await getSupabase();
     await ensureSession(sb);
-
     const { data: challenge, error: challengeError } = await sb.functions.invoke("wallet-auth", {
       body: { action: "challenge", wallet: address }
     });
@@ -80,21 +87,13 @@
     if (!challenge?.success || !challenge.message || !challenge.nonce) {
       throw new Error(challenge?.error || "Unable to start wallet verification.");
     }
-
     const signer = await provider.getSigner();
     const signature = await signer.signMessage(challenge.message);
     const { data: result, error: verifyError } = await sb.functions.invoke("wallet-auth", {
-      body: {
-        action: "verify",
-        wallet: address,
-        nonce: challenge.nonce,
-        message: challenge.message,
-        signature
-      }
+      body: { action: "verify", wallet: address, nonce: challenge.nonce, message: challenge.message, signature }
     });
     if (verifyError) throw await functionError(verifyError, "Wallet verification request failed.");
     if (!result?.success) throw new Error(result?.error || "Wallet verification failed.");
-
     verified = { address: result.wallet || address };
     return verified;
   };
@@ -103,13 +102,7 @@
     const key = String(code || "").trim().toLowerCase();
     if (cachedPlans.has(key)) return cachedPlans.get(key);
     const sb = await getSupabase();
-    const { data, error } = await sb
-      .from("payment_plans")
-      .select("id,plan_code,plan_name,description,price,currency,duration_days,is_active,plan_type")
-      .eq("plan_code", key)
-      .eq("plan_type", "company_subscription")
-      .eq("is_active", true)
-      .maybeSingle();
+    const { data, error } = await sb.from("payment_plans").select("id,plan_code,plan_name,description,price,currency,duration_days,is_active,plan_type").eq("plan_code", key).eq("plan_type", "company_subscription").eq("is_active", true).maybeSingle();
     if (error) throw error;
     if (!data) throw new Error("Subscription plan is not active.");
     if (String(data.currency).toUpperCase() !== "USDT") throw new Error("This subscription is not configured for USDT.");
@@ -121,9 +114,7 @@
   const createIntent = async (planCode, wallet) => {
     const sb = await getSupabase();
     await ensureSession(sb);
-    const { data, error } = await sb.functions.invoke(FUNCTION_CREATE, {
-      body: { planCode, wallet }
-    });
+    const { data, error } = await sb.functions.invoke(FUNCTION_CREATE, { body: { planCode, wallet } });
     if (error) throw await functionError(error, "Unable to create payment intent.");
     if (!data?.success || !data.paymentIntent) throw new Error(data?.error || "Unable to create payment intent.");
     return data;
@@ -136,29 +127,18 @@
       verified = null;
       throw new Error("The wallet changed after verification. Please verify again.");
     }
-    if (String(intent.chain_id) !== "56" || intent.token_address.toLowerCase() !== USDT.toLowerCase()) {
-      throw new Error("Payment intent network or token is invalid.");
-    }
-
+    if (String(intent.chain_id) !== "56" || intent.token_address.toLowerCase() !== USDT.toLowerCase()) throw new Error("Payment intent network or token is invalid.");
     const amount = ethers.parseUnits(String(intent.amount), 18);
     const abi = ["function balanceOf(address) view returns (uint256)", "function transfer(address,uint256) returns (bool)"];
     const token = new ethers.Contract(intent.token_address, abi, await provider.getSigner());
     const balance = await token.balanceOf(address);
     if (balance < amount) throw new Error(`Insufficient USDT balance. Required: ${intent.amount} USDT.`);
-
     const tx = await token.transfer(intent.merchant_wallet, amount);
     const receipt = await tx.wait();
     if (!receipt || receipt.status !== 1) throw new Error("USDT transaction failed or was not confirmed.");
-
     const sb = await getSupabase();
     await ensureSession(sb);
-    const { data: result, error } = await sb.functions.invoke(FUNCTION_VERIFY, {
-      body: {
-        paymentIntentId: intent.id,
-        txHash: receipt.hash,
-        wallet: address
-      }
-    });
+    const { data: result, error } = await sb.functions.invoke(FUNCTION_VERIFY, { body: { paymentIntentId: intent.id, txHash: receipt.hash, wallet: address } });
     if (error) throw await functionError(error, "On-chain payment verification request failed.");
     if (!result?.success) throw new Error(result?.error || "On-chain payment verification failed.");
     return result;
@@ -190,25 +170,16 @@
     css();
     document.getElementById("wj-canonical-sub")?.remove();
     verified = null;
-
     let plan;
-    try {
-      plan = await loadPlan(code);
-    } catch (e) {
-      alert(e?.message || String(e));
-      return;
-    }
-
+    try { plan = await loadPlan(code); } catch (e) { alert(e?.message || String(e)); return; }
     const m = document.createElement("div");
     m.id = "wj-canonical-sub";
     m.innerHTML = `<div class="box"><h2>${String(plan.plan_name)} — Monthly Subscription</h2><p>One secure flow: wallet verification → payment intent → USDT transfer → on-chain verification → activation.</p><div class="wjc-row"><span>Amount</span><strong class="wjc-green">${Number(plan.price)} USDT / month</strong></div><div class="wjc-row"><span>Network</span><strong>BNB Smart Chain (BSC)</strong></div><div class="wjc-row"><span>USDT Contract</span><span style="font-size:10px;word-break:break-all">${USDT}</span></div><div class="wjc-row"><span>Duration</span><strong>${Number(plan.duration_days || 30)} days</strong></div><div id="wjc-status" class="wjc-status">Step 1 — Verify wallet ownership. <b>0 USDT payment</b>.</div><div id="wjc-error" class="wjc-error"></div><div class="wjc-actions"><button class="wjc-cancel" type="button">Cancel</button><button id="wjc-action" class="wjc-action" type="button">Verify Wallet & Continue</button></div></div>`;
     document.body.appendChild(m);
-
     const status = m.querySelector("#wjc-status");
     const error = m.querySelector("#wjc-error");
     const btn = m.querySelector("#wjc-action");
     m.querySelector(".wjc-cancel").onclick = () => m.remove();
-
     btn.onclick = async () => {
       btn.disabled = true;
       error.style.display = "none";
@@ -227,7 +198,6 @@
           btn.disabled = false;
           return;
         }
-
         const intent = btn._intent;
         if (!intent) throw new Error("Payment intent is missing. Please restart the payment flow.");
         status.textContent = `Sending exactly ${Number(intent.amount)} USDT to the configured treasury...`;
@@ -246,11 +216,7 @@
   };
 
   const init = () => {
-    document.querySelectorAll(".plan-button,[data-pay-plan],.plan-pay-button").forEach(b => {
-      b.disabled = false;
-      b.style.pointerEvents = "auto";
-      b.style.cursor = "pointer";
-    });
+    document.querySelectorAll(".plan-button,[data-pay-plan],.plan-pay-button").forEach(b => { b.disabled = false; b.style.pointerEvents = "auto"; b.style.cursor = "pointer"; });
     document.addEventListener("click", e => {
       const b = e.target?.closest?.(".plan-button,[data-pay-plan],.plan-pay-button");
       if (!b) return;
@@ -263,6 +229,5 @@
   };
 
   window.Web3JobsCanonicalSubscription = { verifyWallet, createIntent, payAndVerify, loadPlan };
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
-  else init();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true }); else init();
 })();
