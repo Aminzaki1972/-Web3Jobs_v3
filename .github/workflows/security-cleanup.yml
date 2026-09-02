@@ -20,20 +20,22 @@ jobs:
           set -e
           changed=0
 
-          if grep -RIl --exclude-dir=.git 'https://t.me/web3jop' . | grep -q .; then
-            grep -RIl --exclude-dir=.git 'https://t.me/web3jop' . | while read -r f; do
+          telegram_files=$(grep -RIl --exclude-dir=.git --exclude='security-cleanup.yml' 'https://t.me/web3jop' . || true)
+          if [ -n "$telegram_files" ]; then
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
               sed -i '/https:\/\/t\.me\/web3jop/d' "$f"
-            done
-            changed=1
+              changed=1
+            done <<< "$telegram_files"
           fi
 
-          files=$(grep -RIl --exclude-dir=.git 'cdn.jsdelivr.net/npm/@supabase/supabase-js@2' . || true)
-          if [ -n "$files" ]; then
+          cdn_files=$(grep -RIl --exclude-dir=.git --exclude='security-cleanup.yml' 'cdn.jsdelivr.net/npm/@supabase/supabase-js@2' . || true)
+          if [ -n "$cdn_files" ]; then
             while IFS= read -r f; do
               [ -z "$f" ] && continue
               sed -i 's#cdn.jsdelivr.net/npm/@supabase/supabase-js@2#cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4#g' "$f"
               changed=1
-            done <<< "$files"
+            done <<< "$cdn_files"
           fi
 
           if [ "$changed" -eq 1 ] && ! git diff --quiet; then
