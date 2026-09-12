@@ -19,15 +19,9 @@
     try { window.dispatchEvent(new CustomEvent("eip6963:requestProvider")); } catch (_) {}
     try {
       if (window.ethereum?.providers && Array.isArray(window.ethereum.providers)) {
-        window.ethereum.providers.forEach((p, i) => add({
-          provider: p,
-          info: { name: p.isMetaMask ? "MetaMask" : `Web3 Wallet ${i + 1}` }
-        }));
+        window.ethereum.providers.forEach((p, i) => add({ provider: p, info: { name: p.isMetaMask ? "MetaMask" : `Web3 Wallet ${i + 1}` } }));
       }
-      if (window.ethereum) add({
-        provider: window.ethereum,
-        info: { name: window.ethereum.isMetaMask ? "MetaMask" : "Web3 Wallet" }
-      });
+      if (window.ethereum) add({ provider: window.ethereum, info: { name: window.ethereum.isMetaMask ? "MetaMask" : "Web3 Wallet" } });
     } catch (_) {}
   };
 
@@ -118,23 +112,35 @@
     return ["starter", "professional", "enterprise"].includes(code) ? code : null;
   };
 
+  const wrapSelectedProvider = provider => {
+    if (!provider || typeof provider.request !== "function") return null;
+    const wrapped = {
+      request: args => provider.request(args),
+      on: typeof provider.on === "function" ? provider.on.bind(provider) : undefined,
+      removeListener: typeof provider.removeListener === "function" ? provider.removeListener.bind(provider) : undefined,
+      isMetaMask: !!provider.isMetaMask
+    };
+    return wrapped;
+  };
+
   const continueWithProvider = (button, selected) => {
     if (!selected?.provider || typeof selected.provider.request !== "function") {
       throw new Error("The selected wallet is unavailable. Please try again.");
     }
 
-    // Lock the subscription flow to the wallet chosen in the professional picker.
-    // The canonical controller may perform EIP-6963 discovery again, so suppress
-    // additional provider announcements and expose only the selected provider.
     const suppressOtherAnnouncements = event => {
       try { event.stopImmediatePropagation(); } catch (_) {}
     };
     window.addEventListener("eip6963:announceProvider", suppressOtherAnnouncements, true);
 
     try {
-      window.ethereum = selected.provider;
+      // Expose only a minimal EIP-1193 wrapper. This prevents the canonical
+      // controller from seeing window.ethereum.providers and reopening its
+      // legacy prompt-based multi-wallet selector.
+      const lockedProvider = wrapSelectedProvider(selected.provider);
+      window.ethereum = lockedProvider;
       window.__WJ_SELECTED_WALLET_INDEX__ = providers.size ? Array.from(providers.values()).indexOf(selected) : -1;
-      window.__WJ_SELECTED_WALLET_PROVIDER__ = selected.provider;
+      window.__WJ_SELECTED_WALLET_PROVIDER__ = lockedProvider;
       window.__WJ_WALLET_FIX_BYPASS__ = true;
       button.click();
     } catch (e) {
@@ -142,9 +148,6 @@
       throw e;
     }
 
-    // Keep the selected provider active for the entire subscription flow so the
-    // later signature and payment steps never reopen the old prompt-based picker.
-    // A normal page reload clears this temporary page-level selection.
     window.setTimeout(() => { delete window.__WJ_WALLET_FIX_BYPASS__; }, 0);
   };
 
