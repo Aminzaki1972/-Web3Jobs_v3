@@ -119,31 +119,33 @@
   };
 
   const continueWithProvider = (button, selected) => {
-    const originalEthereum = window.ethereum;
-    let replaced = false;
-    try {
-      // The canonical controller already supports EIP-1193. Temporarily expose
-      // only the wallet chosen by the user so its internal provider selector
-      // cannot fall back to window.prompt or choose another wallet.
-      window.ethereum = selected.provider;
-      replaced = window.ethereum === selected.provider;
-    } catch (_) {}
-
-    if (!replaced) {
-      throw new Error("The selected wallet could not be activated in this browser. Please open Web3Jobs inside that wallet's DApp browser and try again.");
+    if (!selected?.provider || typeof selected.provider.request !== "function") {
+      throw new Error("The selected wallet is unavailable. Please try again.");
     }
 
-    window.__WJ_WALLET_FIX_BYPASS__ = true;
-    button.click();
+    // Lock the subscription flow to the wallet chosen in the professional picker.
+    // The canonical controller may perform EIP-6963 discovery again, so suppress
+    // additional provider announcements and expose only the selected provider.
+    const suppressOtherAnnouncements = event => {
+      try { event.stopImmediatePropagation(); } catch (_) {}
+    };
+    window.addEventListener("eip6963:announceProvider", suppressOtherAnnouncements, true);
 
-    // Restore the original provider after the canonical subscription modal has
-    // been opened. The canonical flow keeps using the selected provider object.
-    window.setTimeout(() => {
-      try { window.ethereum = originalEthereum; } catch (_) {}
-      delete window.__WJ_WALLET_FIX_BYPASS__;
-      delete window.__WJ_SELECTED_WALLET_INDEX__;
-      delete window.__WJ_SELECTED_WALLET_PROVIDER__;
-    }, 1500);
+    try {
+      window.ethereum = selected.provider;
+      window.__WJ_SELECTED_WALLET_INDEX__ = providers.size ? Array.from(providers.values()).indexOf(selected) : -1;
+      window.__WJ_SELECTED_WALLET_PROVIDER__ = selected.provider;
+      window.__WJ_WALLET_FIX_BYPASS__ = true;
+      button.click();
+    } catch (e) {
+      window.removeEventListener("eip6963:announceProvider", suppressOtherAnnouncements, true);
+      throw e;
+    }
+
+    // Keep the selected provider active for the entire subscription flow so the
+    // later signature and payment steps never reopen the old prompt-based picker.
+    // A normal page reload clears this temporary page-level selection.
+    window.setTimeout(() => { delete window.__WJ_WALLET_FIX_BYPASS__; }, 0);
   };
 
   document.addEventListener("click", async event => {
